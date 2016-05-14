@@ -1,0 +1,101 @@
+#===========@7R3 - 2016============#
+# Get a ROM's Repo Name in GitHub, and the ROM Vendor name in Source #
+
+function rom_name_in_github
+{
+if [[ "$ROMNO" == 1 ]]; then
+ROM_NAME=AICP;
+fi
+if [[ "$ROMNO" == 2 ]]; then
+ROM_NAME=AOKP;
+fi
+if [[ "$ROMNO" == 3 ]]; then
+ROM_NAME=AOSP-CAF;
+fi
+if [[ "$ROMNO" == 4 ]]; then
+ROM_NAME=AOSP-RRO;
+fi
+if [[ "$ROMNO" == 5 ]]; then
+ROM_NAME=CyanogenMod;
+fi
+if [[ "$ROMNO" == 6 ]]; then
+ROM_NAME=DirtyUnicorns;
+fi
+if [[ "$ROMNO" == 7 ]]; then
+ROM_NAME=OmniROM;
+fi
+if [[ "$ROMNO" == 8 ]]; then
+ROM_NAME=TeamOrion;
+fi
+if [[ "$ROMNO" == 9 ]]; then
+ROM_NAME=PAC-ROM;
+fi
+if [[ "$ROMNO" == 10 ]]; then
+ROM_NAME=ResurrectionRemix;
+fi
+if [[ "$ROMNO" == 11 ]]; then
+ROM_NAME=Tesla-M;
+fi
+if [[ "$ROMNO" == 12 ]]; then
+ROM_NAME=TipsyOs;
+fi
+if [[ "$ROMNO" == 13 ]]; then
+ROM_NAME=ValidusOs-M;
+fi
+if [[ "$ROMNO" == 14 ]]; then
+ROM_NAME=TeamHorizon;
+fi
+if [[ "$ROMNO" == 15 ]]; then
+ROM_NAME=XOSP-Project;
+fi
+}
+
+function rom_name_in_source
+{
+if [[ "$ROMNO" == 2 ]]; then
+ROMNIS=aokp;
+fi
+if [[ "$ROMNO" == 1 ]]; then
+ROMNIS=aicp;
+fi
+if [[ "$ROMNO" == 5 ]]; then
+ROMNIS=cm;
+fi
+if [[ "$ROMNO" == 11 ]]; then
+ROMNIS=tesla;
+fi
+if [[ "$ROMNO" == 12 ]]; then
+ROMNIS=tipsy;
+fi
+if [[ "$ROMNO" == 3 || "$ROMNO" == 4 ]]; then
+ROMNIS=full;
+fi
+if [[ "$ROMNO" == 13 ]]; then
+ROMNIS=validus;
+fi
+if [[ "$ROMNO" == 8 ]]; then
+ROMNIS=orion;
+fi
+if [[ "$ROMNO" == 14 ]]; then
+ROMNIS=xenonhd;
+fi
+if [[ "$ROMNO" == 1 ]]; then
+ROMNIS=aicp;
+fi
+if [[ "$ROMNO" == 7 ]]; then
+ROMNIS=omni;
+fi
+if [[ "$ROMNO" == 6 ]]; then
+ROMNIS=du;
+fi
+if [[ "$ROMNO" == 15 ]]; then
+ROMNIS=xosp;
+fi
+if [[ "$ROMNO" == 10 ]]; then
+ROMNIS=rr;
+fi
+if [[ "$ROMNO" == 9 ]]; then
+ROMNIS=pac;
+fi
+
+}
