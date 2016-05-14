@@ -86,12 +86,15 @@ if [[ "$REFY" == YES ]]; then
 else
 	REF= ;
 fi
+
 #Naming && Syncing
 echo "Name your Build Directory";
 read DIR;
 mkdir $DIR;
 cd $DIR;
+
 echo "========================================================="
+
 echo "Let's Initialize teh ROM Repo";
 repo init "$REF" -u https://github.com/"$ROM_NAME"/"$MAN" ${BRNC} ;
 echo "";
@@ -102,28 +105,35 @@ read ENTER;
 echo "Let's Sync!";
 repo sync -j${JOBS} ${SILENT} ${FRC} ;
 echo "DONE!";
+
 echo "========================================================="
+
 echo "What's your Device's Good CodeName?";
 read DEVICE;
 echo "The Build type? (userdebug/user/eng)";
 echo BTYP;
 echo "Your Device's Company/Vendor ?";
 read COMP;
+
 rom_name_in_source;
+
 echo "Now, there are Three Strategies of Adding your device to the ROM vendor so that The ROM can get built for your device. Choose the file which you find in vendor/${ROMNIS}";
 echo "vendorsetup.sh (Enter 1)";
 echo "${ROMNIS}.devices (Enter 2)";
 echo "None of these / You see a folder named \'products\' inside teh folder (Enter 3)";
 read STRT;
+
 if [[ $STRT == 1 ]]; then
 	echo "Add this line at teh end of vendorsetup.sh";
 	echo "add_lunch_combo ${ROMNIS}_${DEVICE}_${BTYP}";
 fi
+
 if [[ $STRT == 2 ]]; then
 	echo "Open ${ROMNIS}.devices file";
 	echo "Insert this at the End of the File";
 	echo "${DEVICE}";
 fi
+
 if [[ $STRT == 3 ]]; then
 	echo "This Strategy, AFAIK was only on AOKP (kitkat) and PAC-ROM (pac-5.1)."
 	echo "Let's go to vendor/$ROMNIS/products";
@@ -143,6 +153,20 @@ if [[ "$ROMNIS" == pac ]]; then
 if [[ "$ROMNIS" == aokp ]]; then
 	echo "";
 	echo "WIP WIP!";
+fi
+
+if [[ "$STRT" == 4 ]]
+echo "Type in your device directory - from / "
+read DIR;
+echo "Let's go there!";
+cd $DIR;
+echo "Need to create a vendorsetup.sh - I'll create that for you if it isn't"
+if [[ $(-f vendorsetup.sh) != 1 ]]; then
+touch vendorsetup.sh;
+fi
+echo "Open that file and Enter the following contents";
+echo "";
+echo "add_lunch_combo ${ROMNIS}_${DEVICE}-${BTYP}"
 fi
 echo "Now ${ROMNIS}fy! your Device Tree! Press Enter when DONE ";
 read NOOB;
