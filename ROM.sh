@@ -7,7 +7,7 @@ sleep 3;
 source $(pwd)/ROM.rc;
 #GET THOSE ROOMS
 cat << _ROM_
-Which ROM are you trying to build? Choose among these
+Which ROM are you trying to build? Choose among these (Enter teh corresponding number for selection)
 
 1. AICP
 2. AOKP
@@ -32,7 +32,9 @@ read ROMNO;
 sleep 1;
 echo "";
 echo "";
+#
 rom_name_in_github;
+#
 echo "You have chosen $ROM_NAME";
 sleep 1;
 echo "Since Branches may live or die at any moment, specify the Branch you're going to sync"
@@ -108,19 +110,20 @@ echo "DONE!";
 
 echo "========================================================="
 
-echo "What's your Device's Good CodeName?";
+echo "What's your Device's Good CodeName (Look at your Device tree and answer)?";
 read DEVICE;
 echo "The Build type? (userdebug/user/eng)";
 echo BTYP;
-echo "Your Device's Company/Vendor ?";
+echo "Your Device's Company/Vendor (All Lowercases)?";
 read COMP;
 
 rom_name_in_source;
 
-echo "Now, there are Three Strategies of Adding your device to the ROM vendor so that The ROM can get built for your device. Choose the file which you find in vendor/${ROMNIS}";
+echo "Now, there are Four Strategies of Adding your device to the ROM vendor so that The ROM can get built for your device. Choose the file which you find in vendor/${ROMNIS}";
 echo "vendorsetup.sh (Enter 1)";
 echo "${ROMNIS}.devices (Enter 2)";
-echo "None of these / You see a folder named \'products\' inside teh folder (Enter 3)";
+echo "Synced AOSP-RRO / AOSP-CAF ? (Enter 3)"
+echo "You see a folder named \'products\' inside teh folder (Enter 4)";
 read STRT;
 
 if [[ $STRT == 1 ]]; then
@@ -134,7 +137,19 @@ if [[ $STRT == 2 ]]; then
 	echo "${DEVICE}";
 fi
 
-if [[ $STRT == 3 ]]; then
+if [[ "$STRT" == 3 ]]
+echo "Let's go to teh Device Directory!";
+cd $(pwd)/device/${COMP}/${DEVICE};
+echo "Need to create a vendorsetup.sh - I'll create that for you if it isn't"
+if [[ $(-f vendorsetup.sh) != 1 ]]; then
+touch vendorsetup.sh;
+fi
+echo "Open that file and Enter the following contents";
+echo "";
+echo "add_lunch_combo ${ROMNIS}_${DEVICE}-${BTYP}"
+fi
+
+if [[ $STRT == 4 ]]; then
 	echo "This Strategy, AFAIK was only on AOKP (kitkat) and PAC-ROM (pac-5.1)."
 	echo "Let's go to vendor/$ROMNIS/products";
 	cd vendor/${ROMNIS}/products
@@ -155,25 +170,12 @@ if [[ "$ROMNIS" == aokp ]]; then
 	echo "WIP WIP!";
 fi
 
-if [[ "$STRT" == 4 ]]
-echo "Type in your device directory - from / "
-read DIR;
-echo "Let's go there!";
-cd $DIR;
-echo "Need to create a vendorsetup.sh - I'll create that for you if it isn't"
-if [[ $(-f vendorsetup.sh) != 1 ]]; then
-touch vendorsetup.sh;
-fi
-echo "Open that file and Enter the following contents";
-echo "";
-echo "add_lunch_combo ${ROMNIS}_${DEVICE}-${BTYP}"
-fi
 echo "Now ${ROMNIS}fy! your Device Tree! Press Enter when DONE ";
 read NOOB;
 echo "========================================================="
 echo "Now start the build process! The Script's work is DONE. Enjoy!";
 echo "Thanks for using this script!";
-sleep 1;
-echo "Are you feeling even lazy to start the Build? OH, COME ON! -(these commands)- . build/envsetup.sh then lunch ${ROMNIS}_${DEVICE}-${BTYP}";
+sleep 3;
+echo "Are you feeling even lazy to start the Build? OH, COME ON! -(these commands)- \n. build/envsetup.sh \nlunch ${ROMNIS}_${DEVICE}-${BTYP}";
 echo "";
 echo "I_IZ_NOOB :P";
