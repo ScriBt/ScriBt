@@ -165,6 +165,7 @@ fi
 	echo "\nAdd these lines";
 if [[ "$ROMNIS" == pac ]]; then
 	echo "FAIL. WIP";
+fi
 if [[ "$ROMNIS" == aokp ]]; then
 	echo "";
 	echo "WIP WIP!";
