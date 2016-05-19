@@ -32,6 +32,31 @@ echo -e "${CYAN} ~#~#~#~#~#~#~#~#~#~#~#~# By Arvind7352 @XDA #~#~#~#~#~#~#~#~#~#
 sleep 3;
 #GET THOSE ROOMS
 echo -e '\n\n';
+
+function main_menu
+{
+	echo -e "=======================================================";
+	echo -e "===================[*] MAIN MENU [*]===================";
+	echo -e "=======================================================";
+	echo -e '\n';
+	echo -e "Select the Action you want to perform:"
+	echo -e '\n';
+	echo -e "1 .......................Sync........................ 1";
+	echo -e "2 .....................Pre-Build..................... 2";
+	echo -e "3 .......................Build....................... 3";
+	read ACTION;
+}
+
+function teh_action
+{
+	if [[ "$ACTION" == 1 ]]; then
+		sync;
+	elif [[ "$ACTION" == 2 ]]; then
+		pre_build;
+	elif [[ "$ACTION" == 3 ]]; then
+		build;
+}
+
 function sync
 {
 	echo -e "${LPURP}=======================================================${NONE}";
@@ -143,6 +168,16 @@ function sync
 	echo -e '\n';
 	echo "DONE!";
 	echo "=========================================================";
+#Next ACTION to be Performed
+echo -e '\n\n';
+echo -e "=========================================================";
+echo -e '\n';
+echo -e " 2. Pre Build";
+echo -e " 3. Build    ";
+echo -e '\n';
+echo -e "=========================================================";
+read ACTION;
+teh_action;
 
 } #sync
 
@@ -228,6 +263,17 @@ function pre_build
 		echo -e '\n';
 		echo "I_IZ_NOOB :P";
 
+		#Next ACTION to be Performed
+		echo -e '\n\n';
+		echo -e "=========================================================";
+		echo -e '\n';
+		echo -e " 1. Sync     ";
+		echo -e " 3. Build    ";
+		echo -e '\n';
+		echo -e "=========================================================";
+		read ACTION;
+		teh_action;
+
 } #pre_build
 
 function build
@@ -288,5 +334,16 @@ function build
 			mmm -B $MODDIR;
 		fi
 	} #make_it
+
+	#Next ACTION to be Performed
+	echo -e '\n\n';
+	echo -e "=========================================================";
+	echo -e '\n';
+	echo -e " 1. Sync";
+	echo -e " 2. Pre-Build    ";
+	echo -e '\n';
+	echo -e "=========================================================";
+	read ACTION;
+	teh_action;
 
 } #build
