@@ -6,48 +6,67 @@ function rom_name_in_github
 
 if [[ "$ROMNO" == 1 ]]; then
 ROM_NAME=AICP;
+ROM_FN="AICP";
 fi
 if [[ "$ROMNO" == 2 ]]; then
 ROM_NAME=AOKP;
+ROM_FN="AOKP";
 fi
 if [[ "$ROMNO" == 3 ]]; then
 ROM_NAME=AOSP-CAF;
+ROM_FN="AOSP-CAF";
 fi
 if [[ "$ROMNO" == 4 ]]; then
 ROM_NAME=AOSP-RRO;
+ROM_FN="AOSP-RRO";
 fi
 if [[ "$ROMNO" == 5 ]]; then
 ROM_NAME=CyanogenMod;
+ROM_FN="CyanogenMod";
 fi
 if [[ "$ROMNO" == 6 ]]; then
 ROM_NAME=DirtyUnicorns;
+ROM_FN="Dirty Unicorns";
 fi
 if [[ "$ROMNO" == 7 ]]; then
 ROM_NAME=OmniROM;
+ROM_FN="OmniROM";
 fi
 if [[ "$ROMNO" == 8 ]]; then
 ROM_NAME=TeamOrion;
+ROM_FN="Orion OS";
 fi
 if [[ "$ROMNO" == 9 ]]; then
 ROM_NAME=PAC-ROM;
+ROM_FN="PAC ROM";
 fi
 if [[ "$ROMNO" == 10 ]]; then
 ROM_NAME=ResurrectionRemix;
+ROM_FN="Resurrection Remix";
 fi
 if [[ "$ROMNO" == 11 ]]; then
 ROM_NAME=Tesla-M;
+ROM_FN="GZR Tesla";
 fi
 if [[ "$ROMNO" == 12 ]]; then
 ROM_NAME=TipsyOs;
+ROM_FN="TipsyOs";
 fi
 if [[ "$ROMNO" == 13 ]]; then
 ROM_NAME=ValidusOs-M;
+ROM_FN="GZR Validus";
 fi
 if [[ "$ROMNO" == 14 ]]; then
 ROM_NAME=TeamHorizon;
+ROM_FN="XenonHD by Team Horizon";
 fi
 if [[ "$ROMNO" == 15 ]]; then
 ROM_NAME=XOSP-Project;
+ROM_FN="Xperia Open Source Project aka XOSP";
+fi
+if [[ "$ROMNO" == 16 ]]; then
+ROM_NAME=SlimRoms;
+ROM_FN="SlimRoms";
 fi
 
 }
@@ -106,21 +125,46 @@ fi
 function color_my_life
 {
 
-  BLAK=\033[0;30m;      #Black
-  DGRAY=\033[1;30m;     #DarkGray
-  RED=\033[0;31m;       #Red
-  LRED=\033[1;31m;      #LightRed
-  GRN=\033[0;32m;       #Green
-  LGRN=\033[1;32m;      #LightGreen
-  ORNG=\033[0;33m;      #Orange
-  YELO=\033[1;33m;      #Yellow
-  BLU=\033[0;34m;       #Blue
-  LBLU=\033[1;34m;      #LightBlue
-  PURP=\033[0;35m;      #Purple
-  LPURP=\033[1;35m;     #LightPurple
-  CYAN=\033[0;36m;      #Cyan
-  LCYAN=\033[1;36m;     #LightCyan
-  LGRAY=\033[0;37m;     #LightGray
-  WITE=\033[1;37m;      #White
+  BLAK="\033[0;30m";      #Black
+  DGRAY="\033[1;30m";     #DarkGray
+  RED="\033[0;31m";       #Red
+  LRED="\033[1;31m";      #LightRed
+  GRN="\033[0;32m";       #Green
+  LGRN="\033[1;32m";      #LightGreen
+  ORNG="\033[0;33m";      #Orange
+  YELO="\033[1;33m";      #Yellow
+  BLU="\033[0;34m";       #Blue
+  LBLU="\033[1;34m";      #LightBlue
+  PURP="\033[0;35m";      #Purple
+  LPURP="\033[1;35m";     #LightPurple
+  CYAN="\033[0;36m";      #Cyan
+  LCYAN="\033[1;36m";     #LightCyan
+  LGRAY="\033[0;37m";     #LightGray
+  WITE="\033[1;37m";      #White
 
+  NONE="\033[0m";         #ColorStop
 }
+
+function i_like_colorless
+{
+ 
+  BLAK="";      #Gray
+  DGRAY="";     #Gray
+  RED="";       #Gray
+  LRED="";      #Gray
+  GRN="";       #Gray
+  LGRN="";      #Gray
+  ORNG="";      #Gray
+  YELO="";      #Gray
+  BLU="";       #Gray
+  LBLU="";      #Gray
+  PURP="";      #Gray
+  LPURP="";     #Gray
+  CYAN="";      #Gray
+  LCYAN="";     #Gray
+  LGRAY="";     #Gray
+  WITE="";      #Gray
+
+  NONE="";         #ColorStop
+}
+
