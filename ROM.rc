@@ -80,7 +80,7 @@ fi
 if [[ "$ROMNO" == 1 ]]; then
 ROMNIS=aicp;
 fi
-if [[ "$ROMNO" == 5 ]]; then
+if [[ "$ROMNO" == 5 || "$ROMNO" == 10]]; then
 ROMNIS=cm;
 fi
 if [[ "$ROMNO" == 11 ]]; then
@@ -112,9 +112,6 @@ ROMNIS=du;
 fi
 if [[ "$ROMNO" == 15 ]]; then
 ROMNIS=xosp;
-fi
-if [[ "$ROMNO" == 10 ]]; then
-ROMNIS=rr;
 fi
 if [[ "$ROMNO" == 9 ]]; then
 ROMNIS=pac;
