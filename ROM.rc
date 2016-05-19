@@ -80,7 +80,7 @@ fi
 if [[ "$ROMNO" == 1 ]]; then
 ROMNIS=aicp;
 fi
-if [[ "$ROMNO" == 5 || "$ROMNO" == 10]]; then
+if [[ "$ROMNO" == 5 || "$ROMNO" == 10 ]]; then
 ROMNIS=cm;
 fi
 if [[ "$ROMNO" == 11 ]]; then
@@ -164,4 +164,3 @@ function i_like_colorless
 
   NONE="";         #ColorStop
 }
-

@@ -1,3 +1,4 @@
+#!/bin/sh
 #=========================Projekt ScriBt===========================#
 # This Script and ROM.rc has to be placed under a Synced Source
 # Directory (if and only if you're using this script to build)
@@ -7,7 +8,6 @@
 # https://github.com/a7r3/scripts - The Original Repo of this ScriBt
 #
 #==================================================================#
-#!/bin/sh
 #Initialize
 BLANK=$(echo -e '\n');
 source $(pwd)/ROM.rc;
@@ -41,7 +41,6 @@ echo -e "${CYAN} ~#~#~#~#~#~#~#~#~#~#~#~# By Arvind7352 @XDA #~#~#~#~#~#~#~#~#~#
 sleep 3;
 #GET THOSE ROOMS
 echo -e '\n\n';
-main_menu;
 
 function main_menu
 {
@@ -76,30 +75,29 @@ function teh_action
 
 function sync
 {
-
 	echo -e "${LPURP}=======================================================${NONE}";
 	echo -e '\n';
 	echo -e "Which ROM are you trying to build?
-	Choose among these (Number Selection)
-	${BLANK}
-	1.${BLU} AICP ${NONE}
-	2.${RED} AOKP ${NONE}
-	3.${LGRN} AOSP-RRO ${NONE}
-	4.${DGRAY} AOSP-CAF ${NONE}
-	5.${CYAN} CyanogenMod ${NONE}
-	6.${ORNG} DirtyUnicorns ${NONE}
-	7.${GRN} OmniROM ${NONE}
-	8.${PURP} OrionOS ${NONE}
-	9.${BLU} PAC-ROM ${NONE}
-	10.${LRED} Resurrection Remix ${NONE}
-	11.${LBLU} GZR Tesla ${NONE}
-	12.${YELO} TipsyOS ${NONE}
-	13.${LPURP} GZR Validus ${NONE}
-	14.${LCYAN} XenonHD by Team Horizon ${NONE}
-	15.${BLU} Xperia Open Source Project aka XOSP ${NONE}
-	16.${LBLU} SlimRoms ${NONE}
-	${BLANK}
-	${LPURP}=======================================================${NONE}";
+Choose among these (Number Selection)
+${BLANK}
+1.${BLU} AICP ${NONE}
+2.${RED} AOKP ${NONE}
+3.${LGRN} AOSP-RRO ${NONE}
+4.${DGRAY} AOSP-CAF ${NONE}
+5.${CYAN} CyanogenMod ${NONE}
+6.${ORNG} DirtyUnicorns ${NONE}
+7.${GRN} OmniROM ${NONE}
+8.${PURP} OrionOS ${NONE}
+9.${BLU} PAC-ROM ${NONE}
+10.${LRED} Resurrection Remix ${NONE}
+11.${LBLU} GZR Tesla ${NONE}
+12.${YELO} TipsyOS ${NONE}
+13.${LPURP} GZR Validus ${NONE}
+14.${LCYAN} XenonHD by Team Horizon ${NONE}
+15.${BLU} Xperia Open Source Project aka XOSP ${NONE}
+16.${LBLU} SlimRoms ${NONE}
+${BLANK}
+${LPURP}=======================================================${NONE}";
 	echo -e '\n\n';
 	read ROMNO;
 	sleep 1;
@@ -239,7 +237,7 @@ function pre_build
 		echo "${DEVICE}";
 	fi
 
-	if [[ "$STRT" == 3 ]]
+	if [[ "$STRT" == 3 ]]; then
 		echo "Let's go to teh Device Directory!";
 		cd $(pwd)/device/${COMP}/${DEVICE};
 		echo "Need to create a vendorsetup.sh - I'll create that for you if it isn't";
@@ -252,19 +250,19 @@ function pre_build
 		echo "Done. Let's go back."
 		croot;
 	fi
-
 	if [[ $STRT == 4 ]]; then
 		echo "This Strategy, AFAIK was only on AOKP (kitkat) and PAC-ROM (pac-5.1).";
 		echo "Let's go to vendor/$ROMNIS/products";
 		cd vendor/${ROMNIS}/products;
 		echo -e '\n';
 		echo "Done.";
-			if [[ "$ROMNIS" == pac]]; then
+			if [[ "$ROMNIS" == pac ]]; then
 				echo "Creating file ${ROMNIS}_${DEVICE}.mk";
 				touch ${ROMNIS}_${DEVICE}.mk
 			else
-		echo "Creating file ${DEVICE}.mk";
-		touch ${DEVICE}.mk
+				echo "Creating file ${DEVICE}.mk";
+				touch ${DEVICE}.mk
+			fi
 	fi
 		echo "\nDone. Open that file now."
 		echo "\nAdd these lines";
@@ -301,9 +299,9 @@ function pre_build
 
 function build
 {
-	echo "Setting Up Build Environment"
+	echo -e "Initilizing Build Environment";
 	. build/envsetup.sh
-	echo "DONE."
+	echo -e "DONE."
 	echo -e "Select the Build Option:\n";
 	echo -e "1. Start Building ROM (ZIP output)"
 	echo -e "2. Clean only Staging Directories and Emulator Images (*.img)"
@@ -322,7 +320,7 @@ function build
 		if [[ "$ROMNIS" == tipsy || "$ROMNIS" == validus || "$ROMNIS" == tesla ]]; then
 			$MKWAY $ROMNIS $BCORES
 		else
-			if [[ $(grep -q "^bacon:") "${ANDROID_BUILD_TOP}/build/core/Makefile" ]]; then
+			if [[ $(grep -q "^bacon:" "${ANDROID_BUILD_TOP}/build/core/Makefile") ]]; then
 				$MKWAY bacon $BCORES
 			else
 				$MKWAY otapackage $BCORES
@@ -353,6 +351,7 @@ function build
 			echo -e "Do either of these two actions: \n1. Google it (Easier)\n2. Run this command in terminal : sgrep \"LOCAL_MODULE := Insert_MODULE_NAME_Here \".\n\n Press ENTER after it's done.";
 			read OK;
 			make_it;
+		fi
 	} #make_module
 
 	function make_it #Part of make_module
@@ -388,3 +387,6 @@ function exitScriBt
 	echo -e "Thanks for using this ScriBt. Have a Nice Day";
 	exit;
 } #exitScriBt
+
+#START IT --- VROOM!
+main_menu;
