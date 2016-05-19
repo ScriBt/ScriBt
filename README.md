@@ -1,5 +1,6 @@
 # Projekt ScriBt
-ROM building Scripts for Starters
+
+ROM Sync && Build Script for Learning Developers
  
 This is still a WiP script. Extensive Testing needed.
 
