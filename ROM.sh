@@ -22,22 +22,38 @@ else
 fi
 clear;
 echo -e '\n\n';
+sleep 0.1;
 echo -e "${ORNG}             88P'888'Y88         888                          ${NONE}";
+sleep 0.1;
 echo -e "${ORNG}             P'  888  'Y  ,e e,  888 ee                       ${NONE}";
+sleep 0.1;
 echo -e "${ORNG}                 888     d88 88b 888 88b                      ${NONE}";
+sleep 0.1;
 echo -e "${ORNG}                 888     888   , 888 888                      ${NONE}";
+sleep 0.1;
 echo -e "${ORNG}                 888      \"YeeP\" 888 888                      ${NONE}";
+sleep 0.1;
 echo -e " ";
+sleep 0.1;
 echo -e "${BLU} ad88888ba                           88  88888888ba           ${NONE}";
+sleep 0.1;
 echo -e "${BLU}d8\"     \"8b                          \"\"  88      \"8b    ,d    ${NONE}";
+sleep 0.1;
 echo -e "${BLU}Y8,                                      88      ,8P    88    ${NONE}";
+sleep 0.1;
 echo -e "${BLU}\`Y8aaaaa,     ,adPPYba,  8b,dPPYba,  88  88aaaaaa8P'  MM88MMM ${NONE}";
+sleep 0.1;
 echo -e "${BLU}  \`\"\"\"\"\"8b,  a8\"     \"\"  88P'   \"Y8  88  88\"\"\"\"\"\"8b,    88    ${NONE}";
+sleep 0.1;
 echo -e "${BLU}\`8b      8b  8b          88          88  88       8b    88    ${NONE}";
+sleep 0.1;
 echo -e "${BLU}Y8a     a8P  \"8a,   ,aa  88          88  88      a8P    88,   ${NONE}";
+sleep 0.1;
 echo -e "${BLU} \"Y88888P\"    \`\"Ybbd8\"'  88          88  88888888P\"     \"Y888 ${NONE}";
+sleep 0.1;
 echo -e '\n';
-echo -e "${CYAN} ~#~#~#~#~#~#~#~#~#~#~#~# By Arvind7352 @XDA #~#~#~#~#~#~#~#~#~#~#~#~ ${NONE}";
+sleep 0.1;
+echo -e "${CYAN} ~#~#~#~#~#~#~#~#~#~#~ By Arvind7352 @XDA #~#~#~#~#~#~#~#~#~#~ ${NONE}";
 sleep 3;
 #GET THOSE ROOMS
 echo -e '\n\n';
@@ -56,6 +72,7 @@ function main_menu
 	echo -e '\n';
 	echo -e "4 .......................EXIT........................ 4";
 	echo -e "=======================================================";
+	echo -e '\n';
 	read ACTION;
 	teh_action;
 } #main_menu
@@ -115,13 +132,17 @@ ${LPURP}=======================================================${NONE}";
 	echo "Number of Threads for Sync?";
 	echo -e '\n';
 	read JOBS;
+	echo -e '\n';
 	echo "Force Sync needed? [y/n]";
 	echo -e '\n';
 	read FRC;
+	echo -e '\n';
 	echo "Need some Silence in teh Terminal? [y/n]";
 	echo -e '\n';
 	read SILENT;
+	echo -e '\n';
 	echo "Any Source you have already synced? If yes, then say YES and Press ENTER";
+	echo -e '\n';
 	read REFY;
 	echo -e '\n';
 	if [[ "$REFY" == YES ]]; then
@@ -204,17 +225,23 @@ teh_action;
 function pre_build
 {
 
-	echo "Setting Up Build Environment"
+	echo -e "${CYAN}Initializing Build Environment${NONE}"
 	. build/envsetup.sh
 	echo "DONE."
 	echo -e '\n\n';
 	echo -e "=======================DEVICE INFO======================="
 	echo "What's your Device's Good CodeName (Look at your Device tree and answer)?";
+	echo -e '\n';
 	read DEVICE;
+	echo -e '\n';
 	echo "The Build type? (userdebug/user/eng)";
-	echo BTYP;
+  echo -e '\n';
+	read BTYP;
+	echo -e '\n';
 	echo "Your Device's Company/Vendor (All Lowercases)?";
+	echo -e '\n';
 	read COMP;
+	echo -e '\n';
 	echo "=========================================================";
 	rom_name_in_source;
 	echo -e '\n\n'
@@ -223,7 +250,7 @@ function pre_build
 	echo "vendorsetup.sh (Enter 1)";
 	echo "${ROMNIS}.devices (If saw that, ignore presence of vendorsetup.sh)(Enter 2)";
 	echo "Synced AOSP-RRO / AOSP-CAF ? (Enter 3)";
-	echo "You see a folder named \'products\' inside teh folder (Enter 4)";
+	echo "You see a folder named 'products' inside teh folder (Enter 4)";
 	read STRT;
 	echo -e '\n';
 	if [[ $STRT == 1 ]]; then
@@ -299,7 +326,34 @@ function pre_build
 
 function build
 {
-	echo -e "Initilizing Build Environment";
+
+	function make_module
+	{
+		echo -e "Do you know the build location of the Module?";
+		read KNWLOC;
+		if [[ "$KNWLOC" == y ]]; then
+			make_it;
+		else
+			echo -e "Do either of these two actions: \n1. Google it (Easier)\n2. Run this command in terminal : sgrep \"LOCAL_MODULE := Insert_MODULE_NAME_Here \".\n\n Press ENTER after it's done.";
+			read OK;
+			make_it;
+		fi
+	} #make_module
+
+	function make_it #Part of make_module
+	{
+		echo -e "Enter the Directory where the Module is made from";
+		read MODDIR;
+		echo -e "Do you want to push the Module to the Device ? (Running the Same ROM) [y/n]";
+		read PMOD;
+		if [[ "$PMOD" == y ]]; then
+			mmmp -B $MODDIR;
+		else
+			mmm -B $MODDIR;
+		fi
+	} #make_it
+
+	echo -e "${CYAN}Initializing Build Environment${NONE}";
 	. build/envsetup.sh
 	echo -e "DONE."
 	echo -e "Select the Build Option:\n";
@@ -341,32 +395,6 @@ function build
 		make_module;
 	fi
 
-	function make_module
-	{
-	  echo -e "Do you know the build location of the Module?";
-		read KNWLOC;
-		if [[ "$KNWLOC" == y ]]; then
-			make_it;
-	  else
-			echo -e "Do either of these two actions: \n1. Google it (Easier)\n2. Run this command in terminal : sgrep \"LOCAL_MODULE := Insert_MODULE_NAME_Here \".\n\n Press ENTER after it's done.";
-			read OK;
-			make_it;
-		fi
-	} #make_module
-
-	function make_it #Part of make_module
-	{
-		echo -e "Enter the Directory where the Module is made from";
-		read MODDIR;
-		echo -e "Do you want to push the Module to the Device ? (Running the Same ROM) [y/n]";
-		read PMOD;
-		if [[ "$PMOD" == y ]]; then
-			mmmp -B $MODDIR;
-		else
-			mmm -B $MODDIR;
-		fi
-	} #make_it
-
 	#Next ACTION to be Performed
 	echo -e '\n\n';
 	echo -e "=========================================================";
@@ -385,7 +413,8 @@ function exitScriBt
 {
 	echo -e '\n\n';
 	echo -e "Thanks for using this ScriBt. Have a Nice Day";
-	exit;
+	sleep 2;
+	exit 0;
 } #exitScriBt
 
 #START IT --- VROOM!
