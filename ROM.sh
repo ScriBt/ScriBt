@@ -8,8 +8,8 @@ echo "=======================================================";
 read COLOR;
 if [[ "$COLOR" == y ]]; then
 	color_my_life;
-#else
-#	i_like_colourless;
+else
+	i_like_colourless;
 fi
 clear;
 echo -e '\n\n';
@@ -40,11 +40,14 @@ function main_menu
 	echo -e "===================[*] MAIN MENU [*]===================";
 	echo -e "=======================================================";
 	echo -e '\n';
-	echo -e "Select the Action you want to perform:"
+	echo -e "         Select the Action you want to perform         ";
 	echo -e '\n';
 	echo -e "1 .......................Sync........................ 1";
 	echo -e "2 .....................Pre-Build..................... 2";
 	echo -e "3 .......................Build....................... 3";
+	echo -e '\n';
+	echo -e "4 .......................EXIT........................ 4";
+	echo -e "=======================================================";
 	read ACTION;
 	teh_action;
 } #main_menu
@@ -57,6 +60,8 @@ function teh_action
 		pre_build;
 	elif [[ "$ACTION" == 3 ]]; then
 		build;
+	elif [[ "$ACTION" == 4 ]]; then
+		exitScriBt;
 	fi
 } #teh_action
 
@@ -181,6 +186,7 @@ echo -e '\n';
 echo -e " 2. Pre Build";
 echo -e " 3. Build    ";
 echo -e '\n';
+echo -e " 4. EXIT     ";
 echo -e "=========================================================";
 read ACTION;
 teh_action;
@@ -276,6 +282,7 @@ function pre_build
 		echo -e " 1. Sync     ";
 		echo -e " 3. Build    ";
 		echo -e '\n';
+		echo -e " 4. EXIT     ";
 		echo -e "=========================================================";
 		read ACTION;
 		teh_action;
@@ -351,8 +358,16 @@ function build
 	echo -e " 1. Sync";
 	echo -e " 2. Pre-Build    ";
 	echo -e '\n';
+	echo -e " 4. EXIT     ";
 	echo -e "=========================================================";
 	read ACTION;
 	teh_action;
 
 } #build
+
+function exitScriBt
+{
+	echo -e '\n\n';
+	echo -e "Thanks for using this ScriBt. Have a Nice Day";
+	exit;
+} #exitScriBt
