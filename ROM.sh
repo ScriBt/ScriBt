@@ -309,7 +309,7 @@ function build
 		if [[ "$ROMNIS" == tipsy || "$ROMNIS" == validus || "$ROMNIS" == tesla ]]; then
 			$MKWAY $ROMNIS $BCORES
 		else
-			if [[ $(grep -q "^bacon:") ${ANDROID_BUILD_TOP}/build/core/Makefile" ]]; then
+			if [[ $(grep -q "^bacon:") "${ANDROID_BUILD_TOP}/build/core/Makefile" ]]; then
 				$MKWAY bacon $BCORES
 			else
 				$MKWAY otapackage $BCORES
