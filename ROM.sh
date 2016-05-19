@@ -306,12 +306,16 @@ function build
 		else
 			BCORES="";
 		fi
-		if [[ "$ROMNIS" == du ]]; then
-			$MKWAY dirty $BCORES
-		elif [[ "$ROMNIS" == tipsy || "$ROMNIS" == validus || "$ROMNIS" == tesla ]]
+		if [[ "$ROMNIS" == tipsy || "$ROMNIS" == validus || "$ROMNIS" == tesla ]]; then
 			$MKWAY $ROMNIS $BCORES
 		else
-			$MKWAY bacon $BCORES
+			if [[ $(grep -q "^bacon:") "${ANDROID_BUILD_TOP}/build/core/Makefile" ]]; then
+				$MKWAY bacon $BCORES
+			else
+				$MKWAY otapackage $BCORES
+			fi
+		fi
+			
   	fi
 
 	if [[ "$BOPT" == 2 ]]; then
