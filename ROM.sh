@@ -1,3 +1,12 @@
+#=========================Projekt ScriBt===========================#
+# This Script and ROM.rc has to be placed under a Synced Source
+# Directory (if and only if you're using this script to build)
+#
+# Else place these files at your Desired Location
+#
+# https://github.com/a7r3/scripts - The Original Repo of this ScriBt
+#
+#==================================================================#
 #!/bin/sh
 #Initialize
 BLANK=$(echo -e '\n');
@@ -67,6 +76,7 @@ function teh_action
 
 function sync
 {
+
 	echo -e "${LPURP}=======================================================${NONE}";
 	echo -e '\n';
 	echo -e "Which ROM are you trying to build?
@@ -291,6 +301,9 @@ function pre_build
 
 function build
 {
+	echo "Setting Up Build Environment"
+	. build/envsetup.sh
+	echo "DONE."
 	echo -e "Select the Build Option:\n";
 	echo -e "1. Start Building ROM (ZIP output)"
 	echo -e "2. Clean only Staging Directories and Emulator Images (*.img)"
@@ -315,7 +328,7 @@ function build
 				$MKWAY otapackage $BCORES
 			fi
 		fi
-			
+
   	fi
 
 	if [[ "$BOPT" == 2 ]]; then
