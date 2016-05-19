@@ -32,6 +32,7 @@ echo -e "${CYAN} ~#~#~#~#~#~#~#~#~#~#~#~# By Arvind7352 @XDA #~#~#~#~#~#~#~#~#~#
 sleep 3;
 #GET THOSE ROOMS
 echo -e '\n\n';
+main_menu;
 
 function main_menu
 {
@@ -45,7 +46,8 @@ function main_menu
 	echo -e "2 .....................Pre-Build..................... 2";
 	echo -e "3 .......................Build....................... 3";
 	read ACTION;
-}
+	teh_action;
+} #main_menu
 
 function teh_action
 {
@@ -55,7 +57,8 @@ function teh_action
 		pre_build;
 	elif [[ "$ACTION" == 3 ]]; then
 		build;
-}
+	fi
+} #teh_action
 
 function sync
 {
@@ -105,12 +108,15 @@ function sync
 	echo "Need some Silence in teh Terminal? [y/n]";
 	echo -e '\n';
 	read SILENT;
-	echo "Any Source you have already synced? If yes, then say YES (press ENTER) and then specify it's location from / ";
-	echo -e '\n';
+	echo "Any Source you have already synced? If yes, then say YES and Press ENTER";
 	read REFY;
-	read REF;
 	echo -e '\n';
-	#Getting Manifest Link
+	if [[ "$REFY" == YES ]]; then
+		echo "Provide me the Synced Source's Location from / ";
+		read REFER;
+	fi
+		echo -e '\n';
+#Getting Manifest Link
 		if [[ "$ROM_NAME" == OmniROM || "$ROM_NAME" == CyanogenMod ]]; then
 				MAN=android.git;
 		fi
@@ -138,7 +144,7 @@ function sync
   		FRC= ;
 		fi
 		if [[ "$REFY" == YES ]]; then
-			REF=--reference\=\"${REF}\"
+			REF=--reference\=\"${REFER}\"
 		else
 			REF= ;
 		fi
@@ -289,14 +295,17 @@ function build
 		echo -e "Should i use 'make' or 'mka' ?"
 		read MKWAY;
 		if [[ "$MKWAY" == make ]]; then
-			BCORES=$(grep -c ^processor /proc/cpuinfo); #WIP
+			BCORES=$(grep -c ^processor /proc/cpuinfo);
+		else
+			BCORES="";
+		fi
 		if [[ "$ROMNIS" == du ]]; then
 			$MKWAY dirty $BCORES
 		elif [[ "$ROMNIS" == tipsy || "$ROMNIS" == validus || "$ROMNIS" == tesla ]]
 			$MKWAY $ROMNIS $BCORES
 		else
 			$MKWAY bacon $BCORES
-  fi
+  	fi
 
 	if [[ "$BOPT" == 2 ]]; then
 		$MKWAY installclean
