@@ -356,6 +356,50 @@ function build
 		fi
 	} #make_it
 
+	function set_ccache
+	{
+		echo -e "Setting up CCACHE"
+		prebuilts/misc/linux-x86/ccache/ccache -M ${CCSIZE}G
+		echo -e "CCACHE Setup Successful."
+	} #set_ccache
+
+	function set_ccvars
+	{
+		echo -e "Provide this Script Root-Access, so that it can write CCACHE export values. No Hacks Honestly (Check the Code)"
+		echo -en "Why? Coz .bashrc or it's equivalents are set to READ-Only, and only can be edited by a Root-User"
+		sudo -i;
+		if [[ $(whoami) == root ]]; then
+			echo -e "Thanks, Performing Changes."
+		else
+			echo -e "No Root Access, Abort."
+			main_menu;
+		fi
+		echo -e "CCACHE Size must be >50 GB.\n Think about it and Specify the Size (Number) for Reservation of CCACHE (in GB)";
+		read CCSIZE;
+		echo -e "Create a New Folder for CCACHE and Specify it's location from / here"
+		read CCDIR;
+			if [[ $( -f ~/.bashrc ) == 1 ]]; then
+				echo "export USE_CCACHE=1" >> ~/.bashrc
+				echo "export CCACHE_DIR=${CCDIR}" >> ~/.bashrc
+				source ~/.bashrc
+			elif [[ $( -f ~/.profile ) == 1 ]]; then
+				echo "export USE_CCACHE=1" >> ~/.profile
+				echo "export CCACHE_DIR=${CCDIR}" >> ~/.profile
+				source ~/.profile
+			elif [[ $( -f SOME_FILE )]]; then
+				echo "export USE_CCACHE=1" >> /SOME_LOC/SOME_FILE
+				echo "export CCACHE_DIR=${CCDIR}" >> /SOME_LOC/SOME_FILE
+				echo "Restart your PC and Select Step 'B'"
+			else
+				echo -e "Strategies failed. If you have knowledge of .bashrc's equivalent in your Distro, then Paste these lines at the end of the File";
+				echo -en "export USE_CCACHE=1"
+				echo -en "export CCACHE_DIR=${CCDIR}"
+				echo -e "Now Log-Out and Re-Login. The Changes will be considered after that."
+			fi
+		echo -e "Giving up Root-Access."
+		exit
+	} #set_ccvars
+
 	echo -e "${LPURP}=========================================================${NONE}"
 	echo -e '\n';
 	echo -e "${CYAN}Initializing Build Environment${NONE}";
@@ -368,6 +412,7 @@ function build
 	echo -e "${ORNG}2. Clean only Staging Directories and Emulator Images (*.img)${NONE}";
 	echo -e "${LRED}3. Clean the Entire Build (/out) Directory (THINK BEFORE SELECTING THIS!)${NONE}";
 	echo -e "${LGRN}4. Make a Particular Module${NONE}";
+	echo -e "${LGRN}5. Setup CCACHE for Faster Builds ${NONE}";
 	echo -e '\n';
 	echo -e "${LPURP}=========================================================${NONE}"
 	echo -e '\n';
@@ -403,6 +448,20 @@ function build
 
 	if [[ "$BOPT" == 4 ]]; then
 		make_module;
+	fi
+
+	if [[ "$BOPT" == 5 ]]; then
+		echo -e "Two Steps. Select one of them (If seeing this for first time - Enter A)";
+		echo -e " A. Enabling CCACHE Variables in .bashrc or it's equivalent"
+		echo -e " B. Reserving Space for CCACHE";
+		read CCOPT;
+		if [[ "$CCOPT" == A ]]; then
+			set_ccvars;
+		elif [[ "$CCOPT" == B ]]; then
+			set_ccache;
+		else
+			echo -e "Drunk? restart this Script.";
+		fi
 	fi
 
 	#Next ACTION to be Performed
