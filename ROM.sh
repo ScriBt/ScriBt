@@ -190,6 +190,25 @@ ${LPURP}=======================================================${NONE}";
 	mkdir $DIR;
 	cd $DIR;
 
+	#Check for Presence of Repo Binary
+		if [[ $( -f bin/repo ) != 1 ]]; then
+			echo -e "Looks like the Repo binary isn't installed. Let's Install it."
+			if [[ $( -f bin ) != 1 ]]; then
+				mkdir ~/bin
+			fi
+			curl https://storage.googleapis.com/git-repo-downloads/repo > ~/bin/repo
+			chmod a+x ~/bin/repo
+			echo -e "Repo Binary Installed"
+			echo "Adding ~/bin to PATH"
+			echo -e "# set PATH so it includes user's private bin if it exists" >> ~/.profile
+			echo -e "if [ -d \"\$HOME/bin\" ] ; then" >> ~/.profile
+			echo -e "    PATH=\"\$HOME/bin:\$PATH\" "; >> ~/.profile
+			echo -e "fi"; >> ~/.profile
+			source ~/.profile
+			echo -e "DONE. Ready to Init Repo"
+			echo -e '\n';
+		fi
+
 	echo -e "${LBLU}=========================================================${NONE}";
 	echo -e '\n';
 	echo -e "Let's Initialize teh ROM Repo";
@@ -386,15 +405,15 @@ function build
 				echo "export USE_CCACHE=1" >> ~/.profile
 				echo "export CCACHE_DIR=${CCDIR}" >> ~/.profile
 				source ~/.profile
-			elif [[ $( -f SOME_FILE )]]; then
-				echo "export USE_CCACHE=1" >> /SOME_LOC/SOME_FILE
-				echo "export CCACHE_DIR=${CCDIR}" >> /SOME_LOC/SOME_FILE
-				echo "Restart your PC and Select Step 'B'"
+#			elif [[ $( -f SOME_FILE )]]; then
+#				echo "export USE_CCACHE=1" >> /SOME_LOC/SOME_FILE
+#				echo "export CCACHE_DIR=${CCDIR}" >> /SOME_LOC/SOME_FILE
+#				echo "Restart your PC and Select Step 'B'"
 			else
 				echo -e "Strategies failed. If you have knowledge of .bashrc's equivalent in your Distro, then Paste these lines at the end of the File";
 				echo -en "export USE_CCACHE=1"
 				echo -en "export CCACHE_DIR=${CCDIR}"
-				echo -e "Now Log-Out and Re-Login. The Changes will be considered after that."
+				echo -e "Now Log-Out and Re-Login. Select Step B. The Changes will be considered after that."
 			fi
 		echo -e "Giving up Root-Access."
 		exit
