@@ -10,9 +10,15 @@
 #==================================================================#
 #Initialize
 BLANK=$(echo -e '\n');
+if [ -f "${PWD}/ROM.rc" ]; then
 source $(pwd)/ROM.rc;
+else
+echo "ROM.rc isn't present in ${PWD}, please make sure repo is cloned correctly";
+exit 1;
+fi
+
 echo "=======================================================";
-echo "Before i can start, do you like a Colorful life? [y/n]";
+echo "Before I can start, do you like a Colorful life? [y/n]";
 echo "=======================================================";
 read COLOR;
 if [[ "$COLOR" == y ]]; then
@@ -191,7 +197,7 @@ ${LPURP}=======================================================${NONE}";
 	cd $DIR;
 
 	#Check for Presence of Repo Binary
-		if [[ $( -f bin/repo ) != 1 ]]; then
+		if [[ ! $(which repo) ]]; then
 			echo -e "Looks like the Repo binary isn't installed. Let's Install it."
 			if [[ $( -f bin ) != 1 ]]; then
 				mkdir ~/bin
@@ -384,39 +390,29 @@ function build
 
 	function set_ccvars
 	{
-		echo -e "Provide this Script Root-Access, so that it can write CCACHE export values. No Hacks Honestly (Check the Code)"
-		echo -en "Why? Coz .bashrc or it's equivalents are set to READ-Only, and only can be edited by a Root-User"
-		sudo -i;
-		if [[ $(whoami) == root ]]; then
-			echo -e "Thanks, Performing Changes."
-		else
-			echo -e "No Root Access, Abort."
-			main_menu;
-		fi
 		echo -e "CCACHE Size must be >50 GB.\n Think about it and Specify the Size (Number) for Reservation of CCACHE (in GB)";
 		read CCSIZE;
 		echo -e "Create a New Folder for CCACHE and Specify it's location from / here"
 		read CCDIR;
-			if [[ $( -f ~/.bashrc ) == 1 ]]; then
-				echo "export USE_CCACHE=1" >> ~/.bashrc
-				echo "export CCACHE_DIR=${CCDIR}" >> ~/.bashrc
-				source ~/.bashrc
-			elif [[ $( -f ~/.profile ) == 1 ]]; then
+			if [[ $( -f ~/.profile ) == 1 ]]; then
 				echo "export USE_CCACHE=1" >> ~/.profile
 				echo "export CCACHE_DIR=${CCDIR}" >> ~/.profile
 				source ~/.profile
+			elif [[ $( -f ~/.bashrc ) == 1 ]]; then
+					echo "export USE_CCACHE=1" >> ~/.bashrc
+					echo "export CCACHE_DIR=${CCDIR}" >> ~/.bashrc
+					source ~/.bashrc
 #			elif [[ $( -f SOME_FILE )]]; then
 #				echo "export USE_CCACHE=1" >> /SOME_LOC/SOME_FILE
 #				echo "export CCACHE_DIR=${CCDIR}" >> /SOME_LOC/SOME_FILE
 #				echo "Restart your PC and Select Step 'B'"
 			else
 				echo -e "Strategies failed. If you have knowledge of .bashrc's equivalent in your Distro, then Paste these lines at the end of the File";
-				echo -en "export USE_CCACHE=1"
-				echo -en "export CCACHE_DIR=${CCDIR}"
-				echo -e "Now Log-Out and Re-Login. Select Step B. The Changes will be considered after that."
+				echo -en "export USE_CCACHE=1";
+				echo -en "export CCACHE_DIR=${CCDIR}";
+				echo -e "Now Log-Out and Re-Login. Select Step B. The Changes will be considered after that.";
+				echo -e "Alternatively run source ~/.profile";
 			fi
-		echo -e "Giving up Root-Access."
-		exit
 	} #set_ccvars
 
 	echo -e "${LPURP}=========================================================${NONE}"
