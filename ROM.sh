@@ -394,14 +394,15 @@ function build
 		read CCSIZE;
 		echo -e "Create a New Folder for CCACHE and Specify it's location from / here"
 		read CCDIR;
-			if [[ $( -f ~/.profile ) == 1 ]]; then
-				echo "export USE_CCACHE=1" >> ~/.profile
-				echo "export CCACHE_DIR=${CCDIR}" >> ~/.profile
-				source ~/.profile
-			elif [[ $( -f ~/.bashrc ) == 1 ]]; then
+			if [[ $( -f ~/.bashrc ) == 1 ]]; then
 					echo "export USE_CCACHE=1" >> ~/.bashrc
 					echo "export CCACHE_DIR=${CCDIR}" >> ~/.bashrc
 					source ~/.bashrc
+			elif [[ $( -f ~/.profile ) == 1 ]]; then
+				echo "export USE_CCACHE=1" >> ~/.profile
+				echo "export CCACHE_DIR=${CCDIR}" >> ~/.profile
+				source ~/.profile
+
 #			elif [[ $( -f SOME_FILE )]]; then
 #				echo "export USE_CCACHE=1" >> /SOME_LOC/SOME_FILE
 #				echo "export CCACHE_DIR=${CCDIR}" >> /SOME_LOC/SOME_FILE
