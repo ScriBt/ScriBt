@@ -199,8 +199,8 @@ ${LPURP}=======================================================${NONE}";
 	#Check for Presence of Repo Binary
 		if [[ ! $(which repo) ]]; then
 			echo -e "Looks like the Repo binary isn't installed. Let's Install it."
-			if [[ $( -f bin ) != 1 ]]; then
-				mkdir ~/bin
+			if [ ! -d "${HOME}/bin" ]; then
+				mkdir -p ${HOME}/bin
 			fi
 			curl https://storage.googleapis.com/git-repo-downloads/repo > ~/bin/repo
 			chmod a+x ~/bin/repo
@@ -296,7 +296,7 @@ function pre_build
 		echo -e "Let's go to teh ${LRED}Device Directory!${NONE}";
 		cd $(pwd)/device/${COMP}/${DEVICE};
 		echo -e "Need to create a vendorsetup.sh - I'll create that for you if it isn't";
-			if [[ $(-f vendorsetup.sh) != 1 ]]; then
+			if [ ! -f vendorsetup.sh]; then
 				touch vendorsetup.sh;
 			fi
 		echo -e "Open that file and ${LCYAN}ENTER${NONE} the following contents";
@@ -394,11 +394,11 @@ function build
 		read CCSIZE;
 		echo -e "Create a New Folder for CCACHE and Specify it's location from / here"
 		read CCDIR;
-			if [[ $( -f ~/.bashrc ) == 1 ]]; then
+			if [ -f ${HOME}/.bashrc ]; then
 					echo "export USE_CCACHE=1" >> ~/.bashrc
 					echo "export CCACHE_DIR=${CCDIR}" >> ~/.bashrc
 					source ~/.bashrc
-			elif [[ $( -f ~/.profile ) == 1 ]]; then
+			elif [ -f ~/.profile ]; then
 				echo "export USE_CCACHE=1" >> ~/.profile
 				echo "export CCACHE_DIR=${CCDIR}" >> ~/.profile
 				source ~/.profile
