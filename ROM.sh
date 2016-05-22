@@ -208,7 +208,7 @@ ${LPURP}=======================================================${NONE}";
 			echo "Adding ~/bin to PATH"
 			echo -e "# set PATH so it includes user's private bin if it exists" >> ~/.profile
 			echo -e "if [ -d \"\$HOME/bin\" ] ; then" >> ~/.profile
-			echo -e "    PATH=\"\$HOME/bin:\$PATH\" "; >> ~/.profile
+			echo -e "\tPATH=\"\$HOME/bin:\$PATH\" "; >> ~/.profile
 			echo -e "fi"; >> ~/.profile
 			source ~/.profile
 			echo -e "DONE. Ready to Init Repo"
@@ -261,7 +261,7 @@ function pre_build
 	read DEVICE;
 	echo -e '\n';
 	echo -e "The ${LRED}Build type${NONE}? ${LGRN}[userdebug/user/eng]${NONE}";
-  echo -e '\n';
+  	echo -e '\n';
 	read BTYP;
 	echo -e '\n';
 	echo -e "Your ${LRED}Device's Company/Vendor${NONE} (All Lowercases)?";
@@ -296,7 +296,7 @@ function pre_build
 		echo -e "Let's go to teh ${LRED}Device Directory!${NONE}";
 		cd $(pwd)/device/${COMP}/${DEVICE};
 		echo -e "Need to create a vendorsetup.sh - I'll create that for you if it isn't";
-			if [ ! -f vendorsetup.sh]; then
+			if [ ! -f vendorsetup.sh ]; then
 				touch vendorsetup.sh;
 			fi
 		echo -e "Open that file and ${LCYAN}ENTER${NONE} the following contents";
@@ -386,23 +386,32 @@ function build
 		echo -e "Setting up CCACHE"
 		prebuilts/misc/linux-x86/ccache/ccache -M ${CCSIZE}G
 		echo -e "CCACHE Setup Successful."
+		echo -e '\n';
 	} #set_ccache
 
 	function set_ccvars
 	{
+		echo -e "Provide this Script Root-Access, so that it can write CCACHE export values. No Hacks Honestly (Check the Code)"
+		echo -en "Why? Coz .bashrc or it's equivalents can only be Modified by a Root user"
+		sudo -i;
+		if [[ $(whoami) == root ]]; then
+			echo -e "Thanks, Performing Changes."
+		else
+			echo -e "No Root Access, Abort."
+			main_menu;
+		fi
 		echo -e "CCACHE Size must be >50 GB.\n Think about it and Specify the Size (Number) for Reservation of CCACHE (in GB)";
 		read CCSIZE;
 		echo -e "Create a New Folder for CCACHE and Specify it's location from / here"
 		read CCDIR;
 			if [ -f ${HOME}/.bashrc ]; then
-					echo "export USE_CCACHE=1" >> ~/.bashrc
-					echo "export CCACHE_DIR=${CCDIR}" >> ~/.bashrc
-					source ~/.bashrc
-			elif [ -f ~/.profile ]; then
-				echo "export USE_CCACHE=1" >> ~/.profile
-				echo "export CCACHE_DIR=${CCDIR}" >> ~/.profile
-				source ~/.profile
-
+					echo "export USE_CCACHE=1" >> ${HOME}/.bashrc
+					echo "export CCACHE_DIR=${CCDIR}" >> ${HOME}/.bashrc
+					source ${HOME}/.bashrc
+			elif [ -f ${HOME}/.profile ]; then
+				echo "export USE_CCACHE=1" >> ${HOME}/.profile
+				echo "export CCACHE_DIR=${CCDIR}" >> ${HOME}/.profile
+				source ${HOME}/.profile
 #			elif [[ $( -f SOME_FILE )]]; then
 #				echo "export USE_CCACHE=1" >> /SOME_LOC/SOME_FILE
 #				echo "export CCACHE_DIR=${CCDIR}" >> /SOME_LOC/SOME_FILE
@@ -413,7 +422,14 @@ function build
 				echo -en "export CCACHE_DIR=${CCDIR}";
 				echo -e "Now Log-Out and Re-Login. Select Step B. The Changes will be considered after that.";
 				echo -e "Alternatively run source ~/.profile";
+				sleep 2
+				exitScriBt;
 			fi
+		echo -e "Giving up Root Access";
+		exit
+		echo "Done."
+		echo -e '\n';
+		set_ccache;
 	} #set_ccvars
 
 	echo -e "${LPURP}=========================================================${NONE}"
