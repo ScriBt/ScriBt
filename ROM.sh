@@ -3,18 +3,20 @@
 # This Script and ROM.rc has to be placed under a Synced Source
 # Directory (if and only if you're using this script to build)
 #
-# Else place these files at your Desired Location
+# Else
+# Create a folder for your Source and Place these files inside it
 #
 # https://github.com/a7r3/scripts - The Original Repo of this ScriBt
 #
 #==================================================================#
-#Initialize
+START=${pwd};
 BLANK=$(echo -e '\n');
 if [ -f "${PWD}/ROM.rc" ]; then
-source $(pwd)/ROM.rc;
+	#Initialize
+	source $(pwd)/ROM.rc;
 else
-echo "ROM.rc isn't present in ${PWD}, please make sure repo is cloned correctly";
-exit 1;
+	echo "ROM.rc isn't present in ${PWD}, please make sure repo is cloned correctly";
+	exit 1;
 fi
 
 echo "=======================================================";
@@ -190,12 +192,6 @@ ${LPURP}=======================================================${NONE}";
 			REF= ;
 		fi
 
-	#Naming && Syncing
-	echo -e "Name your Build Directory";
-	read DIR;
-	mkdir $DIR;
-	cd $DIR;
-
 	#Check for Presence of Repo Binary
 		if [[ ! $(which repo) ]]; then
 			echo -e "Looks like the Repo binary isn't installed. Let's Install it."
@@ -225,7 +221,10 @@ ${LPURP}=======================================================${NONE}";
 	echo -e '\n';
 	echo -e "${LBLU}=========================================================${NONE}";
 	echo -e '\n';
-	echo -e "Now Create a folder named local_manifests, create a \"local_manifest.xml\" file in it and add your Device, Kernel, Vendor and other Device-Specific Repo links. Press \"${LCYAN}ENTER${NONE}\" After it's ${LPURP}Done.${NONE}";
+	mkdir local_manifests
+	echo -e "A folder \"local_manifests\" has been created for you."
+	echo -e "Add either a local_manifest.xml or roomservice.xml as per your choice";
+	echo -e "And add your Device-Specific Repos, essential for Building. Press ENTER after it's done.";
 	read ENTER;
 	echo -e '\n';
 	echo -e "Let's Sync!";
@@ -271,72 +270,67 @@ function pre_build
 	echo -e "${LCYAN}=========================================================${NONE}";
 	rom_name_in_source;
 	echo -e '\n\n'
-	echo -e "${LPURP}=========================================================${NONE}";
-	echo -e "Now, there are Four Strategies of Adding your device to the ROM vendor so that The ROM can get built for your device. Choose the file which you find in vendor/${ROMNIS}";
-	echo -e "${BLU}vendorsetup.sh (${LCYAN}ENTER${NONE} 1)${NONE}";
-	echo -e "${ORANGE}${ROMNIS}.devices (If saw that, ignore presence of vendorsetup.sh)(${LCYAN}ENTER${NONE} 2)${NONE}";
-	echo -e "${PURP}Synced AOSP-RRO / AOSP-CAF ? (${LCYAN}ENTER${NONE} 3)${NONE}";
-	echo -e "${GREEN}You see a folder named 'products' inside teh folder (${LCYAN}ENTER${NONE} 4)${NONE}";
-	read STRT;
-	echo -e '\n';
-	if [[ $STRT == 1 ]]; then
-		echo -e "Add this line at teh end of ${LBLU}vendorsetup.sh${NONE}";
+	cd vendor/${ROMNIS}
+	if [[ $( ls | grep -c "${ROMNIS}.devices" ) == 1 ]]; then
+		echo -e "Adding your Device to ROM Vendor (Strategy 1)";
 		echo -e '\n';
-		echo -e "add_lunch_combo ${ROMNIS}_${DEVICE}_${BTYP}";
-	fi
-
-	if [[ $STRT == 2 ]]; then
-		echo -e "Open ${ROMNIS}.devices file";
-		echo -e "Insert this at the End of the File";
+		echo "${DEVICE}" >> ${ROMNIS}.devices;
+		echo "DONE!"
+		croot;
+	elif [[ $( ls | grep -c "vendorsetup.sh" ) == 1 ]]; then
+		echo -e "Adding your Device to ROM Vendor (Strategy 2)"
 		echo -e '\n';
-		echo -e "${DEVICE}";
-	fi
-
-	if [[ "$STRT" == 3 ]]; then
+		echo "add_lunch_combo ${ROMNIS}_${DEVICE}-${BTYP}" >> vendorsetup.sh
+		echo "DONE!"
+		croot;
+	else
+		croot;
+		echo "Adding your Device to ROM Vendor (Strategy 3)"
 		echo -e "Let's go to teh ${LRED}Device Directory!${NONE}";
-		cd $(pwd)/device/${COMP}/${DEVICE};
+		cd device/${COMP}/${DEVICE};
 		echo -e "Need to create a vendorsetup.sh - I'll create that for you if it isn't";
 			if [ ! -f vendorsetup.sh ]; then
 				touch vendorsetup.sh;
 			fi
-		echo -e "Open that file and ${LCYAN}ENTER${NONE} the following contents";
-		echo -e '\n'
-		echo -e "add_lunch_combo ${ROMNIS}_${DEVICE}-${BTYP}";
-		echo -e "${LPURP}Done.${NONE}. Let's go back."
+		echo -e "add_lunch_combo ${ROMNIS}_${DEVICE}-${BTYP}" >> vendorsetup.sh
+		echo "DONE!"
 		croot;
 	fi
-	if [[ $STRT == 4 ]]; then
-		echo -e "This Strategy, AFAIK was only on AOKP (kitkat) and PAC-ROM (pac-5.1).";
-		echo -e "Let's go to vendor/$ROMNIS/products";
-		cd vendor/${ROMNIS}/products;
-		echo -e '\n';
-		echo -e "${LPURP}Done.${NONE}.";
-			if [[ "$ROMNIS" == pac ]]; then
-				echo -e "Creating file ${ROMNIS}_${DEVICE}.mk";
-				touch ${ROMNIS}_${DEVICE}.mk
-			else
-				echo -e "Creating file ${DEVICE}.mk";
-				touch ${DEVICE}.mk
-			fi
-	fi
-		echo -e "\n${LPURP}Done.${NONE}. Open that file now."
-		echo -e "\nAdd these lines";
-			if [[ "$ROMNIS" == pac ]]; then
-				echo -e "FAIL. WIP";
-			fi
-			if [[ "$ROMNIS" == aokp ]]; then
-				${BLANK}
-				echo -e "WIP WIP!";
-			fi
+#	if [[ $STRT == 4 ]]; then
+#		echo -e "This Strategy, AFAIK was only on AOKP (kitkat) and PAC-ROM (pac-5.1).";
+#		echo -e "Let's go to vendor/$ROMNIS/products";
+#		cd vendor/${ROMNIS}/products;
+#		echo -e '\n';
+#		echo -e "${LPURP}Done.${NONE}.";
+#			if [[ "$ROMNIS" == pac ]]; then
+#				echo -e "Creating file ${ROMNIS}_${DEVICE}.mk";
+#				touch ${ROMNIS}_${DEVICE}.mk
+#			else
+#				echo -e "Creating file ${DEVICE}.mk";
+#				touch ${DEVICE}.mk
+#			fi
+#	fi
+#		echo -e "\n${LPURP}Done.${NONE}. Open that file now."
+#		echo -e "\nAdd these lines";
+#			if [[ "$ROMNIS" == pac ]]; then
+#				echo -e "FAIL. WIP";
+#			fi
+#			if [[ "$ROMNIS" == aokp ]]; then
+#				${BLANK}
+#				echo -e "WIP WIP!";
+#			fi
+
+# Must be on Working Directory
 		croot;
+# Done
 		echo -e '\n\n'
 		echo -e "Now ${ROMNIS}fy! your Device Tree! Press ${LCYAN}ENTER${NONE} when ${LPURP}Done.${NONE} ";
-		read NOOB;
 		echo -e "${LPURP}=========================================================${NONE}"
+		read NOOB;
 		echo -e '\n\n';
 		sleep 3;
 		echo -e '\n';
-		echo -e "I_IZ_NOOB :P";
+		echo -e "I_IZ_NOOB :P - We're Successful";
 
 		#Next ACTION to be Performed
 		echo -e '\n\n';
@@ -417,7 +411,7 @@ function build
 #				echo "export CCACHE_DIR=${CCDIR}" >> /SOME_LOC/SOME_FILE
 #				echo "Restart your PC and Select Step 'B'"
 			else
-				echo -e "Strategies failed. If you have knowledge of .bashrc's equivalent in your Distro, then Paste these lines at the end of the File";
+				echo -e "Strategies failed. If you have knowledge of finding .bashrc's equivalent in your Distro, then Paste these lines at the end of the File";
 				echo -en "export USE_CCACHE=1";
 				echo -en "export CCACHE_DIR=${CCDIR}";
 				echo -e "Now Log-Out and Re-Login. Select Step B. The Changes will be considered after that.";
