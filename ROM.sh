@@ -161,13 +161,13 @@ ${LPURP}=======================================================${NONE}";
 		echo -e '\n';
 #Getting Manifest Link
 		if [[ "$ROM_NAME" == OmniROM || "$ROM_NAME" == CyanogenMod ]]; then
-				MAN=android.git;
+			MAN=android.git;
 		fi
 		if [[ "$ROM_NAME" == TeamOrion || "$ROM_NAME" == SlimRoms || "$ROM_NAME" == AOSP-CAF || "$ROM_NAME" == ResurrectionRemix || "$ROM_NAME" == AOKP || "$ROM_NAME" == TipsyOS || "$ROM_NAME" == AICP || "$ROM_NAME" == XOSP-Project ]]; then
-				MAN=platform_manifest.git;
+			MAN=platform_manifest.git;
 		fi
 		if [[ "$ROM_NAME" == DirtyUnicorns ]]; then
-				MAN=android_manifest.git;
+			MAN=android_manifest.git;
 		fi
 		if [[ "$ROM_NAME" == AOSP-RRO || "$ROM_NAME" == ValidusOs-M || "$ROM_NAME" == Tesla-M ]]; then
 				MAN=manifest.git;
@@ -179,17 +179,17 @@ ${LPURP}=======================================================${NONE}";
 		if [[ "$SILENT" == y ]]; then
   		SILENT=-q;
 		else
-  		SILENT= ;
+  		SILENT=" " ;
 		fi
 		if [[ "$FRC" == y ]]; then
   		FRC=--force-sync;
 		else
-  		FRC= ;
+  		FRC=" " ;
 		fi
 		if [[ "$REFY" == YES ]]; then
 			REF=--reference\=\"${REFER}\"
 		else
-			REF= ;
+			REF=" " ;
 		fi
 
 	#Check for Presence of Repo Binary
@@ -215,13 +215,13 @@ ${LPURP}=======================================================${NONE}";
 	echo -e '\n';
 	echo -e "Let's Initialize teh ROM Repo";
 	echo -e '\n';
-	repo init "$REF" -u https://github.com/"$ROM_NAME"/"$MAN" -b "$BRANCH" ;
+	repo init ${REF} -u https://github.com/${ROM_NAME}/${MAN} -b ${BRANCH} ;
 	echo -e '\n';
 	echo -e "Repo Init'ed";
 	echo -e '\n';
 	echo -e "${LBLU}=========================================================${NONE}";
 	echo -e '\n';
-	mkdir local_manifests
+	mkdir .repo/local_manifests
 	echo -e "A folder \"local_manifests\" has been created for you."
 	echo -e "Add either a local_manifest.xml or roomservice.xml as per your choice";
 	echo -e "And add your Device-Specific Repos, essential for Building. Press ENTER after it's done.";
