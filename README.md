@@ -28,3 +28,13 @@ The Script consists of three main Actions:
 
 as said before, 
 #Extensive Testing is needed.
+
+
+#####Usage
+```
+bash ROM.sh
+```
+
+##### Why not ./ROM.sh
+```exit``` command will close the terminal when script it called in that 
+way, bash ROM.sh won't :D
