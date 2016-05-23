@@ -20,7 +20,7 @@ else
 fi
 
 echo "=======================================================";
-echo "Before I can start, do you like a Colorful life? [y/n]";
+echo -e "Before I can start, do you like a \033[1;31mC\033[0m\033[0;32mo\033[0m\033[0;33ml\033[0m\033[0;34mo\033[0m\033[0;36mr\033[0m\033[1;33mf\033[0m\033[1;32mu\033[0m\033[0;31ml\033[0m life? [y/n]";
 echo "=======================================================";
 read COLOR;
 if [[ "$COLOR" == y ]]; then
@@ -68,38 +68,110 @@ echo -e '\n\n';
 
 function main_menu
 {
+
 	echo -e "${LRED}=======================================================${NONE}";
 	echo -e "${LRED}====================${NONE}${CYAN}[*]${NONE}${PURP}MAIN MENU${NONE}${CYAN}[*]${NONE}${LRED}====================${NONE}";
 	echo -e "${LRED}=======================================================${NONE}";
 	echo -e '\n';
 	echo -e "         Select the Action you want to perform         ";
 	echo -e '\n';
-	echo -e "${LBLU}1${NONE}${CYAN} .......................${NONE}${RED}Sync${NONE}${CYAN}........................${NONE} ${LBLU}1${NONE}";
-	echo -e "${LBLU}2${NONE}${CYAN} .....................${NONE}${YELO}Pre-Build${NONE}${CYAN}.....................${NONE} ${LBLU}2${NONE}";
-	echo -e "${LBLU}3${NONE}${CYAN} .......................${NONE}${GRN}Build${NONE}${CYAN}.......................${NONE} ${LBLU}3${NONE}";
+	echo -e "${LBLU}1${NONE}${CYAN} ................${NONE}${RED}Choose ROM & Init*${NONE}${CYAN}.................${NONE} ${LBLU}1${NONE}";
+	echo -e "${LBLU}2${NONE}${CYAN} .......................${NONE}${YELO}Sync${NONE}${CYAN}........................${NONE} ${LBLU}2${NONE}";
+	echo -e "${LBLU}3${NONE}${CYAN} .....................${NONE}${GRN}Pre-Build${NONE}${CYAN}.....................${NONE} ${LBLU}3${NONE}";
+	echo -e "${LBLU}4${NONE}${CYAN} .......................${NONE}${LGRN}Build${NONE}${CYAN}.......................${NONE} ${LBLU}4${NONE}";
 	echo -e '\n';
-	echo -e "4 .......................EXIT........................ 4";
+	echo -e "5 .......................EXIT........................ 5";
+	echo -e '\n';
+	echo -e "* - Sync will Automatically Start after Init'ing Repo";
 	echo -e "${LRED}=======================================================${NONE}";
 	echo -e '\n';
 	read ACTION;
 	teh_action;
+
 } #main_menu
 
 function teh_action
 {
+
 	if [[ "$ACTION" == 1 ]]; then
-		sync;
+		init;
 	elif [[ "$ACTION" == 2 ]]; then
-		pre_build;
+		sync;
 	elif [[ "$ACTION" == 3 ]]; then
-		build;
+		pre_build;
 	elif [[ "$ACTION" == 4 ]]; then
+		build;
+	elif [[ "$ACTION" == 5 ]]; then
 		exitScriBt;
 	fi
+
 } #teh_action
 
 function sync
 {
+
+	echo -e "Let's sync it!";
+	echo -e '\n';
+	echo -e "${LRED}Number of Threads${NONE} for Sync?";
+	echo -e '\n';
+	read JOBS;
+	echo -e '\n';
+	echo -e "${LRED}Force Sync${NONE} needed? ${LGRN}[y/n]${NONE}";
+	echo -e '\n';
+	read FRC;
+	echo -e '\n';
+	echo -e "Need some ${LRED}Silence${NONE} in teh Terminal? ${LGRN}[y/n]${NONE}";
+	echo -e '\n';
+	read SILENT;
+	echo -e '\n';
+	echo -e "Any ${LRED}Source you have already synced?${NONE} If yes, then say YES and Press ${LCYAN}ENTER${NONE}";
+	echo -e '\n';
+	read REFY;
+	echo -e '\n';
+	if [[ "$REFY" == YES ]]; then
+		echo -e "Provide me the ${LRED}Synced Source's Location${NONE} from / ";
+		echo -e '\n';
+		read REFER;
+	fi
+		echo -e '\n';
+	#Sync-Options
+	if [[ "$SILENT" == y ]]; then
+		SILENT=-q;
+	else
+		SILENT=" " ;
+	fi
+	if [[ "$FRC" == y ]]; then
+		FRC=--force-sync;
+	else
+		FRC=" " ;
+	fi
+	if [[ "$REFY" == YES ]]; then
+		REF=--reference\=\"${REFER}\"
+	else
+		REF=" " ;
+	fi
+	echo -e "Let's Sync!";
+	echo -e '\n';
+	repo sync -j${JOBS} ${SILENT} ${FRC} ;
+	if [[ $( grep -c "Syncing work tree: 100%" ) == 1 ]]; then
+		echo -e "ROM Source synced successfully."
+	fi
+	echo -e '\n';
+	echo -e "${LPURP}Done.${NONE}!";
+	echo -e "${LRED}=========================================================${NONE}";
+		echo -e "Start Over Again?\n 1 to Restart\n 0 for Main Menu"
+	read B2M;
+	if [[ "$B2M" == 1 ]]; then
+		sync;
+	elif [[ "$B2M" == 0 ]]; then
+		main_menu;
+	fi
+
+} #sync
+
+function init
+{
+
 	echo -e "${LPURP}=======================================================${NONE}";
 	echo -e '\n';
 	echo -e "Which ROM are you trying to build?
@@ -136,30 +208,7 @@ ${LPURP}=======================================================${NONE}";
 	echo -e "Since Branches may live or die at any moment, ${LRED}Specify the Branch${NONE} you're going to sync"
 	read BRANCH;
 	echo -e '\n';
-	echo -e "Let's sync it!";
-	echo -e '\n';
-	echo -e "${LRED}Number of Threads${NONE} for Sync?";
-	echo -e '\n';
-	read JOBS;
-	echo -e '\n';
-	echo -e "${LRED}Force Sync${NONE} needed? ${LGRN}[y/n]${NONE}";
-	echo -e '\n';
-	read FRC;
-	echo -e '\n';
-	echo -e "Need some ${LRED}Silence${NONE} in teh Terminal? ${LGRN}[y/n]${NONE}";
-	echo -e '\n';
-	read SILENT;
-	echo -e '\n';
-	echo -e "Any ${LRED}Source you have already synced?${NONE} If yes, then say YES and Press ${LCYAN}ENTER${NONE}";
-	echo -e '\n';
-	read REFY;
-	echo -e '\n';
-	if [[ "$REFY" == YES ]]; then
-		echo -e "Provide me the ${LRED}Synced Source's Location${NONE} from / ";
-		read REFER;
-	fi
-		echo -e '\n';
-#Getting Manifest Link
+		#Getting Manifest Link
 		if [[ "$ROM_NAME" == OmniROM || "$ROM_NAME" == CyanogenMod ]]; then
 			MAN=android.git;
 		fi
@@ -175,24 +224,7 @@ ${LPURP}=======================================================${NONE}";
 		if [[ "$ROM_NAME" == PAC-ROM ]]; then
 				MAN=pac-rom.git;
 		fi
-		#Sync-Options
-		if [[ "$SILENT" == y ]]; then
-  		SILENT=-q;
-		else
-  		SILENT=" " ;
-		fi
-		if [[ "$FRC" == y ]]; then
-  		FRC=--force-sync;
-		else
-  		FRC=" " ;
-		fi
-		if [[ "$REFY" == YES ]]; then
-			REF=--reference\=\"${REFER}\"
-		else
-			REF=" " ;
-		fi
-
-	#Check for Presence of Repo Binary
+#Check for Presence of Repo Binary
 		if [[ ! $(which repo) ]]; then
 			echo -e "Looks like the Repo binary isn't installed. Let's Install it."
 			if [ ! -d "${HOME}/bin" ]; then
@@ -224,28 +256,14 @@ ${LPURP}=======================================================${NONE}";
 	mkdir .repo/local_manifests
 	echo -e "A folder \"local_manifests\" has been created for you."
 	echo -e "Add either a local_manifest.xml or roomservice.xml as per your choice";
-	echo -e "And add your Device-Specific Repos, essential for Building. Press ENTER after it's done.";
+	echo -e "And add your Device-Specific Repos, essential for Building. Press ENTER to start Syncing.";
 	read ENTER;
 	echo -e '\n';
-	echo -e "Let's Sync!";
-	echo -e '\n';
-	repo sync -j${JOBS} ${SILENT} ${FRC} ;
-	echo -e '\n';
-	echo -e "${LPURP}Done.${NONE}!";
-	echo -e "${LRED}=========================================================${NONE}";
-#Next ACTION to be Performed
-echo -e '\n\n';
-echo -e "${LRED}=========================================================${NONE}";
-echo -e '\n';
-echo -e " 2. Pre Build";
-echo -e " ${CYAN}3${NONE}. ${GRN}Build${NONE}    ";
-echo -e '\n';
-echo -e " 4. EXIT     ";
-echo -e "${LRED}=========================================================${NONE}";
-read ACTION;
-teh_action;
 
-} #sync
+#Start Sync now
+sync;
+
+} #init
 
 function pre_build
 {
@@ -259,9 +277,20 @@ function pre_build
 	echo -e '\n';
 	read DEVICE;
 	echo -e '\n';
-	echo -e "The ${LRED}Build type${NONE}? ${LGRN}[userdebug/user/eng]${NONE}";
-  	echo -e '\n';
-	read BTYP;
+
+	function btype
+	{
+		echo -e "The ${LRED}Build type${NONE}? ${LGRN}[userdebug/user/eng]${NONE}";
+		echo -e '\n';
+		read BTYP;
+		if [[ "$BTYP" != userdebug || "$BTYP" != eng || "$BTYP" != user ]]; then
+			echo -e "Invalid Build-Type. Specify Again"
+			btype;
+		fi
+	} #btype_verification
+
+	# Get Build-Type from user
+	btype;
 	echo -e '\n';
 	echo -e "Your ${LRED}Device's Company/Vendor${NONE} (All Lowercases)?";
 	echo -e '\n';
@@ -288,12 +317,13 @@ function pre_build
 		echo "Adding your Device to ROM Vendor (Strategy 3)"
 		echo -e "Let's go to teh ${LRED}Device Directory!${NONE}";
 		cd device/${COMP}/${DEVICE};
-		echo -e "Need to create a vendorsetup.sh - I'll create that for you if it isn't";
+		echo -e "Creating VendorSetup.sh if absent in tree";
 			if [ ! -f vendorsetup.sh ]; then
 				touch vendorsetup.sh;
+				echo -e "Done [1/2]"
 			fi
 		echo -e "add_lunch_combo ${ROMNIS}_${DEVICE}-${BTYP}" >> vendorsetup.sh
-		echo "DONE!"
+		echo "DONE! [2/2]"
 		croot;
 	fi
 #	if [[ $STRT == 4 ]]; then
@@ -332,17 +362,13 @@ function pre_build
 		echo -e '\n';
 		echo -e "I_IZ_NOOB :P - We're Successful";
 
-		#Next ACTION to be Performed
-		echo -e '\n\n';
-		echo -e "${LRED}=========================================================${NONE}";
-		echo -e '\n';
-		echo -e " ${CYAN}1${NONE}. ${RED}Sync${NONE}    ";
-		echo -e " ${CYAN}3${NONE}. ${GRN}Build${NONE}    ";
-		echo -e '\n';
-		echo -e " 4. EXIT     ";
-		echo -e "${LRED}=========================================================${NONE}";
-		read ACTION;
-		teh_action;
+		echo -e "Start Over Again?\n 1 to Restart\n 0 for Main Menu"
+		read B2M;
+		if [[ "$B2M" == 1 ]]; then
+			pre_build;
+		elif [[ "$B2M" == 0 ]]; then
+			main_menu;
+		fi
 
 } #pre_build
 
@@ -426,6 +452,19 @@ function build
 		set_ccache;
 	} #set_ccvars
 
+	function post_make
+	{
+		if [[ $(grep -c "make completed successfully") == 1 ]]; then
+			echo -e '\n';
+			echo "Build Completed! Cool. Now make it Boot!"
+#		elif [[ $(grep -c "No rule to make target ") == 1 ]]; then
+#			echo -e "Looks like a Module isn't getting built."
+#			echo -e "Find the name of the Missing Module, and Search from where it is being made."
+#			echo -e "If done do a mmm to it - There are two chances:"
+#			echo -e "		Either the Module will get built - OR - The Module will ask for other Dependency for it to get built"
+		fi
+	}
+
 	echo -e "${LPURP}=========================================================${NONE}"
 	echo -e '\n';
 	echo -e "${CYAN}Initializing Build Environment${NONE}";
@@ -457,8 +496,10 @@ function build
 		else
 			if [[ $(grep -q "^bacon:" "${ANDROID_BUILD_TOP}/build/core/Makefile") ]]; then
 				$MKWAY bacon $BCORES
+				post_build;
 			else
 				$MKWAY otapackage $BCORES
+				post_build;
 			fi
 		fi
 
@@ -490,17 +531,13 @@ function build
 		fi
 	fi
 
-	#Next ACTION to be Performed
-	echo -e '\n\n';
-	echo -e "${LRED}=========================================================${NONE}";
-	echo -e '\n';
-	echo -e " ${RED}1. Sync${NONE}";
-	echo -e " ${YELO}2. Pre-Build${NONE} ";
-	echo -e '\n';
-	echo -e " 4. EXIT     ";
-	echo -e "${LRED}=========================================================${NONE}";
-	read ACTION;
-	teh_action;
+echo -e "Start Over Again?\n 1 to Restart\n 0 for Main Menu"
+read B2M;
+if [[ "$B2M" == 1 ]]; then
+	build;
+elif [[ "$B2M" == 0 ]]; then
+	main_menu;
+fi
 
 } #build
 
