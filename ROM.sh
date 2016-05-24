@@ -276,15 +276,6 @@ function sync
 	echo -e '\n';
 	read SILENT;
 	echo -e '\n';
-	echo -e "Any ${LRED}Source you have already synced?${NONE} If yes, then say YES and Press ${LCYAN}ENTER${NONE}";
-	echo -e '\n';
-	read REFY;
-	echo -e '\n';
-	if [[ "$REFY" == YES ]]; then
-		echo -e "Provide me the ${LRED}Synced Source's Location${NONE} from / ";
-		echo -e '\n';
-		read REFER;
-	fi
 		echo -e '\n';
 	#Sync-Options
 	if [[ "$SILENT" == y ]]; then
@@ -296,11 +287,6 @@ function sync
 		FRC=--force-sync;
 	else
 		FRC=" " ;
-	fi
-	if [[ "$REFY" == YES ]]; then
-		REF=--reference\=\"${REFER}\"
-	else
-		REF=" " ;
 	fi
 	echo -e "Let's Sync!";
 	echo -e '\n';
@@ -360,6 +346,17 @@ ${LPURP}=======================================================${NONE}";
 	echo -e "Since Branches may live or die at any moment, ${LRED}Specify the Branch${NONE} you're going to sync"
 	read BRANCH;
 	echo -e '\n';
+	echo -e "Any ${LRED}Source you have already synced?${NONE} If yes, then say YES and Press ${LCYAN}ENTER${NONE}";
+	echo -e '\n';
+	read REFY;
+	if [[ "$REFY" == YES ]]; then
+		echo -e "Provide me the ${LRED}Synced Source's Location${NONE} from / ";
+		echo -e '\n';
+		read REFER;
+		REF=--reference\=\"${REFER}\"
+	else
+		REF=" " ;
+	fi
 		#Getting Manifest Link
 		if [[ "$ROM_NAME" == OmniROM || "$ROM_NAME" == CyanogenMod ]]; then
 			MAN=android.git;
