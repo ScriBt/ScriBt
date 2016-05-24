@@ -4,7 +4,7 @@
  
 This is still a WiP script. Extensive Testing needed.
 
-The Script consists of three main Actions:
+The Script consists of five main Actions:
 
 #####1. Init -
  

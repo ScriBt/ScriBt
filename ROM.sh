@@ -130,11 +130,26 @@ function installdeps
 	function java6
 	{
 		echo -e "Installing OpenJDK-6 (Java 1.6.0)"
+		echo -e "Remove other Versions of Java [y/n]? ( Removing them is Recommended)"
+		read REMOJA;
+		if [[ "$REMOJA" == y ]]; then
 		sudo apt-get purge openjdk-\* icedtea-\* icedtea6-\*
+		echo -e "Removed Other Versions successfully"
+		elif [[ "$REMOJA" == n ]]; then
+		 echo -e "Keeping them Intact"
+	 	fi
+	 	echo -e "==========================================================";
+	 	echo -e '\n';
 		sudo apt-get update
+		echo -e "==========================================================";
+		echo -e '\n';
 		sudo apt-get install openjdk-6-jdk
+		echo -e '\n';
+		echo -e "==========================================================";
+		echo -e '\n';
 		if [[ $( java -version | grep -c "java version \"1.6" ) == 1 ]]; then
 			echo -e "OpenJDK-6 or Java 6 has been successfully installed"
+		fi
 	}
 
 
@@ -199,18 +214,18 @@ echo -e '\n';
 echo -e "Checking and Installing Build Dependencies Now..."
 echo -e '\n';
 sudo apt-get install git-core gnupg ccache lzop flex bison \
- 										 gperf build-essential zip curl zlib1g-dev \
-									 	 zlib1g-dev:i386 libc6-dev lib32ncurses5 lib32z1 \
-										 lib32bz2-1.0 lib32ncurses5-dev x11proto-core-dev \
-										 libx11-dev:i386 libreadline6-dev:i386 lib32z-dev \
-										 libgl1-mesa-glx:i386 libgl1-mesa-dev g++-multilib \
-										 mingw32 tofrodos python-markdown libxml2-utils xsltproc \
-										 readline-common libreadline6-dev libreadline6 \
-										 lib32readline-gplv2-dev libncurses5-dev lib32readline5 \
-										 lib32readline6 libreadline-dev libreadline6-dev:i386 \
-										 libreadline6:i386 bzip2 libbz2-dev libbz2-1.0 libghc-bzlib-dev \
-										 lib32bz2-dev libsdl1.2-dev libesd0-dev squashfs-tools \
-										 pngcrush schedtool libwxgtk2.8-dev python liblz4-tools \
+gperf build-essential zip curl zlib1g-dev \
+zlib1g-dev:i386 libc6-dev lib32ncurses5 lib32z1 \
+lib32bz2-1.0 lib32ncurses5-dev x11proto-core-dev \
+libx11-dev:i386 libreadline6-dev:i386 lib32z-dev \
+libgl1-mesa-glx:i386 libgl1-mesa-dev g++-multilib \
+mingw32 tofrodos python-markdown libxml2-utils xsltproc \
+readline-common libreadline6-dev libreadline6 \
+lib32readline-gplv2-dev libncurses5-dev lib32readline5 \
+lib32readline6 libreadline-dev libreadline6-dev:i386 \
+libreadline6:i386 bzip2 libbz2-dev libbz2-1.0 libghc-bzlib-dev \
+lib32bz2-dev libsdl1.2-dev libesd0-dev squashfs-tools \
+pngcrush schedtool libwxgtk2.8-dev python liblz4-tool
 echo -e '\n';
 echo -e "==========================================================";
 echo -e '\n\n'
