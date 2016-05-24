@@ -79,8 +79,9 @@ function main_menu
 	echo -e "${LBLU}2${NONE}${CYAN} .......................${NONE}${YELO}Sync${NONE}${CYAN}........................${NONE} ${LBLU}2${NONE}";
 	echo -e "${LBLU}3${NONE}${CYAN} .....................${NONE}${GRN}Pre-Build${NONE}${CYAN}.....................${NONE} ${LBLU}3${NONE}";
 	echo -e "${LBLU}4${NONE}${CYAN} .......................${NONE}${LGRN}Build${NONE}${CYAN}.......................${NONE} ${LBLU}4${NONE}";
+	echo -e "${LBLU}5${NONE}${CYAN} ........${NONE}${PURP}Check and Install Build Dependencies${NONE}${CYAN}.......${NONE} ${LBLU}5${NONE}";
 	echo -e '\n';
-	echo -e "5 .......................EXIT........................ 5";
+	echo -e "6 .......................EXIT........................ 6";
 	echo -e '\n';
 	echo -e "* - Sync will Automatically Start after Init'ing Repo";
 	echo -e "${LRED}=======================================================${NONE}";
@@ -102,11 +103,147 @@ function teh_action
 	elif [[ "$ACTION" == 4 ]]; then
 		build;
 	elif [[ "$ACTION" == 5 ]]; then
+		installdeps;
+	elif [[ "$ACTION" == 6 ]]; then
 		exitScriBt;
 	fi
 
 } #teh_action
 
+function installdeps
+{
+
+	function java_select
+	{
+		echo -e "If you have Installed Multiple Versions of Java or Installed Java from Different Providers (OpenJDK / Oracle)"
+		echo -e "You may now select the Version of Java which is to be used BY-DEFAULT"
+		echo -e "================================================================"
+		echo -e '\n';
+		sudo update-alternatives --config java
+		echo -e '\n';
+		echo -e "================================================================"
+		echo -e '\n';
+		sudo update-alternatives --config javac
+		echo -e '\n';
+		echo -e "================================================================";
+	}
+	function java6
+	{
+		echo -e "Installing OpenJDK-6 (Java 1.6.0)"
+		sudo apt-get purge openjdk-\* icedtea-\* icedtea6-\*
+		sudo apt-get update
+		sudo apt-get install openjdk-6-jdk
+		if [[ $( java -version | grep -c "java version \"1.6" ) == 1 ]]; then
+			echo -e "OpenJDK-6 or Java 6 has been successfully installed"
+	}
+
+
+	function java7
+	{
+
+		echo -e "Installing OpenJDK-7 (Java 1.7.0)"
+		echo -e "Remove other Versions of Java [y/n]? ( Removing them is Recommended)"
+		read REMOJA;
+		if [[ "$REMOJA" == y ]]; then
+		sudo apt-get purge openjdk-\* icedtea-\* icedtea6-\*
+		echo -e "Removed Other Versions successfully"
+	elif [[ "$REMOJA" == n ]]; then
+		 echo -e "Keeping them Intact"
+	 fi
+	 	echo -e "==========================================================";
+		echo -e '\n';
+		sudo apt-get update
+		echo -e '\n';
+		echo -e "==========================================================";
+		echo -e '\n';
+		sudo apt-get install openjdk-7-jdk
+		if [[ $( java -version | grep -c "java version \"1.7" ) == 1 ]]; then
+			echo -e '\n';
+			echo -e "==========================================================";
+			echo -e "OpenJDK-7 or Java 7 has been successfully installed"
+		fi
+		echo -e "==========================================================";
+
+	}
+
+	function java8
+	{
+
+		echo -e "Remove other Versions of Java [y/n]? ( Removing them is Recommended)"
+		read REMOJA;
+		if [[ "$REMOJA" == y ]]; then
+			sudo apt-get purge openjdk-\* icedtea-\* icedtea6-\*
+			echo -e "Removed Other Versions successfully"
+		elif [[ "$REMOJA" == n ]]; then
+		 	echo -e "Keeping them Intact"
+	 	fi
+		echo -e "Installing OpenJDK-8 (Java 1.8.0)"
+		echo -e "==========================================================";
+		echo -e '\n';
+		sudo apt-get update
+		echo -e '\n';
+		echo -e "==========================================================";
+		echo -e '\n';
+		sudo apt-get install openjdk-8-jdk
+		echo -e '\n';
+		echo -e "==========================================================";
+		if [[ $( java -version | grep -c "java version \"1.8" ) == 1 ]]; then
+			echo -e "OpenJDK-8 or Java 8 has been successfully installed"
+		fi
+		echo -e "==========================================================";
+
+		}
+
+echo -e "==========================================================";
+echo -e '\n';
+echo -e "Checking and Installing Build Dependencies Now..."
+echo -e '\n';
+sudo apt-get install git-core gnupg ccache lzop flex bison \
+ 										 gperf build-essential zip curl zlib1g-dev \
+									 	 zlib1g-dev:i386 libc6-dev lib32ncurses5 lib32z1 \
+										 lib32bz2-1.0 lib32ncurses5-dev x11proto-core-dev \
+										 libx11-dev:i386 libreadline6-dev:i386 lib32z-dev \
+										 libgl1-mesa-glx:i386 libgl1-mesa-dev g++-multilib \
+										 mingw32 tofrodos python-markdown libxml2-utils xsltproc \
+										 readline-common libreadline6-dev libreadline6 \
+										 lib32readline-gplv2-dev libncurses5-dev lib32readline5 \
+										 lib32readline6 libreadline-dev libreadline6-dev:i386 \
+										 libreadline6:i386 bzip2 libbz2-dev libbz2-1.0 libghc-bzlib-dev \
+										 lib32bz2-dev libsdl1.2-dev libesd0-dev squashfs-tools \
+										 pngcrush schedtool libwxgtk2.8-dev python liblz4-tools \
+echo -e '\n';
+echo -e "==========================================================";
+echo -e '\n\n'
+echo -e "=====================JAVA Installation====================";
+echo -e '\n';
+echo -e "1. Install Java"
+echo -e "2. Switch Between Java Versions / Providers"
+echo -e '\n';
+echo -e "3. Back to Main Menu"
+echo -e "==========================================================";
+echo -e '\n';
+read JAVAS;
+
+if [[ "$JAVAS" == 1 ]]; then
+	echo -e "Android Version of the ROM you're building ? "
+	echo -e "1. 4.4 KitKat"
+	echo -e "2. 5.x.x Lollipop & 6.x.x Marshmallow"
+	echo -e "3. Android N (lol)"
+	read ANDVER;
+	if [[ "$ANDVER" == 1 ]]; then
+		java6;
+	elif [[ "$ANDVER" == 2 ]]; then
+		java7;
+	elif [[ "$ANDVER" == 3 ]]; then
+		java8;
+	fi
+elif [[ "$JAVAS" == 2 ]]; then
+	java_select;
+elif [[ "$JAVAS" == 3 ]]; then
+	main_menu;
+fi
+
+}
 function sync
 {
 
