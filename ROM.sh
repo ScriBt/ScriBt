@@ -9,10 +9,12 @@
 # https://github.com/a7r3/scripts - The Original Repo of this ScriBt
 #
 #==================================================================#
-START=${pwd};
+# Store Intermediate Outputs for Working on Some Commands
+TMP=tmpscribt.txt
+# Useless unless used in 'echo'
 BLANK=$(echo -e '\n');
+# Load the Basic Variables
 if [ -f "${PWD}/ROM.rc" ]; then
-	#Initialize
 	source $(pwd)/ROM.rc;
 else
 	echo "ROM.rc isn't present in ${PWD}, please make sure repo is cloned correctly";
@@ -147,7 +149,7 @@ function installdeps
 		echo -e '\n';
 		echo -e "==========================================================";
 		echo -e '\n';
-		if [[ $( java -version | grep -c "java version \"1.6" ) == 1 ]]; then
+		if [[ $( java -version &> $TMP && grep -c 'java version "1.6' $TMP ) == 1 ]]; then
 			echo -e "OpenJDK-6 or Java 6 has been successfully installed"
 		fi
 	}
@@ -158,13 +160,16 @@ function installdeps
 
 		echo -e "Installing OpenJDK-7 (Java 1.7.0)"
 		echo -e "Remove other Versions of Java [y/n]? ( Removing them is Recommended)"
+		echo -e '\n';
 		read REMOJA;
+		echo -e '\n';
 		if [[ "$REMOJA" == y ]]; then
 		sudo apt-get purge openjdk-\* icedtea-\* icedtea6-\*
 		echo -e "Removed Other Versions successfully"
 	elif [[ "$REMOJA" == n ]]; then
 		 echo -e "Keeping them Intact"
 	 fi
+	 	echo -e '\n';
 	 	echo -e "==========================================================";
 		echo -e '\n';
 		sudo apt-get update
@@ -172,7 +177,8 @@ function installdeps
 		echo -e "==========================================================";
 		echo -e '\n';
 		sudo apt-get install openjdk-7-jdk
-		if [[ $( java -version | grep -c "java version \"1.7" ) == 1 ]]; then
+		echo -e '\n';
+		if [[ $(java -version &> $TMP && grep -c 'java version "1.7' $TMP ) == 1 ]]; then
 			echo -e '\n';
 			echo -e "==========================================================";
 			echo -e "OpenJDK-7 or Java 7 has been successfully installed"
@@ -185,14 +191,19 @@ function installdeps
 	{
 
 		echo -e "Remove other Versions of Java [y/n]? ( Removing them is Recommended)"
+		echo -e '\n';
 		read REMOJA;
 		if [[ "$REMOJA" == y ]]; then
+			echo -e '\n';
 			sudo apt-get purge openjdk-\* icedtea-\* icedtea6-\*
+			echo -e '\n';
 			echo -e "Removed Other Versions successfully"
 		elif [[ "$REMOJA" == n ]]; then
 		 	echo -e "Keeping them Intact"
 	 	fi
+		echo -e '\n';
 		echo -e "Installing OpenJDK-8 (Java 1.8.0)"
+		echo -e '\n';
 		echo -e "==========================================================";
 		echo -e '\n';
 		sudo apt-get update
@@ -202,8 +213,10 @@ function installdeps
 		sudo apt-get install openjdk-8-jdk
 		echo -e '\n';
 		echo -e "==========================================================";
-		if [[ $( java -version | grep -c "java version \"1.8" ) == 1 ]]; then
+		if [[ $( java -version &> $TMP && grep -c 'java version "1.8' $TMP ) == 1 ]]; then
+			echo -e '\n';
 			echo -e "OpenJDK-8 or Java 8 has been successfully installed"
+			echo -e '\n';
 		fi
 		echo -e "==========================================================";
 
@@ -244,6 +257,7 @@ if [[ "$JAVAS" == 1 ]]; then
 	echo -e "1. 4.4 KitKat"
 	echo -e "2. 5.x.x Lollipop & 6.x.x Marshmallow"
 	echo -e "3. Android N (lol)"
+	echo -e '\n';
 	read ANDVER;
 	if [[ "$ANDVER" == 1 ]]; then
 		java6;
@@ -290,14 +304,19 @@ function sync
 	fi
 	echo -e "Let's Sync!";
 	echo -e '\n';
-	repo sync -j${JOBS} ${SILENT} ${FRC} ;
-	if [[ $( grep -c "Syncing work tree: 100%" ) == 1 ]]; then
+	repo sync -j${JOBS} ${SILENT} ${FRC} 2>&1 | tee $TMP;
+	echo -e '\n';
+	if [[ $( grep -c 'Syncing work tree: 100%' $TMP ) == 1 ]]; then
 		echo -e "ROM Source synced successfully."
 	fi
+	rm -rf $TMP;
 	echo -e '\n';
 	echo -e "${LPURP}Done.${NONE}!";
+	echo -e '\n';
 	echo -e "${LRED}=========================================================${NONE}";
-		echo -e "Start Over Again?\n 1 to Restart\n 0 for Main Menu"
+	echo -e '\n';
+	echo -e "Start Over Again?\n 1 to Restart\n 0 for Main Menu"
+	echo -e '\n';
 	read B2M;
 	if [[ "$B2M" == 1 ]]; then
 		sync;
@@ -344,12 +363,14 @@ ${LPURP}=======================================================${NONE}";
 	sleep 1;
 	echo -e '\n';
 	echo -e "Since Branches may live or die at any moment, ${LRED}Specify the Branch${NONE} you're going to sync"
+	echo -e '\n';
 	read BRANCH;
 	echo -e '\n';
 	echo -e "Any ${LRED}Source you have already synced?${NONE} If yes, then say YES and Press ${LCYAN}ENTER${NONE}";
 	echo -e '\n';
 	read REFY;
 	if [[ "$REFY" == YES ]]; then
+		echo -e '\n';
 		echo -e "Provide me the ${LRED}Synced Source's Location${NONE} from / ";
 		echo -e '\n';
 		read REFER;
@@ -357,6 +378,7 @@ ${LPURP}=======================================================${NONE}";
 	else
 		REF=" " ;
 	fi
+	echo -e '\n';
 		#Getting Manifest Link
 		if [[ "$ROM_NAME" == OmniROM || "$ROM_NAME" == CyanogenMod ]]; then
 			MAN=android.git;
@@ -418,28 +440,20 @@ function pre_build
 {
 
 	echo -e "${CYAN}Initializing Build Environment${NONE}"
+	echo -e '\n';
 	. build/envsetup.sh
+	echo -e '\n';
 	echo -e "${LPURP}Done.${NONE}."
 	echo -e '\n\n';
 	echo -e "${LCYAN}=======================DEVICE INFO=======================${NONE}";
+	echo -e '\n';
 	echo -e "What's your ${LRED}Device's CodeName${NONE} ${LGRN}[Refer Device Tree - All Lowercases]${NONE}?";
 	echo -e '\n';
 	read DEVICE;
+	echo -e '\n'
+	echo -e "The ${LRED}Build type${NONE}? ${LGRN}[userdebug/user/eng]${NONE}";
 	echo -e '\n';
-
-	function btype
-	{
-		echo -e "The ${LRED}Build type${NONE}? ${LGRN}[userdebug/user/eng]${NONE}";
-		echo -e '\n';
-		read BTYP;
-		if [[ "$BTYP" != userdebug || "$BTYP" != eng || "$BTYP" != user ]]; then
-			echo -e "Invalid Build-Type. Specify Again"
-			btype;
-		fi
-	} #btype_verification
-
-	# Get Build-Type from user
-	btype;
+	read BTYP;
 	echo -e '\n';
 	echo -e "Your ${LRED}Device's Company/Vendor${NONE} (All Lowercases)?";
 	echo -e '\n';
@@ -448,14 +462,16 @@ function pre_build
 	echo -e "${LCYAN}=========================================================${NONE}";
 	rom_name_in_source;
 	echo -e '\n\n'
+	echo -e "${LPURP}=========================================================${NONE}"
 	cd vendor/${ROMNIS}
-	if [[ $( ls | grep -c "${ROMNIS}.devices" ) == 1 ]]; then
+	echo -e '\n';
+	if [ -f ${ROMNIS}.devices ]; then
 		echo -e "Adding your Device to ROM Vendor (Strategy 1)";
 		echo -e '\n';
 		echo "${DEVICE}" >> ${ROMNIS}.devices;
 		echo "DONE!"
 		croot;
-	elif [[ $( ls | grep -c "vendorsetup.sh" ) == 1 ]]; then
+	elif [ -f vendorsetup.sh ]; then
 		echo -e "Adding your Device to ROM Vendor (Strategy 2)"
 		echo -e '\n';
 		echo "add_lunch_combo ${ROMNIS}_${DEVICE}-${BTYP}" >> vendorsetup.sh
@@ -465,6 +481,7 @@ function pre_build
 		croot;
 		echo "Adding your Device to ROM Vendor (Strategy 3)"
 		echo -e "Let's go to teh ${LRED}Device Directory!${NONE}";
+		echo -e '\n'
 		cd device/${COMP}/${DEVICE};
 		echo -e "Creating VendorSetup.sh if absent in tree";
 			if [ ! -f vendorsetup.sh ]; then
@@ -472,6 +489,7 @@ function pre_build
 				echo -e "Done [1/2]"
 			fi
 		echo -e "add_lunch_combo ${ROMNIS}_${DEVICE}-${BTYP}" >> vendorsetup.sh
+		echo -e '\n'
 		echo "DONE! [2/2]"
 		croot;
 	fi
@@ -503,16 +521,19 @@ function pre_build
 		croot;
 # Done
 		echo -e '\n\n'
-		echo -e "Now ${ROMNIS}fy! your Device Tree! Press ${LCYAN}ENTER${NONE} when ${LPURP}Done.${NONE} ";
 		echo -e "${LPURP}=========================================================${NONE}"
+		echo -e "Now ${ROMNIS}fy! your Device Tree! Press ${LCYAN}ENTER${NONE} when ${LPURP}Done.${NONE} ";
 		read NOOB;
 		echo -e '\n\n';
 		sleep 3;
 		echo -e '\n';
+		echo -e "${RED}=========================================================${NONE}"
 		echo -e "I_IZ_NOOB :P - We're Successful";
-
+		echo -e '\n'
 		echo -e "Start Over Again?\n 1 to Restart\n 0 for Main Menu"
+		echo -e '\n';
 		read B2M;
+		echo -e "${RED}=========================================================${NONE}"
 		if [[ "$B2M" == 1 ]]; then
 			pre_build;
 		elif [[ "$B2M" == 0 ]]; then
@@ -527,11 +548,14 @@ function build
 	function make_module
 	{
 		echo -e "Do you know the build location of the Module?";
+		echo -e '\n'
 		read KNWLOC;
+		echo -e '\n'
 		if [[ "$KNWLOC" == y ]]; then
 			make_it;
 		else
 			echo -e "Do either of these two actions: \n1. ${BLU}G${NONE}${RED}o${NONE}${YELO}o${NONE}${BLU}g${NONE}${GRN}l${NONE}${RED}e${NONE} it (Easier)\n2. Run this command in terminal : ${LBLU}sgrep \"LOCAL_MODULE := Insert_MODULE_NAME_Here \"${NONE}.\n\n Press ${LCYAN}ENTER${NONE} after it's ${LPURP}Done.${NONE}.";
+			echo -e '\n'
 			read OK;
 			make_it;
 		fi
@@ -540,9 +564,12 @@ function build
 	function make_it #Part of make_module
 	{
 		echo -e "${LCYAN}ENTER${NONE} the Directory where the Module is made from";
+		echo -e '\n'
 		read MODDIR;
 		echo -e "Do you want to ${LRED}push the Module${NONE} to the ${LRED}Device${NONE} ? (Running the Same ROM) ${LGRN}[y/n]${NONE}";
+		echo -e '\n'
 		read PMOD;
+		echo -e '\n'
 		if [[ "$PMOD" == y ]]; then
 			mmmp -B $MODDIR;
 		else
@@ -553,8 +580,9 @@ function build
 	function set_ccache
 	{
 		echo -e "Setting up CCACHE"
+		echo -e '\n'
 		prebuilts/misc/linux-x86/ccache/ccache -M ${CCSIZE}G
-		echo -e "CCACHE Setup Successful."
+		echo -e "CCACHE Setup ${GRN}Successful${NONE}."
 		echo -e '\n';
 	} #set_ccache
 
@@ -562,16 +590,21 @@ function build
 	{
 		echo -e "Provide this Script Root-Access, so that it can write CCACHE export values. No Hacks Honestly (Check the Code)"
 		echo -en "Why? Coz .bashrc or it's equivalents can only be Modified by a Root user"
+		echo -e '\n'
 		sudo -i;
+		echo -e '\n'
 		if [[ $(whoami) == root ]]; then
 			echo -e "Thanks, Performing Changes."
 		else
 			echo -e "No Root Access, Abort."
 			main_menu;
 		fi
+		echo -e '\n'
 		echo -e "CCACHE Size must be >50 GB.\n Think about it and Specify the Size (Number) for Reservation of CCACHE (in GB)";
+		echo -e '\n'
 		read CCSIZE;
 		echo -e "Create a New Folder for CCACHE and Specify it's location from / here"
+		echo -e '\n'
 		read CCDIR;
 			if [ -f ${HOME}/.bashrc ]; then
 					echo "export USE_CCACHE=1" >> ${HOME}/.bashrc
@@ -596,6 +629,7 @@ function build
 			fi
 		echo -e "Giving up Root Access";
 		exit
+		echo -e '\n';
 		echo "Done."
 		echo -e '\n';
 		set_ccache;
@@ -603,7 +637,7 @@ function build
 
 	function post_make
 	{
-		if [[ $(grep -c "make completed successfully") == 1 ]]; then
+		if [[ $( grep -c 'make completed successfully' $TMP ) == 1 ]]; then
 			echo -e '\n';
 			echo "Build Completed! Cool. Now make it Boot!"
 #		elif [[ $(grep -c "No rule to make target ") == 1 ]]; then
@@ -633,26 +667,45 @@ function build
 	read BOPT;
 	echo -e '\n';
 		if [[ "$BOPT" == 1 ]]; then
-		echo -e "Should i use '${YELO}make${NONE}' or '${RED}mka${NONE}' ?"
-		read MKWAY;
-		if [[ "$MKWAY" == make ]]; then
-			BCORES=$(grep -c ^processor /proc/cpuinfo);
-		else
-			BCORES="";
-		fi
-		if [[ "$ROMNIS" == tipsy || "$ROMNIS" == validus || "$ROMNIS" == tesla ]]; then
-			$MKWAY $ROMNIS $BCORES
-		else
-			if [[ $(grep -q "^bacon:" "${ANDROID_BUILD_TOP}/build/core/Makefile") ]]; then
-				$MKWAY bacon $BCORES
+			echo -e "====================================[*] HOTEL MENU [*]====================================="
+			echo -e '\n'
+			echo -e "                       ${LGRN}So, what would you like to feed your Device?${NONE} "
+			echo -e '\n';
+			echo -e "${LRED}A SideNote : Menu is only for your Device, not for you. No Complaints plz.${NONE}"
+			echo -e '\n'
+			echo -e "[*] ${RED}lunch${NONE} - If your Device is not in the ROM's Devices list - ${ORNG}Unofficial${NONE} [*]"
+			echo -e "[*] ${YELO}breakfast${NONE} - (If your Device is a ${GRN}Official Device${NONE} for that particular ROM - ${GRN}Official${NONE} [*]"
+			echo -e "[*] ${GRN}brunch${NONE} - lunch + sync capabilities like breakfast - ${ORNG}Unofficial${NONE} [*]"
+			echo -e '\n'
+			echo -e "Type in the Option you want to select"
+			echo -e "Tip! - If you're building it for the first time, then select lunch (Recommended)"
+			echo -e "==========================================================================================="
+			echo -e '\n'
+			read SELT;
+			if [[ "$SELT" == lunch ]]; then
+				${SELT} ${ROMNIS}_${DEVICE}-${BTYP}
+			elif [[ "$SELT" == breakfast || "$SELT" == brunch ]]; then
+				${SELT} ${DEVICE}
+			fi
+			echo -e '\n'
+			echo -e "Should i use '${YELO}make${NONE}' or '${RED}mka${NONE}' ?"
+			echo -e '\n'
+			read MKWAY;
+			if [[ "$MKWAY" == make ]]; then
+				BCORES=$(grep -c ^processor /proc/cpuinfo);
+			else
+				BCORES="";
+			fi
+			if [[ "$ROMNIS" == tipsy || "$ROMNIS" == validus || "$ROMNIS" == tesla ]]; then
+				$MKWAY $ROMNIS $BCORES 2>&1 | tee $TMP
+			elif [[ $(grep -q "^bacon:" "${ANDROID_BUILD_TOP}/build/core/Makefile") ]]; then
+				$MKWAY bacon $BCORES 2>&1 | tee $TMP
 				post_build;
 			else
-				$MKWAY otapackage $BCORES
+				$MKWAY otapackage $BCORES 2>&1 | tee $TMP
 				post_build;
 			fi
 		fi
-
-  	fi
 
 	if [[ "$BOPT" == 2 ]]; then
 		$MKWAY installclean
@@ -681,6 +734,7 @@ function build
 	fi
 
 echo -e "Start Over Again?\n 1 to Restart\n 0 for Main Menu"
+echo -e '\n'
 read B2M;
 if [[ "$B2M" == 1 ]]; then
 	build;
@@ -695,6 +749,10 @@ function exitScriBt
 	echo -e '\n\n';
 	echo -e "Thanks for using this ${LRED}S${NONE}cri${GRN}B${NONE}t. Have a Nice Day";
 	sleep 2;
+	echo -e "Removing Temporary Files"
+	rm -rf $TMP;
+	echo "DONE"
+	echo "Bye!"
 	exit 0;
 } #exitScriBt
 
