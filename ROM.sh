@@ -13,6 +13,7 @@
 # GNU General Public License for more details.                         #
 #                                                                      #
 #======================================================================#
+#
 # This Script and ROM.rc has to be placed under a Synced Source        #
 # Directory (if and only if you're using this script to build)         #
 #                                                                      #
@@ -834,7 +835,6 @@ function build
 				post_build;
 			fi
 		fi
-	fi
 
 	if [[ "$BOPT" == 2 ]]; then
 		$MKWAY installclean
