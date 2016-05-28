@@ -34,3 +34,25 @@ function buildinfo
 SELT=                     # lunch / brunch / breakfast
 MKWAY=                    # make / mka
 }
+
+function automate         #Function will only work if it has all the Values Pre-Defined
+{
+
+#CALL ALL of the ABOVE functions
+color;
+repoinit;
+reposync;
+deviceinfo;
+buildinfo;
+
+# You may Enter your Desired Build Sequence here
+# Default Sequence - You may change this
+
+init;
+sync;
+build;
+exit;
+
+# WIP Function
+
+}

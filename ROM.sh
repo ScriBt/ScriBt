@@ -9,8 +9,9 @@
 # https://github.com/a7r3/scripts - The Original Repo of this ScriBt
 #
 #==================================================================#
-# Store Intermediate Outputs for Working on Some Commands
-TMP=tmpscribt.txt
+# Create a Text file to Store Intermediate Outputs for Working on Some Commands
+touch tmpscribt.txt;
+TMP=tmpscribt.txt;
 # Useless unless used in 'echo'
 BLANK=$(echo -e '\n');
 # Load the Basic Variables
@@ -25,6 +26,14 @@ fi
 if [[ -f PREF.rc ]]; then
 	source $(pwd)/PREF.rc
 	echo -e "Cheat Code SHUT_MY_MOUTH applied. I won't ask questions anymore";
+	echo -e '\n';
+	echo -e "Loading all Vars...."
+	color;
+	repoinit;
+	reposync;
+	deviceinfo;
+	buildinfo;
+	echo -e "Successfully Collected Information. Ready to Go!"
 else
 	echo -e "Don't lose patience the next time. Enter your Values in PREF.rc and Shut my Mouth! lol";
 	echo -e "PREF.rc is the file"
@@ -868,4 +877,10 @@ function exitScriBt
 } #exitScriBt
 
 #START IT --- VROOM!
-main_menu;
+if [[ "$1" == automate ]]; then
+	source $(pwd)/PREF.rc
+	automate;
+	echo -e "Automated Building Selected!"
+else
+	main_menu;
+fi
