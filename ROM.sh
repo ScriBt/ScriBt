@@ -13,7 +13,7 @@
 # GNU General Public License for more details.                         #
 #                                                                      #
 #======================================================================#
-#
+#                                                                      #
 # This Script and ROM.rc has to be placed under a Synced Source        #
 # Directory (if and only if you're using this script to build)         #
 #                                                                      #
@@ -46,6 +46,7 @@ fi
 #CHEAT CHEAT CHEAT!
 if [[ -f PREF.rc ]]; then
 	source $(pwd)/PREF.rc
+	echo -e '\n';
 	echo -e "Cheat Code SHUT_MY_MOUTH applied. I won't ask questions anymore";
 	echo -e '\n';
 	echo -e "Loading all Vars...."
@@ -54,9 +55,11 @@ if [[ -f PREF.rc ]]; then
 	reposync;
 	deviceinfo;
 	buildinfo;
+	echo -e '\n';
 	echo -e "Successfully Collected Information. Ready to Go!"
 else
 	echo -e "Don't lose patience the next time. Enter your Values in PREF.rc and Shut my Mouth! lol";
+	echo -e '\n';
 	echo -e "PREF.rc is the file"
 fi
 
@@ -66,6 +69,7 @@ echo "=======================================================";
 
 if [[ -f PREF.rc ]]; then
 	color;
+	echo -e '\n';
 	echo -e "Coloured ScriBt : $COLOR "
 else
 	read COLOR;
@@ -165,6 +169,15 @@ function teh_action
 
 } #teh_action
 
+function quick_menu
+{
+	echo -e "${YELO}============================${NONE} ${LRED}QUICK-MENU${NONE} ${YELO}=============================${NONE}"
+	echo -e "${RED}1. Init${NONE} | ${YELO}2. Sync${NONE} | ${GRN}3. Pre-Build${NONE} | ${LGRN}4. Build${NONE} | ${PURP}5. Install Dependencies${NONE}"
+	echo -e "                               6. Exit                               "
+	echo -e "${YELO}=====================================================================${NONE}"
+	read ACTION;
+	teh_action;
+}
 function installdeps
 {
 
@@ -360,6 +373,21 @@ function sync
 	else
 		read SIL;
 	fi
+	echo -e "Sync only Current Branch? [y/n] (Saves Space)"
+	echo -e '\n'
+	#SHUT_MY_MOUTH
+	if [[ -f PREF.rc ]]; then
+		reposync;
+		echo -e  "Sync Current Branch : $CRNT"
+	else
+		read CRNT;
+	fi
+
+	if [[ "$CRNT" == y ]]; then
+		SYNC_CRNT=-c;
+	else
+		SYNC_CRNT=" ";
+	fi
 
 	echo -e '\n';
 	echo -e '\n';
@@ -376,26 +404,22 @@ function sync
 	fi
 	echo -e "Let's Sync!";
 	echo -e '\n';
-	repo sync -j${JOBS} ${SILENT} ${FORCE} 2>&1 | tee $TMP;
+	repo sync -j${JOBS} ${SILENT} ${FORCE} ${SYNC_CRNT} # 2>&1 | tee $TMP;
 	echo -e '\n';
-	if [[ $( grep -c 'Syncing work tree: 100%' $TMP ) == 1 ]]; then
-		echo -e "ROM Source synced successfully."
-	fi
+#Useless	if [[ $( grep -c 'Syncing work tree: 100%' $TMP ) == 1 ]]; then
+#Useless		echo -e "ROM Source synced successfully."
+#Useless	fi
 	rm -rf $TMP;
 	echo -e '\n';
 	echo -e "${LPURP}Done.${NONE}!";
 	echo -e '\n';
 	echo -e "${LRED}=========================================================${NONE}";
 	echo -e '\n';
-	echo -e "Start Over Again?\n 1 to Restart\n 0 for Main Menu"
-	echo -e '\n';
-	read B2M;
-	if [[ "$B2M" == 1 ]]; then
-		sync;
-	elif [[ "$B2M" == 0 ]]; then
-		main_menu;
-	fi
-
+if [[ ! -f PREF.rc ]]; then
+	quick_menu;
+else
+	echo -e "Automated sync Successful"
+fi
 } #sync
 
 function init
@@ -643,20 +667,28 @@ function pre_build
 		echo -e "${RED}=========================================================${NONE}"
 		echo -e "I_IZ_NOOB :P - We're Successful";
 		echo -e '\n'
-		echo -e "Start Over Again?\n 1 to Restart\n 0 for Main Menu"
-		echo -e '\n';
-		read B2M;
-		echo -e "${RED}=========================================================${NONE}"
-		if [[ "$B2M" == 1 ]]; then
-			pre_build;
-		elif [[ "$B2M" == 0 ]]; then
-			main_menu;
+		if [[ ! -f PREF.rc ]]; then
+			quick_menu;
+		else
+			echo -e "Automated Pre-Build Successful"
 		fi
 
 } #pre_build
 
 function build
 {
+
+	function clean_build
+	{
+		if [[ "$MKCLNB4BLD" == 2 || "$BOPT" == 2 ]]; then
+			$MKWAY installclean
+		fi
+
+		if [[ "$MKCLNB4BLD" == 3 || "$BOPT" == 3 ]]; then
+			$MKWAY clean
+		fi
+
+	} #clean_build
 
 	function make_module
 	{
@@ -746,21 +778,87 @@ function build
 		echo "Done."
 		echo -e '\n';
 		set_ccache;
+
 	} #set_ccvars
 
-	function post_make
-	{
-		if [[ $( grep -c 'make completed successfully' $TMP ) == 1 ]]; then
-			echo -e '\n';
-			echo "Build Completed! Cool. Now make it Boot!"
+#	function post_make
+#	{
+#		if [[ $( grep -c 'make completed successfully' $TMP ) == 1 ]]; then
+#			echo -e '\n';
+#			echo "Build Completed! Cool. Now make it Boot!"
 #		elif [[ $(grep -c "No rule to make target ") == 1 ]]; then
 #			echo -e "Looks like a Module isn't getting built."
 #			echo -e "Find the name of the Missing Module, and Search from where it is being made."
 #			echo -e "If done do a mmm to it - There are two chances:"
 #			echo -e "		Either the Module will get built - OR - The Module will ask for other Dependency for it to get built"
-		fi
-	}
+#		fi
+#	}
 
+	function build_make
+	{
+		# For Brunchers and Breakfasters
+		if [[ "$SELT" == brunch || "$SELT" == breakfast ]]; then
+			time ${SELT} ${DEVICE}
+			echo -e "Grab the Logs Before you do anything else. IT will VANISH else"
+		else
+			#Start Build NOW!
+			if [[ "$MKWAY" == make ]]; then
+				BCORES=$(grep -c ^processor /proc/cpuinfo);
+			else
+				BCORES="";
+			fi
+			if [[ "$ROMNIS" == tipsy || "$ROMNIS" == validus || "$ROMNIS" == tesla ]]; then
+				time	$MKWAY $ROMNIS $BCORES 2>&1 | tee $TMP
+				echo -e "Grab the Logs Before you do anything else. IT will VANISH else"
+			elif [[ $(grep -q "^bacon:" "${ANDROID_BUILD_TOP}/build/core/Makefile") ]]; then
+				time $MKWAY bacon $BCORES 2>&1 | tee $TMP
+				echo -e "Grab the Logs Before you do anything else. IT will VANISH else"
+#				post_build; WiP
+			else
+				time $MKWAY otapackage $BCORES 2>&1 | tee $TMP
+				echo -e "Grab the Logs Before you do anything else. IT will VANISH else"
+#				post_build; WiP
+			fi
+		fi
+} #build_make
+
+function hotel_menu
+{
+	echo -e "====================================[*] HOTEL MENU [*]====================================="
+	echo -e '\n'
+	echo -e "                       ${LGRN}So, what would you like to feed your Device?${NONE} "
+	echo -e '\n';
+	echo -e "${LRED}A SideNote : Menu is only for your Device, not for you. No Complaints plz.${NONE}"
+	echo -e '\n'
+	echo -e "[*] ${RED}lunch${NONE} - If your Device is not in the ROM's Devices list - ${ORNG}Unofficial${NONE} [*]"
+	echo -e "[*] ${YELO}breakfast${NONE} - (If your Device is a ${GRN}Official Device${NONE} for that particular ROM - ${GRN}Official${NONE} [*]"
+	echo -e "[*] ${GRN}brunch${NONE} - lunch + sync capabilities like breakfast - ${ORNG}Unofficial${NONE} [*]"
+	echo -e '\n'
+	echo -e "Type in the Option you want to select"
+	echo -e "Tip! - If you're building it for the first time, then select lunch (Recommended)"
+	echo -e "==========================================================================================="
+	echo -e '\n'
+
+	#SHUT_MY_MOUTH
+	if [[ -f PREF.rc ]]; then
+		buildinfo;
+		echo -e "*Auto* Selected Option : $SELT"
+	else
+		read SELT;
+	fi
+
+	if [[ "$SELT" == lunch ]]; then
+		if [[ -f PREF.rc ]]; then
+			deviceinfo;
+			repoinit;
+			rom_name_in_source;
+		fi
+		${SELT} ${ROMNIS}_${DEVICE}-${BTYP}
+	elif [[ "$SELT" == breakfast || "$SELT" == brunch ]]; then
+		build_make;
+	fi
+
+}
 	echo -e "${LPURP}=========================================================${NONE}"
 	echo -e '\n';
 	echo -e "${CYAN}Initializing Build Environment${NONE}";
@@ -777,72 +875,37 @@ function build
 	echo -e '\n';
 	echo -e "${LPURP}=========================================================${NONE}"
 	echo -e '\n';
-	read BOPT;
+	if [[ -f PREF.rc ]]; then
+		buildinfo;
+		echo -e "*AUTO* Option Selected : $BOPT"
+	else
+		read BOPT;
+	fi
 	echo -e '\n';
 		if [[ "$BOPT" == 1 ]]; then
-			echo -e "====================================[*] HOTEL MENU [*]====================================="
+			hotel_menu;
 			echo -e '\n'
-			echo -e "                       ${LGRN}So, what would you like to feed your Device?${NONE} "
-			echo -e '\n';
-			echo -e "${LRED}A SideNote : Menu is only for your Device, not for you. No Complaints plz.${NONE}"
-			echo -e '\n'
-			echo -e "[*] ${RED}lunch${NONE} - If your Device is not in the ROM's Devices list - ${ORNG}Unofficial${NONE} [*]"
-			echo -e "[*] ${YELO}breakfast${NONE} - (If your Device is a ${GRN}Official Device${NONE} for that particular ROM - ${GRN}Official${NONE} [*]"
-			echo -e "[*] ${GRN}brunch${NONE} - lunch + sync capabilities like breakfast - ${ORNG}Unofficial${NONE} [*]"
-			echo -e '\n'
-			echo -e "Type in the Option you want to select"
-			echo -e "Tip! - If you're building it for the first time, then select lunch (Recommended)"
-			echo -e "==========================================================================================="
-			echo -e '\n'
-
-			#SHUT_MY_MOUTH
-			if [[ -f PREF.rc ]]; then
-				buildinfo;
-				echo -e "*Auto* Selected Option : $SELT"
-			else
-				read SELT;
-			fi
-
-			if [[ "$SELT" == lunch ]]; then
-				${SELT} ${ROMNIS}_${DEVICE}-${BTYP}
-			elif [[ "$SELT" == breakfast || "$SELT" == brunch ]]; then
-				${SELT} ${DEVICE}
-			fi
-			echo -e '\n'
-
+			echo -e "Should i use '${YELO}make${NONE}' or '${RED}mka${NONE}' ?"
 			#SHUT_MY_MOUTH
 			if [[ -f PREF.rc ]]; then
 				buildinfo;
 				echo -e "Selected Method : $MKWAY "
 			else
-				echo -e "Should i use '${YELO}make${NONE}' or '${RED}mka${NONE}' ?"
 				echo -e '\n'
 				read MKWAY;
 			fi
-
-			if [[ "$MKWAY" == make ]]; then
-				BCORES=$(grep -c ^processor /proc/cpuinfo);
+			echo -e "Wanna Clean the /out before Building? [2/3 as in Build Menu]"
+			if [[ -f PREF.rc ]]; then
+				buildinfo;
+				echo -e "*Auto* Option Selected : $MKCLNB4BLD ";
 			else
-				BCORES="";
+			read MKCLNB4BLD; #Name's Big - I'll change it later
 			fi
-			if [[ "$ROMNIS" == tipsy || "$ROMNIS" == validus || "$ROMNIS" == tesla ]]; then
-				$MKWAY $ROMNIS $BCORES 2>&1 | tee $TMP
-			elif [[ $(grep -q "^bacon:" "${ANDROID_BUILD_TOP}/build/core/Makefile") ]]; then
-				$MKWAY bacon $BCORES 2>&1 | tee $TMP
-				post_build;
-			else
-				$MKWAY otapackage $BCORES 2>&1 | tee $TMP
-				post_build;
+			if [[ "$MKCLNB4BLD" == 2  || "$MKCLNB4BLD" == 3 ]]; then
+			 clean_build; #CLEAN THE BUILD
 			fi
-		fi
-
-	if [[ "$BOPT" == 2 ]]; then
-		$MKWAY installclean
-	fi
-
-	if [[ "$BOPT" == 3 ]]; then
-		$MKWAY clean
-	fi
+			build_make;
+		fi #$BOPT = 1
 
 	if [[ "$BOPT" == 4 ]]; then
 		make_module;
@@ -862,14 +925,12 @@ function build
 		fi
 	fi
 
-echo -e "Start Over Again?\n 1 to Restart\n 0 for Main Menu"
-echo -e '\n'
-read B2M;
-if [[ "$B2M" == 1 ]]; then
-	build;
-elif [[ "$B2M" == 0 ]]; then
-	main_menu;
-fi
+	if [[ ! -f PREF.rc ]]; then
+		quick_menu;
+	else
+		echo -e "Automated Build Successful"
+	fi
+
 
 } #build
 

@@ -11,7 +11,7 @@ function reposync
 JOBS=                     # No of Threads for Sync [integers]
 FRC=                      # Force Sync ? [y/n]
 SIL=                      # Silent sync ? [y/n]
-
+CRNT=                     # Sync Current Branch ? [y/n]
 }
 
 function repoinit
@@ -31,8 +31,10 @@ COMP=                     # Device Company / Vendor
 
 function buildinfo
 {
+BOPT=1                    # BOPT=1 for Start Build with Zip Generation at the End - Better not to change
 SELT=                     # lunch / brunch / breakfast
 MKWAY=                    # make / mka
+MKCLNB4BLD=               # Clean Before Build? [ 2 for installclean & 3 for total clean ]
 }
 
 function automate         #Function will only work if it has all the Values Pre-Defined
