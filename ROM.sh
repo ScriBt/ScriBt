@@ -21,16 +21,34 @@ else
 	exit 1;
 fi
 
+#CHEAT CHEAT CHEAT!
+if [[ -f PREF.rc ]]; then
+	source $(pwd)/PREF.rc
+	echo -e "Cheat Code SHUT_MY_MOUTH applied. I won't ask questions anymore";
+else
+	echo -e "Don't lose patience the next time. Enter your Values in PREF.rc and Shut my Mouth! lol";
+	echo -e "PREF.rc is the file"
+fi
+
 echo "=======================================================";
 echo -e "Before I can start, do you like a \033[1;31mC\033[0m\033[0;32mo\033[0m\033[0;33ml\033[0m\033[0;34mo\033[0m\033[0;36mr\033[0m\033[1;33mf\033[0m\033[1;32mu\033[0m\033[0;31ml\033[0m life? [y/n]";
 echo "=======================================================";
-read COLOR;
+
+if [[ -f PREF.rc ]]; then
+	color;
+	echo -e "Cheat code SHUT_MY_MOUTH applied"
+	echo -e "Coloured ScriBt : $COLOR "
+else
+	read COLOR;
+fi
+
 if [[ "$COLOR" == y ]]; then
 	color_my_life;
 else
 	i_like_colourless;
 fi
 clear;
+echo -ne '\033]0;ScriBt\007'
 echo -e '\n\n';
 sleep 0.1;
 echo -e "${ORNG}             88P'888'Y88         888                          ${NONE}";
@@ -98,15 +116,21 @@ function teh_action
 
 	if [[ "$ACTION" == 1 ]]; then
 		init;
+		echo -ne '\033]0;ScriBt : Init\007'
 	elif [[ "$ACTION" == 2 ]]; then
 		sync;
+		echo -ne '\033]0;ScriBt : Sync\007'
 	elif [[ "$ACTION" == 3 ]]; then
 		pre_build;
+		echo -ne '\033]0;ScriBt : Pre-Build\007'
 	elif [[ "$ACTION" == 4 ]]; then
 		build;
+		echo -ne '\033]0;ScriBt : Building\007'
 	elif [[ "$ACTION" == 5 ]]; then
 		installdeps;
+		echo -ne '\033]0;ScriBt : InstallDeps\007'
 	elif [[ "$ACTION" == 6 ]]; then
+		echo -ne '\033]0;BYE!\007'
 		exitScriBt;
 	fi
 
@@ -253,6 +277,7 @@ echo -e '\n';
 read JAVAS;
 
 if [[ "$JAVAS" == 1 ]]; then
+	echo -ne '\033]0;ScriBt : Java\007'
 	echo -e "Android Version of the ROM you're building ? "
 	echo -e "1. 4.4 KitKat"
 	echo -e "2. 5.x.x Lollipop & 6.x.x Marshmallow"
@@ -279,32 +304,53 @@ function sync
 	echo -e "Let's sync it!";
 	echo -e '\n';
 	echo -e "${LRED}Number of Threads${NONE} for Sync?";
+	#SHUT_MY_MOUTH
+	if [[ -f PREF.rc ]]; then
+		reposync;
+		echo -e "Cheat code SHUT_MY_MOUTH applied"
+		echo -e "No of Threads : ${JOBS}"
+	else
+		read JOBS;
+	fi
 	echo -e '\n';
-	read JOBS;
 	echo -e '\n';
 	echo -e "${LRED}Force Sync${NONE} needed? ${LGRN}[y/n]${NONE}";
-	echo -e '\n';
-	read FRC;
+	if [[ -f PREF.rc ]]; then
+		reposync;
+		echo -e "Cheat code SHUT_MY_MOUTH applied"
+		echo -e "Force Sync : ${FRC}"
+	else
+		read FRC;
+	fi
 	echo -e '\n';
 	echo -e "Need some ${LRED}Silence${NONE} in teh Terminal? ${LGRN}[y/n]${NONE}";
 	echo -e '\n';
-	read SILENT;
+
+	#SHUT_MY_MOUTH
+	if [[ -f PREF.rc ]]; then
+		reposync;
+		echo -e "Cheat code SHUT_MY_MOUTH applied"
+		echo -e "Silent Sync : ${SIL}"
+	else
+		read SIL;
+	fi
+
 	echo -e '\n';
-		echo -e '\n';
+	echo -e '\n';
 	#Sync-Options
-	if [[ "$SILENT" == y ]]; then
+	if [[ "$SIL" == y ]]; then
 		SILENT=-q;
 	else
 		SILENT=" " ;
 	fi
 	if [[ "$FRC" == y ]]; then
-		FRC=--force-sync;
+		FORCE=--force-sync;
 	else
-		FRC=" " ;
+		FORCE=" " ;
 	fi
 	echo -e "Let's Sync!";
 	echo -e '\n';
-	repo sync -j${JOBS} ${SILENT} ${FRC} 2>&1 | tee $TMP;
+	repo sync -j${JOBS} ${SILENT} ${FORCE} 2>&1 | tee $TMP;
 	echo -e '\n';
 	if [[ $( grep -c 'Syncing work tree: 100%' $TMP ) == 1 ]]; then
 		echo -e "ROM Source synced successfully."
@@ -364,22 +410,43 @@ ${LPURP}=======================================================${NONE}";
 	echo -e '\n';
 	echo -e "Since Branches may live or die at any moment, ${LRED}Specify the Branch${NONE} you're going to sync"
 	echo -e '\n';
-	read BRANCH;
+	#SHUT_MY_MOUTH
+	if [[ -f PREF.rc ]]; then
+		repoinit;
+		echo -e "Cheat code SHUT_MY_MOUTH applied"
+		echo -e "Branch : $BRANCH"
+	else
+		read BRANCH;
+	fi
+
 	echo -e '\n';
 	echo -e "Any ${LRED}Source you have already synced?${NONE} If yes, then say YES and Press ${LCYAN}ENTER${NONE}";
 	echo -e '\n';
-	read REFY;
-	if [[ "$REFY" == YES ]]; then
-		echo -e '\n';
-		echo -e "Provide me the ${LRED}Synced Source's Location${NONE} from / ";
-		echo -e '\n';
-		read REFER;
-		REF=--reference\=\"${REFER}\"
+
+	#SHUT_MY_MOUTH
+	if [[ -f PREF.rc ]]; then
+		repoinit;
+		echo -e "Cheat code SHUT_MY_MOUTH applied"
+		if [[ "$REFY" == YES ]]; then
+			echo -e "YES, you have a Reference Source"
+			echo -e "The Reference location is : ${REF}"
+		else
+			echo -e "NO, you don't have a Reference Source. Fresh Sync"
+		fi
 	else
-		REF=" " ;
+		read REFY;
 	fi
-	echo -e '\n';
-		#Getting Manifest Link
+		if [[ "$REFY" == YES ]]; then
+			echo -e '\n';
+			echo -e "Provide me the ${LRED}Synced Source's Location${NONE} from / ";
+			echo -e '\n';
+			read REFER;
+			REF=--reference\=\"${REFER}\"
+		else
+			REF=" " ;
+		fi
+		echo -e '\n';
+	#Getting Manifest Link
 		if [[ "$ROM_NAME" == OmniROM || "$ROM_NAME" == CyanogenMod ]]; then
 			MAN=android.git;
 		fi
@@ -395,7 +462,7 @@ ${LPURP}=======================================================${NONE}";
 		if [[ "$ROM_NAME" == PAC-ROM ]]; then
 				MAN=pac-rom.git;
 		fi
-#Check for Presence of Repo Binary
+		#Check for Presence of Repo Binary
 		if [[ ! $(which repo) ]]; then
 			echo -e "Looks like the Repo binary isn't installed. Let's Install it."
 			if [ ! -d "${HOME}/bin" ]; then
@@ -449,15 +516,42 @@ function pre_build
 	echo -e '\n';
 	echo -e "What's your ${LRED}Device's CodeName${NONE} ${LGRN}[Refer Device Tree - All Lowercases]${NONE}?";
 	echo -e '\n';
-	read DEVICE;
+
+	#SHUT_MY_MOUTH
+	if [[ -f PREF.rc ]]; then
+		deviceinfo;
+		echo -e "Cheat code SHUT_MY_MOUTH applied"
+		echo -e "Your Device Name is : ${DEVICE}"
+	else
+		read DEVICE;
+	fi
+	echo "DEVICE=$DEVICE" >> Pref.rc
 	echo -e '\n'
 	echo -e "The ${LRED}Build type${NONE}? ${LGRN}[userdebug/user/eng]${NONE}";
 	echo -e '\n';
-	read BTYP;
+
+	#SHUT_MY_MOUTH
+	if [[ -f PREF.rc ]]; then
+		deviceinfo;
+		echo -e "Cheat code SHUT_MY_MOUTH applied"
+		echo -e "Build type: ${DEVICE}"
+	else
+		read BTYP;
+	fi
+
 	echo -e '\n';
 	echo -e "Your ${LRED}Device's Company/Vendor${NONE} (All Lowercases)?";
 	echo -e '\n';
-	read COMP;
+
+	#SHUT_MY_MOUTH
+	if [[ -f PREF.rc ]]; then
+		deviceinfo;
+		echo -e "Cheat code SHUT_MY_MOUTH applied"
+		echo -e "Device's Company : ${COMP}"
+	else
+		read COMP;
+	fi
+
 	echo -e '\n';
 	echo -e "${LCYAN}=========================================================${NONE}";
 	rom_name_in_source;
@@ -681,16 +775,32 @@ function build
 			echo -e "Tip! - If you're building it for the first time, then select lunch (Recommended)"
 			echo -e "==========================================================================================="
 			echo -e '\n'
-			read SELT;
+
+			#SHUT_MY_MOUTH
+			if [[ -f PREF.rc ]]; then
+				buildinfo;
+				echo -e "Cheat Code SHUT_MY_MOUTH applied"
+			else
+				read SELT;
+			fi
+
 			if [[ "$SELT" == lunch ]]; then
 				${SELT} ${ROMNIS}_${DEVICE}-${BTYP}
 			elif [[ "$SELT" == breakfast || "$SELT" == brunch ]]; then
 				${SELT} ${DEVICE}
 			fi
 			echo -e '\n'
-			echo -e "Should i use '${YELO}make${NONE}' or '${RED}mka${NONE}' ?"
-			echo -e '\n'
-			read MKWAY;
+
+			#SHUT_MY_MOUTH
+			if [[ -f PREF.rc ]]; then
+				buildinfo;
+				echo -e "Cheat Code SHUT_MY_MOUTH applied"
+			else
+				echo -e "Should i use '${YELO}make${NONE}' or '${RED}mka${NONE}' ?"
+				echo -e '\n'
+				read MKWAY;
+			fi
+
 			if [[ "$MKWAY" == make ]]; then
 				BCORES=$(grep -c ^processor /proc/cpuinfo);
 			else
@@ -706,6 +816,7 @@ function build
 				post_build;
 			fi
 		fi
+	fi
 
 	if [[ "$BOPT" == 2 ]]; then
 		$MKWAY installclean

@@ -1,0 +1,36 @@
+#=======================@7r3, 2016=======================#
+# FILE MADE TO SHUT_MY_MOUTH
+
+function color
+{
+COLOR=                    # Like Colors? [y/n]
+}
+
+function reposync
+{
+JOBS=                     # No of Threads for Sync [integers]
+FRC=                      # Force Sync ? [y/n]
+SIL=                      # Silent sync ? [y/n]
+
+}
+
+function repoinit
+{
+ROMNO=                    # ROM Selection Number
+BRANCH=                   # Branch of the ROM
+REFY                      # Have a Reference ? [YES/NO]
+REFER=                    # Reference Source's Location from /
+}
+
+function deviceinfo
+{
+DEVICE=                   # Device codename (Lowercases)
+BTYP=                     # userdebug / user / eng
+COMP=                     # Device Company / Vendor
+}
+
+function buildinfo
+{
+SELT=                     # lunch / brunch / breakfast
+MKWAY=                    # make / mka
+}
