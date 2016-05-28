@@ -1,5 +1,6 @@
-#===========@7R3 - 2016============#
+#========================= @7R3 - 2016 ==============================#
 # Get a ROM's Repo Name in GitHub, and the ROM Vendor name in Source #
+#====================================================================#
 
 function rom_name_in_github
 {
@@ -144,7 +145,7 @@ function color_my_life
 
 function i_like_colorless
 {
- 
+
   BLAK="";      #Gray
   DGRAY="";     #Gray
   RED="";       #Gray

@@ -1,14 +1,34 @@
 #!/bin/bash
-#=========================Projekt ScriBt===========================#
-# This Script and ROM.rc has to be placed under a Synced Source
-# Directory (if and only if you're using this script to build)
-#
-# Else
-# Create a folder for your Source and Place these files inside it
-#
-# https://github.com/a7r3/scripts - The Original Repo of this ScriBt
-#
-#==================================================================#
+#==========================Projekt ScriBt==============================#
+#============ Copyright 2016, Arvind Raj Thangaraj - "a7r3" ===========#
+#======================================================================#
+#                                                                      #
+# This software is licensed under the terms of the GNU General Public  #
+# License version 2, as published by the Free Software Foundation, and #
+# may be copied, distributed, and modified under those terms.          #
+#                                                                      #
+# This program is distributed in the hope that it will be useful,      #
+# but WITHOUT ANY WARRANTY; without even the implied warranty of       #
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the        #
+# GNU General Public License for more details.                         #
+#                                                                      #
+#======================================================================#
+# This Script and ROM.rc has to be placed under a Synced Source        #
+# Directory (if and only if you're using this script to build)         #
+#                                                                      #
+# Else                                                                 #
+# Create a folder for your Source and Place these files inside it      #
+#                                                                      #
+# https://github.com/a7r3/scripts - The Original Repo of this ScriBt   #
+#                                                                      #
+# You're free to enter your modifications and submit it to me with     #
+# a Pull Request, such Contributions are readily WELCOME               #
+#                                                                      #
+# CONTRIBUTORS FOR THIS PROJECT:                                       #
+# Arvind Raj (Myself)                                                  #
+# Akhil Narang                                                         #
+#======================================================================#
+
 # Create a Text file to Store Intermediate Outputs for Working on Some Commands
 touch tmpscribt.txt;
 TMP=tmpscribt.txt;
@@ -45,7 +65,6 @@ echo "=======================================================";
 
 if [[ -f PREF.rc ]]; then
 	color;
-	echo -e "Cheat code SHUT_MY_MOUTH applied"
 	echo -e "Coloured ScriBt : $COLOR "
 else
 	read COLOR;
@@ -316,7 +335,6 @@ function sync
 	#SHUT_MY_MOUTH
 	if [[ -f PREF.rc ]]; then
 		reposync;
-		echo -e "Cheat code SHUT_MY_MOUTH applied"
 		echo -e "No of Threads : ${JOBS}"
 	else
 		read JOBS;
@@ -326,7 +344,6 @@ function sync
 	echo -e "${LRED}Force Sync${NONE} needed? ${LGRN}[y/n]${NONE}";
 	if [[ -f PREF.rc ]]; then
 		reposync;
-		echo -e "Cheat code SHUT_MY_MOUTH applied"
 		echo -e "Force Sync : ${FRC}"
 	else
 		read FRC;
@@ -338,7 +355,6 @@ function sync
 	#SHUT_MY_MOUTH
 	if [[ -f PREF.rc ]]; then
 		reposync;
-		echo -e "Cheat code SHUT_MY_MOUTH applied"
 		echo -e "Silent Sync : ${SIL}"
 	else
 		read SIL;
@@ -422,20 +438,16 @@ ${LPURP}=======================================================${NONE}";
 	#SHUT_MY_MOUTH
 	if [[ -f PREF.rc ]]; then
 		repoinit;
-		echo -e "Cheat code SHUT_MY_MOUTH applied"
 		echo -e "Branch : $BRANCH"
 	else
 		read BRANCH;
 	fi
-
 	echo -e '\n';
 	echo -e "Any ${LRED}Source you have already synced?${NONE} If yes, then say YES and Press ${LCYAN}ENTER${NONE}";
 	echo -e '\n';
-
 	#SHUT_MY_MOUTH
 	if [[ -f PREF.rc ]]; then
 		repoinit;
-		echo -e "Cheat code SHUT_MY_MOUTH applied"
 		if [[ "$REFY" == YES ]]; then
 			echo -e "YES, you have a Reference Source"
 			echo -e "The Reference location is : ${REF}"
@@ -529,7 +541,6 @@ function pre_build
 	#SHUT_MY_MOUTH
 	if [[ -f PREF.rc ]]; then
 		deviceinfo;
-		echo -e "Cheat code SHUT_MY_MOUTH applied"
 		echo -e "Your Device Name is : ${DEVICE}"
 	else
 		read DEVICE;
@@ -542,7 +553,6 @@ function pre_build
 	#SHUT_MY_MOUTH
 	if [[ -f PREF.rc ]]; then
 		deviceinfo;
-		echo -e "Cheat code SHUT_MY_MOUTH applied"
 		echo -e "Build type: ${DEVICE}"
 	else
 		read BTYP;
@@ -555,7 +565,6 @@ function pre_build
 	#SHUT_MY_MOUTH
 	if [[ -f PREF.rc ]]; then
 		deviceinfo;
-		echo -e "Cheat code SHUT_MY_MOUTH applied"
 		echo -e "Device's Company : ${COMP}"
 	else
 		read COMP;
@@ -788,7 +797,7 @@ function build
 			#SHUT_MY_MOUTH
 			if [[ -f PREF.rc ]]; then
 				buildinfo;
-				echo -e "Cheat Code SHUT_MY_MOUTH applied"
+				echo -e "*Auto* Selected Option : $SELT"
 			else
 				read SELT;
 			fi
@@ -803,7 +812,7 @@ function build
 			#SHUT_MY_MOUTH
 			if [[ -f PREF.rc ]]; then
 				buildinfo;
-				echo -e "Cheat Code SHUT_MY_MOUTH applied"
+				echo -e "Selected Method : $MKWAY "
 			else
 				echo -e "Should i use '${YELO}make${NONE}' or '${RED}mka${NONE}' ?"
 				echo -e '\n'
