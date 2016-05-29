@@ -828,6 +828,7 @@ function build
 	{
 		# For Brunchers
 		if [[ "$SELT" == brunch ]]; then
+			clean_build;
 			time ${SELT} ${DEVICE}
 			echo -e "Grab the Logs Before you do anything else. IT will VANISH else"
 		else
@@ -888,8 +889,10 @@ function hotel_menu
 
 	if [[ "$SELT" == lunch ]]; then
 		${SELT} ${ROMNIS}_${DEVICE}-${BTYP}
+		clean_build;
 	elif [[ "$SELT" == breakfast ]]; then
 		${SELT} ${DEVICE}
+		clean_build;
 	fi
 	echo -e '\n';
 	build_make;
