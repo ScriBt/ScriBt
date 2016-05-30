@@ -120,6 +120,18 @@ sleep 3;
 echo -e '\n';
 echo -e '\n';
 
+function exitScriBt
+{
+	echo -e '\n\n';
+	echo -e "Thanks for using this ${LRED}S${NONE}cri${GRN}B${NONE}t. Have a Nice Day";
+	sleep 2;
+	echo -e "Removing Temporary Files"
+	rm -rf $TMP;
+	echo "DONE"
+	echo "Bye!"
+	exit 0;
+} #exitScriBt
+
 function main_menu
 {
 
@@ -144,41 +156,6 @@ function main_menu
 	teh_action;
 
 } #main_menu
-
-function exitScriBt
-{
-	echo -e '\n\n';
-	echo -e "Thanks for using this ${LRED}S${NONE}cri${GRN}B${NONE}t. Have a Nice Day";
-	sleep 2;
-	echo -e "Removing Temporary Files"
-	rm -rf $TMP;
-	echo "DONE"
-	echo "Bye!"
-	exit 0;
-} #exitScriBt
-
-function teh_action
-{
-	if [[ "$ACTION" == 1 ]]; then
-		init;
-		echo -ne '\033]0;ScriBt : Init\007'
-	elif [[ "$ACTION" == 2 ]]; then
-		sync;
-		echo -ne '\033]0;ScriBt : Sync\007'
-	elif [[ "$ACTION" == 3 ]]; then
-		pre_build;
-		echo -ne '\033]0;ScriBt : Pre-Build\007'
-	elif [[ "$ACTION" == 4 ]]; then
-		build;
-		echo -ne '\033]0;ScriBt : Building\007'
-		installdeps;
-		echo -ne '\033]0;ScriBt : InstallDeps\007'
-	elif [[ "$ACTION" == 6 ]]; then
-		echo -ne '\033]0;BYE!\007'
-	elif [[ "$ACTION" == 5 ]]; then
-		exitScriBt;
-	fi
-} #teh_action
 
 function quick_menu
 {
@@ -977,6 +954,29 @@ function hotel_menu
 		echo -e "*AutoBot* Automated Build Successful"
 	fi
 } #build
+
+function teh_action
+{
+	if [[ "$ACTION" == 1 ]]; then
+		init;
+		echo -ne '\033]0;ScriBt : Init\007'
+	elif [[ "$ACTION" == 2 ]]; then
+		sync;
+		echo -ne '\033]0;ScriBt : Sync\007'
+	elif [[ "$ACTION" == 3 ]]; then
+		pre_build;
+		echo -ne '\033]0;ScriBt : Pre-Build\007'
+	elif [[ "$ACTION" == 4 ]]; then
+		build;
+		echo -ne '\033]0;ScriBt : Building\007'
+	elif [[ "$ACTION" == 5 ]]; then
+		installdeps;
+		echo -ne '\033]0;ScriBt : InstallDeps\007'
+	elif [[ "$ACTION" == 6 ]]; then
+		echo -ne '\033]0;BYE!\007'
+		exitScriBt;
+	fi
+} #teh_action
 
 #START IT --- VROOM!
 if [[ "$1" == automate ]]; then
