@@ -608,6 +608,7 @@ function pre_build
 	echo -e '\n';
 	echo -e "${LCYAN}=========================================================${NONE}";
 	rom_name_in_source;
+	RBCK=ROMNIS; #Backup Variable (to be used in strat)
 	echo -e '\n';
 	echo -e '\n';
 	echo -e "${LPURP}=========================================================${NONE}"
@@ -668,21 +669,48 @@ function pre_build
 # Must be on Working Directory
 		croot;
 # Done
-		echo -e '\n\n'
-		echo -e "${LPURP}=========================================================${NONE}"
-		echo -e "Now ${ROMNIS}fy! your Device Tree! Press ${LCYAN}ENTER${NONE} when ${LPURP}Done.${NONE} ";
-		read NOOB;
-		echo -e '\n';
-		sleep 2;
-		echo -e '\n';
-		echo -e "${RED}=========================================================${NONE}"
-		echo -e "I_IZ_NOOB :P - We're Successful";
-		echo -e '\n';
-		if [ ! -f PREF.rc ]; then
-			quick_menu;
-		else
-			echo -e "*AutoBot* Automated Pre-Build Successful"
-		fi
+	function device_tree_mod
+	{
+		echo -e "${LBLU}===============${NONE} ${LGRN}APPLYING MODIFICATIONS TO DEVICE TREE${NONE} ${LBLU}================"
+		echo -e "${LBLU}      This will take some time coz there isn't a confirmatory & ROM-specific Device-Tree Pattern      ${NONE}"
+			if [[ "$ROMNO" != 1 ]]; then
+				ROMNO=1;
+			fi
+			rom_name_in_source;
+			ROMNIS1=ROMNIS; #Temporary Variable
+			#for ${ROMNIS}.mk kinda files
+			if [[ $(grep -c 'device/${COMP}/${DEVICE}/********_${DEVICE}' ${ROMNIS1}.mk) == 1 ]]; then
+				sed -i -e 's/$(call inherit-product, device\/${COMP}\/${DEVICE}\/.*_${DEVICE}/$(call inherit-product, device\/${COMP}\/${DEVICE}\/${ROMNIS}_${DEVICE}/g' ${ROMNIS1}.mk
+			fi
+			#Confirmatory Changes - NO Conditions
+			sed -i -e 's/vendor\/${ROMNIS1}/vendor\/${ROMNIS}/g' ${ROMNIS1}.mk
+			sed -i -e 's/PRODUCT_NAME := .*_${DEVICE}/PRODUCT_NAME := ${ROMNIS}_${DEVICE}/g' ${ROMNIS1}.mk
+			mv ${ROMNIS1}.mk ${RBCK}.mk
+			#for full_${DEVICE}.mk kinda files - IF they Exist
+			if [ -f ${ROMNIS1}_${DEVICE}.mk ]; then
+				sed -i -e 's/PRODUCT_NAME := ${ROMNIS1}_${DEVICE}/PRODUCT_NAME := ${ROMNIS}_${DEVICE}/g' ${ROMNIS1}_${DEVICE}.mk
+				mv ${ROMNIS1}_${DEVICE}.mk ${RBCK}_${DEVICE}.mk
+			else
+				((ROMNO++));
+				device_tree_mod;
+			fi
+		
+		#GET BACK THE ORIGINAL ROMNIS (from Vendor Addition)
+		ROMNIS=RBCK;
+		echo -e "${LBLU}======================================================================${NONE}"
+	} #device_tree_mod
+
+	# $ROMNISfying Device Tree - WiP
+	cd device/${COMP}/${DEVICE};
+	echo -e "Applying Strategies"
+	echo -e '\n';
+	device_tree_mod; #Call in Some Modifications to the Device Tree
+
+	if [ ! -f PREF.rc ]; then
+		quick_menu;
+	else
+		echo -e "*AutoBot* Automated Pre-Build Successful"
+	fi
 } #pre_build
 
 function build
@@ -822,12 +850,12 @@ function build
 			elif [[ $(grep -q "^bacon:" "${ANDROID_BUILD_TOP}/build/core/Makefile") ]]; then
 				time $MKWAY bacon $BCORES 2>&1 | tee $TMP
 				echo -e '\n';
-				echo -e "Grab the Logs Before you do anything else. IT will VANISH else"
+				echo -e "Grab the Logs Before you do anything . IT will VANISH else"
 #				post_build; WiP
 			else
 				time $MKWAY otapackage $BCORES 2>&1 | tee $TMP
 				echo -e '\n';
-				echo -e "Grab the Logs Before you do anything else. IT will VANISH else"
+				echo -e "Grab the Logs Before you do anything . IT will VANISH else"
 #				post_build; WiP
 			fi
 		fi
