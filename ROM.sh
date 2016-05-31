@@ -694,7 +694,7 @@ function pre_build
 				((ROMNO++));
 				device_tree_mod;
 			fi
-		
+
 		#GET BACK THE ORIGINAL ROMNIS (from Vendor Addition)
 		ROMNIS=RBCK;
 		echo -e "${LBLU}======================================================================${NONE}"
@@ -894,13 +894,10 @@ function hotel_menu
 
 	if [[ "$SELT" == lunch ]]; then
 		${SELT} ${ROMNIS}_${DEVICE}-${BTYP}
-		clean_build;
 	elif [[ "$SELT" == breakfast ]]; then
 		${SELT} ${DEVICE}
-		clean_build;
 	fi
 	echo -e '\n';
-	build_make;
 } #hotel_menu
 
 	echo -e "${LPURP}=========================================================${NONE}"
