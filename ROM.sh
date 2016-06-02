@@ -31,10 +31,9 @@
 #======================================================================#
 
 # Create a Text file to Store Intermediate Outputs for Working on Some Commands
-touch tmpscribt.txt;
-TMP=tmpscribt.txt;
-# Blank Line
-BLANK=echo -e '\n';
+RTMP=repo_log.txt; #repo sync logs
+RMTMP=rom_compile.txt; #rom build Logs
+touch ${RTMP} ${RMTMP};
 # Load the Basic Variables
 if [ -f "${PWD}/ROM.rc" ]; then
 	source $(pwd)/ROM.rc;
@@ -47,30 +46,29 @@ fi
 if [ -f PREF.rc ]; then
 	source $(pwd)/PREF.rc
 	echo -e '\n';
-	echo -e "*AutoBot* Cheat Code SHUT_MY_MOUTH applied. I won't ask questions anymore";
+	echo -e "${RED}*${NONE}${LPURP}AutoBot${RED}*${NONE} Cheat Code SHUT_MY_MOUTH applied. I won't ask questions anymore";
 	echo -e '\n';
-	echo -e "*AutoBot* Loading all Vars...."
+	echo -e "${RED}*${NONE}${LPURP}AutoBot${RED}*${NONE} Loading all Vars...."
 	color;
 	repoinit;
 	reposync;
 	deviceinfo;
 	buildinfo;
 	echo -e '\n';
-	echo -e "*AutoBot* Successfully Collected Information. Ready to Go!"
+	echo -e "${RED}*${NONE}${LPURP}AutoBot${RED}*${NONE} Successfully Collected Information. Ready to Go!"
 else
 	echo -e "Don't lose patience the next time. Enter your Values in PREF.rc and Shut my Mouth! lol";
 	echo -e '\n';
 	echo -e "PREF.rc is the file"
 fi
-
+echo -e '\n';
 echo "=======================================================";
 echo -e "Before I can start, do you like a \033[1;31mC\033[0m\033[0;32mo\033[0m\033[0;33ml\033[0m\033[0;34mo\033[0m\033[0;36mr\033[0m\033[1;33mf\033[0m\033[1;32mu\033[0m\033[0;31ml\033[0m life? [y/n]";
 echo "=======================================================";
-
+echo -e '\n';
 if [ -f PREF.rc ]; then
 	color;
-	echo -e '\n';
-	echo -e "*AutoBot* Coloured ScriBt : $COLOR "
+	echo -e "${RED}*${NONE}${LPURP}AutoBot${RED}*${NONE} Coloured ScriBt : $COLOR "
 else
 	read COLOR;
 fi
@@ -84,33 +82,33 @@ clear;
 echo -ne '\033]0;ScriBt\007'
 echo -e '\n\n';
 sleep 0.1;
-echo -e "${ORNG}             88P'888'Y88         888                          ${NONE}";
+echo -e "${LRED}             88P'888'Y88         888                          ${NONE}";
 sleep 0.1;
-echo -e "${ORNG}             P'  888  'Y  ,e e,  888 ee                       ${NONE}";
+echo -e "${LRED}             P'  888  'Y  ,e e,  888 ee                       ${NONE}";
 sleep 0.1;
-echo -e "${ORNG}                 888     d88 88b 888 88b                      ${NONE}";
+echo -e "${LRED}                 888     d88 88b 888 88b                      ${NONE}";
 sleep 0.1;
-echo -e "${ORNG}                 888     888   , 888 888                      ${NONE}";
+echo -e "${LRED}                 888     888   , 888 888                      ${NONE}";
 sleep 0.1;
-echo -e "${ORNG}                 888      \"YeeP\" 888 888                      ${NONE}";
+echo -e "${LRED}                 888      \"YeeP\" 888 888                      ${NONE}";
 sleep 0.1;
 echo -e " ";
 sleep 0.1;
-echo -e "${BLU} ad88888ba                           88  88888888ba           ${NONE}";
+echo -e "${LBLU} ad88888ba                           88  88888888ba           ${NONE}";
 sleep 0.1;
-echo -e "${BLU}d8\"     \"8b                          \"\"  88      \"8b    ,d    ${NONE}";
+echo -e "${LBLU}d8\"     \"8b                          \"\"  88      \"8b    ,d    ${NONE}";
 sleep 0.1;
-echo -e "${BLU}Y8,                                      88      ,8P    88    ${NONE}";
+echo -e "${LBLU}Y8,                                      88      ,8P    88    ${NONE}";
 sleep 0.1;
-echo -e "${BLU}\`Y8aaaaa,     ,adPPYba,  8b,dPPYba,  88  88aaaaaa8P'  MM88MMM ${NONE}";
+echo -e "${LBLU}\`Y8aaaaa,     ,adPPYba,  8b,dPPYba,  88  88aaaaaa8P'  MM88MMM ${NONE}";
 sleep 0.1;
-echo -e "${BLU}  \`\"\"\"\"\"8b,  a8\"     \"\"  88P'   \"Y8  88  88\"\"\"\"\"\"8b,    88    ${NONE}";
+echo -e "${LBLU}  \`\"\"\"\"\"8b,  a8\"     \"\"  88P'   \"Y8  88  88\"\"\"\"\"\"8b,    88    ${NONE}";
 sleep 0.1;
-echo -e "${BLU}\`8b      8b  8b          88          88  88       8b    88    ${NONE}";
+echo -e "${LBLU}\`8b      8b  8b          88          88  88       8b    88    ${NONE}";
 sleep 0.1;
-echo -e "${BLU}Y8a     a8P  \"8a,   ,aa  88          88  88      a8P    88,   ${NONE}";
+echo -e "${LBLU}Y8a     a8P  \"8a,   ,aa  88          88  88      a8P    88,   ${NONE}";
 sleep 0.1;
-echo -e "${BLU} \"Y88888P\"    \`\"Ybbd8\"'  88          88  88888888P\"     \"Y888 ${NONE}";
+echo -e "${LBLU} \"Y88888P\"    \`\"Ybbd8\"'  88          88  88888888P\"     \"Y888 ${NONE}";
 sleep 0.1;
 echo -e '\n';
 sleep 0.1;
@@ -122,12 +120,12 @@ echo -e '\n';
 
 function exitScriBt
 {
+	if [ -f PREF.rc ]; then
+		teh_action 6;
+	fi
 	echo -e '\n\n';
 	echo -e "Thanks for using this ${LRED}S${NONE}cri${GRN}B${NONE}t. Have a Nice Day";
 	sleep 2;
-	echo -e "Removing Temporary Files"
-	rm -rf $TMP;
-	echo "DONE"
 	echo "Bye!"
 	exit 0;
 } #exitScriBt
@@ -171,7 +169,7 @@ cherrypick ()
 {
 	echo -e "${GRN}========================= Teh${NONE} ${LRED}Cherry${NONE} ${GRN}Picker========================${NONE}";
  	echo -e '\n';
-	echo -e "     *AutoBot* Attempting to Cherry-Pick Provided Commits         ";
+	echo -e "     ${RED}*${NONE}${LPURP}AutoBot${RED}*${NONE} Attempting to Cherry-Pick Provided Commits         ";
   git fetch https://github.com/${REPOPK}/${REPONAME} ${CP_BRNC}
  	echo -e '\n';
  	git cherry-pick $1;
@@ -181,19 +179,22 @@ cherrypick ()
 
 function installdeps
 {
+	if [ -f PREF.rc ]; then
+		teh_action 5;
+	fi
 	function java_select
 	{
 		echo -e "If you have Installed Multiple Versions of Java or Installed Java from Different Providers (OpenJDK / Oracle)"
 		echo -e "You may now select the Version of Java which is to be used BY-DEFAULT"
-		echo -e "================================================================"
+		echo -e "${BLU}================================================================${NONE}"
 		echo -e '\n';
 		sudo update-alternatives --config java
 		echo -e '\n';
-		echo -e "================================================================"
+		echo -e "${BLU}================================================================${NONE}"
 		echo -e '\n';
 		sudo update-alternatives --config javac
 		echo -e '\n';
-		echo -e "================================================================";
+		echo -e "${BLU}================================================================${NONE}";
 	}
 
 	function java6
@@ -210,17 +211,18 @@ function installdeps
 		elif [[ "$REMOJA" == n ]]; then
 		 echo -e "Keeping them Intact"
 	 	fi
-	 	echo -e "==========================================================";
+	 	echo -e "${RED}==========================================================${NONE}";
 	 	echo -e '\n';
 		sudo apt-get update
-		echo -e "==========================================================";
+		echo -e "${RED}==========================================================${NONE}";
 		echo -e '\n';
 		sudo apt-get install openjdk-6-jdk
 		echo -e '\n';
-		echo -e "==========================================================";
+		echo -e "${RED}==========================================================${NONE}";
 		echo -e '\n';
 		if [[ $( java -version &> $TMP && grep -c 'java version "1.6' $TMP ) == 1 ]]; then
 			echo -e "OpenJDK-6 or Java 6 has been successfully installed"
+			echo -e "${RED}==========================================================${NONE}";
 		fi
 	}
 
@@ -238,20 +240,20 @@ function installdeps
 		 	echo -e "Keeping them Intact"
 	 	fi
 	 	echo -e '\n';
-	 	echo -e "==========================================================";
+	 	echo -e "${RED}==========================================================${NONE}";
 		echo -e '\n';
 		sudo apt-get update
 		echo -e '\n';
-		echo -e "==========================================================";
+		echo -e "${RED}==========================================================${NONE}";
 		echo -e '\n';
 		sudo apt-get install openjdk-7-jdk
 		echo -e '\n';
 		if [[ $(java -version &> $TMP && grep -c 'java version "1.7' $TMP ) == 1 ]]; then
 			echo -e '\n';
-			echo -e "==========================================================";
+			echo -e "${RED}==========================================================${NONE}";
 			echo -e "OpenJDK-7 or Java 7 has been successfully installed"
 		fi
-		echo -e "==========================================================";
+		echo -e "${RED}==========================================================${NONE}";
 	}
 
 	function java8
@@ -270,24 +272,24 @@ function installdeps
 		echo -e '\n';
 		echo -e "Installing OpenJDK-8 (Java 1.8.0)"
 		echo -e '\n';
-		echo -e "==========================================================";
+		echo -e "${RED}==========================================================${NONE}";
 		echo -e '\n';
 		sudo apt-get update
 		echo -e '\n';
-		echo -e "==========================================================";
+		echo -e "${RED}==========================================================${NONE}";
 		echo -e '\n';
 		sudo apt-get install openjdk-8-jdk
 		echo -e '\n';
-		echo -e "==========================================================";
+		echo -e "${RED}==========================================================${NONE}";
 		if [[ $( java -version &> $TMP && grep -c 'java version "1.8' $TMP ) == 1 ]]; then
 			echo -e '\n';
 			echo -e "OpenJDK-8 or Java 8 has been successfully installed"
 			echo -e '\n';
 		fi
-		echo -e "==========================================================";
+		echo -e "${RED}==========================================================${NONE}";
 	}
 
-	echo -e "==========================================================";
+	echo -e "${RED}==========================================================${NONE}";
 	echo -e '\n';
 	echo -e "Checking and Installing Build Dependencies Now..."
 	echo -e '\n';
@@ -305,18 +307,18 @@ function installdeps
 	lib32bz2-dev libsdl1.2-dev libesd0-dev squashfs-tools \
 	pngcrush schedtool libwxgtk2.8-dev python liblz4-tool
 	echo -e '\n';
-	echo -e "==========================================================";
+	echo -e "${RED}==========================================================${NONE}";
 	echo -e '\n\n'
-	echo -e "=====================JAVA Installation====================";
+	echo -e "${LGRN}=====================${NONE} ${LPURP}JAVA Installation${NONE} ${LGRN}====================${NONE}";
 	echo -e '\n';
 	echo -e "1. Install Java"
 	echo -e "2. Switch Between Java Versions / Providers"
 	echo -e '\n';
 	echo -e "3. Back to Main Menu"
-	echo -e "==========================================================";
+	echo -e "${LGRN}==========================================================${NONE}";
 	echo -e '\n';
 	read JAVAS;
-
+	echo -e '\n';
 	if [[ "$JAVAS" == 1 ]]; then
 		echo -ne '\033]0;ScriBt : Java\007'
 		echo -e "Android Version of the ROM you're building ? "
@@ -325,6 +327,7 @@ function installdeps
 		echo -e "3. Android N (lol)"
 		echo -e '\n';
 		read ANDVER;
+		echo -e '\n';
 		if [[ "$ANDVER" == 1 ]]; then
 			java6;
 		elif [[ "$ANDVER" == 2 ]]; then
@@ -342,6 +345,9 @@ function installdeps
 
 function sync
 {
+	if [ -f PREF.rc ]; then
+		teh_action 2;
+	fi
 	echo -e "Let's sync it!";
 	echo -e '\n';
 	echo -e "${LRED}Number of Threads${NONE} for Sync?";
@@ -349,7 +355,7 @@ function sync
 	#SHUT_MY_MOUTH
 	if [ -f PREF.rc ]; then
 		reposync;
-		echo -e "*AutoBot* No of Threads : ${JOBS}"
+		echo -e "${RED}*${NONE}${LPURP}AutoBot${RED}*${NONE} No of Threads : ${JOBS}"
 	else
 		read JOBS;
 	fi
@@ -358,7 +364,7 @@ function sync
 	echo -e '\n';
 	if [ -f PREF.rc ]; then
 		reposync;
-		echo -e "*AutoBot* Force Sync : ${FRC}"
+		echo -e "${RED}*${NONE}${LPURP}AutoBot${RED}*${NONE} Force Sync : ${FRC}"
 	else
 		read FRC;
 	fi
@@ -369,7 +375,7 @@ function sync
 	#SHUT_MY_MOUTH
 	if [ -f PREF.rc ]; then
 		reposync;
-		echo -e "*AutoBot* Silent Sync : ${SIL}"
+		echo -e "${RED}*${NONE}${LPURP}AutoBot${RED}*${NONE} Silent Sync : ${SIL}"
 	else
 		read SIL;
 	fi
@@ -380,7 +386,7 @@ function sync
 	#SHUT_MY_MOUTH
 	if [ -f PREF.rc ]; then
 		reposync;
-		echo -e  "*AutoBot* Sync Current Branch : $CRNT"
+		echo -e  "${RED}*${NONE}${LPURP}AutoBot${RED}*${NONE} Sync Current Branch : $CRNT"
 	else
 		read CRNT;
 	fi
@@ -406,12 +412,11 @@ function sync
 	fi
 	echo -e "Let's Sync!";
 	echo -e '\n';
-	repo sync -j${JOBS} ${SILENT} ${FORCE} ${SYNC_CRNT} # 2>&1 | tee $TMP;
+	repo sync -j${JOBS} ${SILENT} ${FORCE} ${SYNC_CRNT}  2>&1 | tee $RTMP;
 	echo -e '\n';
-	#Useless	if [[ $( grep -c 'Syncing work tree: 100%' $TMP ) == 1 ]]; then
-	#Useless		echo -e "ROM Source synced successfully."
-	#Useless	fi
-	rm -rf $TMP;
+	if [[ $( grep -c 'Syncing work tree: 100%' $RTMP ) == 1 ]]; then
+		echo -e "ROM Source synced successfully."
+	fi
 	echo -e '\n';
 	echo -e "${LPURP}Done.${NONE}!";
 	echo -e '\n';
@@ -420,13 +425,16 @@ function sync
 	if [ ! -f PREF.rc ]; then
 		quick_menu;
 	else
-		echo -e "*AutoBot* Automated sync Successful"
+		echo -e "${RED}*${NONE}${LPURP}AutoBot${RED}*${NONE} Automated sync Successful"
 	fi
+	echo -e '\n';
 } #sync
 
 function init
 {
-
+	if [ -f PREF.rc ]; then
+		teh_action 1;
+	fi
 	echo -e "${LPURP}=======================================================${NONE}";
 	echo -e '\n';
 	echo -e "Which ROM are you trying to build?
@@ -448,6 +456,10 @@ ${BLANK}
 14.${LCYAN} XenonHD by Team Horizon ${NONE}
 15.${BLU} Xperia Open Source Project aka XOSP ${NONE}
 16.${LBLU} SlimRoms ${NONE}
+17.${CYAN} CandyRoms ${NONE}
+18.${ORNG} OwnROM ${NONE}
+19.${BLU} Krexus${NONE}-${GRN}CAF${NONE}
+20.${LCYAN} Cyan${NONE}${CYAN}ide-L${NONE}
 ${BLANK}
 ${LPURP}=======================================================${NONE}";
 	echo -e '\n';
@@ -479,11 +491,11 @@ ${LPURP}=======================================================${NONE}";
 	if [ -f PREF.rc ]; then
 		repoinit;
 		if [[ "$REFY" == YES ]]; then
-			echo -e "*AutoBot* YES, you have a Reference Source"
+			echo -e "${RED}*${NONE}${LPURP}AutoBot${RED}*${NONE} YES, you have a Reference Source"
 			echo -e '\n';
-			echo -e "*AutoBot* The Reference location is : ${REF}"
+			echo -e "${RED}*${NONE}${LPURP}AutoBot${RED}*${NONE} The Reference location is : ${REF}"
 		else
-			echo -e "*AutoBot* NO, you don't have a Reference Source. Going for a Fresh Sync"
+			echo -e "${RED}*${NONE}${LPURP}AutoBot${RED}*${NONE} NO, you don't have a Reference Source. Going for a Fresh Sync"
 		fi
 	else
 		read REFY;
@@ -503,7 +515,7 @@ ${LPURP}=======================================================${NONE}";
 
 		echo -e '\n';
 	#Getting Manifest Link
-		if [[ "$ROM_NAME" == OmniROM || "$ROM_NAME" == CyanogenMod ]]; then
+		if [[ "$ROM_NAME" == OmniROM || "$ROM_NAME" == CyanogenMod || "$ROM_NAME" == OwnROM ]]; then
 			MAN=android.git;
 		fi
 		if [[ "$ROM_NAME" == TeamOrion || "$ROM_NAME" == SlimRoms || "$ROM_NAME" == AOSP-CAF || "$ROM_NAME" == ResurrectionRemix || "$ROM_NAME" == AOKP || "$ROM_NAME" == TipsyOS || "$ROM_NAME" == AICP || "$ROM_NAME" == XOSP-Project ]]; then
@@ -512,11 +524,17 @@ ${LPURP}=======================================================${NONE}";
 		if [[ "$ROM_NAME" == DirtyUnicorns ]]; then
 			MAN=android_manifest.git;
 		fi
-		if [[ "$ROM_NAME" == AOSP-RRO || "$ROM_NAME" == ValidusOs-M || "$ROM_NAME" == Tesla-M ]]; then
+		if [[ "$ROM_NAME" == AOSP-RRO || "$ROM_NAME" == Krexus-CAF || "$ROM_NAME" == ValidusOs-M || "$ROM_NAME" == Tesla-M ]]; then
 				MAN=manifest.git;
 		fi
 		if [[ "$ROM_NAME" == PAC-ROM ]]; then
 				MAN=pac-rom.git;
+		fi
+		if [[ "$ROM_NAME" == CandyRoms ]]; then
+				MAN=candy.git;
+		fi
+		if [[ "$ROM_NAME" == CyanideL ]]; then
+			MAN=cyanide_manifest.git;
 		fi
 		#Check for Presence of Repo Binary
 		if [[ ! $(which repo) ]]; then
@@ -563,6 +581,9 @@ sync;
 
 function pre_build
 {
+	if [ -f PREF.rc ]; then
+		teh_action 3;
+	fi
 	echo -e "${CYAN}Initializing Build Environment${NONE}"
 	echo -e '\n';
 	. build/envsetup.sh
@@ -610,6 +631,9 @@ function pre_build
 	rom_name_in_source;
 	echo -e '\n';
 	echo -e '\n';
+
+function vendor_strat
+{
 	echo -e "${LPURP}=========================================================${NONE}"
 	cd vendor/${ROMNIS}
 	echo -e '\n';
@@ -641,30 +665,13 @@ function pre_build
 		echo "DONE! [2/2]"
 		croot;
 	fi
-#	if [[ $STRT == 4 ]]; then
-#		echo -e "This Strategy, AFAIK was only on AOKP (kitkat) and PAC-ROM (pac-5.1).";
-#		echo -e "Let's go to vendor/$ROMNIS/products";
-#		cd vendor/${ROMNIS}/products;
-#		echo -e '\n';
-#		echo -e "${LPURP}Done.${NONE}.";
-#			if [[ "$ROMNIS" == pac ]]; then
-#				echo -e "Creating file ${ROMNIS}_${DEVICE}.mk";
-#				touch ${ROMNIS}_${DEVICE}.mk
-#			else
-#				echo -e "Creating file ${DEVICE}.mk";
-#				touch ${DEVICE}.mk
-#			fi
-#	fi
-#		echo -e "\n${LPURP}Done.${NONE}. Open that file now."
-#		echo -e "\nAdd these lines";
-#			if [[ "$ROMNIS" == pac ]]; then
-#				echo -e "FAIL. WIP";
-#			fi
-#			if [[ "$ROMNIS" == aokp ]]; then
-#				${BLANK}
-#				echo -e "WIP WIP!";
-#			fi
+}
 
+	if [[ "$ROMNIS" == krexus ]]; then
+		echo -e "Strategy not Implemented Yet. DIY ftm";
+	else
+		vendor_strat;
+	fi
 # Must be on Working Directory
 		croot;
 # Done
@@ -674,7 +681,7 @@ function pre_build
 	if [ ! -f PREF.rc ]; then
 		quick_menu;
 	else
-		echo -e "*AutoBot* Automated Pre-Build Successful"
+		echo -e "${RED}*${NONE}${LPURP}AutoBot${RED}*${NONE} Automated Pre-Build Successful"
 	fi
 	echo -e "${LPURP}=========================================================${NONE}"
 
@@ -682,6 +689,9 @@ function pre_build
 
 function build
 {
+	if [ -f PREF.rc ]; then
+		teh_action 4;
+	fi
 	function clean_build
 	{	          #Automate           #Manual
 		if [[ "$MKCLNB4BLD" == 2 || "$BOPT" == 2 ]]; then
@@ -802,7 +812,6 @@ function build
 		if [[ "$SELT" == brunch ]]; then
 			clean_build;
 			time ${SELT} ${DEVICE}
-			echo -e "Grab the Logs Before you do anything else. IT will VANISH else"
 		else
 			# For Mka-s/Make-rs
 			if [[ "$MKWAY" == make ]]; then
@@ -811,18 +820,15 @@ function build
 				BCORES="";
 			fi
 			if [[ "$ROMNIS" == tipsy || "$ROMNIS" == validus || "$ROMNIS" == tesla ]]; then
-				time	$MKWAY $ROMNIS $BCORES 2>&1 | tee $TMP
+				time	$MKWAY $ROMNIS $BCORES 2>&1 | tee $RMTMP;
 				echo -e '\n';
-				echo -e "Grab the Logs Before you do anything else. IT will VANISH else"
 			elif [[ $(grep -q "^bacon:" "${ANDROID_BUILD_TOP}/build/core/Makefile") ]]; then
-				time $MKWAY bacon $BCORES 2>&1 | tee $TMP
+				time $MKWAY bacon $BCORES 2>&1 | tee $RMTMP;
 				echo -e '\n';
-				echo -e "Grab the Logs Before you do anything . IT will VANISH else"
 #				post_build; WiP
 			else
-				time $MKWAY otapackage $BCORES 2>&1 | tee $TMP
+				time $MKWAY otapackage $BCORES 2>&1 | tee $RMTMP;
 				echo -e '\n';
-				echo -e "Grab the Logs Before you do anything . IT will VANISH else"
 #				post_build; WiP
 			fi
 		fi
@@ -830,7 +836,7 @@ function build
 
 function hotel_menu
 {
-	echo -e "====================================[*] HOTEL MENU [*]====================================="
+	echo -e "${LBLU}====================================${NONE}${RED}[*]${NONE} ${GRN}HOTEL MENU${NONE} ${RED}[*]${NONE}${LBLU}=====================================${NONE}"
 	echo -e '\n';
 	echo -e "                       ${LGRN}So, what would you like to feed your Device?${NONE} "
 	echo -e '\n';
@@ -848,7 +854,7 @@ function hotel_menu
 	#SHUT_MY_MOUTH
 	if [ -f PREF.rc ]; then
 		buildinfo;
-		echo -e "*AutoBot* Selected Option : $SELT"
+		echo -e "${RED}*${NONE}${LPURP}AutoBot${RED}*${NONE} Selected Option : $SELT"
 	else
 		read SELT;
 	fi
@@ -869,24 +875,29 @@ function hotel_menu
 
 	echo -e "${LPURP}=========================================================${NONE}"
 	echo -e '\n';
+	echo -e "${YELO}=========================================================${NONE}"
 	echo -e "${CYAN}Initializing Build Environment${NONE}";
+	echo -e '\n';
 	. build/envsetup.sh
+	echo -e '\n';
+	echo -e "${YELO}=========================================================${NONE}"
+	echo -e '\n';
 	echo -e "${LPURP}Done.${NONE}."
 	echo -e '\n';
 	echo -e "Select the Build Option:\n";
 	echo -e '\n';
-	echo -e "${GRN}1. Start Building ROM (ZIP output)${NONE}";
-	echo -e "${ORNG}2. Clean only Staging Directories and Emulator Images (*.img)${NONE}";
+	echo -e "${LCYAN}1. Start Building ROM (ZIP output)${NONE}";
+	echo -e "${YELO}2. Clean only Staging Directories and Emulator Images (*.img)${NONE}";
 	echo -e "${LRED}3. Clean the Entire Build (/out) Directory (THINK BEFORE SELECTING THIS!)${NONE}";
 	echo -e "${LGRN}4. Make a Particular Module${NONE}";
-	echo -e "${LGRN}5. Setup CCACHE for Faster Builds ${NONE}";
+	echo -e "${LBLU}5. Setup CCACHE for Faster Builds ${NONE}";
 	echo -e '\n';
 	echo -e "${LPURP}=========================================================${NONE}"
 	echo -e '\n';
 
 	if [ -f PREF.rc ]; then
 		buildinfo;
-		echo -e "*AutoBot* Option Selected : $BOPT"
+		echo -e "${RED}*${NONE}${LPURP}AutoBot${RED}*${NONE} Option Selected : $BOPT"
 	else
 		read BOPT;
 	fi
@@ -896,11 +907,11 @@ function hotel_menu
 		echo -e '\n';
 		echo -e "Should i use '${YELO}make${NONE}' or '${RED}mka${NONE}' ?"
 		#SHUT_MY_MOUTH
+		echo -e '\n';
 		if [ -f PREF.rc ]; then
 			buildinfo;
-			echo -e "*AutoBot* Selected Method : $MKWAY "
+			echo -e "${RED}*${NONE}${LPURP}AutoBot${RED}*${NONE} Selected Method : $MKWAY "
 		else
-			echo -e '\n';
 			read MKWAY;
 		fi
 		echo -e '\n';
@@ -908,7 +919,7 @@ function hotel_menu
 		echo -e '\n';
 		if [ -f PREF.rc ]; then
 			buildinfo;
-			echo -e "*AutoBot* Option Selected : $MKCLNB4BLD ";
+			echo -e "${RED}*${NONE}${LPURP}AutoBot${RED}*${NONE} Option Selected : $MKCLNB4BLD ";
 		else
 			read MKCLNB4BLD; #Name's Big - I'll change it later
 		fi
@@ -926,8 +937,8 @@ function hotel_menu
 
 	if [[ "$BOPT" == 5 ]]; then
 		echo -e "Two Steps. Select one of them (If seeing this for first time - Enter A)";
-		echo -e " A. Enabling CCACHE Variables in .bashrc or it's equivalent"
-		echo -e " B. Reserving Space for CCACHE";
+		echo -e "\tA. Enabling CCACHE Variables in .bashrc or it's equivalent"
+		echo -e "\tB. Reserving Space for CCACHE";
 		echo -e '\n';
 		read CCOPT;
 		if [[ "$CCOPT" == A ]]; then
@@ -943,30 +954,42 @@ function hotel_menu
 	if [ ! -f PREF.rc ]; then
 		quick_menu;
 	else
-		echo -e "*AutoBot* Automated Build Successful"
+		echo -e "${RED}*${NONE}${LPURP}AutoBot${RED}*${NONE} Automated Build Successful"
 	fi
 } #build
 
-function teh_action
+teh_action ()
 {
-	if [[ "$ACTION" == 1 ]]; then
-		init;
+	if [[ "$ACTION" == 1 || "$1" == 1 ]]; then
+		if [ ! -f PREF.rc ]; then
+			init;
+		fi
 		echo -ne '\033]0;ScriBt : Init\007'
-	elif [[ "$ACTION" == 2 ]]; then
-		sync;
+	elif [[ "$ACTION" == 2 || "$1" == 2 ]]; then
+		if [ ! -f PREF.rc ]; then
+			sync;
+		fi
 		echo -ne '\033]0;ScriBt : Sync\007'
-	elif [[ "$ACTION" == 3 ]]; then
-		pre_build;
+	elif [[ "$ACTION" == 3 || "$1" == 3 ]]; then
+		if [ ! -f PREF.rc ]; then
+			pre_build;
+		fi
 		echo -ne '\033]0;ScriBt : Pre-Build\007'
-	elif [[ "$ACTION" == 4 ]]; then
-		build;
-		echo -ne '\033]0;ScriBt : Building\007'
-	elif [[ "$ACTION" == 5 ]]; then
-		installdeps;
+	elif [[ "$ACTION" == 4 || "$1" == 4 ]]; then
+		if [ ! -f PREF.rc ]; then
+			build;
+		fi
+		echo -ne '\033]0;ScriBt : Building ${ROM_FN}\007'
+	elif [[ "$ACTION" == 5 || "$1" == 5 ]]; then
+		if [ ! -f PREF.rc ]; then
+			installdeps;
+		fi
 		echo -ne '\033]0;ScriBt : InstallDeps\007'
-	elif [[ "$ACTION" == 6 ]]; then
+	elif [[ "$ACTION" == 6 || "$1" == 6 ]]; then
 		echo -ne '\033]0;BYE!\007'
-		exitScriBt;
+		if [ ! -f PREF.rc ]; then
+			exitScriBt;
+		fi
 	fi
 } #teh_action
 
@@ -974,7 +997,7 @@ function teh_action
 if [[ "$1" == automate ]]; then
 	source $(pwd)/PREF.rc
 	automate;
-	echo -e "*AutoBot* Automated Building Selected!"
+	echo -e "${RED}*${NONE}${LPURP}AutoBot${RED}*${NONE} Automated Building Selected!"
 else
 	main_menu;
 fi
