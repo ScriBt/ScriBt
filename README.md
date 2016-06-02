@@ -63,8 +63,34 @@ bash ROM.sh automate
 
 #CONTRIBUTORS
 
-* Arvind Raj (Myself)
-* Akhil Narang
+* Arvind Raj "a7r3" (Myself)
+* Adrian DC "AdrianDC"
+* Akhil Narang "akhilnarang"
 * Many more as this goes public
+
+#Supported ROMs
+
+* Android Ice Cold Project aka AICP
+* Android Open Kang Project aka AOKP
+* Android Open Source Project - CAF aka AOSP-CAF
+* Android Open Source Project with RRO aka AOSP-RRO
+* CandyRoms
+* Cyanide-L
+* CyanogenMod
+* Dirty Unicorns
+* GZR Tesla
+* GZR Validus
+* Krexus - CAF
+* OmniROM
+* Orion
+* OwnROM
+* PAC-ROMs
+* Resurrection Remix
+* SlimRoms
+* TipsyOs
+* XenonHD by Team Horizon
+* Xperia Open Source Project aka XOSP
+
+More ROMs will be added, if missed 'em
 
 #Happy ScriBting!
