@@ -87,6 +87,7 @@ bash ROM.sh automate
 * PAC-ROMs
 * Resurrection Remix
 * SlimRoms
+* Temasek
 * TipsyOs
 * XenonHD by Team Horizon
 * Xperia Open Source Project aka XOSP

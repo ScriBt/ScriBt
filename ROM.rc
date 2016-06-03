@@ -85,6 +85,10 @@ if [[ "$ROMNO" == 20 ]]; then
   ROM_NAME=CyanideL;
   ROM_FN=Cyanide;
 fi
+if [[ "$ROMNO" == 21 ]]; then
+  ROM_NAME=temasek;
+  ROM_FN=Temasek;
+fi
 
 }
 
@@ -100,7 +104,7 @@ fi
 if [[ "$ROMNO" == 3 || "$ROMNO" == 4 ]]; then
   ROMNIS=full;
 fi
-if [[ "$ROMNO" == 5 || "$ROMNO" == 10 ]]; then
+if [[ "$ROMNO" == 5 || "$ROMNO" == 10  || "$ROMNO" == 21 ]]; then
   ROMNIS=cm;
 fi
 if [[ "$ROMNO" == 6 ]]; then

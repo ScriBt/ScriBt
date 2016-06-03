@@ -463,6 +463,7 @@ ${BLANK}
 18.${ORNG} OwnROM ${NONE}
 19.${BLU} Krexus${NONE}-${GRN}CAF${NONE}
 20.${LCYAN} Cyan${NONE}${CYAN}ide-L${NONE}
+21.${LRED} Temasek ${NONE}
 ${BLANK}
 ${LPURP}=======================================================${NONE}";
 	echo -e '\n';
@@ -518,7 +519,7 @@ ${LPURP}=======================================================${NONE}";
 
 		echo -e '\n';
 	#Getting Manifest Link
-		if [[ "$ROM_NAME" == OmniROM || "$ROM_NAME" == CyanogenMod || "$ROM_NAME" == OwnROM ]]; then
+		if [[ "$ROM_NAME" == OmniROM || "$ROM_NAME" == CyanogenMod || "$ROM_NAME" == OwnROM || "$ROM_NAME" == temasek ]]; then
 			MAN=android.git;
 		fi
 		if [[ "$ROM_NAME" == TeamOrion || "$ROM_NAME" == SlimRoms || "$ROM_NAME" == AOSP-CAF || "$ROM_NAME" == ResurrectionRemix || "$ROM_NAME" == AOKP || "$ROM_NAME" == TipsyOS || "$ROM_NAME" == AICP || "$ROM_NAME" == XOSP-Project ]]; then
