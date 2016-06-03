@@ -79,7 +79,7 @@ if [[ "$ROMNO" == 18 ]]; then
 fi
 if [[ "$ROMNO" == 19 ]]; then
   ROM_NAME=Krexus-CAF;
-  ROM_FN=Krexus (CAF Version);
+  ROM_FN="Krexus (CAF Version)";
 fi
 if [[ "$ROMNO" == 20 ]]; then
   ROM_NAME=CyanideL;

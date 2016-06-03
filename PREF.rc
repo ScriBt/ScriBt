@@ -39,49 +39,53 @@ MKCLNB4BLD=               # Clean Before Build? [ 2 for installclean & 3 for tot
 
 function the_cherries
 {
+  builddir=$(pwd);                         # TO get back to Build Dir
 
-    builddir=$(pwd);                        # TO get back to Build Dir
+  #===========PICK 1=============#
+  cd ${builddir}/[ENTER_DIRECTORY];        # The Directory in which you need to Pick a Commit
+  REPOPK=[ENTER_ORGANIZATION_NAME];        # Repo Provider who has that Repo
+  REPONAME=[ENTER_REPO_NAME];              # Name of the Repo
+  CP_BRNC=[ENTER_BRANCH_NAME];             # Branch of the Repo
+  cherrypick [ENTER_COMMIT_ID];            # Commit ID in place of <commit-id/SHA>
+  cd $builddir;
+  #==============================#
 
-    #===========PICK 1=============#
-    cd ${builddir}/[ENTER_DIRECTORY];        # The Directory in which you need to Pick a Commit
-    REPOPK=[ENTER_ORGANIZATION_NAME];        # Repo Provider who has that Repo
-    REPONAME=[ENTER_REPO_NAME];              # Name of the Repo
-    CP_BRNC=[ENTER_BRANCH_NAME];             # Branch of the Repo
-    cherrypick [ENTER_COMMIT_ID];            # Commit ID in place of <commit-id/SHA>
-    cd $builddir;
-    #==============================#
-
-    #===========PICK 2=============#
-    cd ${builddir}/[ENTER_DIRECTORY];        # The Directory in which you need to Pick a Commit
-    REPOPK=[ENTER_ORGANIZATION_NAME];        # Repo Provider who has that Repo
-    REPONAME=[ENTER_REPO_NAME];              # Name of the Repo
-    CP_BRNC=[ENTER_BRANCH_NAME];             # Branch of the Repo
-    cherrypick [ENTER_COMMIT_ID];            # Commit ID in place of <commit-id/SHA>
-    cd $builddir;
-    #==============================#
+  #===========PICK 2=============#
+  cd ${builddir}/[ENTER_DIRECTORY];        # The Directory in which you need to Pick a Commit
+  REPOPK=[ENTER_ORGANIZATION_NAME];        # Repo Provider who has that Repo
+  REPONAME=[ENTER_REPO_NAME];              # Name of the Repo
+  CP_BRNC=[ENTER_BRANCH_NAME];             # Branch of the Repo
+  cherrypick [ENTER_COMMIT_ID];            # Commit ID in place of <commit-id/SHA>
+  cd $builddir;
+  #==============================#
 
 # You may add many more picks like this.
+}
 
+function vendor_strat
+{
+  THE_FILE=                                    # The Device-Vendor Conjuctor File's name
+  DEVCON=                                      # Device Basic Config file name
+  BOOTRES=                                     # Boot Anim Resolution Value (as instructed in main ScriBt)
 }
 
 function automate         #Function will only work if it has all the Values Pre-Defined
 {
+  #CALL ALL of the ABOVE functions
+  color;
+  repoinit;
+  reposync;
+  deviceinfo;
+  buildinfo;
+  vendorstrat;
 
-#CALL ALL of the ABOVE functions
-color;
-repoinit;
-reposync;
-deviceinfo;
-buildinfo;
+  # You may Enter your Desired Build Sequence here
+  # Default Sequence - You may change this
 
-# You may Enter your Desired Build Sequence here
-# Default Sequence - You may change this
+  sync;
+  the_cherries;     #Should be always before build (what's the use to do after build?) and After Sync (Picks will get lost)
+  build;
+  exitScriBt;
 
-sync;
-the_cherries;     #Should be always before build (what's the use to do after build?) and After Sync (Picks will get lost)
-build;
-exitScriBt;
-
-# WIP Function
-
+  # WIP Function
 }

@@ -113,7 +113,7 @@ echo -e "${LBLU} \"Y88888P\"    \`\"Ybbd8\"'  88          88  88888888P\"     \"
 sleep 0.1;
 echo -e '\n';
 sleep 0.1;
-echo -e "${CYAN}~#~#~#~#~#~#~#~#~#~#~ By Arvind7352 @XDA #~#~#~#~#~#~#~#~#~#~${NONE}";
+echo -e "${LCYAN}~#~#~#~#~#~#~#~#~#~#~ By Arvind7352 @XDA #~#~#~#~#~#~#~#~#~#~${NONE}";
 sleep 3;
 #GET THOSE ROOMS
 echo -e '\n';
@@ -347,13 +347,15 @@ function installdeps
 function sync
 {
 	if [ -f PREF.rc ]; then
+		repoinit;
+		rom_name_in_github;
 		teh_action 2;
 	fi
 	echo -e "Let's sync it!";
 	echo -e '\n';
 	echo -e "${LRED}Number of Threads${NONE} for Sync?";
 	echo -e '\n';
-	#SHUT_MY_MOUTH
+	# SHUT_MY_MOUTH
 	if [ -f PREF.rc ]; then
 		reposync;
 		echo -e "${RED}*${NONE}${LPURP}AutoBot${RED}*${NONE} No of Threads : ${JOBS}"
@@ -373,7 +375,7 @@ function sync
 	echo -e "Need some ${LRED}Silence${NONE} in teh Terminal? ${LGRN}[y/n]${NONE}";
 	echo -e '\n';
 
-	#SHUT_MY_MOUTH
+	# SHUT_MY_MOUTH
 	if [ -f PREF.rc ]; then
 		reposync;
 		echo -e "${RED}*${NONE}${LPURP}AutoBot${RED}*${NONE} Silent Sync : ${SIL}"
@@ -384,7 +386,7 @@ function sync
 
 	echo -e "Sync only Current Branch? [y/n] (Saves Space)"
 	echo -e '\n';
-	#SHUT_MY_MOUTH
+	# SHUT_MY_MOUTH
 	if [ -f PREF.rc ]; then
 		reposync;
 		echo -e  "${RED}*${NONE}${LPURP}AutoBot${RED}*${NONE} Sync Current Branch : $CRNT"
@@ -476,7 +478,7 @@ ${LPURP}=======================================================${NONE}";
 	echo -e "Since Branches may live or die at any moment, ${LRED}Specify the Branch${NONE} you're going to sync"
 	echo -e '\n';
 
-	#SHUT_MY_MOUTH
+	# SHUT_MY_MOUTH
 	if [ -f PREF.rc ]; then
 		repoinit;
 		echo -e "Branch : $BRANCH"
@@ -488,7 +490,7 @@ ${LPURP}=======================================================${NONE}";
 	echo -e "Any ${LRED}Source you have already synced?${NONE} If yes, then say YES and Press ${LCYAN}ENTER${NONE}";
 	echo -e '\n';
 
-	#SHUT_MY_MOUTH
+	# SHUT_MY_MOUTH
 	if [ -f PREF.rc ]; then
 		repoinit;
 		if [[ "$REFY" == YES ]]; then
@@ -596,7 +598,7 @@ function pre_build
 	echo -e "What's your ${LRED}Device's CodeName${NONE} ${LGRN}[Refer Device Tree - All Lowercases]${NONE}?";
 	echo -e '\n';
 
-	#SHUT_MY_MOUTH
+	# SHUT_MY_MOUTH
 	if [ -f PREF.rc ]; then
 		deviceinfo;
 		echo -e "Your Device Name is : ${DEVICE}"
@@ -607,7 +609,7 @@ function pre_build
 	echo -e "The ${LRED}Build type${NONE}? ${LGRN}[userdebug/user/eng]${NONE}";
 	echo -e '\n';
 
-	#SHUT_MY_MOUTH
+	# SHUT_MY_MOUTH
 	if [ -f PREF.rc ]; then
 		deviceinfo;
 		echo -e "Build type: ${DEVICE}"
@@ -619,7 +621,7 @@ function pre_build
 	echo -e "Your ${LRED}Device's Company/Vendor${NONE} (All Lowercases)?";
 	echo -e '\n';
 
-	#SHUT_MY_MOUTH
+	# SHUT_MY_MOUTH
 	if [ -f PREF.rc ]; then
 		deviceinfo;
 		echo -e "Device's Company : ${COMP}"
@@ -635,8 +637,8 @@ function pre_build
 
 function vendor_strat
 {
-	echo -e "${LPURP}=========================================================${NONE}"
 	cd vendor/${ROMNIS}
+	echo -e "${LPURP}=========================================================${NONE}"
 	echo -e '\n';
 	if [ -f ${ROMNIS}.devices ]; then
 		echo -e "Adding your Device to ROM Vendor (Strategy 1)";
@@ -666,31 +668,113 @@ function vendor_strat
 		echo "DONE! [2/2]"
 		croot;
 	fi
-}
+	echo -e "${LPURP}=========================================================${NONE}"
+} #vendor_strat
 
-	if [[ "$ROMNIS" == krexus ]]; then
-		echo -e "Strategy not Implemented Yet. DIY ftm";
+function vendor_strat_kpa #for ROMs having products folder
+{
+	croot;
+	cd vendor/${ROMNIS}/products;
+	# SHUT_MY_MOUTH
+	if [ ! -f PREF.rc ]; then
+		if [[ "$ROMNIS" == pac || "$ROMNIS" == krexus ]]; then
+			THE_FILE=${ROMNIS}_${DEVICE}.mk;
+		else
+			#AOKP
+			THE_FILE=${DEVICE}.mk
+			echo -e '\n' >> AndroidProducts.mk;
+			echo "PRODUCT_MAKEFILES := \ " >> AndroidProducts.mk;
+			echo -e "\t$(LOCAL_DIR)/${DEVICE}.mk" >> AndroidProducts.mk;
+		fi
 	else
-		vendor_strat;
+		vendorstrat;
+		${RED}*${NONE}${LPURP}AutoBot${RED}*${NONE} Device Config File : ${THE_FILE};
 	fi
-# Must be on Working Directory
-		croot;
-# Done
+	#Create Device-Vendor Conjuctor
+	touch ${THE_FILE};
+	echo -e "Name your Device Specific Configuration File ( eg. huashan.mk / full_huashan.mk )"
+	echo -e '\n';
+	# SHUT_MY_MOUTH
+	if [ ! -f PREF.rc ]; then
+		read DEVCON;
+	else
+		vendorstrat;
+		echo -e "${RED}*${NONE}${LPURP}AutoBot${RED}*${NONE} Device Configuration file : ${DEVCON}";
+	fi
+	echo -e "\$(call inherit-product, device/${COMP}/${DEVICE}/${DEVCON})" >> ${THE_FILE};
+	echo -e "Specify your Device's Resolution in the format ${LCYAN}HORIZONTAL${NONE}${LRED}x${NONE}${LCYAN}VERTICAL${NONE} (eg. 1280x720)"
+	if [ ! -f PREF.rc ]; then
+		echo -e "Among these Values - Select the one which is nearest or almost Equal to that of your Device"
+		echo -e "Resolutions which are available for AOKP are shown by \"(AOKP)\". All Res are available for PAC-ROM ";
+		echo -e "${LPURP}240${NONE}x400
+${LPURP}320${NONE}x480 (AOKP)
+${LPURP}480${NONE}x800 and ${LPURP}480${NONE}x854 (AOKP)
+${LPURP}540${NONE}x960 (AOKP)
+${LPURP}600${NONE}x1024
+${LPURP}720${NONE}x1280 (AOKP)
+${LPURP}768${NONE}x1024 and ${LPURP}768${NONE}x1280 (AOKP)
+${LPURP}800${NONE}x1280 (AOKP)
+${LPURP}960${NONE}x540
+${LPURP}1080${NONE}x1920 (AOKP)
+${LPURP}1200${NONE}x1920
+${LPURP}1280${NONE}x800
+${LPURP}1440${NONE}x2560
+${LPURP}1536${NONE}x2048
+${LPURP}1600${NONE}x2560
+${LPURP}1920${NONE}x1200
+${LPURP}2560${NONE}x1600"
+		echo -e '\n'
+		echo -e "Type only the First (Highlighted in ${LPURP}Purple${NONE}) Number (eg. if 720x1280 then type in 720)"
+		read BOOTRES;
+	else
+		vendorstrat;
+		echo -e "${RED}*${NONE}${LPURP}AutoBot${RED}*${NONE} Resolution Choosed : ${BOOTRES}";
+	fi
+	#Vendor-Calls
+	if [[ "$ROMNIS" == krexus ]]; then
+		echo -e "\$( call inherit-product, vendor/${ROMNIS}/products/common.mk)" >> ${THE_FILE};
+		echo -e "\$( call inherit-product, vendor/${ROMNIS}/products/vendorless.mk)" >> ${THE_FILE};
+	fi
+	if [[ "$ROMNIS" == pac ]]; then
+			echo -e "\$( call inherit-product, vendor/${ROMNIS}/products/pac_common.mk)" >> ${THE_FILE};
+			echo "PAC_BOOTANIMATION_NAME := ${BOOTRES};" >> ${THE_FILE};
+	fi
+	if [[ "$ROMNIS" == aokp ]]; then
+		# Boot animation
+		echo -e "\$(call inherit-product, vendor/${ROMNIS}/configs/common.mk)" >> ${THE_FILE};
+		echo "PRODUCT_COPY_FILES += \ " >> ${THE_FILE};
+    echo -e "\tvendor/aokp/prebuilt/bootanimation/bootanimation_${BOOTRES}.zip:system/media/bootanimation.zip" >> ${THE_FILE};
+	fi
+	#PRODUCT_NAME is the only ROM-dependent variable, setting it here is better.
+	echo "PRODUCT_NAME := ${ROMNIS}_${DEVICE}" >> ${THE_FILE};
+} #vendor_strat_kpa
 
+#	if [[ "$ROMNIS" == krexus || "$ROMNIS" == pac && "$BRANCH" != pac-6.0 || "$ROMNIS" == aokp && "$BRANCH" != mm ]]; then
+	if [ -f vendor/${ROMNIS}/products ]; then
+		vendor_strat_kpa; #if found products folder
+	else
+		vendor_strat; #if not found
+	fi
+		croot;
+	echo -e "${PURP}=========================================================${NONE}"
+	echo -e '\n';
 	echo -e "Now, ${ROMNIS}fy your Device Tree. Press Enter, when done"
+	echo -e '\n';
+	echo -e "${PURP}=========================================================${NONE}"
 	read ENTDONE;
 	if [ ! -f PREF.rc ]; then
 		quick_menu;
 	else
 		echo -e "${RED}*${NONE}${LPURP}AutoBot${RED}*${NONE} Automated Pre-Build Successful"
 	fi
-	echo -e "${LPURP}=========================================================${NONE}"
 
 } #pre_build
 
 function build
 {
 	if [ -f PREF.rc ]; then
+		repoinit;
+		rom_name_in_github;
 		teh_action 4;
 	fi
 	function clean_build
@@ -852,7 +936,7 @@ function hotel_menu
 	echo -e "==========================================================================================="
 	echo -e '\n';
 
-	#SHUT_MY_MOUTH
+	# SHUT_MY_MOUTH
 	if [ -f PREF.rc ]; then
 		buildinfo;
 		echo -e "${RED}*${NONE}${LPURP}AutoBot${RED}*${NONE} Selected Option : $SELT"
@@ -907,7 +991,7 @@ function hotel_menu
 		hotel_menu;
 		echo -e '\n';
 		echo -e "Should i use '${YELO}make${NONE}' or '${RED}mka${NONE}' ?"
-		#SHUT_MY_MOUTH
+		# SHUT_MY_MOUTH
 		echo -e '\n';
 		if [ -f PREF.rc ]; then
 			buildinfo;
@@ -980,12 +1064,12 @@ teh_action ()
 		if [ ! -f PREF.rc ]; then
 			build;
 		fi
-		echo -ne '\033]0;ScriBt : Building ${ROM_FN}\007'
+		echo -ne "\033]0;ScriBt : Building ${ROM_FN}\007"
 	elif [[ "$ACTION" == 5 || "$1" == 5 ]]; then
 		if [ ! -f PREF.rc ]; then
 			installdeps;
 		fi
-		echo -ne '\033]0;ScriBt : InstallDeps\007'
+		echo -ne '\033]0;ScriBt : Installing Dependencies\007'
 	elif [[ "$ACTION" == 6 || "$1" == 6 ]]; then
 		echo -ne '\033]0;BYE!\007'
 		if [ ! -f PREF.rc ]; then
