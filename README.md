@@ -70,10 +70,11 @@ bash ROM.sh automate
 
 #Supported ROMs
 
-* Android Ice Cold Project aka AICP
-* Android Open Kang Project aka AOKP
-* Android Open Source Project - CAF aka AOSP-CAF
-* Android Open Source Project with RRO aka AOSP-RRO
+* Android Ice Cold Project aka "AICP"
+* Android Open Kang Project aka "AOKP"
+* Android Open Source Project - CAF aka "AOSP-CAF"
+* Android Open Source Project with RRO aka "AOSP-RRO"
+* BlissRoms
 * CandyRoms
 * Cyanide-L
 * CyanogenMod
@@ -82,7 +83,7 @@ bash ROM.sh automate
 * GZR Validus
 * Krexus - CAF
 * OmniROM
-* Orion
+* OrionOS
 * OwnROM
 * PAC-ROMs
 * Resurrection Remix
@@ -90,7 +91,7 @@ bash ROM.sh automate
 * Temasek
 * TipsyOs
 * XenonHD by Team Horizon
-* Xperia Open Source Project aka XOSP
+* Xperia Open Source Project aka "XOSP"
 
 More ROMs will be added, if missed 'em
 

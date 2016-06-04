@@ -58,7 +58,7 @@ if [ -f PREF.rc ]; then
 	echo -e '\n';
 	echo -e "${RED}*${NONE}${LPURP}AutoBot${RED}*${NONE} Successfully Collected Information. Ready to Go!"
 else
-	echo -e "Don't lose patience the next time. Enter your Values in PREF.rc and Shut my Mouth! lol";
+	echo -e "Using this for first time?\nDon't lose patience the next time. Enter your Values in PREF.rc and Shut my Mouth! lol";
 	echo -e '\n';
 	echo -e "PREF.rc is the file"
 fi
@@ -351,6 +351,7 @@ function sync
 		rom_name_in_github;
 		teh_action 2;
 	fi
+	echo -e '\n';
 	echo -e "Let's sync it!";
 	echo -e '\n';
 	echo -e "${LRED}Number of Threads${NONE} for Sync?";
@@ -413,11 +414,12 @@ function sync
 	else
 		FORCE=" " ;
 	fi
+	echo -e '\n';
 	echo -e "Let's Sync!";
 	echo -e '\n';
 	repo sync -j${JOBS} ${SILENT} ${FORCE} ${SYNC_CRNT}  2>&1 | tee $RTMP;
 	echo -e '\n';
-	if [[ $( grep -c 'Syncing work tree: 100%' $RTMP ) == 1 ]]; then
+	if [[ $(tac $RTMP | grep -m 1 -c 'Syncing work tree: 100%') == 1 ]]; then
 		echo -e "ROM Source synced successfully."
 	fi
 	echo -e '\n';
@@ -442,7 +444,7 @@ function init
 	echo -e '\n';
 	echo -e "Which ROM are you trying to build?
 Choose among these (Number Selection)
-${BLANK}
+
 1.${BLU} AICP ${NONE}
 2.${RED} AOKP ${NONE}
 3.${LGRN} AOSP-RRO ${NONE}
@@ -464,7 +466,8 @@ ${BLANK}
 19.${BLU} Krexus${NONE}-${GRN}CAF${NONE}
 20.${LCYAN} Cyan${NONE}${CYAN}ide-L${NONE}
 21.${LRED} Temasek ${NONE}
-${BLANK}
+22.${CYAN} BlissRoms by Team Bliss${NONE}
+
 ${LPURP}=======================================================${NONE}";
 	echo -e '\n';
 	read ROMNO;
@@ -488,18 +491,18 @@ ${LPURP}=======================================================${NONE}";
 	fi
 
 	echo -e '\n';
-	echo -e "Any ${LRED}Source you have already synced?${NONE} If yes, then say YES and Press ${LCYAN}ENTER${NONE}";
+	echo -e "Any ${LRED}Source you have already synced?${NONE} If ${LGRN}yes${NONE}, then say ${LGRN}YES${NONE} and Press ${LCYAN}ENTER${NONE}";
 	echo -e '\n';
 
 	# SHUT_MY_MOUTH
 	if [ -f PREF.rc ]; then
 		repoinit;
 		if [[ "$REFY" == YES ]]; then
-			echo -e "${RED}*${NONE}${LPURP}AutoBot${RED}*${NONE} YES, you have a Reference Source"
+			echo -e "${RED}*${NONE}${LPURP}AutoBot${RED}*${NONE} ${LGRN}YES${NONE}, you have a Reference Source"
 			echo -e '\n';
 			echo -e "${RED}*${NONE}${LPURP}AutoBot${RED}*${NONE} The Reference location is : ${REF}"
 		else
-			echo -e "${RED}*${NONE}${LPURP}AutoBot${RED}*${NONE} NO, you don't have a Reference Source. Going for a Fresh Sync"
+			echo -e "${RED}*${NONE}${LPURP}AutoBot${RED}*${NONE} ${LRED}NO${NONE}, you don't have a Reference Source. Going for a ${LGRN}Fresh${NONE} Sync"
 		fi
 	else
 		read REFY;
@@ -647,6 +650,11 @@ function vendor_strat
 		echo "${DEVICE}" >> ${ROMNIS}.devices;
 		echo "DONE!"
 		croot;
+	elif [ -f ${ROMNIS}-device-targets ]; then
+		echo -e "Adding your Device to ROM Vendor (Strategy 4)"
+		echo -e '\n';
+		echo -e "${ROMNIS}_${DEVICE}-${BTYP}";
+		echo "DONE!"
 	elif [ -f vendorsetup.sh ]; then
 		echo -e "Adding your Device to ROM Vendor (Strategy 2)"
 		echo -e '\n';
@@ -707,7 +715,8 @@ function vendor_strat_kpa #for ROMs having products folder
 	if [ ! -f PREF.rc ]; then
 		echo -e "Among these Values - Select the one which is nearest or almost Equal to that of your Device"
 		echo -e "Resolutions which are available for AOKP are shown by \"(AOKP)\". All Res are available for PAC-ROM ";
-		echo -e "${LPURP}240${NONE}x400
+		echo -e "
+${LPURP}240${NONE}x400
 ${LPURP}320${NONE}x480 (AOKP)
 ${LPURP}480${NONE}x800 and ${LPURP}480${NONE}x854 (AOKP)
 ${LPURP}540${NONE}x960 (AOKP)
@@ -723,9 +732,9 @@ ${LPURP}1440${NONE}x2560
 ${LPURP}1536${NONE}x2048
 ${LPURP}1600${NONE}x2560
 ${LPURP}1920${NONE}x1200
-${LPURP}2560${NONE}x1600"
-		echo -e '\n'
-		echo -e "Type only the First (Highlighted in ${LPURP}Purple${NONE}) Number (eg. if 720x1280 then type in 720)"
+${LPURP}2560${NONE}x1600";
+		echo -e '\n';
+		echo -e "Type only the First (Highlighted in ${LPURP}Purple${NONE}) Number (eg. if 720x1280 then type in 720)";
 		read BOOTRES;
 	else
 		vendorstrat;
@@ -805,13 +814,15 @@ function build
 		fi
 	} #make_it
 
-	function make_module
+	make_module ()
 	{
-		echo -e "Do you know the build location of the Module?";
+		if [ -z "$1" ]; t
 		echo -e '\n';
 		read KNWLOC;
-		echo -e '\n';
-		if [[ "$KNWLOC" == y ]]; then
+		echo -e '\n'
+		echo -e "Know the Location of the Module?"
+		fi
+		if [[ "$KNWLOC" == y || "$1" == y ]]; then
 			make_it;
 		else
 			echo -e "Do either of these two actions: \n1. ${BLU}G${NONE}${RED}o${NONE}${YELO}o${NONE}${BLU}g${NONE}${GRN}l${NONE}${RED}e${NONE} it (Easier)\n2. Run this command in terminal : ${LBLU}sgrep \"LOCAL_MODULE := Insert_MODULE_NAME_Here \"${NONE}.\n\n Press ${LCYAN}ENTER${NONE} after it's ${LPURP}Done.${NONE}.";
@@ -820,6 +831,31 @@ function build
 			make_it;
 		fi
 	} #make_module
+
+	function post_build
+	{
+		if [[ $(tac $RMTMP | grep -c -m 1 'make completed successfully') == 1 ]]; then
+			echo -e '\n';
+			echo "Build Completed ${LGRN}Successfully!${NONE} Cool. Now make it ${LRED}Boot!${NONE}"
+		elif [[ $(tac $RMTMP | grep -c -m 1 'No rule to make target') == 1 ]]; then
+			echo -e "Looks like a Module isn't getting built / Missing"
+			echo -e "You'll see a line like this:"
+			echo -e '\n';
+			echo -e "No rule to make target '$(pwd)/out/....../${LRED}<MODULE_NAME>${NONE}_intermediates'"
+			echo -e '\n';
+			echo -e "Enter whatever you see in place of ${LRED}<MODULE_NAME>${NONE} (Case-Sensitive please)"
+			read MOD_NAME;
+			echo -e "Let's Search for ${LRED}${MOD_NAME}${NONE} ! This will take time, but it's Valuable";
+			echo -e '\n';
+			sgrep "LOCAL_MODULE := ${MOD_NAME}";
+			echo -e '\n';
+			echo -e "You might have found that Module's location, if you have Entered the name correctly"
+			echo -e ""
+			make_module y;
+		else
+			echo -e "WEW. ${YELO}I_iz_Noob${NONE}. Probably you need to Search the Internet for Resolution of the Above Error";
+		fi
+	}
 
 	function set_ccache
 	{
@@ -879,19 +915,6 @@ function build
 		set_ccache;
 	} #set_ccvars
 
-#	function post_make
-#	{
-#		if [[ $( grep -c 'make completed successfully' $TMP ) == 1 ]]; then
-#			echo -e '\n';
-#			echo "Build Completed! Cool. Now make it Boot!"
-#		elif [[ $(grep -c "No rule to make target ") == 1 ]]; then
-#			echo -e "Looks like a Module isn't getting built."
-#			echo -e "Find the name of the Missing Module, and Search from where it is being made."
-#			echo -e "If done do a mmm to it - There are two chances:"
-#			echo -e "		Either the Module will get built - OR - The Module will ask for other Dependency for it to get built"
-#		fi
-#	} WIP WIP WIP WIP
-
 	function build_make
 	{
 		# For Brunchers
@@ -908,14 +931,15 @@ function build
 			if [[ "$ROMNIS" == tipsy || "$ROMNIS" == validus || "$ROMNIS" == tesla ]]; then
 				time	$MKWAY $ROMNIS $BCORES 2>&1 | tee $RMTMP;
 				echo -e '\n';
+				post_build;
 			elif [[ $(grep -q "^bacon:" "${ANDROID_BUILD_TOP}/build/core/Makefile") ]]; then
 				time $MKWAY bacon $BCORES 2>&1 | tee $RMTMP;
 				echo -e '\n';
-#				post_build; WiP
+				post_build;
 			else
 				time $MKWAY otapackage $BCORES 2>&1 | tee $RMTMP;
 				echo -e '\n';
-#				post_build; WiP
+				post_build;
 			fi
 		fi
 } #build_make
@@ -1055,7 +1079,7 @@ teh_action ()
 		if [ ! -f PREF.rc ]; then
 			sync;
 		fi
-		echo -ne '\033]0;ScriBt : Sync\007'
+		echo -ne "\033]0;ScriBt : Syncing ${ROM_FN}\007"
 	elif [[ "$ACTION" == 3 || "$1" == 3 ]]; then
 		if [ ! -f PREF.rc ]; then
 			pre_build;
@@ -1072,7 +1096,7 @@ teh_action ()
 		fi
 		echo -ne '\033]0;ScriBt : Installing Dependencies\007'
 	elif [[ "$ACTION" == 6 || "$1" == 6 ]]; then
-		echo -ne '\033]0;BYE!\007'
+		echo -ne "\033]0;${ROM_FN} Build Complete\007"
 		if [ ! -f PREF.rc ]; then
 			exitScriBt;
 		fi
@@ -1083,7 +1107,7 @@ teh_action ()
 if [[ "$1" == automate ]]; then
 	source $(pwd)/PREF.rc
 	automate;
-	echo -e "${RED}*${NONE}${LPURP}AutoBot${RED}*${NONE} Automated Building Selected!"
+	echo -e "${RED}*${NONE}${LPURP}AutoBot${RED}*${NONE} Thanks for Selecting Me. Lem'me do your work"
 else
 	main_menu;
 fi

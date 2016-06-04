@@ -59,11 +59,11 @@ if [[ "$ROMNO" == 13 ]]; then
 fi
 if [[ "$ROMNO" == 14 ]]; then
   ROM_NAME=TeamHorizon;
-  ROM_FN="XenonHD by Team Horizon";
+  ROM_FN="XenonHD";
 fi
 if [[ "$ROMNO" == 15 ]]; then
   ROM_NAME=XOSP-Project;
-  ROM_FN="Xperia Open Source Project aka XOSP";
+  ROM_FN="XOSP";
 fi
 if [[ "$ROMNO" == 16 ]]; then
   ROM_NAME=SlimRoms;
@@ -89,7 +89,10 @@ if [[ "$ROMNO" == 21 ]]; then
   ROM_NAME=temasek;
   ROM_FN=Temasek;
 fi
-
+if [[ "$ROMNO" == 22 ]]; then
+  ROM_NAME=BlissRoms;
+  ROM_FN=BlissRoms;
+fi
 }
 
 function rom_name_in_source
@@ -146,8 +149,11 @@ fi
 if [[ "$ROMNO" == 19 ]]; then
   ROMNIS=krexus;
 fi
-if [[ "$ROMNIS" = 20 ]]; then
+if [[ "$ROMNO" = 20 ]]; then
   ROMNIS=cyanide;
+fi
+if [[ "$ROMNO" == 22 ]]; then
+  ROMNIS=bliss;
 fi
 }
 
