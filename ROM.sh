@@ -453,14 +453,15 @@ function sync
 			echo -e '\n';
 			the_response FAIL Sync;
 		fi
-	echo -e '\n';
-	echo -e "${LPURP}Done.${NONE}!";
-	echo -e '\n';
-	echo -e "${LRED}=====================================================================${NONE}";
-	echo -e '\n';
-	if [ ! -f PREF.rc ]; then
-		quick_menu;
-	echo -e '\n';
+		echo -e '\n';
+		echo -e "${LPURP}Done.${NONE}!";
+		echo -e '\n';
+		echo -e "${LRED}=====================================================================${NONE}";
+		echo -e '\n';
+		if [ ! -f PREF.rc ]; then
+			quick_menu;
+		fi
+	fi
 } #sync
 
 function init
@@ -869,25 +870,39 @@ function build
 			echo -e '\n';
 			echo "Build Completed ${LGRN}Successfully!${NONE} Cool. Now make it ${LRED}Boot!${NONE}"
 			the_response COOL Build;
+			teh_action 6 COOL;
 		elif [[ $(tac $RMTMP | grep -c -m 1 'No rule to make target') == 1 ]]; then
 			if [ ! -f PREF.rc ]; then
-#				echo -e "Looks like a Module isn't getting built / Missing"
-#				echo -e "You'll see a line like this:"
-#				echo -e '\n';
-#				echo -e "No rule to make target '$(pwd)/out/....../${LRED}<MODULE_NAME>${NONE}_intermediates'"
-#				echo -e '\n';
-#				echo -e "${LCYAN}Enter${NONE} whatever you see in place of ${LRED}<MODULE_NAME>${NONE} (Case-Sensitive please)"
-#				read MOD_NAME;
-#				echo -e "Let's Search for ${LRED}${MOD_NAME}${NONE} ! This will take time, but it's Valuable";
-#				echo -e '\n';
-#				sgrep "LOCAL_MODULE := ${MOD_NAME}" 2>&1 | tee mod.txt;
-#				echo -e '\n';
-#				echo -e "You might have found that Module's location, If not, then search for the Module's repository on the Internet"
-#				echo -e '\n';
-#				make_module y;
-				echo -e "WiP"
+				echo -e "Looks like a Module isn't getting built / Missing"
+				echo -e "You'll see a line like this:"
+				echo -e '\n';
+				echo -e "No rule to make target '$(pwd)/out/....../${LRED}<MODULE_NAME>${NONE}_intermediates'"
+				echo -e '\n';
+				echo -e "${LCYAN}Enter${NONE} whatever you see in place of ${LRED}<MODULE_NAME>${NONE} (Case-Sensitive please)"
+				read MOD_NAME;
+				echo -e "Let's Search for ${LRED}${MOD_NAME}${NONE} ! This will take time, but it's Valuable";
+				echo -e '\n';
+				sgrep "LOCAL_MODULE := ${MOD_NAME}" 2>&1 | tee mod.txt;
+				echo -e '\n';
+				if [[ $(grep -c -m 1 'LOCAL_MODULE') == "1" ]]; then
+					echo -e "Looks like you've found that location, let's make it"
+					echo -e '\n';
+					make_module y;
+				else
+					echo -e "The Repo which builds that module is missing\n"
+					echo -e "======================================================================================================";
+					echo -e '\n';
+					echo -e "Let me search that module for you -> http://lmgtfy.com/?q=LOCAL_MODULE+%3A%3D+${MOD_NAME}"
+					echo -e '\n';
+					echo -e "======================================================================================================";
+					echo -e "IF you found that module's repo, Sync it to the path as shown in the Repo URL";
+					echo -e "For Example https://github.com/CyanogenMod/android_bionic should be synced to $(pwd)/bionic";
+					echo -e '\n';
+					make module;
+				fi
 			else
 				the_response FAIL Build;
+				teh_action 6 FAIL;
 			fi
 		else
 			echo -e "WEW. ${YELO}I_iz_Noob${NONE}. Probably you need to Search the Internet for Resolution of the Above Error";
@@ -1129,8 +1144,13 @@ teh_action ()
 			installdeps;
 		fi
 		echo -ne '\033]0;ScriBt : Installing Dependencies\007'
-	elif [[ "$1" == "6" ]]; then
-		echo -ne "\033]0;${ROM_FN} Build Complete\007"
+	elif [[ "$1" == "6" || "$2" == COOL ]]; then
+		echo -ne "\033]0;${ROM_FN} : Build Complete\007"
+		if [ ! -f PREF.rc ]; then
+			exitScriBt;
+		fi
+	elif [[ "$1" == "6" || "$2" == FAIL ]]; then
+		echo -ne "\033]0;${ROM_FN} : Build Failed\007"
 		if [ ! -f PREF.rc ]; then
 			exitScriBt;
 		fi
