@@ -12,11 +12,9 @@ The Script consists of five main Actions:
 
   b. Initialize it's Repo
 
-#####2. Sync -
+  c. Add a local_manifest for Device Specfic things
 
-  a. Add a local_manifest for Device Specfic things
-
-  b. Sync the Sources
+#####2. Sync -  Sync the Sources
 
 #####3. Pre Build -
 
@@ -49,7 +47,7 @@ way, bash ROM.sh won't :D
 
 #####Automation Notes
 
-Automation is still a WiP i.e. it needs Extensive Testing in every way!
+Automation Works are complete, though it needs testing in every way!
 
 For Automating the ScriBt
 
@@ -60,6 +58,15 @@ For Automating the ScriBt
 ```
 bash ROM.sh automate
 ```
+
+#####Functions that can be automated
+
+* sync
+* pre_build ^
+* build
+* the_cherries
+
+^ - The Device Tree must be Compatible with the ROM you're building. Else, Issues :) :P
 
 #CONTRIBUTORS
 
