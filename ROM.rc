@@ -5,91 +5,91 @@
 function rom_name_in_github
 {
 
-if [[ "$ROMNO" == 1 ]]; then
+if [[ "$ROMNO" == "1" ]]; then
   ROM_NAME=AICP;
   ROM_FN="AICP";
 fi
-if [[ "$ROMNO" == 2 ]]; then
+if [[ "$ROMNO" == "2" ]]; then
   ROM_NAME=AOKP;
   ROM_FN="AOKP";
 fi
-if [[ "$ROMNO" == 3 ]]; then
+if [[ "$ROMNO" == "3" ]]; then
   ROM_NAME=AOSP-CAF;
   ROM_FN="AOSP-CAF";
 fi
-if [[ "$ROMNO" == 4 ]]; then
+if [[ "$ROMNO" == "4" ]]; then
   ROM_NAME=AOSP-RRO;
   ROM_FN="AOSP-RRO";
 fi
-if [[ "$ROMNO" == 5 ]]; then
+if [[ "$ROMNO" == "5" ]]; then
   ROM_NAME=CyanogenMod;
   ROM_FN="CyanogenMod";
 fi
-if [[ "$ROMNO" == 6 ]]; then
+if [[ "$ROMNO" == "6" ]]; then
   ROM_NAME=DirtyUnicorns;
   ROM_FN="Dirty Unicorns";
 fi
-if [[ "$ROMNO" == 7 ]]; then
+if [[ "$ROMNO" == "7" ]]; then
   ROM_NAME=OmniROM;
   ROM_FN="OmniROM";
 fi
-if [[ "$ROMNO" == 8 ]]; then
+if [[ "$ROMNO" == "8" ]]; then
   ROM_NAME=TeamOrion;
   ROM_FN="Orion OS";
 fi
-if [[ "$ROMNO" == 9 ]]; then
+if [[ "$ROMNO" == "9" ]]; then
   ROM_NAME=PAC-ROM;
   ROM_FN="PAC ROM";
 fi
-if [[ "$ROMNO" == 10 ]]; then
+if [[ "$ROMNO" == "10" ]]; then
   ROM_NAME=ResurrectionRemix;
   ROM_FN="Resurrection Remix";
 fi
-if [[ "$ROMNO" == 11 ]]; then
+if [[ "$ROMNO" == "11" ]]; then
   ROM_NAME=Tesla-M;
   ROM_FN="GZR Tesla";
 fi
-if [[ "$ROMNO" == 12 ]]; then
+if [[ "$ROMNO" == "12" ]]; then
   ROM_NAME=TipsyOs;
   ROM_FN="TipsyOs";
 fi
-if [[ "$ROMNO" == 13 ]]; then
+if [[ "$ROMNO" == "13" ]]; then
   ROM_NAME=ValidusOs-M;
   ROM_FN="GZR Validus";
 fi
-if [[ "$ROMNO" == 14 ]]; then
+if [[ "$ROMNO" == "14" ]]; then
   ROM_NAME=TeamHorizon;
   ROM_FN="XenonHD";
 fi
-if [[ "$ROMNO" == 15 ]]; then
+if [[ "$ROMNO" == "15" ]]; then
   ROM_NAME=XOSP-Project;
   ROM_FN="XOSP";
 fi
-if [[ "$ROMNO" == 16 ]]; then
+if [[ "$ROMNO" == "16" ]]; then
   ROM_NAME=SlimRoms;
   ROM_FN="SlimRoms";
 fi
-if [[ "$ROMNO" = 17 ]]; then
+if [[ "$ROMNO" = 17" ]]; then
   ROM_NAME=CandyRoms;
   ROM_FN="CandyRoms";
 fi
-if [[ "$ROMNO" == 18 ]]; then
+if [[ "$ROMNO" == "18" ]]; then
   ROM_NAME=OwnROM;
   ROM_FN=OwnROM;
 fi
-if [[ "$ROMNO" == 19 ]]; then
+if [[ "$ROMNO" == "19" ]]; then
   ROM_NAME=Krexus-CAF;
   ROM_FN="Krexus (CAF Version)";
 fi
-if [[ "$ROMNO" == 20 ]]; then
+if [[ "$ROMNO" == "20" ]]; then
   ROM_NAME=CyanideL;
   ROM_FN=Cyanide;
 fi
-if [[ "$ROMNO" == 21 ]]; then
+if [[ "$ROMNO" == "21" ]]; then
   ROM_NAME=temasek;
   ROM_FN=Temasek;
 fi
-if [[ "$ROMNO" == 22 ]]; then
+if [[ "$ROMNO" == "22" ]]; then
   ROM_NAME=BlissRoms;
   ROM_FN=BlissRoms;
 fi
@@ -98,61 +98,61 @@ fi
 function rom_name_in_source
 {
 
-if [[ "$ROMNO" == 1 ]]; then
+if [[ "$ROMNO" == "1" ]]; then
   ROMNIS=aicp;
 fi
-if [[ "$ROMNO" == 2 ]]; then
+if [[ "$ROMNO" == "2" ]]; then
   ROMNIS=aokp;
 fi
-if [[ "$ROMNO" == 3 || "$ROMNO" == 4 ]]; then
+if [[ "$ROMNO" == "3" || "$ROMNO" == "4" ]]; then
   ROMNIS=full;
 fi
-if [[ "$ROMNO" == 5 || "$ROMNO" == 10  || "$ROMNO" == 21 ]]; then
+if [[ "$ROMNO" == "5" || "$ROMNO" == "10"  || "$ROMNO" == "21" ]]; then
   ROMNIS=cm;
 fi
-if [[ "$ROMNO" == 6 ]]; then
+if [[ "$ROMNO" == "6" ]]; then
   ROMNIS=du;
 fi
-if [[ "$ROMNO" == 7 ]]; then
+if [[ "$ROMNO" == "7" ]]; then
   ROMNIS=omni;
 fi
-if [[ "$ROMNO" == 8 ]]; then
+if [[ "$ROMNO" == "8" ]]; then
   ROMNIS=orion;
 fi
-if [[ "$ROMNO" == 9 ]]; then
+if [[ "$ROMNO" == "9" ]]; then
   ROMNIS=pac;
 fi
-if [[ "$ROMNO" == 11 ]]; then
+if [[ "$ROMNO" == "11" ]]; then
   ROMNIS=tesla;
 fi
-if [[ "$ROMNO" == 12 ]]; then
+if [[ "$ROMNO" == "12" ]]; then
   ROMNIS=tipsy;
 fi
-if [[ "$ROMNO" == 13 ]]; then
+if [[ "$ROMNO" == "13" ]]; then
   ROMNIS=validus;
 fi
-if [[ "$ROMNO" == 14 ]]; then
+if [[ "$ROMNO" == "14" ]]; then
   ROMNIS=xenonhd;
 fi
-if [[ "$ROMNO" == 15 ]]; then
+if [[ "$ROMNO" == "15" ]]; then
   ROMNIS=xosp;
 fi
-if [[ "$ROMNO" == 16 ]]; then
+if [[ "$ROMNO" == "16" ]]; then
   ROMNIS=slim;
 fi
-if [[ "$ROMNO" == 17 ]]; then
+if [[ "$ROMNO" == "17" ]]; then
   ROMNIS=candy;
 fi
-if [[ "$ROMNO" == 18 ]]; then
+if [[ "$ROMNO" == "18" ]]; then
   ROMNIS=ownrom;
 fi
-if [[ "$ROMNO" == 19 ]]; then
+if [[ "$ROMNO" == "19" ]]; then
   ROMNIS=krexus;
 fi
-if [[ "$ROMNO" = 20 ]]; then
+if [[ "$ROMNO" == "20" ]]; then
   ROMNIS=cyanide;
 fi
-if [[ "$ROMNO" == 22 ]]; then
+if [[ "$ROMNO" == "22" ]]; then
   ROMNIS=bliss;
 fi
 }

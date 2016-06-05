@@ -58,7 +58,7 @@ if [ -f PREF.rc ]; then
 	echo -e '\n';
 	echo -e "${RED}*${NONE}${LPURP}AutoBot${RED}*${NONE} Successfully Collected Information. Ready to Go!"
 else
-	echo -e "Using this for first time?\nDon't lose patience the next time. Enter your Values in PREF.rc and Shut my Mouth! lol";
+	echo -e "Using this for first time?\nDon't lose patience the next time. ${LCYAN}Enter${NONE} your Values in PREF.rc and Shut my Mouth! lol";
 	echo -e '\n';
 	echo -e "PREF.rc is the file"
 fi
@@ -131,6 +131,15 @@ function exitScriBt
 	exit 0;
 } #exitScriBt
 
+the_response ()
+{
+	if [[ "$1" == COOL ]]; then
+		echo -e "${RED}*${NONE}${LPURP}AutoBot${RED}*${NONE} Automated $2 ${LGRN}Successful! :)${NONE}"
+	elif [[ "$1" == FAIL ]]; then
+		echo -e "${RED}*${NONE}${LPURP}AutoBot${RED}*${NONE} Automated $2 ${LRED}Failed :(${NONE}"
+	fi
+}
+
 function main_menu
 {
 
@@ -152,7 +161,7 @@ function main_menu
 	echo -e "${LRED}=======================================================${NONE}";
 	echo -e '\n';
 	read ACTION;
-	teh_action;
+	teh_action $ACTION;
 
 } #main_menu
 
@@ -175,7 +184,7 @@ cherrypick ()
  	echo -e '\n';
  	git cherry-pick $1;
  	echo -e "IT's possible that you may face conflicts while merging a C-Pick. Solve those and then Continue."
-	echo -e "=================================================================="
+	echo -e "${GRN}==================================================================${NONE}"
 }
 
 function installdeps
@@ -221,7 +230,7 @@ function installdeps
 		echo -e '\n';
 		echo -e "${RED}==========================================================${NONE}";
 		echo -e '\n';
-		if [[ $( java -version &> $TMP && grep -c 'java version "1.6' $TMP ) == 1 ]]; then
+		if [[ $( java -version &> $TMP && grep -c 'java version "1.6' $TMP ) == "1" ]]; then
 			echo -e "OpenJDK-6 or Java 6 has been successfully installed"
 			echo -e "${RED}==========================================================${NONE}";
 		fi
@@ -249,7 +258,7 @@ function installdeps
 		echo -e '\n';
 		sudo apt-get install openjdk-7-jdk
 		echo -e '\n';
-		if [[ $(java -version &> $TMP && grep -c 'java version "1.7' $TMP ) == 1 ]]; then
+		if [[ $(java -version &> $TMP && grep -c 'java version "1.7' $TMP ) == "1" ]]; then
 			echo -e '\n';
 			echo -e "${RED}==========================================================${NONE}";
 			echo -e "OpenJDK-7 or Java 7 has been successfully installed"
@@ -320,7 +329,7 @@ function installdeps
 	echo -e '\n';
 	read JAVAS;
 	echo -e '\n';
-	if [[ "$JAVAS" == 1 ]]; then
+	if [[ "$JAVAS" == "1" ]]; then
 		echo -ne '\033]0;ScriBt : Java\007'
 		echo -e "Android Version of the ROM you're building ? "
 		echo -e "1. 4.4 KitKat"
@@ -329,16 +338,16 @@ function installdeps
 		echo -e '\n';
 		read ANDVER;
 		echo -e '\n';
-		if [[ "$ANDVER" == 1 ]]; then
+		if [[ "$ANDVER" == "1" ]]; then
 			java6;
-		elif [[ "$ANDVER" == 2 ]]; then
+		elif [[ "$ANDVER" == "2" ]]; then
 			java7;
-		elif [[ "$ANDVER" == 3 ]]; then
+		elif [[ "$ANDVER" == "3" ]]; then
 			java8;
 		fi
-	elif [[ "$JAVAS" == 2 ]]; then
+	elif [[ "$JAVAS" == "2" ]]; then
 		java_select;
-	elif [[ "$JAVAS" == 3 ]]; then
+	elif [[ "$JAVAS" == "3" ]]; then
 		main_menu;
 	fi
 
@@ -385,7 +394,7 @@ function sync
 	fi
 	echo -e '\n';
 
-	echo -e "Sync only Current Branch? [y/n] (Saves Space)"
+	echo -e "Sync only Current Branch? ${LGRN}[y/n]${NONE} (Saves Space)"
 	echo -e '\n';
 	# SHUT_MY_MOUTH
 	if [ -f PREF.rc ]; then
@@ -395,10 +404,13 @@ function sync
 		read CRNT;
 	fi
 
-	if [[ "$CRNT" == y ]]; then
-		SYNC_CRNT=-c;
+	echo -e "Sync with ${LRED}clone-bundle${NONE} ${LGRN}[y/n]${NONE}?"
+	# SHUT_MY_MOUTH
+	if [ -f PREF.rc ]; then
+		reposync;
+		echo -e  "${RED}*${NONE}${LPURP}AutoBot${RED}*${NONE} Use ${LRED}clone-bundle${NONE} : $CLN"
 	else
-		SYNC_CRNT=" ";
+		read CLN;
 	fi
 
 	echo -e '\n';
@@ -414,14 +426,33 @@ function sync
 	else
 		FORCE=" " ;
 	fi
+	if [[ "$CRNT" == y ]]; then
+		SYNC_CRNT=-c;
+	else
+		SYNC_CRNT=" ";
+	fi
+	if [[ "$CLN" == y ]]; then
+		CLN_BUN=" ";
+	else
+		CLN_BUN=--no-clone-bundle;
+	fi
+
 	echo -e '\n';
 	echo -e "Let's Sync!";
 	echo -e '\n';
-	repo sync -j${JOBS} ${SILENT} ${FORCE} ${SYNC_CRNT}  2>&1 | tee $RTMP;
+	repo sync -j${JOBS} ${SILENT} ${FORCE} ${SYNC_CRNT} ${CLN_BUN}  2>&1 | tee $RTMP;
 	echo -e '\n';
 	if [[ $(tac $RTMP | grep -m 1 -c 'Syncing work tree: 100%') == 1 ]]; then
 		echo -e "ROM Source synced successfully."
-	fi
+		if [ -f PREF.rc ]; then
+			echo -e '\n';
+			the_response COOL Sync;
+		fi
+	else
+		if [ -f PREF.rc ]; then
+			echo -e '\n';
+			the_response FAIL Sync;
+		fi
 	echo -e '\n';
 	echo -e "${LPURP}Done.${NONE}!";
 	echo -e '\n';
@@ -429,9 +460,6 @@ function sync
 	echo -e '\n';
 	if [ ! -f PREF.rc ]; then
 		quick_menu;
-	else
-		echo -e "${RED}*${NONE}${LPURP}AutoBot${RED}*${NONE} Automated sync Successful"
-	fi
 	echo -e '\n';
 } #sync
 
@@ -560,7 +588,7 @@ ${LPURP}=======================================================${NONE}";
 			echo -e "\tPATH=\"\$HOME/bin:\$PATH\" "; >> ~/.profile
 			echo -e "fi"; >> ~/.profile
 			source ~/.profile
-			echo -e "DONE. Ready to Init Repo"
+			echo -e "${LGRN}DONE!${NONE}. Ready to Init Repo"
 			echo -e '\n';
 		fi
 
@@ -648,18 +676,18 @@ function vendor_strat
 		echo -e "Adding your Device to ROM Vendor (Strategy 1)";
 		echo -e '\n';
 		echo "${DEVICE}" >> ${ROMNIS}.devices;
-		echo "DONE!"
+		echo "${LGRN}DONE!${NONE}!"
 		croot;
 	elif [ -f ${ROMNIS}-device-targets ]; then
 		echo -e "Adding your Device to ROM Vendor (Strategy 4)"
 		echo -e '\n';
 		echo -e "${ROMNIS}_${DEVICE}-${BTYP}";
-		echo "DONE!"
+		echo "${LGRN}DONE!${NONE}"
 	elif [ -f vendorsetup.sh ]; then
 		echo -e "Adding your Device to ROM Vendor (Strategy 2)"
 		echo -e '\n';
 		echo "add_lunch_combo ${ROMNIS}_${DEVICE}-${BTYP}" >> vendorsetup.sh
-		echo "DONE!"
+		echo "${LGRN}DONE!${NONE}"
 		croot;
 	else
 		croot;
@@ -701,7 +729,7 @@ function vendor_strat_kpa #for ROMs having products folder
 	fi
 	#Create Device-Vendor Conjuctor
 	touch ${THE_FILE};
-	echo -e "Name your Device Specific Configuration File ( eg. huashan.mk / full_huashan.mk )"
+	echo -e "Name your Device Specific Configuration File ( eg. ${ROMNIS}.mk / full_huashan.mk )"
 	echo -e '\n';
 	# SHUT_MY_MOUTH
 	if [ ! -f PREF.rc ]; then
@@ -766,16 +794,18 @@ ${LPURP}2560${NONE}x1600";
 		vendor_strat; #if not found
 	fi
 		croot;
-	echo -e "${PURP}=========================================================${NONE}"
-	echo -e '\n';
-	echo -e "Now, ${ROMNIS}fy your Device Tree. Press Enter, when done"
-	echo -e '\n';
-	echo -e "${PURP}=========================================================${NONE}"
-	read ENTDONE;
+	if [ ! -f PREF.rc ]; then
+		echo -e "${PURP}=========================================================${NONE}"
+		echo -e '\n';
+		echo -e "Now, ${ROMNIS}fy your Device Tree. Press ${LCYAN}Enter${NONE}, when ${LGRN}done${NONE}"
+		echo -e '\n';
+		echo -e "${PURP}=========================================================${NONE}"
+		read ENTDONE;
+	fi
 	if [ ! -f PREF.rc ]; then
 		quick_menu;
 	else
-		echo -e "${RED}*${NONE}${LPURP}AutoBot${RED}*${NONE} Automated Pre-Build Successful"
+	the_response COOL Pre-Build;
 	fi
 
 } #pre_build
@@ -787,13 +817,14 @@ function build
 		rom_name_in_github;
 		teh_action 4;
 	fi
+
 	function clean_build
 	{	          #Automate           #Manual
-		if [[ "$MKCLNB4BLD" == 2 || "$BOPT" == 2 ]]; then
+		if [[ "$MKCLNB4BLD" == "2" || "$BOPT" == "2" ]]; then
 			$MKWAY installclean
 		fi
 		          #Automate            #Manual
-		if [[ "$MKCLNB4BLD" == 3 || "$BOPT" == 3 ]]; then
+		if [[ "$MKCLNB4BLD" == "3" || "$BOPT" == "3" ]]; then
 			$MKWAY clean
 		fi
 	} #clean_build
@@ -816,7 +847,7 @@ function build
 
 	make_module ()
 	{
-		if [ -z "$1" ]; t
+		if [ -z "$1" ]; then
 		echo -e '\n';
 		read KNWLOC;
 		echo -e '\n'
@@ -837,23 +868,32 @@ function build
 		if [[ $(tac $RMTMP | grep -c -m 1 'make completed successfully') == 1 ]]; then
 			echo -e '\n';
 			echo "Build Completed ${LGRN}Successfully!${NONE} Cool. Now make it ${LRED}Boot!${NONE}"
+			the_response COOL Build;
 		elif [[ $(tac $RMTMP | grep -c -m 1 'No rule to make target') == 1 ]]; then
-			echo -e "Looks like a Module isn't getting built / Missing"
-			echo -e "You'll see a line like this:"
-			echo -e '\n';
-			echo -e "No rule to make target '$(pwd)/out/....../${LRED}<MODULE_NAME>${NONE}_intermediates'"
-			echo -e '\n';
-			echo -e "Enter whatever you see in place of ${LRED}<MODULE_NAME>${NONE} (Case-Sensitive please)"
-			read MOD_NAME;
-			echo -e "Let's Search for ${LRED}${MOD_NAME}${NONE} ! This will take time, but it's Valuable";
-			echo -e '\n';
-			sgrep "LOCAL_MODULE := ${MOD_NAME}";
-			echo -e '\n';
-			echo -e "You might have found that Module's location, if you have Entered the name correctly"
-			echo -e ""
-			make_module y;
+			if [ ! -f PREF.rc ]; then
+#				echo -e "Looks like a Module isn't getting built / Missing"
+#				echo -e "You'll see a line like this:"
+#				echo -e '\n';
+#				echo -e "No rule to make target '$(pwd)/out/....../${LRED}<MODULE_NAME>${NONE}_intermediates'"
+#				echo -e '\n';
+#				echo -e "${LCYAN}Enter${NONE} whatever you see in place of ${LRED}<MODULE_NAME>${NONE} (Case-Sensitive please)"
+#				read MOD_NAME;
+#				echo -e "Let's Search for ${LRED}${MOD_NAME}${NONE} ! This will take time, but it's Valuable";
+#				echo -e '\n';
+#				sgrep "LOCAL_MODULE := ${MOD_NAME}" 2>&1 | tee mod.txt;
+#				echo -e '\n';
+#				echo -e "You might have found that Module's location, If not, then search for the Module's repository on the Internet"
+#				echo -e '\n';
+#				make_module y;
+				echo -e "WiP"
+			else
+				the_response FAIL Build;
+			fi
 		else
 			echo -e "WEW. ${YELO}I_iz_Noob${NONE}. Probably you need to Search the Internet for Resolution of the Above Error";
+			if [ -f PREF.rc ]; then
+				the_response FAIL Build;
+			fi
 		fi
 	}
 
@@ -880,7 +920,7 @@ function build
 			main_menu;
 		fi
 		echo -e '\n';
-		echo -e "CCACHE Size must be >50 GB.\n Think about it and Specify the Size (Number) for Reservation of CCACHE (in GB)";
+		echo -e "CCACHE Size must be ${LRED}>50 GB${NONE}.\n Think about it and Specify the Size (Number) for Reservation of CCACHE (in GB)";
 		echo -e '\n';
 		read CCSIZE;
 		echo -e "Create a New Folder for CCACHE and Specify it's location from / here"
@@ -1025,7 +1065,7 @@ function hotel_menu
 			read MKWAY;
 		fi
 		echo -e '\n';
-		echo -e "Wanna Clean the /out before Building? [2/3 as in Build Menu]"
+		echo -e "Wanna Clean the ${LPURP}/out${NONE} before Building? [2/3 as in Build Menu]"
 		echo -e '\n';
 		if [ -f PREF.rc ]; then
 			buildinfo;
@@ -1046,7 +1086,7 @@ function hotel_menu
 	fi
 
 	if [[ "$BOPT" == 5 ]]; then
-		echo -e "Two Steps. Select one of them (If seeing this for first time - Enter A)";
+		echo -e "Two Steps. Select one of them (If seeing this for first time - ${LCYAN}Enter${NONE} A)";
 		echo -e "\tA. Enabling CCACHE Variables in .bashrc or it's equivalent"
 		echo -e "\tB. Reserving Space for CCACHE";
 		echo -e '\n';
@@ -1060,42 +1100,36 @@ function hotel_menu
 			echo -e "Drunk? restart this Script.";
 		fi
 	fi
-
-	if [ ! -f PREF.rc ]; then
-		quick_menu;
-	else
-		echo -e "${RED}*${NONE}${LPURP}AutoBot${RED}*${NONE} Automated Build Successful"
-	fi
 } #build
 
 teh_action ()
 {
-	if [[ "$ACTION" == 1 || "$1" == 1 ]]; then
+	if [[ "$1" == "1" ]]; then
 		if [ ! -f PREF.rc ]; then
 			init;
 		fi
 		echo -ne '\033]0;ScriBt : Init\007'
-	elif [[ "$ACTION" == 2 || "$1" == 2 ]]; then
+	elif [[ "$1" == "2" ]]; then
 		if [ ! -f PREF.rc ]; then
 			sync;
 		fi
 		echo -ne "\033]0;ScriBt : Syncing ${ROM_FN}\007"
-	elif [[ "$ACTION" == 3 || "$1" == 3 ]]; then
+	elif [[ "$1" == "3" ]]; then
 		if [ ! -f PREF.rc ]; then
 			pre_build;
 		fi
 		echo -ne '\033]0;ScriBt : Pre-Build\007'
-	elif [[ "$ACTION" == 4 || "$1" == 4 ]]; then
+	elif [[ "$1" == "4" ]]; then
 		if [ ! -f PREF.rc ]; then
 			build;
 		fi
 		echo -ne "\033]0;ScriBt : Building ${ROM_FN}\007"
-	elif [[ "$ACTION" == 5 || "$1" == 5 ]]; then
+	elif [[ "$1" == "5" ]]; then
 		if [ ! -f PREF.rc ]; then
 			installdeps;
 		fi
 		echo -ne '\033]0;ScriBt : Installing Dependencies\007'
-	elif [[ "$ACTION" == 6 || "$1" == 6 ]]; then
+	elif [[ "$1" == "6" ]]; then
 		echo -ne "\033]0;${ROM_FN} Build Complete\007"
 		if [ ! -f PREF.rc ]; then
 			exitScriBt;

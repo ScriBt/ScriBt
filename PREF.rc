@@ -12,13 +12,14 @@ JOBS=                     # No of Threads for Sync [integers]
 FRC=                      # Force Sync ? [y/n]
 SIL=                      # Silent sync ? [y/n]
 CRNT=                     # Sync Current Branch ? [y/n]
+CLN=                      # USe clone-bundle ? [y/n]
 }
 
 function repoinit
 {
 ROMNO=                    # ROM Selection Number
 BRANCH=                   # Branch of the ROM
-REFY                      # Have a Reference ? [YES/NO]
+REFY=                      # Have a Reference ? [YES/NO]
 REFER=                    # Reference Source's Location from /
 }
 
@@ -64,8 +65,8 @@ function the_cherries
 
 function vendor_strat
 {
-  THE_FILE=                                    # The Device-Vendor Conjuctor File's name
-  DEVCON=                                      # Device Basic Config file name
+  THE_FILE=                                    # The Device-Vendor Conjuctor File's name (eg. full_${DEVICE}.mk)
+  DEVCON=                                      # Device Basic Config file name (eg. device.mk or ${DEVICE}.mk)
   BOOTRES=                                     # Boot Anim Resolution Value (as instructed in main ScriBt)
 }
 
