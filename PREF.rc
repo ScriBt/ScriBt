@@ -1,44 +1,49 @@
-#=======================@7r3, 2016=======================#
-# FILE MADE TO SHUT_MY_MOUTH                             #
-#========================================================#
+#===================================a7r3, 2016=================================#
+#                           FILE MADE TO SHUT_MY_MOUTH                         #
+#                                                                              #
+#                  Place a Semi-colon ';' after entering a Value               #
+#==============================================================================#
+
 function color
 {
-COLOR=                    # Like Colors? [y/n]
+  COLOR=                                   # Like Colors? [y/n]
 }
 
 function reposync
 {
-JOBS=                     # No of Threads for Sync [integers]
-FRC=                      # Force Sync ? [y/n]
-SIL=                      # Silent sync ? [y/n]
-CRNT=                     # Sync Current Branch ? [y/n]
-CLN=                      # USe clone-bundle ? [y/n]
+  JOBS=                                    # No of Threads for Sync [Integral Values Plz]
+  FRC=                                     # Force Sync ? [y/n]
+  SIL=                                     # Silent sync ? [y/n]
+  CRNT=                                    # Sync Current Branch ? [y/n]
+  CLN=                                     # USe clone-bundle ? [y/n]
 }
 
 function repoinit
 {
-ROMNO=                    # ROM Selection Number
-BRANCH=                   # Branch of the ROM
-REFY=                      # Have a Reference ? [YES/NO]
-REFER=                    # Reference Source's Location from /
+  ROMNO=                                   # ROM Selection Number [Refer ROM.sh]
+  BRANCH=                                  # Branch of the ROM
+  REFY=                                    # Have a Reference ? [YES/NO]
+  REFER=                                   # Reference Source's Location from /
+  CLND=                                    # Set a Clone-Depth ? [y/n]
+  DEPTH=1;                                 # Depth Value (Default 1)
 }
 
 function deviceinfo
 {
-DEVICE=                   # Device codename (Lowercases)
-BTYP=                     # userdebug / user / eng
-COMP=                     # Device Company / Vendor
+  DEVICE=                                  # Device codename (Lowercases)
+  BTYP=                                    # userdebug / user / eng
+  COMP=                                    # Device Company / Vendor
 }
 
 function buildinfo
 {
-BOPT=1                    # BOPT=1 for Start Build with Zip Generation at the End - Better not to change
-SELT=                     # lunch / brunch / breakfast
-MKWAY=                    # make / mka
-MKCLNB4BLD=               # Clean Before Build? [ 2 for installclean & 3 for total clean ]
+  BOPT=1                                   # BOPT=1 for Start Build with Zip Generation at the End - Better not to change
+  SELT=                                    # lunch / brunch / breakfast
+  MKWAY=                                   # make / mka
+  COPT=                                    # Clean Before Build? [ 2 for installclean & 3 for total clean ]
 }
 
-function the_cherries
+function the_cherries                      # Since this is Automated - Use Proper Cherry-picks - conflicts won't be solved
 {
   builddir=$(pwd);                         # TO get back to Build Dir
 
@@ -47,7 +52,7 @@ function the_cherries
   REPOPK=[ENTER_ORGANIZATION_NAME];        # Repo Provider who has that Repo
   REPONAME=[ENTER_REPO_NAME];              # Name of the Repo
   CP_BRNC=[ENTER_BRANCH_NAME];             # Branch of the Repo
-  cherrypick [ENTER_COMMIT_ID];            # Commit ID in place of <commit-id/SHA>
+  cherrypick [ENTER_COMMIT_ID];            # Commit ID in place of -> '[ENTER_COMMIT_ID]'
   cd $builddir;
   #==============================#
 
@@ -56,37 +61,36 @@ function the_cherries
   REPOPK=[ENTER_ORGANIZATION_NAME];        # Repo Provider who has that Repo
   REPONAME=[ENTER_REPO_NAME];              # Name of the Repo
   CP_BRNC=[ENTER_BRANCH_NAME];             # Branch of the Repo
-  cherrypick [ENTER_COMMIT_ID];            # Commit ID in place of <commit-id/SHA>
+  cherrypick [ENTER_COMMIT_ID];            # Commit ID in place of -> '[ENTER_COMMIT_ID]'
   cd $builddir;
   #==============================#
 
 # You may add many more picks like this.
 }
 
-function vendor_strat
+function vendor_strat                      # Only Enter Values if Building PAC till 5.1 / AOKP till 4.4 / Krexus-6.0
 {
-  THE_FILE=                                    # The Device-Vendor Conjuctor File's name (eg. full_${DEVICE}.mk)
-  DEVCON=                                      # Device Basic Config file name (eg. device.mk or ${DEVICE}.mk)
-  BOOTRES=                                     # Boot Anim Resolution Value (as instructed in main ScriBt)
+  THE_FILE=                                # The Device-Vendor Conjuctor File's name (eg. pac_${DEVICE}.mk / ${DEVICE}.mk )
+  DEVCON=                                  # Device Basic Config file name (as in Device Tree -> eg. full_${DEVICE}.mk)
+  BOOTRES=                                 # Boot Anim Resolution Value (as instructed in main ScriBt)
 }
 
-function automate         #Function will only work if it has all the Values Pre-Defined
+function automate                          # Function will only work if it has all the Values Pre-Defined
 {
-  #CALL ALL of the ABOVE functions
+  # Get All Information
   color;
   repoinit;
   reposync;
   deviceinfo;
   buildinfo;
-  vendorstrat;
+  vendor_strat;
 
   # You may Enter your Desired Build Sequence here
   # Default Sequence - You may change this
+  # You may enter your own commands between any of these calls below, works.
 
   sync;
-  the_cherries;     #Should be always before build (what's the use to do after build?) and After Sync (Picks will get lost)
+  the_cherries;
   build;
   exitScriBt;
-
-  # WIP Function
 }

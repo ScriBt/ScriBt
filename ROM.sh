@@ -14,11 +14,8 @@
 #                                                                      #
 #======================================================================#
 #                                                                      #
-# This Script and ROM.rc has to be placed under a Synced Source        #
-# Directory (if and only if you're using this script to build)         #
-#                                                                      #
-# Else                                                                 #
-# Create a folder for your Source and Place these files inside it      #
+# Create a folder for your Source (If First Sync) and                  #
+# Place these files inside it                                          #
 #                                                                      #
 # https://github.com/a7r3/scripts - The Original Repo of this ScriBt   #
 #                                                                      #
@@ -32,9 +29,11 @@
 #======================================================================#
 
 # Create a Text file to Store Intermediate Outputs for Working on Some Commands
-RTMP=repo_log.txt; #repo sync logs
-RMTMP=rom_compile.txt; #rom build Logs
-touch ${RTMP} ${RMTMP};
+TMP=temp.txt; # temp
+RTMP=repo_log.txt; # repo sync logs
+RMTMP=rom_compile.txt; # rom build Logs
+rm -rf ${TMP} ${RTMP} ${RMTMP};
+touch ${RTMP} ${RMTMP} ${TMP};
 # Load the Basic Variables
 if [ -f "${PWD}/ROM.rc" ]; then
 	source $(pwd)/ROM.rc;
@@ -57,6 +56,7 @@ if [ -f PREF.rc ]; then
 	buildinfo;
 	echo -e '\n';
 	echo -e "${RED}*${NONE}${LPURP}AutoBot${RED}*${NONE} Successfully Collected Information. Ready to Go!"
+	echo -e '\n'
 else
 	echo -e "Using this for first time?\nDon't lose patience the next time. ${LCYAN}Enter${NONE} your Values in PREF.rc and Shut my Mouth! lol";
 	echo -e '\n';
@@ -73,12 +73,14 @@ if [ -f PREF.rc ]; then
 else
 	read COLOR;
 fi
-
-if [[ "$COLOR" == y ]]; then
+echo -e '\n';
+if [[ "$COLOR" == "y" ]]; then
 	color_my_life;
+	echo -e "Coloring AutoBot"
 else
 	i_like_colourless;
 fi
+sleep 2;
 clear;
 echo -ne '\033]0;ScriBt\007'
 echo -e '\n\n';
@@ -113,7 +115,7 @@ echo -e "${LBLU} \"Y88888P\"    \`\"Ybbd8\"'  88          88  88888888P\"     \"
 sleep 0.1;
 echo -e '\n';
 sleep 0.1;
-echo -e "${LCYAN}~#~#~#~#~#~#~#~#~#~#~ By Arvind7352 @XDA #~#~#~#~#~#~#~#~#~#~${NONE}";
+echo -e "${LCYAN}~#~#~#~#~#~#~#~#~#~#~ By Arvind7352 @${ORNG}XDA${NONE} #~#~#~#~#~#~#~#~#~#~${NONE}";
 sleep 3;
 #GET THOSE ROOMS
 echo -e '\n';
@@ -121,21 +123,19 @@ echo -e '\n';
 
 function exitScriBt
 {
-	if [ -f PREF.rc ]; then
-		teh_action 6;
-	fi
 	echo -e '\n\n';
 	echo -e "Thanks for using this ${LRED}S${NONE}cri${GRN}B${NONE}t. Have a Nice Day";
 	sleep 2;
-	echo "Bye!"
+	echo -e '\n';
+	echo "${LRED}Bye!${NONE}"
 	exit 0;
 } #exitScriBt
 
 the_response ()
 {
-	if [[ "$1" == COOL ]]; then
+	if [[ "$1" == "COOL" ]]; then
 		echo -e "${RED}*${NONE}${LPURP}AutoBot${RED}*${NONE} Automated $2 ${LGRN}Successful! :)${NONE}"
-	elif [[ "$1" == FAIL ]]; then
+	elif [[ "$1" == "FAIL" ]]; then
 		echo -e "${RED}*${NONE}${LPURP}AutoBot${RED}*${NONE} Automated $2 ${LRED}Failed :(${NONE}"
 	fi
 }
@@ -172,7 +172,7 @@ function quick_menu
 	echo -e "                               6. Exit                               "
 	echo -e "${YELO}=====================================================================${NONE}"
 	read ACTION;
-	teh_action;
+	teh_action $ACTION;
 }
 
 cherrypick ()
@@ -214,11 +214,11 @@ function installdeps
 		echo -e '\n';
 		read REMOJA;
 		echo -e '\n';
-		if [[ "$REMOJA" == y ]]; then
+		if [[ "$REMOJA" == "y" ]]; then
 		sudo apt-get purge openjdk-\* icedtea-\* icedtea6-\*
 		echo -e '\n';
 		echo -e "Removed Other Versions successfully"
-		elif [[ "$REMOJA" == n ]]; then
+		elif [[ "$REMOJA" == "n" ]]; then
 		 echo -e "Keeping them Intact"
 	 	fi
 	 	echo -e "${RED}==========================================================${NONE}";
@@ -243,10 +243,10 @@ function installdeps
 		echo -e '\n';
 		read REMOJA;
 		echo -e '\n';
-		if [[ "$REMOJA" == y ]]; then
+		if [[ "$REMOJA" == "y" ]]; then
 			sudo apt-get purge openjdk-\* icedtea-\* icedtea6-\*
 			echo -e "Removed Other Versions successfully"
-		elif [[ "$REMOJA" == n ]]; then
+		elif [[ "$REMOJA" == "n" ]]; then
 		 	echo -e "Keeping them Intact"
 	 	fi
 	 	echo -e '\n';
@@ -271,12 +271,12 @@ function installdeps
 		echo -e "Remove other Versions of Java [y/n]? ( Removing them is Recommended)"
 		echo -e '\n';
 		read REMOJA;
-		if [[ "$REMOJA" == y ]]; then
+		if [[ "$REMOJA" == "y" ]]; then
 			echo -e '\n';
 			sudo apt-get purge openjdk-\* icedtea-\* icedtea6-\*
 			echo -e '\n';
 			echo -e "Removed Other Versions successfully"
-		elif [[ "$REMOJA" == n ]]; then
+		elif [[ "$REMOJA" == "n" ]]; then
 		 	echo -e "Keeping them Intact"
 	 	fi
 		echo -e '\n';
@@ -403,8 +403,9 @@ function sync
 	else
 		read CRNT;
 	fi
-
+	echo -e '\n';
 	echo -e "Sync with ${LRED}clone-bundle${NONE} ${LGRN}[y/n]${NONE}?"
+	echo -e '\n';
 	# SHUT_MY_MOUTH
 	if [ -f PREF.rc ]; then
 		reposync;
@@ -416,22 +417,22 @@ function sync
 	echo -e '\n';
 	echo -e "${LRED}=====================================================================${NONE}";
 	#Sync-Options
-	if [[ "$SIL" == y ]]; then
+	if [[ "$SIL" == "y" ]]; then
 		SILENT=-q;
 	else
 		SILENT=" " ;
 	fi
-	if [[ "$FRC" == y ]]; then
+	if [[ "$FRC" == "y" ]]; then
 		FORCE=--force-sync;
 	else
 		FORCE=" " ;
 	fi
-	if [[ "$CRNT" == y ]]; then
+	if [[ "$CRNT" == "y" ]]; then
 		SYNC_CRNT=-c;
 	else
 		SYNC_CRNT=" ";
 	fi
-	if [[ "$CLN" == y ]]; then
+	if [[ "$CLN" == "y" ]]; then
 		CLN_BUN=" ";
 	else
 		CLN_BUN=--no-clone-bundle;
@@ -549,27 +550,47 @@ ${LPURP}=======================================================${NONE}";
 		fi
 	fi
 
+	echo -e '\n';
+	echo -e "Set clone-depth ? [y/n] (Basically, it Syncs the ${GRN}Entire commit history of any repo${NONE}, thus Occupying ${LRED}More space${NONE})"
+	if [ -f PREF.rc ]; then
+		repoinit;
+		echo -e "Use Clone-Depth : ${CLND}"
+	else
+		read CLND;
+	fi
+	echo -e '\n';
+	echo -e "Depth Value? (Default ${LRED}1${NONE})"
+	echo -e '\n';
+	if [ -f PREF.rc ]; then
+		repoinit;
+		echo -e "Clone-Depth Value : ${DEPTH}";
+	else
+		read DEPTH;
+	fi
+	if [ -z "$DEPTH" ]; then
+		DEPTH=1;
+	fi
 		echo -e '\n';
 	#Getting Manifest Link
-		if [[ "$ROM_NAME" == OmniROM || "$ROM_NAME" == CyanogenMod || "$ROM_NAME" == OwnROM || "$ROM_NAME" == temasek ]]; then
+		if [[ "$ROM_NAME" == "OmniROM" || "$ROM_NAME" == "CyanogenMod" || "$ROM_NAME" == "OwnROM" || "$ROM_NAME" == "temasek" ]]; then
 			MAN=android.git;
 		fi
-		if [[ "$ROM_NAME" == TeamOrion || "$ROM_NAME" == SlimRoms || "$ROM_NAME" == AOSP-CAF || "$ROM_NAME" == ResurrectionRemix || "$ROM_NAME" == AOKP || "$ROM_NAME" == TipsyOS || "$ROM_NAME" == AICP || "$ROM_NAME" == XOSP-Project ]]; then
+		if [[ "$ROM_NAME" == "TeamOrion" || "$ROM_NAME" == "SlimRoms" || "$ROM_NAME" == "AOSP-CAF" || "$ROM_NAME" == "ResurrectionRemix" || "$ROM_NAME" == "AOKP" || "$ROM_NAME" == "TipsyOS" || "$ROM_NAME" == "AICP" || "$ROM_NAME" == "XOSP-Project" || "$ROM_NAME" == "BlissRoms" ]]; then
 			MAN=platform_manifest.git;
 		fi
-		if [[ "$ROM_NAME" == DirtyUnicorns ]]; then
+		if [[ "$ROM_NAME" == "DirtyUnicorns" ]]; then
 			MAN=android_manifest.git;
 		fi
-		if [[ "$ROM_NAME" == AOSP-RRO || "$ROM_NAME" == Krexus-CAF || "$ROM_NAME" == ValidusOs-M || "$ROM_NAME" == Tesla-M ]]; then
+		if [[ "$ROM_NAME" == "AOSP-RRO" || "$ROM_NAME" == "Krexus-CAF" || "$ROM_NAME" == "ValidusOs-M" || "$ROM_NAME" == "Tesla-M" ]]; then
 				MAN=manifest.git;
 		fi
-		if [[ "$ROM_NAME" == PAC-ROM ]]; then
+		if [[ "$ROM_NAME" == "PAC-ROM" ]]; then
 				MAN=pac-rom.git;
 		fi
-		if [[ "$ROM_NAME" == CandyRoms ]]; then
+		if [[ "$ROM_NAME" == "CandyRoms" ]]; then
 				MAN=candy.git;
 		fi
-		if [[ "$ROM_NAME" == CyanideL ]]; then
+		if [[ "$ROM_NAME" == "CyanideL" ]]; then
 			MAN=cyanide_manifest.git;
 		fi
 		#Check for Presence of Repo Binary
@@ -668,7 +689,7 @@ function pre_build
 	echo -e '\n';
 	echo -e '\n';
 
-function vendor_strat
+function vendor_strat_all
 {
 	cd vendor/${ROMNIS}
 	echo -e "${LPURP}=========================================================${NONE}"
@@ -676,18 +697,30 @@ function vendor_strat
 	if [ -f ${ROMNIS}.devices ]; then
 		echo -e "Adding your Device to ROM Vendor (Strategy 1)";
 		echo -e '\n';
-		echo "${DEVICE}" >> ${ROMNIS}.devices;
+		if [[ $(grep -c '${DEVICE}' ${ROMNIS}.devices) == "0" ]]; then
+			echo "${DEVICE}" >> ${ROMNIS}.devices;
+		else
+			echo -e "Device was already added to ${ROMNIS} vendor"
+		fi
 		echo "${LGRN}DONE!${NONE}!"
 		croot;
 	elif [ -f ${ROMNIS}-device-targets ]; then
 		echo -e "Adding your Device to ROM Vendor (Strategy 4)"
 		echo -e '\n';
-		echo -e "${ROMNIS}_${DEVICE}-${BTYP}";
+		if [[ $(grep -c '${DEVICE}' ${ROMNIS}-device-targets) == "0" ]]; then
+			echo -e "${ROMNIS}_${DEVICE}-${BTYP}";
+		else
+			echo -e "Device was already added to ${ROMNIS} vendor"
+		fi
 		echo "${LGRN}DONE!${NONE}"
 	elif [ -f vendorsetup.sh ]; then
 		echo -e "Adding your Device to ROM Vendor (Strategy 2)"
 		echo -e '\n';
-		echo "add_lunch_combo ${ROMNIS}_${DEVICE}-${BTYP}" >> vendorsetup.sh
+		if [[ $(grep -c '${DEVICE}' vendorsetup.sh) == "0" ]]; then
+			echo "add_lunch_combo ${ROMNIS}_${DEVICE}-${BTYP}" >> vendorsetup.sh
+		else
+			echo -e "Device was already added to ${ROMNIS} vendor";
+		fi
 		echo "${LGRN}DONE!${NONE}"
 		croot;
 	else
@@ -696,12 +729,16 @@ function vendor_strat
 		echo -e "Let's go to teh ${LRED}Device Directory!${NONE}";
 		echo -e '\n';
 		cd device/${COMP}/${DEVICE};
-		echo -e "Creating VendorSetup.sh if absent in tree";
+		echo -e "Creating vendorsetup.sh if absent in tree";
 			if [ ! -f vendorsetup.sh ]; then
 				touch vendorsetup.sh;
 				echo -e "Done [1/2]"
 			fi
-		echo -e "add_lunch_combo ${ROMNIS}_${DEVICE}-${BTYP}" >> vendorsetup.sh
+			if [[ $(grep -c '${ROMNIS}_${DEVICE}' vendorsetup.sh ) == "0" ]]; then
+				echo -e "add_lunch_combo ${ROMNIS}_${DEVICE}-${BTYP}" >> vendorsetup.sh
+			else
+				echo -e "Device already added to vendorsetup.sh"
+			fi
 		echo -e '\n';
 		echo "DONE! [2/2]"
 		croot;
@@ -715,7 +752,7 @@ function vendor_strat_kpa #for ROMs having products folder
 	cd vendor/${ROMNIS}/products;
 	# SHUT_MY_MOUTH
 	if [ ! -f PREF.rc ]; then
-		if [[ "$ROMNIS" == pac || "$ROMNIS" == krexus ]]; then
+		if [[ "$ROMNIS" == "pac" || "$ROMNIS" == "krexus" ]]; then
 			THE_FILE=${ROMNIS}_${DEVICE}.mk;
 		else
 			#AOKP
@@ -726,11 +763,11 @@ function vendor_strat_kpa #for ROMs having products folder
 		fi
 	else
 		vendorstrat;
-		${RED}*${NONE}${LPURP}AutoBot${RED}*${NONE} Device Config File : ${THE_FILE};
+		${RED}*${NONE}${LPURP}AutoBot${RED}*${NONE} Device-Vendor Conjunction File : ${THE_FILE};
 	fi
 	#Create Device-Vendor Conjuctor
 	touch ${THE_FILE};
-	echo -e "Name your Device Specific Configuration File ( eg. ${ROMNIS}.mk / full_huashan.mk )"
+	echo -e "Name your Device Specific Configuration File ( eg. ${ROMNIS}.mk / full_huashan.mk as in your device tree)"
 	echo -e '\n';
 	# SHUT_MY_MOUTH
 	if [ ! -f PREF.rc ]; then
@@ -770,15 +807,15 @@ ${LPURP}2560${NONE}x1600";
 		echo -e "${RED}*${NONE}${LPURP}AutoBot${RED}*${NONE} Resolution Choosed : ${BOOTRES}";
 	fi
 	#Vendor-Calls
-	if [[ "$ROMNIS" == krexus ]]; then
+	if [[ "$ROMNIS" == "krexus" ]]; then
 		echo -e "\$( call inherit-product, vendor/${ROMNIS}/products/common.mk)" >> ${THE_FILE};
 		echo -e "\$( call inherit-product, vendor/${ROMNIS}/products/vendorless.mk)" >> ${THE_FILE};
 	fi
-	if [[ "$ROMNIS" == pac ]]; then
+	if [[ "$ROMNIS" == "pac" ]]; then
 			echo -e "\$( call inherit-product, vendor/${ROMNIS}/products/pac_common.mk)" >> ${THE_FILE};
 			echo "PAC_BOOTANIMATION_NAME := ${BOOTRES};" >> ${THE_FILE};
 	fi
-	if [[ "$ROMNIS" == aokp ]]; then
+	if [[ "$ROMNIS" == "aokp" ]]; then
 		# Boot animation
 		echo -e "\$(call inherit-product, vendor/${ROMNIS}/configs/common.mk)" >> ${THE_FILE};
 		echo "PRODUCT_COPY_FILES += \ " >> ${THE_FILE};
@@ -788,11 +825,14 @@ ${LPURP}2560${NONE}x1600";
 	echo "PRODUCT_NAME := ${ROMNIS}_${DEVICE}" >> ${THE_FILE};
 } #vendor_strat_kpa
 
-#	if [[ "$ROMNIS" == krexus || "$ROMNIS" == pac && "$BRANCH" != pac-6.0 || "$ROMNIS" == aokp && "$BRANCH" != mm ]]; then
 	if [ -f vendor/${ROMNIS}/products ]; then
-		vendor_strat_kpa; #if found products folder
+		if [ ! -f vendor/${ROMNIS}/products/${ROMNIS}_${DEVICE}.mk || ! -f vendor/${ROMNIS}/products/${DEVICE}.mk ]; then
+			vendor_strat_kpa; #if found products folder
+		else
+			echo -e "Looks like ${DEVICE} has been already added to ${ROMNIS} vendor. Good to go"
+		fi
 	else
-		vendor_strat; #if not found
+		vendor_strat_all; #if not found
 	fi
 		croot;
 	if [ ! -f PREF.rc ]; then
@@ -821,11 +861,11 @@ function build
 
 	function clean_build
 	{	          #Automate           #Manual
-		if [[ "$MKCLNB4BLD" == "2" || "$BOPT" == "2" ]]; then
+		if [[ "$COPT" == "2" || "$BOPT" == "2" ]]; then
 			$MKWAY installclean
 		fi
 		          #Automate            #Manual
-		if [[ "$MKCLNB4BLD" == "3" || "$BOPT" == "3" ]]; then
+		if [[ "$COPT" == "3" || "$BOPT" == "3" ]]; then
 			$MKWAY clean
 		fi
 	} #clean_build
@@ -839,7 +879,7 @@ function build
 		echo -e '\n';
 		read PMOD;
 		echo -e '\n';
-		if [[ "$PMOD" == y ]]; then
+		if [[ "$PMOD" == "y" ]]; then
 			mmmp -B $MODDIR;
 		else
 			mmm -B $MODDIR;
@@ -854,7 +894,7 @@ function build
 		echo -e '\n'
 		echo -e "Know the Location of the Module?"
 		fi
-		if [[ "$KNWLOC" == y || "$1" == y ]]; then
+		if [[ "$KNWLOC" == "y" || "$1" == "y" ]]; then
 			make_it;
 		else
 			echo -e "Do either of these two actions: \n1. ${BLU}G${NONE}${RED}o${NONE}${YELO}o${NONE}${BLU}g${NONE}${GRN}l${NONE}${RED}e${NONE} it (Easier)\n2. Run this command in terminal : ${LBLU}sgrep \"LOCAL_MODULE := Insert_MODULE_NAME_Here \"${NONE}.\n\n Press ${LCYAN}ENTER${NONE} after it's ${LPURP}Done.${NONE}.";
@@ -866,12 +906,12 @@ function build
 
 	function post_build
 	{
-		if [[ $(tac $RMTMP | grep -c -m 1 'make completed successfully') == 1 ]]; then
+		if [[ $(tac $RMTMP | grep -c -m 1 '#### make completed successfully') == "1" ]]; then
 			echo -e '\n';
 			echo "Build Completed ${LGRN}Successfully!${NONE} Cool. Now make it ${LRED}Boot!${NONE}"
 			the_response COOL Build;
 			teh_action 6 COOL;
-		elif [[ $(tac $RMTMP | grep -c -m 1 'No rule to make target') == 1 ]]; then
+		elif [[ $(tac $RMTMP | grep -c -m 1 'No rule to make target') == "1" ]]; then
 			if [ ! -f PREF.rc ]; then
 				echo -e "Looks like a Module isn't getting built / Missing"
 				echo -e "You'll see a line like this:"
@@ -889,13 +929,13 @@ function build
 					echo -e '\n';
 					make_module y;
 				else
-					echo -e "The Repo which builds that module is missing\n"
+					echo -e "The Repo which builds that module is ${LRED}missing${NONE}\n"
 					echo -e "======================================================================================================";
 					echo -e '\n';
 					echo -e "Let me search that module for you -> http://lmgtfy.com/?q=LOCAL_MODULE+%3A%3D+${MOD_NAME}"
 					echo -e '\n';
 					echo -e "======================================================================================================";
-					echo -e "IF you found that module's repo, Sync it to the path as shown in the Repo URL";
+					echo -e "\nIF you found that module's repo, Sync it to the path as shown in the Repo URL\n";
 					echo -e "For Example https://github.com/CyanogenMod/android_bionic should be synced to $(pwd)/bionic";
 					echo -e '\n';
 					make module;
@@ -907,6 +947,7 @@ function build
 		else
 			echo -e "WEW. ${YELO}I_iz_Noob${NONE}. Probably you need to Search the Internet for Resolution of the Above Error";
 			if [ -f PREF.rc ]; then
+				teh_action 6 FAIL;
 				the_response FAIL Build;
 			fi
 		fi
@@ -928,7 +969,7 @@ function build
 		echo -e '\n';
 		sudo -i;
 		echo -e '\n';
-		if [[ $(whoami) == root ]]; then
+		if [[ $(whoami) == "root" ]]; then
 			echo -e "Thanks, Performing Changes."
 		else
 			echo -e "No Root Access, Abort."
@@ -973,17 +1014,17 @@ function build
 	function build_make
 	{
 		# For Brunchers
-		if [[ "$SELT" == brunch ]]; then
+		if [[ "$SELT" == "brunch" ]]; then
 			clean_build;
 			time ${SELT} ${DEVICE}
 		else
 			# For Mka-s/Make-rs
-			if [[ "$MKWAY" == make ]]; then
+			if [[ "$MKWAY" == "make" ]]; then
 				BCORES=$(grep -c ^processor /proc/cpuinfo);
 			else
 				BCORES="";
 			fi
-			if [[ "$ROMNIS" == tipsy || "$ROMNIS" == validus || "$ROMNIS" == tesla ]]; then
+			if [[ "$ROMNIS" == "tipsy" || "$ROMNIS" == "validus" || "$ROMNIS" == "tesla" ]]; then
 				time	$MKWAY $ROMNIS $BCORES 2>&1 | tee $RMTMP;
 				echo -e '\n';
 				post_build;
@@ -1009,11 +1050,11 @@ function hotel_menu
 	echo -e '\n';
 	echo -e "[*] ${RED}lunch${NONE} - If your Device is not in the ROM's Devices list - ${ORNG}Unofficial${NONE} [*]"
 	echo -e "[*] ${YELO}breakfast${NONE} - (If your Device is a ${GRN}Official Device${NONE} for that particular ROM - ${GRN}Official${NONE} [*]"
-	echo -e "[*] ${GRN}brunch${NONE} - lunch + sync capabilities like breakfast - ${ORNG}Unofficial${NONE} [*]"
+	echo -e "[*] ${GRN}brunch${NONE} - lunch + sync repos from ${ROMNIS}.dependencies + build - ${ORNG}Official/Unofficial${NONE} [*]"
 	echo -e '\n';
 	echo -e "Type in the Option you want to select"
-	echo -e "Tip! - If you're building it for the first time, then select lunch (Recommended)"
-	echo -e "==========================================================================================="
+	echo -e "Tip! - If you're building it for the first time, then select ${RED}lunch${NONE} (Recommended)"
+	echo -e "${LBLU}===========================================================================================${NONE}"
 	echo -e '\n';
 
 	# SHUT_MY_MOUTH
@@ -1030,15 +1071,14 @@ function hotel_menu
 		rom_name_in_source;      #Information
 	fi
 
-	if [[ "$SELT" == lunch ]]; then
+	if [[ "$SELT" == "lunch" ]]; then
 		${SELT} ${ROMNIS}_${DEVICE}-${BTYP}
-	elif [[ "$SELT" == breakfast ]]; then
-		${SELT} ${DEVICE}
+	elif [[ "$SELT" == "breakfast" ]]; then
+		${SELT} ${DEVICE} ${BTYP}
 	fi
 	echo -e '\n';
 } #hotel_menu
 
-	echo -e "${LPURP}=========================================================${NONE}"
 	echo -e '\n';
 	echo -e "${YELO}=========================================================${NONE}"
 	echo -e "${CYAN}Initializing Build Environment${NONE}";
@@ -1049,6 +1089,8 @@ function hotel_menu
 	echo -e '\n';
 	echo -e "${LPURP}Done.${NONE}."
 	echo -e '\n';
+	echo -e "${LPURP}=========================================================${NONE}"
+	ecgo -e '\n;'
 	echo -e "Select the Build Option:\n";
 	echo -e '\n';
 	echo -e "${LCYAN}1. Start Building ROM (ZIP output)${NONE}";
@@ -1067,7 +1109,7 @@ function hotel_menu
 		read BOPT;
 	fi
 	echo -e '\n';
-	if [[ "$BOPT" == 1 ]]; then
+	if [[ "$BOPT" == "1" ]]; then
 		hotel_menu;
 		echo -e '\n';
 		echo -e "Should i use '${YELO}make${NONE}' or '${RED}mka${NONE}' ?"
@@ -1080,39 +1122,41 @@ function hotel_menu
 			read MKWAY;
 		fi
 		echo -e '\n';
-		echo -e "Wanna Clean the ${LPURP}/out${NONE} before Building? [2/3 as in Build Menu]"
+		echo -e "Wanna Clean the ${LPURP}/out${NONE} before Building? ${LGRN}[2 - Remove Staging / 3 - Full Clean]${NONE}"
 		echo -e '\n';
 		if [ -f PREF.rc ]; then
 			buildinfo;
-			echo -e "${RED}*${NONE}${LPURP}AutoBot${RED}*${NONE} Option Selected : $MKCLNB4BLD ";
+			echo -e "${RED}*${NONE}${LPURP}AutoBot${RED}*${NONE} Option Selected : $COPT ";
 		else
-			read MKCLNB4BLD; #Name's Big - I'll change it later
+			read COPT;
 		fi
-
-		if [[ "$MKCLNB4BLD" == 2  || "$MKCLNB4BLD" == 3 ]]; then
+		echo -e '\n';
+		if [[ "$COPT" == "2"  || "$COPT" == "3" ]]; then
 		 clean_build; #CLEAN THE BUILD
 		fi
-
+		echo -e '\n';
 		build_make; #Start teh Build!
 	fi #$BOPT = 1
 
-	if [[ "$BOPT" == 4 ]]; then
+	if [[ "$BOPT" == "4" ]]; then
 		make_module;
 	fi
 
-	if [[ "$BOPT" == 5 ]]; then
+	if [[ "$BOPT" == "5" ]]; then
 		echo -e "Two Steps. Select one of them (If seeing this for first time - ${LCYAN}Enter${NONE} A)";
 		echo -e "\tA. Enabling CCACHE Variables in .bashrc or it's equivalent"
 		echo -e "\tB. Reserving Space for CCACHE";
 		echo -e '\n';
 		read CCOPT;
-		if [[ "$CCOPT" == A ]]; then
+		if [[ "$CCOPT" == "A" ]]; then
 			set_ccvars;
-		elif [[ "$CCOPT" == B ]]; then
+		elif [[ "$CCOPT" == "B" ]]; then
 			set_ccache;
 		else
 			echo -e '\n';
-			echo -e "Drunk? restart this Script.";
+			echo -e "${YELO}Drunk?${NONE} Back to Build Menu...";
+			sleep 2;
+			build_menu;
 		fi
 	fi
 } #build
@@ -1123,42 +1167,42 @@ teh_action ()
 		if [ ! -f PREF.rc ]; then
 			init;
 		fi
-		echo -ne '\033]0;ScriBt : Init\007'
+		echo -ne '\033]0;ScriBt : Init\007';
 	elif [[ "$1" == "2" ]]; then
 		if [ ! -f PREF.rc ]; then
 			sync;
 		fi
-		echo -ne "\033]0;ScriBt : Syncing ${ROM_FN}\007"
+		echo -ne "\033]0;ScriBt : Syncing ${ROM_FN}\007";
 	elif [[ "$1" == "3" ]]; then
 		if [ ! -f PREF.rc ]; then
 			pre_build;
 		fi
-		echo -ne '\033]0;ScriBt : Pre-Build\007'
+		echo -ne '\033]0;ScriBt : Pre-Build\007';
 	elif [[ "$1" == "4" ]]; then
 		if [ ! -f PREF.rc ]; then
 			build;
 		fi
-		echo -ne "\033]0;ScriBt : Building ${ROM_FN}\007"
+		echo -ne "\033]0;ScriBt : Building ${ROM_FN}\007";
 	elif [[ "$1" == "5" ]]; then
 		if [ ! -f PREF.rc ]; then
 			installdeps;
 		fi
-		echo -ne '\033]0;ScriBt : Installing Dependencies\007'
-	elif [[ "$1" == "6" || "$2" == COOL ]]; then
-		echo -ne "\033]0;${ROM_FN} : Build Complete\007"
+		echo -ne '\033]0;ScriBt : Installing Dependencies\007';
+	elif [[ "$1" == "6" && "$2" == "COOL" ]]; then
 		if [ ! -f PREF.rc ]; then
 			exitScriBt;
 		fi
-	elif [[ "$1" == "6" || "$2" == FAIL ]]; then
-		echo -ne "\033]0;${ROM_FN} : Build Failed\007"
+		echo -ne "\033]0;${ROM_FN} : Success\007";
+	elif [[ "$1" == "6" && "$2" == "FAIL" ]]; then
 		if [ ! -f PREF.rc ]; then
 			exitScriBt;
 		fi
+		echo -ne "\033]0;${ROM_FN} : Fail\007";
 	fi
 } #teh_action
 
 #START IT --- VROOM!
-if [[ "$1" == automate ]]; then
+if [[ "$1" == "automate" ]]; then
 	source $(pwd)/PREF.rc
 	automate;
 	echo -e "${RED}*${NONE}${LPURP}AutoBot${RED}*${NONE} Thanks for Selecting Me. Lem'me do your work"
