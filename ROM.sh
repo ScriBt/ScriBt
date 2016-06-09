@@ -115,7 +115,7 @@ echo -e "${LBLU} \"Y88888P\"    \`\"Ybbd8\"'  88          88  88888888P\"     \"
 sleep 0.1;
 echo -e '\n';
 sleep 0.1;
-echo -e "${LCYAN}~#~#~#~#~#~#~#~#~#~#~ By Arvind7352 @${ORNG}XDA${NONE} #~#~#~#~#~#~#~#~#~#~${NONE}";
+echo -e "${LCYAN}~#~#~#~#~#~#~#~#~#~#~${NONE} ${LRED}By Arvind7352${NONE} - ${ORNG}XDA${NONE} ${LCYAN}#~#~#~#~#~#~#~#~#~#~${NONE}";
 sleep 3;
 #GET THOSE ROOMS
 echo -e '\n';
