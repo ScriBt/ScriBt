@@ -2,6 +2,9 @@
 # Get a ROM's Repo Name in GitHub, and the ROM Vendor name in Source #
 #====================================================================#
 
+# New line alias
+alias nline='echo -e '\n'';
+
 function rom_name_in_github
 {
 
