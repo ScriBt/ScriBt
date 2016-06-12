@@ -30,7 +30,15 @@ The Script consists of five main Actions:
 
   d. Setup CCACHE
 
-#####5. Install Deps and Java
+#####5. Install Deps 
+  
+  a. Install Build Dependencies
+  
+  b. Install / Configure JAVA
+  
+  c. Setup android-51 rules (For proper usage of ADB)
+
+#####6. Automated Cherry Picking
 
 as said before,
 #Extensive Testing is needed.
