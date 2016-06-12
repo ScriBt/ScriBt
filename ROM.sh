@@ -76,7 +76,7 @@ fi
 echo -e '\n';
 if [[ "$COLOR" == "y" ]]; then
 	color_my_life;
-	echo -e "Coloring AutoBot"
+	echo -e "Coloring AutoBot";
 else
 	i_like_colourless;
 fi
@@ -142,7 +142,7 @@ the_response ()
 
 function main_menu
 {
-
+	echo -ne '\033]0;ScriBt : Main Menu\007'
 	echo -e "${LRED}=======================================================${NONE}";
 	echo -e "${LRED}====================${NONE}${CYAN}[*]${NONE}${PURP}MAIN MENU${NONE}${CYAN}[*]${NONE}${LRED}====================${NONE}";
 	echo -e "${LRED}=======================================================${NONE}";
@@ -167,6 +167,7 @@ function main_menu
 
 function quick_menu
 {
+	echo -ne '\033]0;ScriBt : Quick Menu\007'
 	echo -e "${YELO}============================${NONE} ${LRED}QUICK-MENU${NONE} ${YELO}=============================${NONE}"
 	echo -e "${RED}1. Init${NONE} | ${YELO}2. Sync${NONE} | ${GRN}3. Pre-Build${NONE} | ${LGRN}4. Build${NONE} | ${PURP}5. Install Dependencies${NONE}"
 	echo -e "                               6. Exit                               "
@@ -177,6 +178,7 @@ function quick_menu
 
 cherrypick ()
 {
+	echo -ne '\033]0;ScriBt : Picking Cherries\007'
 	echo -e "${GRN}========================= Teh${NONE} ${LRED}Cherry${NONE} ${GRN}Picker========================${NONE}";
  	echo -e '\n';
 	echo -e "     ${RED}*${NONE}${LPURP}AutoBot${RED}*${NONE} Attempting to Cherry-Pick Provided Commits         ";
@@ -209,6 +211,7 @@ function installdeps
 
 	function java6
 	{
+		echo -ne '\033]0;ScriBt : Java 6 Installation\007'
 		echo -e "Installing OpenJDK-6 (Java 1.6.0)"
 		echo -e "Remove other Versions of Java [y/n]? ( Removing them is Recommended)"
 		echo -e '\n';
@@ -238,6 +241,7 @@ function installdeps
 
 	function java7
 	{
+		echo -ne '\033]0;ScriBt : Java 7 Installation\007'
 		echo -e "Installing OpenJDK-7 (Java 1.7.0)"
 		echo -e "Remove other Versions of Java [y/n]? ( Removing them is Recommended)"
 		echo -e '\n';
@@ -268,6 +272,7 @@ function installdeps
 
 	function java8
 	{
+		echo -ne '\033]0;ScriBt : Java 8 Installation\007'
 		echo -e "Remove other Versions of Java [y/n]? ( Removing them is Recommended)"
 		echo -e '\n';
 		read REMOJA;
@@ -301,7 +306,7 @@ function installdeps
 
 	echo -e "${RED}==========================================================${NONE}";
 	echo -e '\n';
-	echo -e "Checking and Installing Build Dependencies Now..."
+	echo -e "Installing Build Dependencies..."
 	echo -e '\n';
 sudo apt-get install git-core gnupg ccache lzop flex bison \
 gperf build-essential zip curl zlib1g-dev \
@@ -316,16 +321,25 @@ lib32readline6 libreadline-dev libreadline6-dev:i386 \
 libreadline6:i386 bzip2 libbz2-dev libbz2-1.0 libghc-bzlib-dev \
 lib32bz2-dev libsdl1.2-dev libesd0-dev squashfs-tools \
 pngcrush schedtool libwxgtk2.8-dev python liblz4-tool \
-maven maven2 
+maven maven2
 	echo -e '\n';
 	echo -e "${RED}==========================================================${NONE}";
-	echo -e '\n\n'
+	echo -e '\n';
+	echo -e "Updating / Installing Android udev rules (51-android)"
+	echo -e '\n';
+	sudo curl --create-dirs -L -o /etc/udev/rules.d/51-android.rules -O -L https://raw.githubusercontent.com/snowdream/51-android/master/51-android.rules
+	sudo chmod a+r /etc/udev/rules.d/51-android.rules
+	echo -e '\n';
+	sudo service udev restart
+	echo -e '\n';
+	echo -e "${RED}==========================================================${NONE}";
+	echo -e '\n\n';
 	echo -e "${LGRN}=====================${NONE} ${LPURP}JAVA Installation${NONE} ${LGRN}====================${NONE}";
 	echo -e '\n';
 	echo -e "1. Install Java"
 	echo -e "2. Switch Between Java Versions / Providers"
 	echo -e '\n';
-	echo -e "3. Back to Main Menu"
+	echo -e "3. Already Configured? Back to Main Menu"
 	echo -e "${LGRN}==========================================================${NONE}";
 	echo -e '\n';
 	read JAVAS;
@@ -516,7 +530,7 @@ ${LPURP}=======================================================${NONE}";
 	# SHUT_MY_MOUTH
 	if [ -f PREF.rc ]; then
 		repoinit;
-		echo -e "Branch : $BRANCH"
+		echo -e "${LRED}Branch${NONE} : $BRANCH"
 	else
 		read BRANCH;
 	fi
@@ -552,19 +566,19 @@ ${LPURP}=======================================================${NONE}";
 	fi
 
 	echo -e '\n';
-	echo -e "Set clone-depth ? [y/n] (Basically, it Syncs the ${GRN}Entire commit history of any repo${NONE}, thus Occupying ${LRED}More space${NONE})"
+	echo -e "Set ${LRED}clone-depth${NONE} ? ${LGRN}[y/n]${NONE} (Basically, it Syncs the ${GRN}Entire commit history of any repo${NONE}, thus Occupying ${LRED}More space${NONE})"
 	if [ -f PREF.rc ]; then
 		repoinit;
-		echo -e "Use Clone-Depth : ${CLND}"
+		echo -e "Use ${LRED}clone-depth${NONE} : ${CLND}"
 	else
 		read CLND;
 	fi
 	echo -e '\n';
-	echo -e "Depth Value? (Default ${LRED}1${NONE})"
+	echo -e "Depth ${LRED}Value${NONE}? (Default ${LRED}1${NONE})"
 	echo -e '\n';
 	if [ -f PREF.rc ]; then
 		repoinit;
-		echo -e "Clone-Depth Value : ${DEPTH}";
+		echo -e "clone-depth ${LRED}Value${NONE} : ${DEPTH}";
 	else
 		read DEPTH;
 	fi
@@ -656,7 +670,7 @@ function pre_build
 	# SHUT_MY_MOUTH
 	if [ -f PREF.rc ]; then
 		deviceinfo;
-		echo -e "Your Device Name is : ${DEVICE}"
+		echo -e "Your Device ${LRED}Name${NONE} is : ${DEVICE}"
 	else
 		read DEVICE;
 	fi
@@ -667,7 +681,7 @@ function pre_build
 	# SHUT_MY_MOUTH
 	if [ -f PREF.rc ]; then
 		deviceinfo;
-		echo -e "Build type: ${DEVICE}"
+		echo -e "Build ${LRED}type${NONE}: ${DEVICE}"
 	else
 		read BTYP;
 	fi
@@ -679,7 +693,7 @@ function pre_build
 	# SHUT_MY_MOUTH
 	if [ -f PREF.rc ]; then
 		deviceinfo;
-		echo -e "Device's Company : ${COMP}"
+		echo -e "Device's ${LRED}Vendor${NONE} : ${COMP}"
 	else
 		read COMP;
 	fi
@@ -1054,7 +1068,7 @@ function hotel_menu
 	echo -e "[*] ${GRN}brunch${NONE} - lunch + sync repos from ${ROMNIS}.dependencies + build - ${ORNG}Official/Unofficial${NONE} [*]"
 	echo -e '\n';
 	echo -e "Type in the Option you want to select"
-	echo -e "Tip! - If you're building it for the first time, then select ${RED}lunch${NONE} (Recommended)"
+	echo -e "${YELO}Tip!${NONE} - If you're building it for the first time, then select ${RED}lunch${NONE} (Recommended)"
 	echo -e "${LBLU}===========================================================================================${NONE}"
 	echo -e '\n';
 
@@ -1205,8 +1219,8 @@ teh_action ()
 #START IT --- VROOM!
 if [[ "$1" == "automate" ]]; then
 	source $(pwd)/PREF.rc
-	automate;
 	echo -e "${RED}*${NONE}${LPURP}AutoBot${RED}*${NONE} Thanks for Selecting Me. Lem'me do your work"
+	automate;
 else
 	main_menu;
 fi
