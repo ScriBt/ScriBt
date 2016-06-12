@@ -30,12 +30,12 @@ The Script consists of five main Actions:
 
   d. Setup CCACHE
 
-#####5. Install Deps 
-  
+#####5. Install Deps
+
   a. Install Build Dependencies
-  
+
   b. Install / Configure JAVA
-  
+
   c. Setup android-51 rules (For proper usage of ADB)
 
 #####6. Automated Cherry Picking
@@ -94,6 +94,7 @@ bash ROM.sh automate
 * Cyanide-L
 * CyanogenMod
 * Dirty Unicorns
+* FlayrOS
 * GZR Tesla
 * GZR Validus
 * Krexus - CAF

@@ -494,24 +494,25 @@ Choose among these (Number Selection)
 2.${RED} AOKP ${NONE}
 3.${LGRN} AOSP-RRO ${NONE}
 4.${DGRAY} AOSP-CAF ${NONE}
-5.${CYAN} CyanogenMod ${NONE}
-6.${ORNG} DirtyUnicorns ${NONE}
-7.${GRN} OmniROM ${NONE}
-8.${PURP} OrionOS ${NONE}
-9.${BLU} PAC-ROM ${NONE}
-10.${LRED} Resurrection Remix ${NONE}
-11.${LBLU} GZR Tesla ${NONE}
-12.${YELO} TipsyOS ${NONE}
-13.${LPURP} GZR Validus ${NONE}
-14.${LCYAN} XenonHD by Team Horizon ${NONE}
-15.${BLU} Xperia Open Source Project aka XOSP ${NONE}
-16.${LBLU} SlimRoms ${NONE}
-17.${CYAN} CandyRoms ${NONE}
-18.${ORNG} OwnROM ${NONE}
-19.${BLU} Krexus${NONE}-${GRN}CAF${NONE}
-20.${LCYAN} Cyan${NONE}${CYAN}ide-L${NONE}
-21.${LRED} Temasek ${NONE}
-22.${CYAN} BlissRoms by Team Bliss${NONE}
+5.${CYAN} BlissRoms by Team Bliss${NONE}
+6.${CYAN} CandyRoms ${NONE}
+7.${LCYAN} Cyan${NONE}${CYAN}ide-L${NONE}
+8.${CYAN} CyanogenMod ${NONE}
+9.${ORNG} DirtyUnicorns ${NONE}
+10.${YELO} Flayr OS ${NONE}
+11.${BLU} Krexus${NONE}-${GRN}CAF${NONE}
+12.${GRN} OmniROM ${NONE}
+13.${PURP} Orion OS ${NONE}
+14.${ORNG} OwnROM ${NONE}
+15.${BLU} PAC-ROM ${NONE}
+16.${LRED} Resurrection Remix ${NONE}
+17.${LBLU} SlimRoms ${NONE}
+18.${LRED} Temasek ${NONE}
+19.${LBLU} GZR Tesla ${NONE}
+20.${YELO} Tipsy OS ${NONE}
+21.${LPURP} GZR Validus ${NONE}
+22.${LCYAN} XenonHD by Team Horizon ${NONE}
+23.${BLU} Xperia Open Source Project aka XOSP ${NONE}
 
 ${LPURP}=======================================================${NONE}";
 	echo -e '\n';
@@ -596,7 +597,7 @@ ${LPURP}=======================================================${NONE}";
 		if [[ "$ROM_NAME" == "DirtyUnicorns" ]]; then
 			MAN=android_manifest.git;
 		fi
-		if [[ "$ROM_NAME" == "AOSP-RRO" || "$ROM_NAME" == "Krexus-CAF" || "$ROM_NAME" == "ValidusOs-M" || "$ROM_NAME" == "Tesla-M" ]]; then
+		if [[ "$ROM_NAME" == "AOSP-RRO" || "$ROM_NAME" == "FlayrOS" || "$ROM_NAME" == "Krexus-CAF" || "$ROM_NAME" == "ValidusOs-M" || "$ROM_NAME" == "Tesla-M" ]]; then
 				MAN=manifest.git;
 		fi
 		if [[ "$ROM_NAME" == "PAC-ROM" ]]; then
