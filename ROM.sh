@@ -127,7 +127,7 @@ function exitScriBt
 	echo -e "Thanks for using this ${LRED}S${NONE}cri${GRN}B${NONE}t. Have a Nice Day";
 	sleep 2;
 	echo;
-	echo "${LRED}Bye!${NONE}"
+	echo -e "${LRED}Bye!${NONE}";
 	exit 0;
 } #exitScriBt
 
@@ -924,7 +924,7 @@ function build
 	{
 		if [[ $(tac $RMTMP | grep -c -m 1 '#### make completed successfully') == "1" ]]; then
 			echo;
-			echo "Build Completed ${LGRN}Successfully!${NONE} Cool. Now make it ${LRED}Boot!${NONE}"
+			echo -e "Build Completed ${LGRN}Successfully!${NONE} Cool. Now make it ${LRED}Boot!${NONE}";
 			the_response COOL Build;
 			teh_action 6 COOL;
 		elif [[ $(tac $RMTMP | grep -c -m 1 'No rule to make target') == "1" ]]; then
