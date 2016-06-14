@@ -707,7 +707,11 @@ function pre_build
 
 function vendor_strat_all
 {
-	cd vendor/${ROMNIS}
+	if  [[ "$ROMNO" == "3" || "$ROMNO" == "4" || "$ROMNO" == "10" || "$ROMNO" == "16" || "$ROMNO" == "18" ]]; then
+		cd vendor/${ROMV}
+	else
+		cd vendor/${ROMNIS}
+	fi
 	echo -e "${LPURP}=========================================================${NONE}"
 	echo;
 	if [ -f ${ROMNIS}.devices ]; then
@@ -854,7 +858,11 @@ ${LPURP}2560${NONE}x1600";
 	if [ ! -f PREF.rc ]; then
 		echo -e "${PURP}=========================================================${NONE}"
 		echo;
-		echo -e "Now, ${ROMNIS}fy your Device Tree. Press ${LCYAN}Enter${NONE}, when ${LGRN}done${NONE}"
+		if  [[ "$ROMNO" == 10 || "$ROMNO" == 16 || "$ROMNO" == 18 ]]; then
+			echo -e "Now, ${ROMV}ify your Device Tree. Press ${LCYAN}Enter${NONE}, when ${LGRN}done${NONE}"
+		else
+			echo -e "Now, ${ROMNIS}-(i)-fy your Device Tree. Press ${LCYAN}Enter${NONE}, when ${LGRN}done${NONE}"
+		fi
 		echo;
 		echo -e "${PURP}=========================================================${NONE}"
 		read ENTDONE;

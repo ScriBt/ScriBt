@@ -111,9 +111,19 @@ if [[ "$ROMNO" == "2" ]]; then
 fi
 if [[ "$ROMNO" == "3" || "$ROMNO" == "4" || "$ROMNO" == "10" ]]; then
   ROMNIS=full;
+  if [[ "$ROMNO" == "10" ]]; then
+   ROMV=flayr;
+  else
+    ROMV=aosp;
+  fi
 fi
 if [[ "$ROMNO" == "8" || "$ROMNO" == "16" || "$ROMNO" == "18" ]]; then
   ROMNIS=cm;
+  if [[ "$ROMNO" == "16" ]]; then
+    ROMV=resurrection;
+  elif [[ "$ROMNO" == "18" ]]; then
+    ROMV=temasek;
+  fi
 fi
 if [[ "$ROMNO" == "5" ]]; then
   ROMNIS=bliss;
