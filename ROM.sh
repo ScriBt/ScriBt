@@ -19,6 +19,8 @@
 #                                                                      #
 # https://github.com/a7r3/scripts - The Original Repo of this ScriBt   #
 #                                                                      #
+# Usage: bash ROM.sh (Manual) | bash ROM.sh automate (Automated work)  #
+#                                                                      #
 # You're free to enter your modifications and submit it to me with     #
 # a Pull Request, such Contributions are readily WELCOME               #
 #                                                                      #
@@ -182,9 +184,11 @@ cherrypick ()
 	echo -e "${GRN}========================= Teh${NONE} ${LRED}Cherry${NONE} ${GRN}Picker========================${NONE}";
  	echo;
 	echo -e "     ${RED}*${NONE}${LPURP}AutoBot${RED}*${NONE} Attempting to Cherry-Pick Provided Commits         ";
-  git fetch https://github.com/${REPOPK}/${REPONAME} ${CP_BRNC}
+	echo;
+  	git fetch https://github.com/${REPOPK}/${REPONAME} ${CP_BRNC};
  	echo;
  	git cherry-pick $1;
+	echo;
  	echo -e "IT's possible that you may face conflicts while merging a C-Pick. Solve those and then Continue."
 	echo -e "${GRN}==================================================================${NONE}"
 }
@@ -325,12 +329,12 @@ maven maven2
 	echo;
 	echo -e "${RED}==========================================================${NONE}";
 	echo;
-	echo -e "Updating / Installing Android udev rules (51-android)"
+	echo -e "Updating / Creating Android udev rules (51-android)"
 	echo;
 	sudo curl --create-dirs -L -o /etc/udev/rules.d/51-android.rules -O -L https://raw.githubusercontent.com/snowdream/51-android/master/51-android.rules
 	sudo chmod a+r /etc/udev/rules.d/51-android.rules
 	echo;
-	sudo service udev restart
+	sudo service udev restart;
 	echo;
 	echo -e "${RED}==========================================================${NONE}";
 	echo; echo;
@@ -372,6 +376,7 @@ function sync
 {
 	if [ -f PREF.rc ]; then
 		repoinit;
+		reposync;
 		rom_name_in_github;
 		teh_action 2;
 	fi
@@ -382,7 +387,6 @@ function sync
 	echo;
 	# SHUT_MY_MOUTH
 	if [ -f PREF.rc ]; then
-		reposync;
 		echo -e "${RED}*${NONE}${LPURP}AutoBot${RED}*${NONE} No of Threads : ${JOBS}"
 	else
 		read JOBS;
@@ -391,7 +395,6 @@ function sync
 	echo -e "${LRED}Force Sync${NONE} needed? ${LGRN}[y/n]${NONE}";
 	echo;
 	if [ -f PREF.rc ]; then
-		reposync;
 		echo -e "${RED}*${NONE}${LPURP}AutoBot${RED}*${NONE} Force Sync : ${FRC}"
 	else
 		read FRC;
@@ -402,7 +405,6 @@ function sync
 
 	# SHUT_MY_MOUTH
 	if [ -f PREF.rc ]; then
-		reposync;
 		echo -e "${RED}*${NONE}${LPURP}AutoBot${RED}*${NONE} Silent Sync : ${SIL}"
 	else
 		read SIL;
@@ -413,7 +415,6 @@ function sync
 	echo;
 	# SHUT_MY_MOUTH
 	if [ -f PREF.rc ]; then
-		reposync;
 		echo -e  "${RED}*${NONE}${LPURP}AutoBot${RED}*${NONE} Sync Current Branch : $CRNT"
 	else
 		read CRNT;
@@ -423,12 +424,10 @@ function sync
 	echo;
 	# SHUT_MY_MOUTH
 	if [ -f PREF.rc ]; then
-		reposync;
 		echo -e  "${RED}*${NONE}${LPURP}AutoBot${RED}*${NONE} Use ${LRED}clone-bundle${NONE} : $CLN"
 	else
 		read CLN;
 	fi
-
 	echo;
 	echo -e "${LRED}=====================================================================${NONE}";
 	#Sync-Options
@@ -483,6 +482,7 @@ function sync
 function init
 {
 	if [ -f PREF.rc ]; then
+		repoinit;
 		teh_action 1;
 	fi
 	echo -e "${LPURP}=======================================================${NONE}";
@@ -527,22 +527,17 @@ ${LPURP}=======================================================${NONE}";
 	echo;
 	echo -e "Since Branches may live or die at any moment, ${LRED}Specify the Branch${NONE} you're going to sync"
 	echo;
-
 	# SHUT_MY_MOUTH
 	if [ -f PREF.rc ]; then
-		repoinit;
 		echo -e "${LRED}Branch${NONE} : $BRANCH"
 	else
 		read BRANCH;
 	fi
-
 	echo;
 	echo -e "Any ${LRED}Source you have already synced?${NONE} If ${LGRN}yes${NONE}, then say ${LGRN}YES${NONE} and Press ${LCYAN}ENTER${NONE}";
 	echo;
-
 	# SHUT_MY_MOUTH
 	if [ -f PREF.rc ]; then
-		repoinit;
 		if [[ "$REFY" == YES ]]; then
 			echo -e "${RED}*${NONE}${LPURP}AutoBot${RED}*${NONE} ${LGRN}YES${NONE}, you have a Reference Source"
 			echo;
@@ -569,7 +564,6 @@ ${LPURP}=======================================================${NONE}";
 	echo;
 	echo -e "Set ${LRED}clone-depth${NONE} ? ${LGRN}[y/n]${NONE} (Basically, it Syncs the ${GRN}Entire commit history of any repo${NONE}, thus Occupying ${LRED}More space${NONE})"
 	if [ -f PREF.rc ]; then
-		repoinit;
 		echo -e "Use ${LRED}clone-depth${NONE} : ${CLND}"
 	else
 		read CLND;
@@ -578,7 +572,6 @@ ${LPURP}=======================================================${NONE}";
 	echo -e "Depth ${LRED}Value${NONE}? (Default ${LRED}1${NONE})"
 	echo;
 	if [ -f PREF.rc ]; then
-		repoinit;
 		echo -e "clone-depth ${LRED}Value${NONE} : ${DEPTH}";
 	else
 		read DEPTH;
@@ -586,50 +579,49 @@ ${LPURP}=======================================================${NONE}";
 	if [ -z "$DEPTH" ]; then
 		DEPTH=1;
 	fi
-		echo;
+	echo;
 	#Getting Manifest Link
-		if [[ "$ROM_NAME" == "OmniROM" || "$ROM_NAME" == "CyanogenMod" || "$ROM_NAME" == "OwnROM" || "$ROM_NAME" == "temasek" ]]; then
-			MAN=android.git;
+	if [[ "$ROM_NAME" == "OmniROM" || "$ROM_NAME" == "CyanogenMod" || "$ROM_NAME" == "OwnROM" || "$ROM_NAME" == "temasek" ]]; then
+		MAN=android.git;
+	fi
+	if [[ "$ROM_NAME" == "TeamOrion" || "$ROM_NAME" == "SlimRoms" || "$ROM_NAME" == "AOSP-CAF" || "$ROM_NAME" == "ResurrectionRemix" || "$ROM_NAME" == "AOKP" || "$ROM_NAME" == "TipsyOS" || "$ROM_NAME" == "AICP" || "$ROM_NAME" == "XOSP-Project" || "$ROM_NAME" == "BlissRoms" ]]; then
+		MAN=platform_manifest.git;
+	fi
+	if [[ "$ROM_NAME" == "DirtyUnicorns" ]]; then
+		MAN=android_manifest.git;
+	fi
+	if [[ "$ROM_NAME" == "AOSP-RRO" || "$ROM_NAME" == "FlayrOS" || "$ROM_NAME" == "Krexus-CAF" || "$ROM_NAME" == "ValidusOs-M" || "$ROM_NAME" == "Tesla-M" ]]; then
+			MAN=manifest.git;
+	fi
+	if [[ "$ROM_NAME" == "PAC-ROM" ]]; then
+			MAN=pac-rom.git;
+	fi
+	if [[ "$ROM_NAME" == "CandyRoms" ]]; then
+			MAN=candy.git;
+	fi
+	if [[ "$ROM_NAME" == "CyanideL" ]]; then
+		MAN=cyanide_manifest.git;
+	fi
+	#Check for Presence of Repo Binary
+	if [[ ! $(which repo) ]]; then
+		echo -e "Looks like the Repo binary isn't installed. Let's Install it."
+		if [ ! -d "${HOME}/bin" ]; then
+			mkdir -p ${HOME}/bin;
 		fi
-		if [[ "$ROM_NAME" == "TeamOrion" || "$ROM_NAME" == "SlimRoms" || "$ROM_NAME" == "AOSP-CAF" || "$ROM_NAME" == "ResurrectionRemix" || "$ROM_NAME" == "AOKP" || "$ROM_NAME" == "TipsyOS" || "$ROM_NAME" == "AICP" || "$ROM_NAME" == "XOSP-Project" || "$ROM_NAME" == "BlissRoms" ]]; then
-			MAN=platform_manifest.git;
-		fi
-		if [[ "$ROM_NAME" == "DirtyUnicorns" ]]; then
-			MAN=android_manifest.git;
-		fi
-		if [[ "$ROM_NAME" == "AOSP-RRO" || "$ROM_NAME" == "FlayrOS" || "$ROM_NAME" == "Krexus-CAF" || "$ROM_NAME" == "ValidusOs-M" || "$ROM_NAME" == "Tesla-M" ]]; then
-				MAN=manifest.git;
-		fi
-		if [[ "$ROM_NAME" == "PAC-ROM" ]]; then
-				MAN=pac-rom.git;
-		fi
-		if [[ "$ROM_NAME" == "CandyRoms" ]]; then
-				MAN=candy.git;
-		fi
-		if [[ "$ROM_NAME" == "CyanideL" ]]; then
-			MAN=cyanide_manifest.git;
-		fi
-		#Check for Presence of Repo Binary
-		if [[ ! $(which repo) ]]; then
-			echo -e "Looks like the Repo binary isn't installed. Let's Install it."
-			if [ ! -d "${HOME}/bin" ]; then
-				mkdir -p ${HOME}/bin
-			fi
-			curl https://storage.googleapis.com/git-repo-downloads/repo > ~/bin/repo
-			chmod a+x ~/bin/repo
-			echo -e "Repo Binary Installed"
-			echo;
-			echo "Adding ~/bin to PATH"
-			echo;
-			echo -e "# set PATH so it includes user's private bin if it exists" >> ~/.profile
-			echo -e "if [ -d \"\$HOME/bin\" ] ; then" >> ~/.profile
-			echo -e "\tPATH=\"\$HOME/bin:\$PATH\" "; >> ~/.profile
-			echo -e "fi"; >> ~/.profile
-			source ~/.profile
-			echo -e "${LGRN}DONE!${NONE}. Ready to Init Repo"
-			echo;
-		fi
-
+		curl https://storage.googleapis.com/git-repo-downloads/repo > ~/bin/repo;
+		chmod a+x ~/bin/repo
+		echo -e "Repo Binary Installed";
+		echo;
+		echo "Adding ~/bin to PATH";
+		echo;
+		echo -e "# set PATH so it includes user's private bin if it exists" >> ~/.profile;
+		echo -e "if [ -d \"\$HOME/bin\" ] ; then" >> ~/.profile;
+		echo -e "\tPATH=\"\$HOME/bin:\$PATH\" "; >> ~/.profile;
+		echo -e "fi"; >> ~/.profile;
+		source ~/.profile;
+		echo -e "${LGRN}DONE!${NONE}. Ready to Init Repo";
+		echo;
+	fi
 	echo -e "${LBLU}=========================================================${NONE}";
 	echo;
 	echo -e "Let's Initialize teh ROM Repo";
@@ -655,6 +647,7 @@ sync;
 function pre_build
 {
 	if [ -f PREF.rc ]; then
+		deviceinfo;
 		teh_action 3;
 	fi
 	echo -e "${CYAN}Initializing Build Environment${NONE}"
@@ -670,7 +663,6 @@ function pre_build
 
 	# SHUT_MY_MOUTH
 	if [ -f PREF.rc ]; then
-		deviceinfo;
 		echo -e "Your Device ${LRED}Name${NONE} is : ${DEVICE}"
 	else
 		read DEVICE;
@@ -678,27 +670,21 @@ function pre_build
 	echo;
 	echo -e "The ${LRED}Build type${NONE}? ${LGRN}[userdebug/user/eng]${NONE}";
 	echo;
-
 	# SHUT_MY_MOUTH
 	if [ -f PREF.rc ]; then
-		deviceinfo;
 		echo -e "Build ${LRED}type${NONE}: ${DEVICE}"
 	else
 		read BTYP;
 	fi
-
 	echo;
 	echo -e "Your ${LRED}Device's Company/Vendor${NONE} (All Lowercases)?";
 	echo;
-
 	# SHUT_MY_MOUTH
 	if [ -f PREF.rc ]; then
-		deviceinfo;
 		echo -e "Device's ${LRED}Vendor${NONE} : ${COMP}"
 	else
 		read COMP;
 	fi
-
 	echo;
 	echo -e "${LCYAN}=========================================================${NONE}";
 	rom_name_in_source;
@@ -708,11 +694,11 @@ function pre_build
 function vendor_strat_all
 {
 	if  [[ "$ROMNO" == "3" || "$ROMNO" == "4" || "$ROMNO" == "10" || "$ROMNO" == "16" || "$ROMNO" == "18" ]]; then
-		cd vendor/${ROMV}
+		cd vendor/${ROMV};
 	else
-		cd vendor/${ROMNIS}
+		cd vendor/${ROMNIS};
 	fi
-	echo -e "${LPURP}=========================================================${NONE}"
+	echo -e "${LPURP}=========================================================${NONE}";
 	echo;
 	if [ -f ${ROMNIS}.devices ]; then
 		echo -e "Adding your Device to ROM Vendor (Strategy 1)";
@@ -720,50 +706,50 @@ function vendor_strat_all
 		if [[ $(grep -c '${DEVICE}' ${ROMNIS}.devices) == "0" ]]; then
 			echo "${DEVICE}" >> ${ROMNIS}.devices;
 		else
-			echo -e "Device was already added to ${ROMNIS} vendor"
+			echo -e "Device was already added to ${ROMNIS} vendor";
 		fi
-		echo "${LGRN}DONE!${NONE}!"
+		echo "${LGRN}DONE!${NONE}!";
 		croot;
 	elif [ -f ${ROMNIS}-device-targets ]; then
-		echo -e "Adding your Device to ROM Vendor (Strategy 4)"
+		echo -e "Adding your Device to ROM Vendor (Strategy 4)";
 		echo;
 		if [[ $(grep -c '${DEVICE}' ${ROMNIS}-device-targets) == "0" ]]; then
 			echo -e "${ROMNIS}_${DEVICE}-${BTYP}";
 		else
-			echo -e "Device was already added to ${ROMNIS} vendor"
+			echo -e "Device was already added to ${ROM_FN} vendor";
 		fi
-		echo "${LGRN}DONE!${NONE}"
+		echo "${LGRN}DONE!${NONE}";
 	elif [ -f vendorsetup.sh ]; then
-		echo -e "Adding your Device to ROM Vendor (Strategy 2)"
+		echo -e "Adding your Device to ROM Vendor (Strategy 2)";
 		echo;
 		if [[ $(grep -c '${DEVICE}' vendorsetup.sh) == "0" ]]; then
-			echo "add_lunch_combo ${ROMNIS}_${DEVICE}-${BTYP}" >> vendorsetup.sh
+			echo "add_lunch_combo ${ROMNIS}_${DEVICE}-${BTYP}" >> vendorsetup.sh;
 		else
 			echo -e "Device was already added to ${ROMNIS} vendor";
 		fi
-		echo "${LGRN}DONE!${NONE}"
+		echo "${LGRN}DONE!${NONE}";
 		croot;
 	else
 		croot;
-		echo "Adding your Device to ROM Vendor (Strategy 3)"
+		echo "Adding your Device to ROM Vendor (Strategy 3)";
 		echo -e "Let's go to teh ${LRED}Device Directory!${NONE}";
 		echo;
 		cd device/${COMP}/${DEVICE};
 		echo -e "Creating vendorsetup.sh if absent in tree";
 			if [ ! -f vendorsetup.sh ]; then
 				touch vendorsetup.sh;
-				echo -e "Done [1/2]"
+				echo -e "Done [1/2]";
 			fi
 			if [[ $(grep -c '${ROMNIS}_${DEVICE}' vendorsetup.sh ) == "0" ]]; then
-				echo -e "add_lunch_combo ${ROMNIS}_${DEVICE}-${BTYP}" >> vendorsetup.sh
+				echo -e "add_lunch_combo ${ROMNIS}_${DEVICE}-${BTYP}" >> vendorsetup.sh;
 			else
-				echo -e "Device already added to vendorsetup.sh"
+				echo -e "Device already added to vendorsetup.sh";
 			fi
 		echo;
 		echo "DONE! [2/2]"
 		croot;
 	fi
-	echo -e "${LPURP}=========================================================${NONE}"
+	echo -e "${LPURP}=========================================================${NONE}";
 } #vendor_strat
 
 function vendor_strat_kpa #for ROMs having products folder
@@ -849,23 +835,23 @@ ${LPURP}2560${NONE}x1600";
 		if [ ! -f vendor/${ROMNIS}/products/${ROMNIS}_${DEVICE}.mk || ! -f vendor/${ROMNIS}/products/${DEVICE}.mk ]; then
 			vendor_strat_kpa; #if found products folder
 		else
-			echo -e "Looks like ${DEVICE} has been already added to ${ROMNIS} vendor. Good to go"
+			echo -e "Looks like ${DEVICE} has been already added to ${ROM_FN} vendor. Good to go";
 		fi
 	else
 		vendor_strat_all; #if not found
 	fi
 		croot;
 	if [ ! -f PREF.rc ]; then
-		echo -e "${PURP}=========================================================${NONE}"
+		echo -e "${PURP}=========================================================${NONE}";
 		echo;
 		if  [[ "$ROMNO" == 10 || "$ROMNO" == 16 || "$ROMNO" == 18 ]]; then
-			echo -e "Now, ${ROMV}ify your Device Tree. Press ${LCYAN}Enter${NONE}, when ${LGRN}done${NONE}"
+			echo -e "Now, ${ROMV}ify your Device Tree. Press ${LCYAN}Enter${NONE}, when ${LGRN}done${NONE}";
 		else
-			echo -e "Now, ${ROMNIS}-(i)-fy your Device Tree. Press ${LCYAN}Enter${NONE}, when ${LGRN}done${NONE}"
+			echo -e "Now, ${ROMNIS}-(i)-fy your Device Tree. Press ${LCYAN}Enter${NONE}, when ${LGRN}done${NONE}";
 		fi
 		echo;
-		echo -e "${PURP}=========================================================${NONE}"
-		read ENTDONE;
+		echo -e "${PURP}=========================================================${NONE}";
+		read ENTER;
 	fi
 	if [ ! -f PREF.rc ]; then
 		quick_menu;
@@ -878,6 +864,7 @@ ${LPURP}2560${NONE}x1600";
 function build
 {
 	if [ -f PREF.rc ]; then
+		buildinfo;
 		repoinit;
 		rom_name_in_github;
 		teh_action 4;
@@ -923,7 +910,7 @@ function build
 		else
 			echo -e "Do either of these two actions: \n1. ${BLU}G${NONE}${RED}o${NONE}${YELO}o${NONE}${BLU}g${NONE}${GRN}l${NONE}${RED}e${NONE} it (Easier)\n2. Run this command in terminal : ${LBLU}sgrep \"LOCAL_MODULE := Insert_MODULE_NAME_Here \"${NONE}.\n\n Press ${LCYAN}ENTER${NONE} after it's ${LPURP}Done.${NONE}.";
 			echo;
-			read OK;
+			read ENTER;
 			make_it;
 		fi
 	} #make_module
@@ -937,23 +924,23 @@ function build
 			teh_action 6 COOL;
 		elif [[ $(tac $RMTMP | grep -c -m 1 'No rule to make target') == "1" ]]; then
 			if [ ! -f PREF.rc ]; then
-				echo -e "Looks like a Module isn't getting built / Missing"
-				echo -e "You'll see a line like this:"
+				echo -e "Looks like a Module isn't getting built / Missing";
+				echo -e "You'll see a line like this:";
 				echo;
-				echo -e "No rule to make target '$(pwd)/out/....../${LRED}<MODULE_NAME>${NONE}_intermediates'"
+				echo -e "No rule to make target '$(pwd)/out/....../${LRED}<MODULE_NAME>${NONE}_intermediates'";
 				echo;
-				echo -e "${LCYAN}Enter${NONE} whatever you see in place of ${LRED}<MODULE_NAME>${NONE} (Case-Sensitive please)"
+				echo -e "${LCYAN}Enter${NONE} whatever you see in place of ${LRED}<MODULE_NAME>${NONE} (Case-Sensitive please)";
 				read MOD_NAME;
 				echo -e "Let's Search for ${LRED}${MOD_NAME}${NONE} ! This will take time, but it's Valuable";
 				echo;
 				sgrep "LOCAL_MODULE := ${MOD_NAME}" 2>&1 | tee mod.txt;
 				echo;
 				if [[ $(grep -c -m 1 'LOCAL_MODULE') == "1" ]]; then
-					echo -e "Looks like you've found that location, let's make it"
+					echo -e "Looks like you've found that location, let's make it";
 					echo;
 					make_module y;
 				else
-					echo -e "The Repo which builds that module is ${LRED}missing${NONE}\n"
+					echo -e "The Repo which builds that module is ${LRED}missing${NONE}\n";
 					echo -e "======================================================================================================";
 					echo;
 					echo -e "Let me search that module for you -> http://lmgtfy.com/?q=LOCAL_MODULE+%3A%3D+${MOD_NAME}"
@@ -979,58 +966,58 @@ function build
 
 	function set_ccache
 	{
-		echo -e "Setting up CCACHE"
+		echo -e "Setting up CCACHE";
 		echo;
-		prebuilts/misc/linux-x86/ccache/ccache -M ${CCSIZE}G
-		echo -e "CCACHE Setup ${GRN}Successful${NONE}."
+		prebuilts/misc/linux-x86/ccache/ccache -M ${CCSIZE}G;
+		echo -e "CCACHE Setup ${GRN}Successful${NONE}.";
 		echo;
 	} #set_ccache
 
 	function set_ccvars
 	{
-		echo -e "Provide this Script Root-Access, so that it can write CCACHE export values. No Hacks Honestly (Check the Code)"
-		echo -en "Why? Coz .bashrc or it's equivalents can only be Modified by a Root user"
+		echo -e "Provide this Script Root-Access, so that it can write CCACHE export values. No Hacks Honestly (Check the Code)";
+		echo -en "Why? Coz .bashrc or it's equivalents can only be Modified by a Root user";
 		echo;
 		sudo -i;
 		echo;
 		if [[ $(whoami) == "root" ]]; then
-			echo -e "Thanks, Performing Changes."
+			echo -e "Thanks, Performing Changes.";
 		else
-			echo -e "No Root Access, Abort."
+			echo -e "No Root Access, Abort.";
 			main_menu;
 		fi
 		echo;
 		echo -e "CCACHE Size must be ${LRED}>50 GB${NONE}.\n Think about it and Specify the Size (Number) for Reservation of CCACHE (in GB)";
 		echo;
 		read CCSIZE;
-		echo -e "Create a New Folder for CCACHE and Specify it's location from / here"
+		echo -e "Create a New Folder for CCACHE and Specify it's location from / here";
 		echo;
 		read CCDIR;
 		if [ -f ${HOME}/.bashrc ]; then
-				echo "export USE_CCACHE=1" >> ${HOME}/.bashrc
-				echo "export CCACHE_DIR=${CCDIR}" >> ${HOME}/.bashrc
-				source ${HOME}/.bashrc
+				echo "export USE_CCACHE=1" >> ${HOME}/.bashrc;
+				echo "export CCACHE_DIR=${CCDIR}" >> ${HOME}/.bashrc;
+				source ${HOME}/.bashrc;
 		elif [ -f ${HOME}/.profile ]; then
-			echo "export USE_CCACHE=1" >> ${HOME}/.profile
-			echo "export CCACHE_DIR=${CCDIR}" >> ${HOME}/.profile
-			source ${HOME}/.profile
+			echo "export USE_CCACHE=1" >> ${HOME}/.profile;
+			echo "export CCACHE_DIR=${CCDIR}" >> ${HOME}/.profile;
+			source ${HOME}/.profile;
 #		elif [[ $( -f SOME_FILE )]]; then
-#			echo "export USE_CCACHE=1" >> /SOME_LOC/SOME_FILE
-#			echo "export CCACHE_DIR=${CCDIR}" >> /SOME_LOC/SOME_FILE
-#			echo "Restart your PC and Select Step 'B'"
+#			echo "export USE_CCACHE=1" >> /SOME_LOC/SOME_FILE;
+#			echo "export CCACHE_DIR=${CCDIR}" >> /SOME_LOC/SOME_FILE;
+#			echo "Restart your PC and Select Step 'B'";
 		else
 			echo -e "Strategies failed. If you have knowledge of finding .bashrc's equivalent in your Distro, then Paste these lines at the end of the File";
 			echo -en "export USE_CCACHE=1";
 			echo -en "export CCACHE_DIR=${CCDIR}";
 			echo -e "Now Log-Out and Re-Login. Select Step B. The Changes will be considered after that.";
 			echo -e "Alternatively run source ~/.profile";
-			sleep 2
+			sleep 2;
 			exitScriBt;
 		fi
-		echo -e "Giving up Root Access";
+		echo -e "Giving up Mah Powerz!";
 		exit
 		echo;
-		echo "Done."
+		echo "Peace.";
 		echo;
 		set_ccache;
 	} #set_ccvars
@@ -1051,70 +1038,65 @@ function build
 			if [[ "$ROMNIS" == "tipsy" || "$ROMNIS" == "validus" || "$ROMNIS" == "tesla" ]]; then
 				time	$MKWAY $ROMNIS $BCORES 2>&1 | tee $RMTMP;
 				echo;
-				post_build;
 			elif [[ $(grep -q "^bacon:" "${ANDROID_BUILD_TOP}/build/core/Makefile") ]]; then
 				time $MKWAY bacon $BCORES 2>&1 | tee $RMTMP;
 				echo;
-				post_build;
 			else
 				time $MKWAY otapackage $BCORES 2>&1 | tee $RMTMP;
 				echo;
-				post_build;
 			fi
+			post_build;
 		fi
-} #build_make
+	} #build_make
 
-function hotel_menu
-{
-	echo -e "${LBLU}====================================${NONE}${RED}[*]${NONE} ${GRN}HOTEL MENU${NONE} ${RED}[*]${NONE}${LBLU}=====================================${NONE}"
-	echo;
-	echo -e "                       ${LGRN}So, what would you like to feed your Device?${NONE} "
-	echo;
-	echo -e "${LRED}A SideNote : Menu is only for your Device, not for you. No Complaints plz.${NONE}"
-	echo;
-	echo -e "[*] ${RED}lunch${NONE} - If your Device is not in the ROM's Devices list - ${ORNG}Unofficial${NONE} [*]"
-	echo -e "[*] ${YELO}breakfast${NONE} - (If your Device is a ${GRN}Official Device${NONE} for that particular ROM - ${GRN}Official${NONE} [*]"
-	echo -e "[*] ${GRN}brunch${NONE} - lunch + sync repos from ${ROMNIS}.dependencies + build - ${ORNG}Official/Unofficial${NONE} [*]"
-	echo;
-	echo -e "Type in the Option you want to select"
-	echo -e "${YELO}Tip!${NONE} - If you're building it for the first time, then select ${RED}lunch${NONE} (Recommended)"
-	echo -e "${LBLU}===========================================================================================${NONE}"
-	echo;
-
-	# SHUT_MY_MOUTH
-	if [ -f PREF.rc ]; then
-		buildinfo;
-		echo -e "${RED}*${NONE}${LPURP}AutoBot${RED}*${NONE} Selected Option : $SELT"
-	else
-		read SELT;
-	fi
-	echo;
-	if [ -f PREF.rc ]; then
-		deviceinfo;              #Gather
-		repoinit;                #All
-		rom_name_in_source;      #Information
-	fi
-
-	if [[ "$SELT" == "lunch" ]]; then
-		${SELT} ${ROMNIS}_${DEVICE}-${BTYP}
-	elif [[ "$SELT" == "breakfast" ]]; then
-		${SELT} ${DEVICE} ${BTYP}
-	fi
-	echo;
-} #hotel_menu
+	function hotel_menu
+	{
+		echo -e "${LBLU}====================================${NONE}${RED}[*]${NONE} ${GRN}HOTEL MENU${NONE} ${RED}[*]${NONE}${LBLU}=====================================${NONE}";
+		echo;
+		echo -e "                       ${LGRN}So, what would you like to feed your Device?${NONE} ";
+		echo;
+		echo -e "${LRED}A SideNote : Menu is only for your Device, not for you. No Complaints plz.${NONE}";
+		echo;
+		echo -e "[*] ${RED}lunch${NONE} - If your Device is not in the ROM's Devices list - ${ORNG}Unofficial${NONE} [*]";
+		echo -e "[*] ${YELO}breakfast${NONE} - (If your Device is a ${GRN}Official Device${NONE} for that particular ROM - ${GRN}Official${NONE} [*]";
+		echo -e "[*] ${GRN}brunch${NONE} - lunch + sync repos from ${ROMNIS}.dependencies + build - ${ORNG}Official/Unofficial${NONE} [*]";
+		echo;
+		echo -e "Type in the Option you want to select";
+		echo -e "${YELO}Tip!${NONE} - If you're building it for the first time, then select ${RED}lunch${NONE} (Recommended)";
+		echo -e "${LBLU}===========================================================================================${NONE}";
+		echo;
+		# SHUT_MY_MOUTH
+		if [ -f PREF.rc ]; then
+			echo -e "${RED}*${NONE}${LPURP}AutoBot${RED}*${NONE} Selected Option : $SELT"
+		else
+			read SELT;
+		fi
+		echo;
+		if [ -f PREF.rc ]; then
+			deviceinfo;              #Gather
+			repoinit;                #All
+			rom_name_in_source;      #Information
+		fi
+		if [[ "$SELT" == "lunch" ]]; then
+			${SELT} ${ROMNIS}_${DEVICE}-${BTYP}
+		elif [[ "$SELT" == "breakfast" ]]; then
+			${SELT} ${DEVICE} ${BTYP}
+		fi
+		echo;
+	} #hotel_menu
 
 	echo;
-	echo -e "${YELO}=========================================================${NONE}"
-	echo -e "${CYAN}Initializing Build Environment${NONE}";
+	echo -e "${YELO}=========================================================${NONE}";
+	echo -e "             ${CYAN}Initializing Build Environment${NONE}";
 	echo;
-	. build/envsetup.sh
+	. build/envsetup.sh;
 	echo;
-	echo -e "${YELO}=========================================================${NONE}"
+	echo -e "${YELO}=========================================================${NONE}";
 	echo;
-	echo -e "${LPURP}Done.${NONE}."
+	echo -e "${LPURP}Done.${NONE}.";
 	echo;
-	echo -e "${LPURP}=========================================================${NONE}"
-	ecgo -e '\n;'
+	echo -e "${LPURP}=========================================================${NONE}";
+	echo -e '\n;'
 	echo -e "Select the Build Option:\n";
 	echo;
 	echo -e "${LCYAN}1. Start Building ROM (ZIP output)${NONE}";
@@ -1125,9 +1107,7 @@ function hotel_menu
 	echo;
 	echo -e "${LPURP}=========================================================${NONE}"
 	echo;
-
 	if [ -f PREF.rc ]; then
-		buildinfo;
 		echo -e "${RED}*${NONE}${LPURP}AutoBot${RED}*${NONE} Option Selected : $BOPT"
 	else
 		read BOPT;
@@ -1140,7 +1120,6 @@ function hotel_menu
 		# SHUT_MY_MOUTH
 		echo;
 		if [ -f PREF.rc ]; then
-			buildinfo;
 			echo -e "${RED}*${NONE}${LPURP}AutoBot${RED}*${NONE} Selected Method : $MKWAY "
 		else
 			read MKWAY;
@@ -1149,7 +1128,6 @@ function hotel_menu
 		echo -e "Wanna Clean the ${LPURP}/out${NONE} before Building? ${LGRN}[2 - Remove Staging / 3 - Full Clean]${NONE}"
 		echo;
 		if [ -f PREF.rc ]; then
-			buildinfo;
 			echo -e "${RED}*${NONE}${LPURP}AutoBot${RED}*${NONE} Option Selected : $COPT ";
 		else
 			read COPT;
@@ -1228,7 +1206,7 @@ teh_action ()
 #START IT --- VROOM!
 if [[ "$1" == "automate" ]]; then
 	source $(pwd)/PREF.rc
-	echo -e "${RED}*${NONE}${LPURP}AutoBot${RED}*${NONE} Thanks for Selecting Me. Lem'me do your work"
+	echo -e "*AutoBot* Thanks for Selecting Me. Lem'me do your work"
 	automate;
 else
 	main_menu;
