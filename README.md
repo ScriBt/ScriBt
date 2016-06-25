@@ -1,4 +1,5 @@
-# Projekt ScriBt
+
+![ScriBt in Action](http://i.imgur.com/5p97f9i.png?2)
 
 #####ROM Sync && Build Script for Learning Developers
 
