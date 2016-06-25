@@ -41,6 +41,8 @@ function buildinfo
   SELT=                                    # lunch / brunch / breakfast
   MKWAY=                                   # make / mka
   COPT=                                    # Clean Before Build? [ 2 for installclean & 3 for total clean ]
+  USEJK=                                   # Use Jack Toolchain [y/n] ?
+  USEN=                                    # Use Ninja Toolchain [y/n] ?
 }
 
 function the_cherries                      # Since this is Automated - Use Proper Cherry-picks - conflicts won't be solved
@@ -80,7 +82,7 @@ function automate                          # Function will only work if it has a
   # Collect all Information
   color;
   repoinit;
-  rom_name_in_github;                      
+  rom_name_in_github;
   rom_name_in_source;
   reposync;
   deviceinfo;

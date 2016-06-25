@@ -48,7 +48,7 @@ fi
 if [ -f PREF.rc ]; then
 	source $(pwd)/PREF.rc
 	echo;
-	echo -e "${RED}*${NONE}${LPURP}AutoBot${RED}*${NONE} Cheat Code SHUT_MY_MOUTH applied. I won't ask questions anymore";
+	echo -e "${RED}*${NONE}${LPURP}AutoBot${NONE}${RED}*${NONE} Cheat Code SHUT_MY_MOUTH applied. I won't ask questions anymore";
 	echo;
 else
 	echo -e "Using this for first time?\nDon't lose patience the next time. ${LCYAN}Enter${NONE} your Values in PREF.rc and Shut my Mouth! lol";
@@ -61,7 +61,7 @@ echo -e "Before I can start, do you like a \033[1;31mC\033[0m\033[0;32mo\033[0m\
 echo "=======================================================";
 echo;
 if [ -f PREF.rc ]; then
-	echo -e "${RED}*${NONE}${LPURP}AutoBot${RED}*${NONE} Coloured ScriBt : $COLOR "
+	echo -e "${RED}*${NONE}${LPURP}AutoBot${NONE}${RED}*${NONE} Coloured ScriBt : $COLOR "
 else
 	read COLOR;
 fi
@@ -105,9 +105,9 @@ function exitScriBt
 the_response ()
 {
 	if [[ "$1" == "COOL" ]]; then
-		echo -e "${RED}*${NONE}${LPURP}AutoBot${RED}*${NONE} Automated $2 ${LGRN}Successful! :)${NONE}"
+		echo -e "${RED}*${NONE}${LPURP}AutoBot${NONE}${RED}*${NONE} Automated $2 ${LGRN}Successful! :)${NONE}"
 	elif [[ "$1" == "FAIL" ]]; then
-		echo -e "${RED}*${NONE}${LPURP}AutoBot${RED}*${NONE} Automated $2 ${LRED}Failed :(${NONE}"
+		echo -e "${RED}*${NONE}${LPURP}AutoBot${NONE}${RED}*${NONE} Automated $2 ${LRED}Failed :(${NONE}"
 	fi
 }
 
@@ -152,7 +152,7 @@ cherrypick ()
 	echo -ne '\033]0;ScriBt : Picking Cherries\007'
 	echo -e "${GRN}========================= Teh${NONE} ${LRED}Cherry${NONE} ${GRN}Picker========================${NONE}";
  	echo;
-	echo -e "     ${RED}*${NONE}${LPURP}AutoBot${RED}*${NONE} Attempting to Cherry-Pick Provided Commits         ";
+	echo -e "     ${RED}*${NONE}${LPURP}AutoBot${NONE}${RED}*${NONE} Attempting to Cherry-Pick Provided Commits         ";
 	echo;
   	git fetch https://github.com/${REPOPK}/${REPONAME} ${CP_BRNC};
  	echo;
@@ -353,7 +353,7 @@ function sync
 	echo;
 	# SHUT_MY_MOUTH
 	if [ -f PREF.rc ]; then
-		echo -e "${RED}*${NONE}${LPURP}AutoBot${RED}*${NONE} No of Threads : ${JOBS}"
+		echo -e "${RED}*${NONE}${LPURP}AutoBot${NONE}${RED}*${NONE} No of Threads : ${JOBS}"
 	else
 		read JOBS;
 	fi
@@ -361,7 +361,7 @@ function sync
 	echo -e "${LRED}Force Sync${NONE} needed? ${LGRN}[y/n]${NONE}";
 	echo;
 	if [ -f PREF.rc ]; then
-		echo -e "${RED}*${NONE}${LPURP}AutoBot${RED}*${NONE} Force Sync : ${FRC}"
+		echo -e "${RED}*${NONE}${LPURP}AutoBot${NONE}${RED}*${NONE} Force Sync : ${FRC}"
 	else
 		read FRC;
 	fi
@@ -371,17 +371,17 @@ function sync
 
 	# SHUT_MY_MOUTH
 	if [ -f PREF.rc ]; then
-		echo -e "${RED}*${NONE}${LPURP}AutoBot${RED}*${NONE} Silent Sync : ${SIL}"
+		echo -e "${RED}*${NONE}${LPURP}AutoBot${NONE}${RED}*${NONE} Silent Sync : ${SIL}"
 	else
 		read SIL;
 	fi
 	echo;
 
-	echo -e "Sync only Current Branch? ${LGRN}[y/n]${NONE} (Saves Space)"
+	echo -e "Sync only ${LRED}Current${NONE} Branch? ${LGRN}[y/n]${NONE} (Saves Space)"
 	echo;
 	# SHUT_MY_MOUTH
 	if [ -f PREF.rc ]; then
-		echo -e  "${RED}*${NONE}${LPURP}AutoBot${RED}*${NONE} Sync Current Branch : $CRNT"
+		echo -e  "${RED}*${NONE}${LPURP}AutoBot${NONE}${RED}*${NONE} Sync ${LRED}Current${NONE} Branch : $CRNT"
 	else
 		read CRNT;
 	fi
@@ -390,7 +390,7 @@ function sync
 	echo;
 	# SHUT_MY_MOUTH
 	if [ -f PREF.rc ]; then
-		echo -e  "${RED}*${NONE}${LPURP}AutoBot${RED}*${NONE} Use ${LRED}clone-bundle${NONE} : $CLN"
+		echo -e  "${RED}*${NONE}${LPURP}AutoBot${NONE}${RED}*${NONE} Use ${LRED}clone-bundle${NONE} : $CLN"
 	else
 		read CLN;
 	fi
@@ -504,11 +504,11 @@ ${LPURP}=======================================================${NONE}";
 	# SHUT_MY_MOUTH
 	if [ -f PREF.rc ]; then
 		if [[ "$REFY" == YES ]]; then
-			echo -e "${RED}*${NONE}${LPURP}AutoBot${RED}*${NONE} ${LGRN}YES${NONE}, you have a Reference Source"
+			echo -e "${RED}*${NONE}${LPURP}AutoBot${NONE}${RED}*${NONE} ${LGRN}YES${NONE}, you have a Reference Source"
 			echo;
-			echo -e "${RED}*${NONE}${LPURP}AutoBot${RED}*${NONE} The Reference location is : ${REF}"
+			echo -e "${RED}*${NONE}${LPURP}AutoBot${NONE}${RED}*${NONE} The Reference location is : ${REF}"
 		else
-			echo -e "${RED}*${NONE}${LPURP}AutoBot${RED}*${NONE} ${LRED}NO${NONE}, you don't have a Reference Source. Going for a ${LGRN}Fresh${NONE} Sync"
+			echo -e "${RED}*${NONE}${LPURP}AutoBot${NONE}${RED}*${NONE} ${LRED}NO${NONE}, you don't have a Reference Source. Going for a ${LGRN}Fresh${NONE} Sync"
 		fi
 	else
 		read REFY;
@@ -732,7 +732,7 @@ function vendor_strat_kpa #for ROMs having products folder
 			echo -e "\t$(LOCAL_DIR)/${DEVICE}.mk" >> AndroidProducts.mk;
 		fi
 	else
-		${RED}*${NONE}${LPURP}AutoBot${RED}*${NONE} Device-Vendor Conjunction File : ${THE_FILE};
+		${RED}*${NONE}${LPURP}AutoBot${NONE}${RED}*${NONE} Device-Vendor Conjunction File : ${THE_FILE};
 	fi
 	#Create Device-Vendor Conjuctor
 	touch ${THE_FILE};
@@ -742,7 +742,7 @@ function vendor_strat_kpa #for ROMs having products folder
 	if [ ! -f PREF.rc ]; then
 		read DEVCON;
 	else
-		echo -e "${RED}*${NONE}${LPURP}AutoBot${RED}*${NONE} Device Configuration file : ${DEVCON}";
+		echo -e "${RED}*${NONE}${LPURP}AutoBot${NONE}${RED}*${NONE} Device Configuration file : ${DEVCON}";
 	fi
 	echo -e "\$(call inherit-product, device/${COMP}/${DEVICE}/${DEVCON})" >> ${THE_FILE};
 	echo -e "Specify your Device's Resolution in the format ${LCYAN}HORIZONTAL${NONE}${LRED}x${NONE}${LCYAN}VERTICAL${NONE} (eg. 1280x720)"
@@ -771,7 +771,7 @@ ${LPURP}2560${NONE}x1600";
 		echo -e "Type only the First (Highlighted in ${LPURP}Purple${NONE}) Number (eg. if 720x1280 then type in 720)";
 		read BOOTRES;
 	else
-		echo -e "${RED}*${NONE}${LPURP}AutoBot${RED}*${NONE} Resolution Choosed : ${BOOTRES}";
+		echo -e "${RED}*${NONE}${LPURP}AutoBot${NONE}${RED}*${NONE} Resolution Choosed : ${BOOTRES}";
 	fi
 	#Vendor-Calls
 	if [[ "$ROMNIS" == "krexus" ]]; then
@@ -1025,7 +1025,7 @@ function build
 		echo;
 		# SHUT_MY_MOUTH
 		if [ -f PREF.rc ]; then
-			echo -e "${RED}*${NONE}${LPURP}AutoBot${RED}*${NONE} Selected Option : $SELT"
+			echo -e "${RED}*${NONE}${LPURP}AutoBot${NONE}${RED}*${NONE} Selected Option : $SELT"
 		else
 			read SELT;
 		fi
@@ -1066,7 +1066,7 @@ function build
 	echo -e "${LPURP}=========================================================${NONE}"
 	echo;
 	if [ -f PREF.rc ]; then
-		echo -e "${RED}*${NONE}${LPURP}AutoBot${RED}*${NONE} Option Selected : $BOPT"
+		echo -e "${RED}*${NONE}${LPURP}AutoBot${NONE}${RED}*${NONE} Option Selected : $BOPT"
 	else
 		read BOPT;
 	fi
@@ -1078,7 +1078,7 @@ function build
 		# SHUT_MY_MOUTH
 		echo;
 		if [ -f PREF.rc ]; then
-			echo -e "${RED}*${NONE}${LPURP}AutoBot${RED}*${NONE} Selected Method : $MKWAY "
+			echo -e "${RED}*${NONE}${LPURP}AutoBot${NONE}${RED}*${NONE} Selected Method : $MKWAY "
 		else
 			read MKWAY;
 		fi
@@ -1086,7 +1086,7 @@ function build
 		echo -e "Wanna Clean the ${LPURP}/out${NONE} before Building? ${LGRN}[2 - Remove Staging / 3 - Full Clean]${NONE}"
 		echo;
 		if [ -f PREF.rc ]; then
-			echo -e "${RED}*${NONE}${LPURP}AutoBot${RED}*${NONE} Option Selected : $COPT ";
+			echo -e "${RED}*${NONE}${LPURP}AutoBot${NONE}${RED}*${NONE} Option Selected : $COPT ";
 		else
 			read COPT;
 		fi
@@ -1095,6 +1095,33 @@ function build
 		 clean_build; #CLEAN THE BUILD
 		fi
 		echo;
+		if [[ $(cat ${ANDROID_BUILD_TOP}/build/core/build_id.mk | grep -c "BUILD_ID=M") == 1 ]]; then
+			echo -e "Wanna use Jack Toolchain ? [y/n]"
+			# SHUT_MY_MOUTH
+			if [ -f PREF.rc ]; then
+				echo -e "${RED}*${NONE}${LPURP}AutoBot${NONE}${RED}*${NONE} Use ${LRED}Jacky${NONE} : ${USEJK}";
+			else
+				read USEJK;
+			fi
+			if [[ "$USEJK" == n ]]; then
+				export ANDROID_COMPILE_WITH_JACK=false;
+			else
+				export ANDROID_COMPILE_WITH_JACK=true;
+			fi
+#		elif [[ $(cat ${ANDROID_BUILD_TOP}/build/core/build_id.mk | grep -c "BUILD_ID=N") == 1 ]]; then
+#			echo -e "Wanna use Ninja Toolchain ? [y/n]"
+#			# SHUT_MY_MOUTH
+#			if [ -f PREF.rc ]; then
+#				echo -e "${RED}*${NONE}${LPURP}AutoBot${NONE}${RED}*${NONE} Use ${LRED}Ninja${NONE} : ${USEJK}";
+#			else
+#				read USEN;
+#			fi
+#			if [[ "$USEN" == n ]]; then
+#				export ANDROID_COMPILE_WITH_NINJA=false; # ??? WiP - When Builds start, It'll get Edited
+#			else
+#				export ANDROID_COMPILE_WITH_NINJA=true;  # ???
+			fi
+		fi
 		build_make; #Start teh Build!
 	fi #$BOPT = 1
 
