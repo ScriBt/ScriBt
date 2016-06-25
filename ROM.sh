@@ -805,7 +805,7 @@ ${LPURP}2560${NONE}x1600";
 	if [ ! -f PREF.rc ]; then
 		echo -e "${PURP}=========================================================${NONE}";
 		echo;
-		if  [[ "$ROMNO" == 10 || "$ROMNO" == 16 || "$ROMNO" == 18 ]]; then
+		if  [[ "$ROMNO" == "10" || "$ROMNO" == "16" || "$ROMNO" == "18" ]]; then
 			echo -e "Now, ${ROMV}ify your Device Tree. Press ${LCYAN}Enter${NONE}, when ${LGRN}done${NONE}";
 		else
 			echo -e "Now, ${ROMNIS}-(i)-fy your Device Tree. Press ${LCYAN}Enter${NONE}, when ${LGRN}done${NONE}";
@@ -1011,8 +1011,6 @@ function build
 	{
 		echo -e "${LBLU}====================================${NONE}${RED}[*]${NONE} ${GRN}HOTEL MENU${NONE} ${RED}[*]${NONE}${LBLU}=====================================${NONE}";
 		echo;
-		echo -e "                       ${LGRN}So, what would you like to feed your Device?${NONE} ";
-		echo;
 		echo -e "${LRED}A SideNote : Menu is only for your Device, not for you. No Complaints plz.${NONE}";
 		echo;
 		echo -e "[*] ${RED}lunch${NONE} - If your Device is not in the ROM's Devices list - ${ORNG}Unofficial${NONE} [*]";
@@ -1095,7 +1093,7 @@ function build
 		 clean_build; #CLEAN THE BUILD
 		fi
 		echo;
-		if [[ $(cat ${ANDROID_BUILD_TOP}/build/core/build_id.mk | grep -c "BUILD_ID=M") == 1 ]]; then
+		if [[ $(tac ${ANDROID_BUILD_TOP}/build/core/build_id.mk | grep -c 'BUILD_ID=M') == "1" ]]; then
 			echo -e "Wanna use Jack Toolchain ? [y/n]"
 			# SHUT_MY_MOUTH
 			if [ -f PREF.rc ]; then
@@ -1108,7 +1106,7 @@ function build
 			else
 				export ANDROID_COMPILE_WITH_JACK=true;
 			fi
-#		elif [[ $(cat ${ANDROID_BUILD_TOP}/build/core/build_id.mk | grep -c "BUILD_ID=N") == 1 ]]; then
+#		elif [[ $(tac ${ANDROID_BUILD_TOP}/build/core/build_id.mk | grep -c 'BUILD_ID=N') == "1" ]]; then
 #			echo -e "Wanna use Ninja Toolchain ? [y/n]"
 #			# SHUT_MY_MOUTH
 #			if [ -f PREF.rc ]; then
