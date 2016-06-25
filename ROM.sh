@@ -50,15 +50,6 @@ if [ -f PREF.rc ]; then
 	echo;
 	echo -e "${RED}*${NONE}${LPURP}AutoBot${RED}*${NONE} Cheat Code SHUT_MY_MOUTH applied. I won't ask questions anymore";
 	echo;
-	echo -e "${RED}*${NONE}${LPURP}AutoBot${RED}*${NONE} Loading all Vars...."
-	color;
-	repoinit;
-	reposync;
-	deviceinfo;
-	buildinfo;
-	echo;
-	echo -e "${RED}*${NONE}${LPURP}AutoBot${RED}*${NONE} Successfully Collected Information. Ready to Go!"
-	echo -e '\n'
 else
 	echo -e "Using this for first time?\nDon't lose patience the next time. ${LCYAN}Enter${NONE} your Values in PREF.rc and Shut my Mouth! lol";
 	echo;
@@ -70,7 +61,6 @@ echo -e "Before I can start, do you like a \033[1;31mC\033[0m\033[0;32mo\033[0m\
 echo "=======================================================";
 echo;
 if [ -f PREF.rc ]; then
-	color;
 	echo -e "${RED}*${NONE}${LPURP}AutoBot${RED}*${NONE} Coloured ScriBt : $COLOR "
 else
 	read COLOR;
@@ -354,9 +344,6 @@ maven maven2
 function sync
 {
 	if [ -f PREF.rc ]; then
-		repoinit;
-		reposync;
-		rom_name_in_github;
 		teh_action 2;
 	fi
 	echo;
@@ -461,7 +448,6 @@ function sync
 function init
 {
 	if [ -f PREF.rc ]; then
-		repoinit;
 		teh_action 1;
 	fi
 	echo -e "${LPURP}=======================================================${NONE}";
@@ -626,7 +612,6 @@ sync;
 function pre_build
 {
 	if [ -f PREF.rc ]; then
-		deviceinfo;
 		teh_action 3;
 	fi
 	echo -e "${CYAN}Initializing Build Environment${NONE}"
@@ -747,7 +732,6 @@ function vendor_strat_kpa #for ROMs having products folder
 			echo -e "\t$(LOCAL_DIR)/${DEVICE}.mk" >> AndroidProducts.mk;
 		fi
 	else
-		vendorstrat;
 		${RED}*${NONE}${LPURP}AutoBot${RED}*${NONE} Device-Vendor Conjunction File : ${THE_FILE};
 	fi
 	#Create Device-Vendor Conjuctor
@@ -758,7 +742,6 @@ function vendor_strat_kpa #for ROMs having products folder
 	if [ ! -f PREF.rc ]; then
 		read DEVCON;
 	else
-		vendorstrat;
 		echo -e "${RED}*${NONE}${LPURP}AutoBot${RED}*${NONE} Device Configuration file : ${DEVCON}";
 	fi
 	echo -e "\$(call inherit-product, device/${COMP}/${DEVICE}/${DEVCON})" >> ${THE_FILE};
@@ -788,7 +771,6 @@ ${LPURP}2560${NONE}x1600";
 		echo -e "Type only the First (Highlighted in ${LPURP}Purple${NONE}) Number (eg. if 720x1280 then type in 720)";
 		read BOOTRES;
 	else
-		vendorstrat;
 		echo -e "${RED}*${NONE}${LPURP}AutoBot${RED}*${NONE} Resolution Choosed : ${BOOTRES}";
 	fi
 	#Vendor-Calls
@@ -843,9 +825,6 @@ ${LPURP}2560${NONE}x1600";
 function build
 {
 	if [ -f PREF.rc ]; then
-		buildinfo;
-		repoinit;
-		rom_name_in_github;
 		teh_action 4;
 	fi
 
@@ -928,7 +907,7 @@ function build
 					echo -e "\nIF you found that module's repo, Sync it to the path as shown in the Repo URL\n";
 					echo -e "For Example https://github.com/CyanogenMod/android_bionic should be synced to $(pwd)/bionic";
 					echo;
-					make module;
+					make_module;
 				fi
 			else
 				the_response FAIL Build;
