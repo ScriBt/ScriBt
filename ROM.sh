@@ -484,7 +484,7 @@ ${LPURP}=======================================================${NONE}";
 	read ROMNO;
 	sleep 1;
 	#
-	rom_name_in_github;
+	rom_names;
 	#
 	echo;
 	echo -e "You have chosen ${LCYAN}->${NONE} $ROM_FN";
@@ -651,13 +651,13 @@ function pre_build
 	fi
 	echo;
 	echo -e "${LCYAN}=========================================================${NONE}";
-	rom_name_in_source;
+	rom_names;
 	echo;
 	echo;
 
 function vendor_strat_all
 {
-	if  [[ "$ROMNO" == "3" || "$ROMNO" == "4" || "$ROMNO" == "10" || "$ROMNO" == "16" || "$ROMNO" == "18" ]]; then
+	if  [[ "$ROMNO" == "3" || "$ROMNO" == "4" || "$ROMNO" == "10" ]]; then
 		cd vendor/${ROMV};
 	else
 		cd vendor/${ROMNIS};
@@ -805,7 +805,7 @@ ${LPURP}2560${NONE}x1600";
 	if [ ! -f PREF.rc ]; then
 		echo -e "${PURP}=========================================================${NONE}";
 		echo;
-		if  [[ "$ROMNO" == "10" || "$ROMNO" == "16" || "$ROMNO" == "18" ]]; then
+		if  [[ "$ROMNO" == "3" || "$ROMNO" == "4" || "$ROMNO" == "10" ]]; then
 			echo -e "Now, ${ROMV}ify your Device Tree. Press ${LCYAN}Enter${NONE}, when ${LGRN}done${NONE}";
 		else
 			echo -e "Now, ${ROMNIS}-(i)-fy your Device Tree. Press ${LCYAN}Enter${NONE}, when ${LGRN}done${NONE}";
@@ -1028,11 +1028,6 @@ function build
 			read SELT;
 		fi
 		echo;
-		if [ -f PREF.rc ]; then
-			deviceinfo;              #Gather
-			repoinit;                #All
-			rom_name_in_source;      #Information
-		fi
 		if [[ "$SELT" == "lunch" ]]; then
 			${SELT} ${ROMNIS}_${DEVICE}-${BTYP}
 		elif [[ "$SELT" == "breakfast" ]]; then

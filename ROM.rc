@@ -2,173 +2,126 @@
 # Get a ROM's Repo Name in GitHub, and the ROM Vendor name in Source #
 #====================================================================#
 
-function rom_name_in_github
+function rom_names
 {
 
 if [[ "$ROMNO" == "1" ]]; then
   ROM_NAME="AICP";
   ROM_FN="AICP";
+  ROMNIS="aicp";
 fi
 if [[ "$ROMNO" == "2" ]]; then
   ROM_NAME="AOKP";
   ROM_FN="AOKP";
+  ROMNIS="aokp";
 fi
 if [[ "$ROMNO" == "3" ]]; then
   ROM_NAME="AOSP-CAF";
   ROM_FN="AOSP-CAF";
+  ROMNIS="full";
+  ROMV="aosp";
 fi
 if [[ "$ROMNO" == "4" ]]; then
   ROM_NAME="AOSP-RRO";
   ROM_FN="AOSP-RRO";
+  ROMNIS="full";
+  ROMV="aosp";
 fi
 if [[ "$ROMNO" == "5" ]]; then
   ROM_NAME="BlissRoms";
   ROM_FN="BlissRoms";
+  ROMNIS="bliss";
 fi
 if [[ "$ROMNO" == "6" ]]; then
   ROM_NAME="CandyRoms";
   ROM_FN="CandyRoms";
+  ROMNIS="candy";
 fi
 if [[ "$ROMNO" == "7" ]]; then
   ROM_NAME="CyanideL";
   ROM_FN="Cyanide";
+  ROMNIS="cyanide";
 fi
 if [[ "$ROMNO" == "8" ]]; then
   ROM_NAME="CyanogenMod";
   ROM_FN="CyanogenMod";
+  ROMNIS="cm";
 fi
 if [[ "$ROMNO" == "9" ]]; then
   ROM_NAME="DirtyUnicorns";
   ROM_FN="Dirty Unicorns";
+  ROMNIS="du";
 fi
 if [[ "$ROMNO" == "10" ]]; then
   ROM_NAME="FlayrOS";
-  ROM_FN="Flayr OS"
+  ROM_FN="Flayr OS";
+  ROMNIS="full";
+  ROMV="flayr";
 fi
 if [[ "$ROMNO" == "11" ]]; then
   ROM_NAME="Krexus-CAF";
   ROM_FN="Krexus CAF";
+  ROMNIS="krexus";
 fi
 if [[ "$ROMNO" == "12" ]]; then
   ROM_NAME="OmniROM";
   ROM_FN="OmniROM";
+  ROMNIS="omni";
 fi
 if [[ "$ROMNO" == "13" ]]; then
   ROM_NAME="TeamOrion";
   ROM_FN="Orion OS";
+  ROMNIS="orion";
 fi
 if [[ "$ROMNO" == "14" ]]; then
   ROM_NAME="OwnROM";
   ROM_FN="OwnROM";
+  ROMNIS="ownrom";
 fi
 if [[ "$ROMNO" == "15" ]]; then
   ROM_NAME="PAC-ROM";
   ROM_FN="PAC ROM";
+  ROMNIS="pac";
 fi
 if [[ "$ROMNO" == "16" ]]; then
   ROM_NAME="ResurrectionRemix";
   ROM_FN="Resurrection Remix";
+  ROMNIS="cm";
 fi
 if [[ "$ROMNO" = "17" ]]; then
   ROM_NAME="SlimRoms";
   ROM_FN="SlimRoms";
+  ROMNIS="slim";
 fi
 if [[ "$ROMNO" == "18" ]]; then
   ROM_NAME="temasek";
   ROM_FN="Temasek";
+  ROMNIS="cm";
 fi
 if [[ "$ROMNO" == "19" ]]; then
   ROM_NAME="Tesla-M";
   ROM_FN="GZR Tesla";
+  ROMNIS="tesla";
 fi
 if [[ "$ROMNO" == "20" ]]; then
   ROM_NAME="TipsyOs";
   ROM_FN="TipsyOs";
+  ROMNIS="tipsy";
 fi
 if [[ "$ROMNO" == "21" ]]; then
   ROM_NAME="ValidusOs-M";
   ROM_FN="GZR Validus";
+  ROMNIS="validus";
 fi
 if [[ "$ROMNO" == "22" ]]; then
   ROM_NAME="TeamHorizon";
   ROM_FN="XenonHD";
+  ROMNIS=xenonhd";
 fi
 if [[ "$ROMNO" = "23" ]]; then
   ROM_NAME=XOSP-Project;
   ROM_FN="XOSP";
-fi
-
-}
-
-function rom_name_in_source
-{
-
-if [[ "$ROMNO" == "1" ]]; then
-  ROMNIS=aicp;
-fi
-if [[ "$ROMNO" == "2" ]]; then
-  ROMNIS=aokp;
-fi
-if [[ "$ROMNO" == "3" || "$ROMNO" == "4" || "$ROMNO" == "10" ]]; then
-  ROMNIS=full;
-  if [[ "$ROMNO" == "10" ]]; then
-   ROMV=flayr;
-  else
-    ROMV=aosp;
-  fi
-fi
-if [[ "$ROMNO" == "8" || "$ROMNO" == "16" || "$ROMNO" == "18" ]]; then
-  ROMNIS=cm;
-  if [[ "$ROMNO" == "16" ]]; then
-    ROMV=resurrection;
-  elif [[ "$ROMNO" == "18" ]]; then
-    ROMV=temasek;
-  fi
-fi
-if [[ "$ROMNO" == "5" ]]; then
-  ROMNIS=bliss;
-fi
-if [[ "$ROMNO" == "6" ]]; then
-  ROMNIS=candy;
-fi
-if [[ "$ROMNO" == "7" ]]; then
-  ROMNIS=cyanide;
-fi
-if [[ "$ROMNO" == "9" ]]; then
-  ROMNIS=du;
-fi
-if [[ "$ROMNO" == "11" ]]; then
-  ROMNIS=krexus;
-fi
-if [[ "$ROMNO" == "12" ]]; then
-  ROMNIS=omni;
-fi
-if [[ "$ROMNO" == "13" ]]; then
-  ROMNIS=orion;
-fi
-if [[ "$ROMNO" == "14" ]]; then
-  ROMNIS=ownrom;
-fi
-if [[ "$ROMNO" == "15" ]]; then
-  ROMNIS=pac;
-fi
-if [[ "$ROMNO" == "17" ]]; then
-  ROMNIS=slim;
-fi
-if [[ "$ROMNO" == "19" ]]; then
-  ROMNIS=tesla;
-fi
-if [[ "$ROMNO" == "20" ]]; then
-  ROMNIS=tipsy;
-fi
-if [[ "$ROMNO" == "21" ]]; then
-  ROMNIS=validus;
-fi
-if [[ "$ROMNO" == "22" ]]; then
-  ROMNIS=xenonhd;
-fi
-if [[ "$ROMNO" == "23" ]]; then
-  ROMNIS=xosp;
+  ROMNIS="xosp;
 fi
 
 }
