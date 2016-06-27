@@ -20,7 +20,7 @@ function reposync
 
 function repoinit
 {
-  ROMNO=                                   # ROM Selection Number [Refer ROM.sh]
+  ROMNO=                                   # ROM Selection Number [Refer ROM.sh / README.md]
   BRANCH=                                  # Branch of the ROM
   REFY=                                    # Have a Reference ? [YES/NO]
   REFER=                                   # Reference Source's Location from /
@@ -82,8 +82,7 @@ function automate                          # Function will only work if it has a
   # Collect all Information
   color;
   repoinit;
-  rom_name_in_github;
-  rom_name_in_source;
+  rom_names $ROMNO;
   reposync;
   deviceinfo;
   buildinfo;

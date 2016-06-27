@@ -3,7 +3,7 @@
 
 #####ROM Sync && Build Script for Learning Developers
 
-This is still a WiP script. Extensive Testing needed.
+Ready to use. Extensive Testing needed.
 
 The Script consists of five main Actions:
 
@@ -86,29 +86,29 @@ bash ROM.sh automate
 
 #Supported ROMs
 
-* Android Ice Cold Project aka "AICP"
-* Android Open Kang Project aka "AOKP"
-* Android Open Source Project - CAF aka "AOSP-CAF"
-* Android Open Source Project with RRO aka "AOSP-RRO"
-* BlissRoms
-* CandyRoms
-* Cyanide-L
-* CyanogenMod
-* Dirty Unicorns
-* FlayrOS
-* GZR Tesla
-* GZR Validus
-* Krexus - CAF
-* OmniROM
-* OrionOS
-* OwnROM
-* PAC-ROMs
-* Resurrection Remix
-* SlimRoms
-* Temasek
-* TipsyOs
-* XenonHD by Team Horizon
-* Xperia Open Source Project aka "XOSP"
+1. Android Ice Cold Project aka "AICP"
+2. Android Open Kang Project aka "AOKP"
+3. Android Open Source Project - CAF aka "AOSP-CAF"
+4. Android Open Source Project with RRO aka "AOSP-RRO"
+5. BlissRoms
+6. CandyRoms
+7. Cyanide-L
+8. CyanogenMod
+9. Dirty Unicorns
+10. FlayrOS
+11. GZR Tesla
+12. GZR Validus
+13. Krexus - CAF
+14. OmniROM
+15. OrionOS
+16. OwnROM
+17. PAC-ROMs
+18. Resurrection Remix
+19. SlimRoms
+20. Temasek
+21. TipsyOs
+22. XenonHD by Team Horizon
+23. Xperia Open Source Project aka "XOSP"
 
 More ROMs will be added, if missed 'em
 
