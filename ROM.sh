@@ -808,13 +808,11 @@ function build
 		teh_action 4;
 	fi
 
-	function clean_build
-	{	          #Automate           #Manual
-		if [[ "$COPT" == "2" || "$BOPT" == "2" ]]; then
+	clean_build ()
+	{
+		if [[ "$1" == "1" ]]; then
 			$MKWAY installclean
-		fi
-		          #Automate            #Manual
-		if [[ "$COPT" == "3" || "$BOPT" == "3" ]]; then
+		elif [[ "$1" == "2" ]]; then
 			$MKWAY clean
 		fi
 	} #clean_build
@@ -1030,11 +1028,9 @@ function build
 	echo -e '\n;'
 	echo -e "Select the Build Option:\n";
 	echo;
-	echo -e "${LCYAN}1. Start Building ROM (ZIP output)${NONE}";
-	echo -e "${YELO}2. Clean only Staging Directories and Emulator Images (*.img)${NONE}";
-	echo -e "${LRED}3. Clean the Entire Build (/out) Directory (THINK BEFORE SELECTING THIS!)${NONE}";
-	echo -e "${LGRN}4. Make a Particular Module${NONE}";
-	echo -e "${LBLU}5. Setup CCACHE for Faster Builds ${NONE}";
+	echo -e "${LCYAN}1. Start Building ROM (ZIP output) (Clean Options Available)${NONE}";
+	echo -e "${LGRN}2. Make a Particular Module${NONE}";
+	echo -e "${LBLU}3. Setup CCACHE for Faster Builds ${NONE}";
 	echo;
 	echo -e "${LPURP}=========================================================${NONE}"
 	echo;
@@ -1044,65 +1040,62 @@ function build
 		read BOPT;
 	fi
 	echo;
-	if [[ "$BOPT" == "1" ]]; then
-		hotel_menu;
-		echo;
-		echo -e "Should i use '${YELO}make${NONE}' or '${RED}mka${NONE}' ?"
-		# SHUT_MY_MOUTH
-		echo;
-		if [ -f PREF.rc ]; then
-			echo -e "${RED}*${NONE}${LPURP}AutoBot${NONE}${RED}*${NONE} Selected Method : $MKWAY "
-		else
-			read MKWAY;
-		fi
-		echo;
-		echo -e "Wanna Clean the ${LPURP}/out${NONE} before Building? ${LGRN}[2 - Remove Staging / 3 - Full Clean]${NONE}"
-		echo;
-		if [ -f PREF.rc ]; then
-			echo -e "${RED}*${NONE}${LPURP}AutoBot${NONE}${RED}*${NONE} Option Selected : $COPT ";
-		else
-			read COPT;
-		fi
-		echo;
-		if [[ "$COPT" == "2"  || "$COPT" == "3" ]]; then
-		 clean_build; #CLEAN THE BUILD
-		fi
-		echo;
-		if [[ $(tac ${ANDROID_BUILD_TOP}/build/core/build_id.mk | grep -c 'BUILD_ID=M') == "1" ]]; then
-			echo -e "Wanna use Jack Toolchain ? [y/n]"
+	case "$BOPT" in
+		1)
+			hotel_menu;
+			echo;
+			echo -e "Should i use '${YELO}make${NONE}' or '${RED}mka${NONE}' ?"
 			# SHUT_MY_MOUTH
+			echo;
 			if [ -f PREF.rc ]; then
-				echo -e "${RED}*${NONE}${LPURP}AutoBot${NONE}${RED}*${NONE} Use ${LRED}Jacky${NONE} : ${USEJK}";
+				echo -e "${RED}*${NONE}${LPURP}AutoBot${NONE}${RED}*${NONE} Selected Method : $MKWAY "
 			else
-				read USEJK;
+				read MKWAY;
 			fi
-			if [[ "$USEJK" == n ]]; then
-				export ANDROID_COMPILE_WITH_JACK=false;
+			echo;
+			echo -e "Wanna Clean the ${LPURP}/out${NONE} before Building? ${LGRN}[2 - Remove Staging / 3 - Full Clean]${NONE}"
+			echo;
+			if [ -f PREF.rc ]; then
+				echo -e "${RED}*${NONE}${LPURP}AutoBot${NONE}${RED}*${NONE} Option Selected : $COPT ";
 			else
-				export ANDROID_COMPILE_WITH_JACK=true;
+				read COPT;
 			fi
-#		elif [[ $(tac ${ANDROID_BUILD_TOP}/build/core/build_id.mk | grep -c 'BUILD_ID=N') == "1" ]]; then
-#			echo -e "Wanna use Ninja Toolchain ? [y/n]"
-#			# SHUT_MY_MOUTH
-#			if [ -f PREF.rc ]; then
-#				echo -e "${RED}*${NONE}${LPURP}AutoBot${NONE}${RED}*${NONE} Use ${LRED}Ninja${NONE} : ${USEJK}";
-#			else
-#				read USEN;
-#			fi
-#			if [[ "$USEN" == n ]]; then
-#				export ANDROID_COMPILE_WITH_NINJA=false; # ??? WiP - When Builds start, It'll get Edited
-#			else
-#				export ANDROID_COMPILE_WITH_NINJA=true;  # ???
-#			fi
-		fi
-		build_make; #Start teh Build!
-	fi # $BOPT = 1
-
-	if [[ "$BOPT" == "4" ]]; then
+			echo;
+				clean_build $COPT; #CLEAN THE BUILD
+			echo;
+			if [[ $(tac ${ANDROID_BUILD_TOP}/build/core/build_id.mk | grep -c 'BUILD_ID=M') == "1" ]]; then
+				echo -e "Wanna use Jack Toolchain ? [y/n]"
+				# SHUT_MY_MOUTH
+				if [ -f PREF.rc ]; then
+					echo -e "${RED}*${NONE}${LPURP}AutoBot${NONE}${RED}*${NONE} Use ${LRED}Jacky${NONE} : ${USEJK}";
+				else
+					read USEJK;
+				fi
+				if [[ "$USEJK" == n ]]; then
+					export ANDROID_COMPILE_WITH_JACK=false;
+				else
+					export ANDROID_COMPILE_WITH_JACK=true;
+				fi
+#			elif [[ $(tac ${ANDROID_BUILD_TOP}/build/core/build_id.mk | grep -c 'BUILD_ID=N') == "1" ]]; then
+#				echo -e "Wanna use Ninja Toolchain ? [y/n]"
+#				# SHUT_MY_MOUTH
+#				if [ -f PREF.rc ]; then
+#					echo -e "${RED}*${NONE}${LPURP}AutoBot${NONE}${RED}*${NONE} Use ${LRED}Ninja${NONE} : ${USEJK}";
+#				else
+#					read USEN;
+#				fi
+#				if [[ "$USEN" == n ]]; then
+#					export ANDROID_COMPILE_WITH_NINJA=false; # ??? WiP - When Builds start, It'll get Edited
+#				else
+#					export ANDROID_COMPILE_WITH_NINJA=true;  # ???
+#				fi
+			fi
+			build_make; #Start teh Build!
+	;;
+	2)
 		make_module;
-	fi
-
-	if [[ "$BOPT" == "5" ]]; then
+	;;
+	3)
 		echo -e "Two Steps. Select one of them (If seeing this for first time - ${LCYAN}Enter${NONE} A)";
 		echo -e "\tA. Enabling CCACHE Variables in .bashrc or it's equivalent"
 		echo -e "\tB. Reserving Space for CCACHE";
@@ -1118,47 +1111,59 @@ function build
 			sleep 2;
 			build_menu;
 		fi
-	fi
+	;;
+esac
+
 } #build
 
 teh_action ()
 {
-	if [[ "$1" == "1" ]]; then
+	case "$1" in
+	1)
 		if [ ! -f PREF.rc ]; then
 			init;
 		fi
 		echo -ne '\033]0;ScriBt : Init\007';
-	elif [[ "$1" == "2" ]]; then
+	;;
+	2)
 		if [ ! -f PREF.rc ]; then
 			sync;
 		fi
 		echo -ne "\033]0;ScriBt : Syncing ${ROM_FN}\007";
-	elif [[ "$1" == "3" ]]; then
+	;;
+	3)
 		if [ ! -f PREF.rc ]; then
 			pre_build;
 		fi
 		echo -ne '\033]0;ScriBt : Pre-Build\007';
-	elif [[ "$1" == "4" ]]; then
+	;;
+	4)
 		if [ ! -f PREF.rc ]; then
 			build;
 		fi
 		echo -ne "\033]0;ScriBt : Building ${ROM_FN}\007";
-	elif [[ "$1" == "5" ]]; then
+	;;
+	5)
 		if [ ! -f PREF.rc ]; then
 			installdeps;
 		fi
 		echo -ne '\033]0;ScriBt : Installing Dependencies\007';
-	elif [[ "$1" == "6" && "$2" == "COOL" ]]; then
+	;;
+	6)
 		if [ ! -f PREF.rc ]; then
 			exitScriBt;
 		fi
+		case "$2" in
+		"COOL")
 		echo -ne "\033]0;${ROM_FN} : Success\007";
-	elif [[ "$1" == "6" && "$2" == "FAIL" ]]; then
-		if [ ! -f PREF.rc ]; then
-			exitScriBt;
-		fi
+		;;
+		"FAIL")
 		echo -ne "\033]0;${ROM_FN} : Fail\007";
-	fi
+		;;
+		esac
+	;;
+	esac
+
 } #teh_action
 
 #START IT --- VROOM!
