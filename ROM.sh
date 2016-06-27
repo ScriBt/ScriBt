@@ -481,10 +481,12 @@ Choose among these (Number Selection)
 
 ${LPURP}=======================================================${NONE}";
 	echo;
-	read ROMNO;
-	sleep 1;
+	if [ ! -f PREF.rc ]; then
+		read ROMN;
+		export ROMNO=$ROMN; # Only for Manual Usage
+	fi
 	#
-	rom_names;
+	rom_names $ROMNO;
 	#
 	echo;
 	echo -e "You have chosen ${LCYAN}->${NONE} $ROM_FN";
@@ -545,28 +547,6 @@ ${LPURP}=======================================================${NONE}";
 		DEPTH=1;
 	fi
 	echo;
-	#Getting Manifest Link
-	if [[ "$ROM_NAME" == "OmniROM" || "$ROM_NAME" == "CyanogenMod" || "$ROM_NAME" == "OwnROM" || "$ROM_NAME" == "temasek" ]]; then
-		MAN=android.git;
-	fi
-	if [[ "$ROM_NAME" == "TeamOrion" || "$ROM_NAME" == "SlimRoms" || "$ROM_NAME" == "AOSP-CAF" || "$ROM_NAME" == "ResurrectionRemix" || "$ROM_NAME" == "AOKP" || "$ROM_NAME" == "TipsyOS" || "$ROM_NAME" == "AICP" || "$ROM_NAME" == "XOSP-Project" || "$ROM_NAME" == "BlissRoms" ]]; then
-		MAN=platform_manifest.git;
-	fi
-	if [[ "$ROM_NAME" == "DirtyUnicorns" ]]; then
-		MAN=android_manifest.git;
-	fi
-	if [[ "$ROM_NAME" == "AOSP-RRO" || "$ROM_NAME" == "FlayrOS" || "$ROM_NAME" == "Krexus-CAF" || "$ROM_NAME" == "ValidusOs-M" || "$ROM_NAME" == "Tesla-M" ]]; then
-			MAN=manifest.git;
-	fi
-	if [[ "$ROM_NAME" == "PAC-ROM" ]]; then
-			MAN=pac-rom.git;
-	fi
-	if [[ "$ROM_NAME" == "CandyRoms" ]]; then
-			MAN=candy.git;
-	fi
-	if [[ "$ROM_NAME" == "CyanideL" ]]; then
-		MAN=cyanide_manifest.git;
-	fi
 	#Check for Presence of Repo Binary
 	if [[ ! $(which repo) ]]; then
 		echo -e "Looks like the Repo binary isn't installed. Let's Install it."
@@ -651,7 +631,7 @@ function pre_build
 	fi
 	echo;
 	echo -e "${LCYAN}=========================================================${NONE}";
-	rom_names;
+	rom_names $ROMNO;
 	echo;
 	echo;
 
@@ -1113,10 +1093,10 @@ function build
 #				export ANDROID_COMPILE_WITH_NINJA=false; # ??? WiP - When Builds start, It'll get Edited
 #			else
 #				export ANDROID_COMPILE_WITH_NINJA=true;  # ???
-			fi
+#			fi
 		fi
 		build_make; #Start teh Build!
-	fi #$BOPT = 1
+	fi # $BOPT = 1
 
 	if [[ "$BOPT" == "4" ]]; then
 		make_module;

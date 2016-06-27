@@ -2,127 +2,152 @@
 # Get a ROM's Repo Name in GitHub, and the ROM Vendor name in Source #
 #====================================================================#
 
-function rom_names
+rom_names ()
 {
 
-if [[ "$ROMNO" == "1" ]]; then
+case "$1" in
+1)
   ROM_NAME="AICP";
   ROM_FN="AICP";
   ROMNIS="aicp";
-fi
-if [[ "$ROMNO" == "2" ]]; then
+  MAN=platform_manifest.git;
+;;
+2)
   ROM_NAME="AOKP";
   ROM_FN="AOKP";
   ROMNIS="aokp";
-fi
-if [[ "$ROMNO" == "3" ]]; then
+  MAN=platform_manifest.git;
+;;
+3)
   ROM_NAME="AOSP-CAF";
   ROM_FN="AOSP-CAF";
   ROMNIS="full";
   ROMV="aosp";
-fi
-if [[ "$ROMNO" == "4" ]]; then
+  MAN=platform_manifest.git;
+;;
+4)
   ROM_NAME="AOSP-RRO";
   ROM_FN="AOSP-RRO";
   ROMNIS="full";
   ROMV="aosp";
-fi
-if [[ "$ROMNO" == "5" ]]; then
+  MAN=manifest.git;
+;;
+5)
   ROM_NAME="BlissRoms";
   ROM_FN="BlissRoms";
   ROMNIS="bliss";
-fi
-if [[ "$ROMNO" == "6" ]]; then
+  MAN=platform_manifest.git;
+;;
+6)
   ROM_NAME="CandyRoms";
   ROM_FN="CandyRoms";
   ROMNIS="candy";
-fi
-if [[ "$ROMNO" == "7" ]]; then
+  MAN=candy.git;
+;;
+7)
   ROM_NAME="CyanideL";
   ROM_FN="Cyanide";
   ROMNIS="cyanide";
-fi
-if [[ "$ROMNO" == "8" ]]; then
+  MAN=cyanide_manifest.git;
+;;
+8)
   ROM_NAME="CyanogenMod";
   ROM_FN="CyanogenMod";
   ROMNIS="cm";
-fi
-if [[ "$ROMNO" == "9" ]]; then
+  MAN=android.git;
+;;
+9)
   ROM_NAME="DirtyUnicorns";
   ROM_FN="Dirty Unicorns";
   ROMNIS="du";
-fi
-if [[ "$ROMNO" == "10" ]]; then
+  MAN=android_manifest.git;
+;;
+10)
   ROM_NAME="FlayrOS";
   ROM_FN="Flayr OS";
   ROMNIS="full";
   ROMV="flayr";
-fi
-if [[ "$ROMNO" == "11" ]]; then
+  MAN=manifest.git;
+;;
+11)
   ROM_NAME="Krexus-CAF";
   ROM_FN="Krexus CAF";
   ROMNIS="krexus";
-fi
-if [[ "$ROMNO" == "12" ]]; then
+  MAN=manifest.git;
+;;
+12)
   ROM_NAME="OmniROM";
   ROM_FN="OmniROM";
   ROMNIS="omni";
-fi
-if [[ "$ROMNO" == "13" ]]; then
+  MAN=android.git;
+;;
+13)
   ROM_NAME="TeamOrion";
   ROM_FN="Orion OS";
   ROMNIS="orion";
-fi
-if [[ "$ROMNO" == "14" ]]; then
+  MAN=platform_manifest.git;
+;;
+14)
   ROM_NAME="OwnROM";
   ROM_FN="OwnROM";
   ROMNIS="ownrom";
-fi
-if [[ "$ROMNO" == "15" ]]; then
+  MAN=android.git;
+;;
+15)
   ROM_NAME="PAC-ROM";
   ROM_FN="PAC ROM";
   ROMNIS="pac";
-fi
-if [[ "$ROMNO" == "16" ]]; then
+  MAN=pac-rom.git;
+;;
+16)
   ROM_NAME="ResurrectionRemix";
   ROM_FN="Resurrection Remix";
   ROMNIS="cm";
-fi
-if [[ "$ROMNO" = "17" ]]; then
+  MAN=platform_manifest.git;
+;;
+17)
   ROM_NAME="SlimRoms";
   ROM_FN="SlimRoms";
   ROMNIS="slim";
-fi
-if [[ "$ROMNO" == "18" ]]; then
+  MAN=platform_manifest.git;
+;;
+18)
   ROM_NAME="temasek";
   ROM_FN="Temasek";
   ROMNIS="cm";
-fi
-if [[ "$ROMNO" == "19" ]]; then
+  MAN=android.git;
+;;
+19)
   ROM_NAME="Tesla-M";
   ROM_FN="GZR Tesla";
   ROMNIS="tesla";
-fi
-if [[ "$ROMNO" == "20" ]]; then
+  MAN=manifest.git;
+;;
+20)
   ROM_NAME="TipsyOs";
   ROM_FN="TipsyOs";
   ROMNIS="tipsy";
-fi
-if [[ "$ROMNO" == "21" ]]; then
+  MAN=platform_manifest.git;
+;;
+21)
   ROM_NAME="ValidusOs-M";
   ROM_FN="GZR Validus";
   ROMNIS="validus";
-fi
-if [[ "$ROMNO" == "22" ]]; then
+  MAN=manifest.git;
+;;
+22)
   ROM_NAME="TeamHorizon";
   ROM_FN="XenonHD";
   ROMNIS=xenonhd";
-fi
-if [[ "$ROMNO" = "23" ]]; then
+  MAN=platform_manifest.git;
+;;
+23)
   ROM_NAME=XOSP-Project;
   ROM_FN="XOSP";
   ROMNIS="xosp;
-fi
+  MAN=platform_manifest.git;
+;;
+esac
 
 }
 
