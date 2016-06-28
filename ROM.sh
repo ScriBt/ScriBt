@@ -30,68 +30,6 @@
 # Akhil Narang                                                         #
 #======================================================================#
 
-# Create a Text file to Store Intermediate Outputs for Working on Some Commands
-TMP=temp.txt; # temp
-RTMP=repo_log.txt; # repo sync logs
-RMTMP=rom_compile.txt; # rom build Logs
-rm -rf ${TMP} ${RTMP} ${RMTMP};
-touch ${RTMP} ${RMTMP} ${TMP};
-# Load the Basic Variables
-if [ -f "${PWD}/ROM.rc" ]; then
-	source $(pwd)/ROM.rc;
-else
-	echo "ROM.rc isn't present in ${PWD}, please make sure repo is cloned correctly";
-	exit 1;
-fi
-
-#CHEAT CHEAT CHEAT!
-if [ -f PREF.rc ]; then
-	source $(pwd)/PREF.rc
-	echo;
-	echo -e "${RED}*${NONE}${LPURP}AutoBot${NONE}${RED}*${NONE} Cheat Code SHUT_MY_MOUTH applied. I won't ask questions anymore";
-	echo;
-else
-	echo -e "Using this for first time?\nDon't lose patience the next time. ${LCYAN}Enter${NONE} your Values in PREF.rc and Shut my Mouth! lol";
-	echo;
-	echo -e "PREF.rc is the file"
-fi
-echo;
-echo "=======================================================";
-echo -e "Before I can start, do you like a \033[1;31mC\033[0m\033[0;32mo\033[0m\033[0;33ml\033[0m\033[0;34mo\033[0m\033[0;36mr\033[0m\033[1;33mf\033[0m\033[1;32mu\033[0m\033[0;31ml\033[0m life? [y/n]";
-echo "=======================================================";
-echo;
-if [ -f PREF.rc ]; then
-	echo -e "${RED}*${NONE}${LPURP}AutoBot${NONE}${RED}*${NONE} Coloured ScriBt : $COLOR "
-else
-	read COLOR;
-fi
-echo;
-if [[ "$COLOR" == "y" ]]; then
-	color_my_life;
-	echo -e "Coloring AutoBot";
-else
-	i_like_colourless;
-fi
-sleep 2;
-clear;
-echo -ne '\033]0;ScriBt\007'
-echo; echo;
-echo -e "                 ${LRED}╔═╗${NONE}${YELO}╦═╗${NONE}${LCYAN}╔═╗${NONE}${LGRN} ╦${NONE}${LCYAN}╔═╗${NONE}${YELO}╦╔═${NONE}${LRED}╔╦╗${NONE}";
-echo -e "                 ${LRED}╠═╝${NONE}${YELO}╠╦╝${NONE}${LCYAN}║ ║${NONE}${LGRN} ║${NONE}${LCYAN}║╣ ${NONE}${YELO}╠╩╗${NONE}${LRED} ║ ${NONE}";
-echo -e "                 ${LRED}╩  ${NONE}${YELO}╩╚═${NONE}${LCYAN}╚═╝${NONE}${LGRN}╚╝${NONE}${LCYAN}╚═╝${NONE}${YELO}╩ ╩${NONE}${LRED} ╩${NONE}";
-echo -e "      ${LRED}███████${NONE}${RED}╗${NONE} ${LRED}██████${NONE}${RED}╗${NONE}${LRED}██████${NONE}${RED}╗${NONE} ${LRED}██${NONE}${RED}╗${NONE}${LRED}██████${NONE}${RED}╗${NONE} ${LRED}████████${NONE}${RED}╗${NONE}";
-echo -e "      ${LRED}██${NONE}${RED}╔════╝${NONE}${LRED}██${NONE}${RED}╔════╝${NONE}${LRED}██${NONE}${RED}╔══${NONE}${LRED}██${NONE}${RED}╗${NONE}${LRED}██${NONE}${RED}║${NONE}${LRED}██${NONE}${RED}╔══${NONE}${LRED}██${NONE}${RED}╗╚══${NONE}${LRED}██${NONE}${RED}╔══╝${NONE}";
-echo -e "      ${LRED}███████${NONE}${RED}╗${NONE}${LRED}██${NONE}${RED}║${NONE}     ${LRED}██████${NONE}${RED}╔╝${NONE}${LRED}██${NONE}${RED}║${NONE}${LRED}██████${NONE}${RED}╔╝${NONE}   ${LRED}██${NONE}${RED}║${NONE}";
-echo -e "      ${RED}╚════${NONE}$LRED██${NONE}${RED}║${NONE}${LRED}██${NONE}${RED}║${NONE}     ${LRED}██${NONE}${RED}╔══${NONE}${LRED}██${NONE}${RED}╗${NONE}${LRED}██${NONE}${RED}║${NONE}${LRED}██${NONE}${RED}╔══${NONE}${LRED}██${NONE}${RED}╗${NONE}   ${LRED}██${NONE}${RED}║${NONE}";
-echo -e "      ${LRED}███████${NONE}${RED}║╚${NONE}${LRED}██████${NONE}${RED}╗${NONE}${LRED}██${NONE}${RED}║${NONE}  ${LRED}██${NONE}${RED}║${NONE}${LRED}██${NONE}${RED}║${NONE}${LRED}██████${NONE}${RED}╔╝${NONE}   ${LRED}██${NONE}${RED}║${NONE}";
-echo -e "      ${RED}╚══════╝ ╚═════╝╚═╝  ╚═╝╚═╝╚═════╝    ╚═╝${NONE}";
-echo;
-sleep 0.1;
-echo -e "${LCYAN}~#~#~#~#~#~#~#~#~#${NONE} ${LRED}By Arvind7352${NONE} - ${YELO}XDA${NONE} ${LCYAN}#~#~#~#~#~#~#~#~${NONE}";
-sleep 5;
-echo;
-echo;
-
 function exitScriBt
 {
 	echo; echo;
@@ -1166,11 +1104,78 @@ teh_action ()
 
 } #teh_action
 
+function the_start
+{
+	# Create a Text file to Store Intermediate Outputs for Working on Some Commands
+	TMP=temp.txt; # temp
+	RTMP=repo_log.txt; # repo sync logs
+	RMTMP=rom_compile.txt; # rom build Logs
+	rm -rf ${TMP} ${RTMP} ${RMTMP};
+	touch ${RTMP} ${RMTMP} ${TMP};
+	# Load the Basic Variables
+	if [ -f "${PWD}/ROM.rc" ]; then
+		source $(pwd)/ROM.rc;
+	else
+		echo "ROM.rc isn't present in ${PWD}, please make sure repo is cloned correctly";
+		exit 1;
+	fi
+	#CHEAT CHEAT CHEAT!
+	if [ -f PREF.rc ]; then
+		source $(pwd)/PREF.rc
+		collector; # Get all Information!
+		echo;
+		echo -e "${RED}*${NONE}${LPURP}AutoBot${NONE}${RED}*${NONE} Cheat Code SHUT_MY_MOUTH applied. I won't ask questions anymore";
+		echo;
+	else
+		echo -e "Using this for first time?\nDon't lose patience the next time. ${LCYAN}Enter${NONE} your Values in PREF.rc and Shut my Mouth! lol";
+		echo;
+		echo -e "PREF.rc is the file"
+	fi
+	echo;
+	echo "=======================================================";
+	echo -e "Before I can start, do you like a \033[1;31mC\033[0m\033[0;32mo\033[0m\033[0;33ml\033[0m\033[0;34mo\033[0m\033[0;36mr\033[0m\033[1;33mf\033[0m\033[1;32mu\033[0m\033[0;31ml\033[0m life? [y/n]";
+	echo "=======================================================";
+	echo;
+	if [ -f PREF.rc ]; then
+		echo -e "${RED}*${NONE}${LPURP}AutoBot${NONE}${RED}*${NONE} Coloured ScriBt : $COLOR "
+	else
+		read COLOR;
+	fi
+	echo;
+	if [[ "$COLOR" == "y" ]]; then
+		color_my_life;
+		echo -e "Coloring AutoBot";
+	else
+		i_like_colourless;
+	fi
+	sleep 2;
+	clear;
+	echo -ne '\033]0;ScriBt\007'
+	echo; echo;
+	echo -e "                 ${LRED}╔═╗${NONE}${YELO}╦═╗${NONE}${LCYAN}╔═╗${NONE}${LGRN} ╦${NONE}${LCYAN}╔═╗${NONE}${YELO}╦╔═${NONE}${LRED}╔╦╗${NONE}";
+	echo -e "                 ${LRED}╠═╝${NONE}${YELO}╠╦╝${NONE}${LCYAN}║ ║${NONE}${LGRN} ║${NONE}${LCYAN}║╣ ${NONE}${YELO}╠╩╗${NONE}${LRED} ║ ${NONE}";
+	echo -e "                 ${LRED}╩  ${NONE}${YELO}╩╚═${NONE}${LCYAN}╚═╝${NONE}${LGRN}╚╝${NONE}${LCYAN}╚═╝${NONE}${YELO}╩ ╩${NONE}${LRED} ╩${NONE}";
+	echo -e "      ${LRED}███████${NONE}${RED}╗${NONE} ${LRED}██████${NONE}${RED}╗${NONE}${LRED}██████${NONE}${RED}╗${NONE} ${LRED}██${NONE}${RED}╗${NONE}${LRED}██████${NONE}${RED}╗${NONE} ${LRED}████████${NONE}${RED}╗${NONE}";
+	echo -e "      ${LRED}██${NONE}${RED}╔════╝${NONE}${LRED}██${NONE}${RED}╔════╝${NONE}${LRED}██${NONE}${RED}╔══${NONE}${LRED}██${NONE}${RED}╗${NONE}${LRED}██${NONE}${RED}║${NONE}${LRED}██${NONE}${RED}╔══${NONE}${LRED}██${NONE}${RED}╗╚══${NONE}${LRED}██${NONE}${RED}╔══╝${NONE}";
+	echo -e "      ${LRED}███████${NONE}${RED}╗${NONE}${LRED}██${NONE}${RED}║${NONE}     ${LRED}██████${NONE}${RED}╔╝${NONE}${LRED}██${NONE}${RED}║${NONE}${LRED}██████${NONE}${RED}╔╝${NONE}   ${LRED}██${NONE}${RED}║${NONE}";
+	echo -e "      ${RED}╚════${NONE}$LRED██${NONE}${RED}║${NONE}${LRED}██${NONE}${RED}║${NONE}     ${LRED}██${NONE}${RED}╔══${NONE}${LRED}██${NONE}${RED}╗${NONE}${LRED}██${NONE}${RED}║${NONE}${LRED}██${NONE}${RED}╔══${NONE}${LRED}██${NONE}${RED}╗${NONE}   ${LRED}██${NONE}${RED}║${NONE}";
+	echo -e "      ${LRED}███████${NONE}${RED}║╚${NONE}${LRED}██████${NONE}${RED}╗${NONE}${LRED}██${NONE}${RED}║${NONE}  ${LRED}██${NONE}${RED}║${NONE}${LRED}██${NONE}${RED}║${NONE}${LRED}██████${NONE}${RED}╔╝${NONE}   ${LRED}██${NONE}${RED}║${NONE}";
+	echo -e "      ${RED}╚══════╝ ╚═════╝╚═╝  ╚═╝╚═╝╚═════╝    ╚═╝${NONE}";
+	echo;
+	sleep 0.1;
+	echo -e "${LCYAN}~#~#~#~#~#~#~#~#~#${NONE} ${LRED}By Arvind7352${NONE} - ${YELO}XDA${NONE} ${LCYAN}#~#~#~#~#~#~#~#~${NONE}";
+	sleep 5;
+	echo;
+	echo;
+}
+
+# All above parts are Functions - Line of Execution will start after these two lines
 #START IT --- VROOM!
+the_start; # Pre-Initial Stage
 if [[ "$1" == "automate" ]]; then
 	source $(pwd)/PREF.rc
-	echo -e "*AutoBot* Thanks for Selecting Me. Lem'me do your work"
-	automate;
+	echo -e "*AutoBot* Thanks for Selecting Me. Lem'me do your work";
+	automate; # Initiate the Build Sequence - Actual "VROOM"!
 else
 	main_menu;
 fi

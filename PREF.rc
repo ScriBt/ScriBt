@@ -77,7 +77,7 @@ function vendor_strat                      # Only Enter Values if Building PAC t
   BOOTRES=                                 # Boot Anim Resolution Value (as instructed in main ScriBt)
 }
 
-function automate                          # Function will only work if it has all the Values Pre-Defined
+function collector
 {
   # Collect all Information
   color;
@@ -87,10 +87,18 @@ function automate                          # Function will only work if it has a
   deviceinfo;
   buildinfo;
   vendor_strat;
+}
 
+function automate                          # Function will only work if it has all the Values Pre-Defined in function 'collector'
+{
   # You may Enter your Desired Build Sequence here
   # Default Sequence - You may change this
   # You may enter your own build/device-specific commands, normally between any of these calls below, works.
+  #
+  # Don't remove this call tho.
+  #
+  collector;
+  #
 
   sync;
   the_cherries;
