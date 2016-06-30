@@ -49,23 +49,23 @@ function the_cherries                      # Since this is Automated - Use Prope
 {
   builddir=$(pwd);                         # TO get back to Build Dir
 
-  #===========PICK 1=============#
-  cd ${builddir}/[ENTER_DIRECTORY];        # The Directory in which you need to Pick a Commit
-  REPOPK=[ENTER_ORGANIZATION_NAME];        # Repo Provider who has that Repo
-  REPONAME=[ENTER_REPO_NAME];              # Name of the Repo
-  CP_BRNC=[ENTER_BRANCH_NAME];             # Branch of the Repo
-  cherrypick [ENTER_COMMIT_ID];            # Commit ID in place of -> '[ENTER_COMMIT_ID]'
-  cd $builddir;
-  #==============================#
-
-  #===========PICK 2=============#
-  cd ${builddir}/[ENTER_DIRECTORY];        # The Directory in which you need to Pick a Commit
-  REPOPK=[ENTER_ORGANIZATION_NAME];        # Repo Provider who has that Repo
-  REPONAME=[ENTER_REPO_NAME];              # Name of the Repo
-  CP_BRNC=[ENTER_BRANCH_NAME];             # Branch of the Repo
-  cherrypick [ENTER_COMMIT_ID];            # Commit ID in place of -> '[ENTER_COMMIT_ID]'
-  cd $builddir;
-  #==============================#
+#  #===========PICK 1=============#
+#  cd ${builddir}/[ENTER_DIRECTORY];       # The Directory in which you need to Pick a Commit
+#  REPOPK=[ENTER_ORGANIZATION_NAME];       # Repo Provider who has that Repo
+#  REPONAME=[ENTER_REPO_NAME];             # Name of the Repo
+#  CP_BRNC=[ENTER_BRANCH_NAME];            # Branch of the Repo
+#  cherrypick [ENTER_COMMIT_ID];           # Commit ID in place of -> '[ENTER_COMMIT_ID]'
+#  cd $builddir;
+#  #==============================#
+#
+#  #===========PICK 2=============#
+#  cd ${builddir}/[ENTER_DIRECTORY];       # The Directory in which you need to Pick a Commit
+#  REPOPK=[ENTER_ORGANIZATION_NAME];       # Repo Provider who has that Repo
+#  REPONAME=[ENTER_REPO_NAME];             # Name of the Repo
+#  CP_BRNC=[ENTER_BRANCH_NAME];            # Branch of the Repo
+#  cherrypick [ENTER_COMMIT_ID];           # Commit ID in place of -> '[ENTER_COMMIT_ID]'
+#  cd $builddir;
+#  #==============================#
 
 # You may add many more picks like this.
 }

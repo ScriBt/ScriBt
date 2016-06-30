@@ -51,7 +51,7 @@ the_response ()
 
 function main_menu
 {
-	echo -ne '\033]0;ScriBt : Main Menu\007'
+	echo -ne '\033]0;ScriBt : Main Menu\007';
 	echo -e "${LRED}=======================================================${NONE}";
 	echo -e "${LRED}====================${NONE}${CYAN}[*]${NONE}${PURP}MAIN MENU${NONE}${CYAN}[*]${NONE}${LRED}====================${NONE}";
 	echo -e "${LRED}=======================================================${NONE}";
@@ -71,23 +71,22 @@ function main_menu
 	echo;
 	read ACTION;
 	teh_action $ACTION;
-
 } #main_menu
 
 function quick_menu
 {
-	echo -ne '\033]0;ScriBt : Quick Menu\007'
-	echo -e "${YELO}============================${NONE} ${LRED}QUICK-MENU${NONE} ${YELO}=============================${NONE}"
-	echo -e "${RED}1. Init${NONE} | ${YELO}2. Sync${NONE} | ${GRN}3. Pre-Build${NONE} | ${LGRN}4. Build${NONE} | ${PURP}5. Install Dependencies${NONE}"
-	echo -e "                               6. Exit                               "
-	echo -e "${YELO}=====================================================================${NONE}"
+	echo -ne '\033]0;ScriBt : Quick Menu\007';
+	echo -e "${YELO}============================${NONE} ${LRED}QUICK-MENU${NONE} ${YELO}=============================${NONE}";
+	echo -e "${RED}1. Init${NONE} | ${YELO}2. Sync${NONE} | ${GRN}3. Pre-Build${NONE} | ${LGRN}4. Build${NONE} | ${PURP}5. Install Dependencies${NONE}";
+	echo -e "                               6. Exit                               ";
+	echo -e "${YELO}=====================================================================${NONE}";
 	read ACTION;
 	teh_action $ACTION;
 }
 
 cherrypick ()
 {
-	echo -ne '\033]0;ScriBt : Picking Cherries\007'
+	echo -ne '\033]0;ScriBt : Picking Cherries\007';
 	echo -e "${GRN}========================= Teh${NONE} ${LRED}Cherry${NONE} ${GRN}Picker========================${NONE}";
  	echo;
 	echo -e "     ${RED}*${NONE}${LPURP}AutoBot${NONE}${RED}*${NONE} Attempting to Cherry-Pick Provided Commits         ";
@@ -96,8 +95,8 @@ cherrypick ()
  	echo;
  	git cherry-pick $1;
 	echo;
- 	echo -e "IT's possible that you may face conflicts while merging a C-Pick. Solve those and then Continue."
-	echo -e "${GRN}==================================================================${NONE}"
+ 	echo -e "IT's possible that you may face conflicts while merging a C-Pick. Solve those and then Continue.";
+	echo -e "${GRN}==================================================================${NONE}";
 }
 
 function installdeps
@@ -107,109 +106,110 @@ function installdeps
 	fi
 	function java_select
 	{
-		echo -e "If you have Installed Multiple Versions of Java or Installed Java from Different Providers (OpenJDK / Oracle)"
-		echo -e "You may now select the Version of Java which is to be used BY-DEFAULT"
-		echo -e "${BLU}================================================================${NONE}"
+		echo -e "If you have Installed Multiple Versions of Java or Installed Java from Different Providers (OpenJDK / Oracle)";
+		echo -e "You may now select the Version of Java which is to be used BY-DEFAULT";
+		echo -e "${BLU}================================================================${NONE}";
 		echo;
-		sudo update-alternatives --config java
+		sudo update-alternatives --config java;
 		echo;
-		echo -e "${BLU}================================================================${NONE}"
+		echo -e "${BLU}================================================================${NONE}";
 		echo;
-		sudo update-alternatives --config javac
+		sudo update-alternatives --config javac;
 		echo;
 		echo -e "${BLU}================================================================${NONE}";
 	}
 
 	function java6
 	{
-		echo -ne '\033]0;ScriBt : Java 6 Installation\007'
-		echo -e "Installing OpenJDK-6 (Java 1.6.0)"
-		echo -e "Remove other Versions of Java [y/n]? ( Removing them is Recommended)"
+		echo -ne '\033]0;ScriBt : Java 6\007';
+		echo -e "Installing OpenJDK-6 (Java 1.6.0)";
+		echo -e "Remove other Versions of Java [y/n]? ( Removing them is Recommended)";
 		echo;
 		read REMOJA;
 		echo;
 		if [[ "$REMOJA" == "y" ]]; then
-		sudo apt-get purge openjdk-\* icedtea-\* icedtea6-\*
+		sudo apt-get purge openjdk-* icedtea-* icedtea6-*;
 		echo;
-		echo -e "Removed Other Versions successfully"
+		echo -e "Removed Other Versions successfully";
 		elif [[ "$REMOJA" == "n" ]]; then
-		 echo -e "Keeping them Intact"
+		 echo -e "Keeping them Intact";
 	 	fi
 	 	echo -e "${RED}==========================================================${NONE}";
 	 	echo;
-		sudo apt-get update
+		sudo apt-get update;
 		echo -e "${RED}==========================================================${NONE}";
 		echo;
-		sudo apt-get install openjdk-6-jdk
+		sudo apt-get install openjdk-6-jdk;
 		echo;
 		echo -e "${RED}==========================================================${NONE}";
 		echo;
 		if [[ $( java -version &> $TMP && grep -c 'java version "1.6' $TMP ) == "1" ]]; then
-			echo -e "OpenJDK-6 or Java 6 has been successfully installed"
+			echo -e "OpenJDK-6 or Java 6 has been successfully installed";
+			echo;
 			echo -e "${RED}==========================================================${NONE}";
 		fi
 	}
 
 	function java7
 	{
-		echo -ne '\033]0;ScriBt : Java 7 Installation\007'
-		echo -e "Installing OpenJDK-7 (Java 1.7.0)"
-		echo -e "Remove other Versions of Java [y/n]? ( Removing them is Recommended)"
+		echo -ne '\033]0;ScriBt : Java 7\007';
+		echo -e "Installing OpenJDK-7 (Java 1.7.0)";
+		echo -e "Remove other Versions of Java [y/n]? ( Removing them is Recommended)";
 		echo;
 		read REMOJA;
 		echo;
 		if [[ "$REMOJA" == "y" ]]; then
 			sudo apt-get purge openjdk-\* icedtea-\* icedtea6-\*
-			echo -e "Removed Other Versions successfully"
+			echo -e "Removed Other Versions successfully";
 		elif [[ "$REMOJA" == "n" ]]; then
-		 	echo -e "Keeping them Intact"
+		 	echo -e "Keeping them Intact";
 	 	fi
 	 	echo;
 	 	echo -e "${RED}==========================================================${NONE}";
 		echo;
-		sudo apt-get update
+		sudo apt-get update;
 		echo;
 		echo -e "${RED}==========================================================${NONE}";
 		echo;
-		sudo apt-get install openjdk-7-jdk
+		sudo apt-get install openjdk-7-jdk;
 		echo;
 		if [[ $(java -version &> $TMP && grep -c 'java version "1.7' $TMP ) == "1" ]]; then
 			echo;
 			echo -e "${RED}==========================================================${NONE}";
-			echo -e "OpenJDK-7 or Java 7 has been successfully installed"
+			echo -e "OpenJDK-7 or Java 7 has been successfully installed";
 		fi
 		echo -e "${RED}==========================================================${NONE}";
 	}
 
 	function java8
 	{
-		echo -ne '\033]0;ScriBt : Java 8 Installation\007'
-		echo -e "Remove other Versions of Java [y/n]? ( Removing them is Recommended)"
+		echo -ne '\033]0;ScriBt : Java 8\007';
+		echo -e "Remove other Versions of Java [y/n]? ( Removing them is Recommended)";
 		echo;
 		read REMOJA;
 		if [[ "$REMOJA" == "y" ]]; then
 			echo;
-			sudo apt-get purge openjdk-\* icedtea-\* icedtea6-\*
+			sudo apt-get purge openjdk-* icedtea-* icedtea6-*;
 			echo;
-			echo -e "Removed Other Versions successfully"
+			echo -e "Removed Other Versions successfully";
 		elif [[ "$REMOJA" == "n" ]]; then
-		 	echo -e "Keeping them Intact"
+		 	echo -e "Keeping them Intact";
 	 	fi
 		echo;
-		echo -e "Installing OpenJDK-8 (Java 1.8.0)"
+		echo -e "Installing OpenJDK-8 (Java 1.8.0)";
 		echo;
 		echo -e "${RED}==========================================================${NONE}";
 		echo;
-		sudo apt-get update
+		sudo apt-get update;
 		echo;
 		echo -e "${RED}==========================================================${NONE}";
 		echo;
-		sudo apt-get install openjdk-8-jdk
+		sudo apt-get install openjdk-8-jdk;
 		echo;
 		echo -e "${RED}==========================================================${NONE}";
 		if [[ $( java -version &> $TMP && grep -c 'java version "1.8' $TMP ) == 1 ]]; then
 			echo;
-			echo -e "OpenJDK-8 or Java 8 has been successfully installed"
+			echo -e "OpenJDK-8 or Java 8 has been successfully installed";
 			echo;
 		fi
 		echo -e "${RED}==========================================================${NONE}";
@@ -217,7 +217,7 @@ function installdeps
 
 	echo -e "${RED}==========================================================${NONE}";
 	echo;
-	echo -e "Installing Build Dependencies..."
+	echo -e "Installing Build Dependencies...";
 	echo;
 sudo apt-get install git-core gnupg ccache lzop flex bison \
 gperf build-essential zip curl zlib1g-dev \
@@ -236,10 +236,10 @@ maven maven2
 	echo;
 	echo -e "${RED}==========================================================${NONE}";
 	echo;
-	echo -e "Updating / Creating Android udev rules (51-android)"
+	echo -e "Updating / Creating Android udev rules (51-android)";
 	echo;
-	sudo curl --create-dirs -L -o /etc/udev/rules.d/51-android.rules -O -L https://raw.githubusercontent.com/snowdream/51-android/master/51-android.rules
-	sudo chmod a+r /etc/udev/rules.d/51-android.rules
+	sudo curl --create-dirs -L -o /etc/udev/rules.d/51-android.rules -O -L https://raw.githubusercontent.com/snowdream/51-android/master/51-android.rules;
+	sudo chmod a+r /etc/udev/rules.d/51-android.rules;
 	echo;
 	sudo service udev restart;
 	echo;
@@ -247,20 +247,20 @@ maven maven2
 	echo; echo;
 	echo -e "${LGRN}=====================${NONE} ${LPURP}JAVA Installation${NONE} ${LGRN}====================${NONE}";
 	echo;
-	echo -e "1. Install Java"
-	echo -e "2. Switch Between Java Versions / Providers"
+	echo -e "1. Install Java";
+	echo -e "2. Switch Between Java Versions / Providers";
 	echo;
-	echo -e "3. Already Configured? Back to Main Menu"
+	echo -e "3. Already Configured? Back to Main Menu";
 	echo -e "${LGRN}==========================================================${NONE}";
 	echo;
 	read JAVAS;
 	echo;
 	if [[ "$JAVAS" == "1" ]]; then
-		echo -ne '\033]0;ScriBt : Java\007'
-		echo -e "Android Version of the ROM you're building ? "
-		echo -e "1. 4.4 KitKat"
-		echo -e "2. 5.x.x Lollipop & 6.x.x Marshmallow"
-		echo -e "3. Android N (lol)"
+		echo -ne '\033]0;ScriBt : Java\007';
+		echo -e "Android Version of the ROM you're building ? ";
+		echo -e "1. 4.4 KitKat";
+		echo -e "2. 5.x.x Lollipop & 6.x.x Marshmallow";
+		echo -e "3. Android N (lol)";
 		echo;
 		read ANDVER;
 		echo;
@@ -276,7 +276,6 @@ maven maven2
 	elif [[ "$JAVAS" == "3" ]]; then
 		main_menu;
 	fi
-
 } #installdeps
 
 function sync
@@ -291,7 +290,7 @@ function sync
 	echo;
 	# SHUT_MY_MOUTH
 	if [ -f PREF.rc ]; then
-		echo -e "${RED}*${NONE}${LPURP}AutoBot${NONE}${RED}*${NONE} No of Threads : ${JOBS}"
+		echo -e "${RED}*${NONE}${LPURP}AutoBot${NONE}${RED}*${NONE} No of Threads : ${JOBS}";
 	else
 		read JOBS;
 	fi
@@ -299,36 +298,34 @@ function sync
 	echo -e "${LRED}Force Sync${NONE} needed? ${LGRN}[y/n]${NONE}";
 	echo;
 	if [ -f PREF.rc ]; then
-		echo -e "${RED}*${NONE}${LPURP}AutoBot${NONE}${RED}*${NONE} Force Sync : ${FRC}"
+		echo -e "${RED}*${NONE}${LPURP}AutoBot${NONE}${RED}*${NONE} Force Sync : ${FRC}";
 	else
 		read FRC;
 	fi
 	echo;
 	echo -e "Need some ${LRED}Silence${NONE} in teh Terminal? ${LGRN}[y/n]${NONE}";
 	echo;
-
 	# SHUT_MY_MOUTH
 	if [ -f PREF.rc ]; then
-		echo -e "${RED}*${NONE}${LPURP}AutoBot${NONE}${RED}*${NONE} Silent Sync : ${SIL}"
+		echo -e "${RED}*${NONE}${LPURP}AutoBot${NONE}${RED}*${NONE} Silent Sync : ${SIL}";
 	else
 		read SIL;
 	fi
 	echo;
-
-	echo -e "Sync only ${LRED}Current${NONE} Branch? ${LGRN}[y/n]${NONE} (Saves Space)"
+	echo -e "Sync only ${LRED}Current${NONE} Branch? ${LGRN}[y/n]${NONE} (Saves Space)";
 	echo;
 	# SHUT_MY_MOUTH
 	if [ -f PREF.rc ]; then
-		echo -e  "${RED}*${NONE}${LPURP}AutoBot${NONE}${RED}*${NONE} Sync ${LRED}Current${NONE} Branch : $CRNT"
+		echo -e  "${RED}*${NONE}${LPURP}AutoBot${NONE}${RED}*${NONE} Sync ${LRED}Current${NONE} Branch : $CRNT";
 	else
 		read CRNT;
 	fi
 	echo;
-	echo -e "Sync with ${LRED}clone-bundle${NONE} ${LGRN}[y/n]${NONE}?"
+	echo -e "Sync with ${LRED}clone-bundle${NONE} ${LGRN}[y/n]${NONE}?";
 	echo;
 	# SHUT_MY_MOUTH
 	if [ -f PREF.rc ]; then
-		echo -e  "${RED}*${NONE}${LPURP}AutoBot${NONE}${RED}*${NONE} Use ${LRED}clone-bundle${NONE} : $CLN"
+		echo -e  "${RED}*${NONE}${LPURP}AutoBot${NONE}${RED}*${NONE} Use ${LRED}clone-bundle${NONE} : $CLN";
 	else
 		read CLN;
 	fi
@@ -355,14 +352,13 @@ function sync
 	else
 		CLN_BUN=--no-clone-bundle;
 	fi
-
 	echo;
 	echo -e "Let's Sync!";
 	echo;
 	repo sync -j${JOBS} ${SILENT} ${FORCE} ${SYNC_CRNT} ${CLN_BUN}  2>&1 | tee $RTMP;
 	echo;
 	if [[ $(tac $RTMP | grep -m 1 -c 'Syncing work tree: 100%') == 1 ]]; then
-		echo -e "ROM Source synced successfully."
+		echo -e "ROM Source synced successfully.";
 		if [ -f PREF.rc ]; then
 			echo;
 			the_response COOL Sync;
@@ -430,11 +426,11 @@ ${LPURP}=======================================================${NONE}";
 	echo -e "You have chosen ${LCYAN}->${NONE} $ROM_FN";
 	sleep 1;
 	echo;
-	echo -e "Since Branches may live or die at any moment, ${LRED}Specify the Branch${NONE} you're going to sync"
+	echo -e "Since Branches may live or die at any moment, ${LRED}Specify the Branch${NONE} you're going to sync";
 	echo;
 	# SHUT_MY_MOUTH
 	if [ -f PREF.rc ]; then
-		echo -e "${LRED}Branch${NONE} : $BRANCH"
+		echo -e "${LRED}Branch${NONE} : $BRANCH";
 	else
 		read BRANCH;
 	fi
@@ -444,11 +440,11 @@ ${LPURP}=======================================================${NONE}";
 	# SHUT_MY_MOUTH
 	if [ -f PREF.rc ]; then
 		if [[ "$REFY" == YES ]]; then
-			echo -e "${RED}*${NONE}${LPURP}AutoBot${NONE}${RED}*${NONE} ${LGRN}YES${NONE}, you have a Reference Source"
+			echo -e "${RED}*${NONE}${LPURP}AutoBot${NONE}${RED}*${NONE} ${LGRN}YES${NONE}, you have a Reference Source";
 			echo;
-			echo -e "${RED}*${NONE}${LPURP}AutoBot${NONE}${RED}*${NONE} The Reference location is : ${REF}"
+			echo -e "${RED}*${NONE}${LPURP}AutoBot${NONE}${RED}*${NONE} The Reference location is : ${REF}";
 		else
-			echo -e "${RED}*${NONE}${LPURP}AutoBot${NONE}${RED}*${NONE} ${LRED}NO${NONE}, you don't have a Reference Source. Going for a ${LGRN}Fresh${NONE} Sync"
+			echo -e "${RED}*${NONE}${LPURP}AutoBot${NONE}${RED}*${NONE} ${LRED}NO${NONE}, you don't have a Reference Source. Going for a ${LGRN}Fresh${NONE} Sync";
 		fi
 	else
 		read REFY;
@@ -460,21 +456,20 @@ ${LPURP}=======================================================${NONE}";
 			echo -e "Provide me the ${LRED}Synced Source's Location${NONE} from / ";
 			echo;
 			read REFER;
-			REF=--reference\=\"${REFER}\"
+			REF=--reference\=\"${REFER}\";
 		else
 			REF=" " ;
 		fi
 	fi
-
 	echo;
-	echo -e "Set ${LRED}clone-depth${NONE} ? ${LGRN}[y/n]${NONE} (Basically, it Syncs the ${GRN}Entire commit history of any repo${NONE}, thus Occupying ${LRED}More space${NONE})"
+	echo -e "Set ${LRED}clone-depth${NONE} ? ${LGRN}[y/n]${NONE} (Basically, it Syncs the ${GRN}Entire commit history of any repo${NONE}, thus Occupying ${LRED}More space${NONE})";
 	if [ -f PREF.rc ]; then
-		echo -e "Use ${LRED}clone-depth${NONE} : ${CLND}"
+		echo -e "Use ${LRED}clone-depth${NONE} : ${CLND}";
 	else
 		read CLND;
 	fi
 	echo;
-	echo -e "Depth ${LRED}Value${NONE}? (Default ${LRED}1${NONE})"
+	echo -e "Depth ${LRED}Value${NONE}? (Default ${LRED}1${NONE})";
 	echo;
 	if [ -f PREF.rc ]; then
 		echo -e "clone-depth ${LRED}Value${NONE} : ${DEPTH}";
@@ -487,12 +482,12 @@ ${LPURP}=======================================================${NONE}";
 	echo;
 	#Check for Presence of Repo Binary
 	if [[ ! $(which repo) ]]; then
-		echo -e "Looks like the Repo binary isn't installed. Let's Install it."
+		echo -e "Looks like the Repo binary isn't installed. Let's Install it.";
 		if [ ! -d "${HOME}/bin" ]; then
 			mkdir -p ${HOME}/bin;
 		fi
 		curl https://storage.googleapis.com/git-repo-downloads/repo > ~/bin/repo;
-		chmod a+x ~/bin/repo
+		chmod a+x ~/bin/repo;
 		echo -e "Repo Binary Installed";
 		echo;
 		echo "Adding ~/bin to PATH";
@@ -515,16 +510,14 @@ ${LPURP}=======================================================${NONE}";
 	echo;
 	echo -e "${LBLU}=========================================================${NONE}";
 	echo;
-	mkdir .repo/local_manifests
-	echo -e "A folder \"local_manifests\" has been created for you."
+	mkdir .repo/local_manifests;
+	echo -e "A folder \"local_manifests\" has been created for you.";
 	echo -e "Add either a local_manifest.xml or roomservice.xml as per your choice";
 	echo -e "And add your Device-Specific Repos, essential for Building. Press ENTER to start Syncing.";
 	read ENTER;
 	echo;
-
-#Start Sync now
-sync;
-
+	#Start Sync now
+	sync;
 } #init
 
 function pre_build
@@ -532,20 +525,19 @@ function pre_build
 	if [ -f PREF.rc ]; then
 		teh_action 3;
 	fi
-	echo -e "${CYAN}Initializing Build Environment${NONE}"
+	echo -e "${CYAN}Initializing Build Environment${NONE}";
 	echo;
-	. build/envsetup.sh
+	. build/envsetup.sh;
 	echo;
-	echo -e "${LPURP}Done.${NONE}."
+	echo -e "${LPURP}Done.${NONE}.";
 	echo; echo;
 	echo -e "${LCYAN}====================== DEVICE INFO ======================${NONE}";
 	echo;
 	echo -e "What's your ${LRED}Device's CodeName${NONE} ${LGRN}[Refer Device Tree - All Lowercases]${NONE}?";
 	echo;
-
 	# SHUT_MY_MOUTH
 	if [ -f PREF.rc ]; then
-		echo -e "Your Device ${LRED}Name${NONE} is : ${DEVICE}"
+		echo -e "Your Device ${LRED}Name${NONE} is : ${DEVICE}";
 	else
 		read DEVICE;
 	fi
@@ -554,7 +546,7 @@ function pre_build
 	echo;
 	# SHUT_MY_MOUTH
 	if [ -f PREF.rc ]; then
-		echo -e "Build ${LRED}type${NONE}: ${DEVICE}"
+		echo -e "Build ${LRED}type${NONE}: ${DEVICE}";
 	else
 		read BTYP;
 	fi
@@ -563,7 +555,7 @@ function pre_build
 	echo;
 	# SHUT_MY_MOUTH
 	if [ -f PREF.rc ]; then
-		echo -e "Device's ${LRED}Vendor${NONE} : ${COMP}"
+		echo -e "Device's ${LRED}Vendor${NONE} : ${COMP}";
 	else
 		read COMP;
 	fi
@@ -628,7 +620,7 @@ function vendor_strat_all
 				echo -e "Device already added to vendorsetup.sh";
 			fi
 		echo;
-		echo "DONE! [2/2]"
+		echo "DONE! [2/2]";
 		croot;
 	fi
 	echo -e "${LPURP}=========================================================${NONE}";
@@ -654,7 +646,7 @@ function vendor_strat_kpa #for ROMs having products folder
 	fi
 	#Create Device-Vendor Conjuctor
 	touch ${THE_FILE};
-	echo -e "Name your Device Specific Configuration File ( eg. ${ROMNIS}.mk / full_huashan.mk as in your device tree)"
+	echo -e "Name your Device Specific Configuration File ( eg. ${ROMNIS}.mk / full_huashan.mk as in your device tree)";
 	echo;
 	# SHUT_MY_MOUTH
 	if [ ! -f PREF.rc ]; then
@@ -663,9 +655,9 @@ function vendor_strat_kpa #for ROMs having products folder
 		echo -e "${RED}*${NONE}${LPURP}AutoBot${NONE}${RED}*${NONE} Device Configuration file : ${DEVCON}";
 	fi
 	echo -e "\$(call inherit-product, device/${COMP}/${DEVICE}/${DEVCON})" >> ${THE_FILE};
-	echo -e "Specify your Device's Resolution in the format ${LCYAN}HORIZONTAL${NONE}${LRED}x${NONE}${LCYAN}VERTICAL${NONE} (eg. 1280x720)"
+	echo -e "Specify your Device's Resolution in the format ${LCYAN}HORIZONTAL${NONE}${LRED}x${NONE}${LCYAN}VERTICAL${NONE} (eg. 1280x720)";
 	if [ ! -f PREF.rc ]; then
-		echo -e "Among these Values - Select the one which is nearest or almost Equal to that of your Device"
+		echo -e "Among these Values - Select the one which is nearest or almost Equal to that of your Device";
 		echo -e "Resolutions which are available for AOKP are shown by \"(AOKP)\". All Res are available for PAC-ROM ";
 		echo -e "
 ${LPURP}240${NONE}x400
@@ -737,7 +729,6 @@ ${LPURP}2560${NONE}x1600";
 	else
 	the_response COOL Pre-Build;
 	fi
-
 } #pre_build
 
 function build
@@ -811,6 +802,8 @@ function build
 				echo;
 				if [[ $(grep -c -m 1 'LOCAL_MODULE') == "1" ]]; then
 					echo -e "Looks like you've found that location, let's make it";
+					echo;
+					echo -e "The location of the module is stored in ${LRED}mod.txt${NONE}. Take a look";
 					echo;
 					make_module y;
 				else
@@ -889,7 +882,7 @@ function build
 			exitScriBt;
 		fi
 		echo -e "Giving up Mah Powerz!";
-		exit
+		exit;
 		echo;
 		echo "Peace.";
 		echo;
@@ -901,7 +894,7 @@ function build
 		# For Brunchers
 		if [[ "$SELT" == "brunch" ]]; then
 			clean_build;
-			time ${SELT} ${DEVICE}
+			time ${SELT} ${DEVICE};
 		else
 			# For Mka-s/Make-rs
 			if [[ "$MKWAY" == "make" ]]; then
@@ -1051,7 +1044,6 @@ function build
 		fi
 	;;
 esac
-
 } #build
 
 teh_action ()
@@ -1101,7 +1093,6 @@ teh_action ()
 		esac
 	;;
 	esac
-
 } #teh_action
 
 function the_start
@@ -1150,7 +1141,7 @@ function the_start
 	fi
 	sleep 2;
 	clear;
-	echo -ne '\033]0;ScriBt\007'
+	echo -ne '\033]0;ScriBt\007';
 	echo; echo;
 	echo -e "                 ${LRED}╔═╗${NONE}${YELO}╦═╗${NONE}${LCYAN}╔═╗${NONE}${LGRN} ╦${NONE}${LCYAN}╔═╗${NONE}${YELO}╦╔═${NONE}${LRED}╔╦╗${NONE}";
 	echo -e "                 ${LRED}╠═╝${NONE}${YELO}╠╦╝${NONE}${LCYAN}║ ║${NONE}${LGRN} ║${NONE}${LCYAN}║╣ ${NONE}${YELO}╠╩╗${NONE}${LRED} ║ ${NONE}";
@@ -1167,7 +1158,7 @@ function the_start
 	sleep 5;
 	echo;
 	echo;
-}
+} #the_start
 
 # All above parts are Functions - Line of Execution will start after these two lines
 #START IT --- VROOM!
