@@ -30,12 +30,22 @@
 # Akhil Narang                                                         #
 #======================================================================#
 
+function apt_check
+{
+	if [ -f "/bin/yum" ]; then
+		echo -e "Wew, ScriBt only works on Debian/Ubuntu";
+		exit 1;
+	elif [ -d "/etc/apt" ]; then
+		echo -e "${LRED}apt detected${NONE}. Good to go"
+	fi
+}
+
 function me_quit_root
 {
-	echo -e "Giving up Mah ${LRED}Powerz!${NONE}"
+	echo -e "Giving up Mah ${LRED}Powerz!${NONE}";
 	exit;
 	echo;
-	echo -e "Peace."
+	echo -e "Peace.";
 }
 
 function exitScriBt
@@ -299,6 +309,7 @@ shut_my_mouth ()
 		read DM2; #Value
 		export DM$1="${DM2}";
 	fi
+	echo;
 } #shut_my_mouth
 
 function sync
@@ -307,34 +318,23 @@ function sync
 		teh_action 2;
 	fi
 	echo;
-	echo -e "Let's sync it!";
-	echo;
-	echo -e "${LRED}Number of Threads${NONE} for Sync?";
-	echo;
-	ST="No of Threads";
+	echo -e "Preparing for Sync\n";
+	echo -e "${LRED}Number of Threads${NONE} for Sync?\n";
+	ST="${LRED}Number${NONE} of Threads";
 	shut_my_mouth JOBS $ST;
-	echo;
-	echo -e "${LRED}Force Sync${NONE} needed? ${LGRN}[y/n]${NONE}";
-	echo;
-	ST="Force Sync";
+	echo -e "${LRED}Force Sync${NONE} needed? ${LGRN}[y/n]${NONE}\n";
+	ST="${LRED}Force${NONE} Sync";
 	shut_my_mouth F $ST;
-	echo;
-	echo -e "Need some ${LRED}Silence${NONE} in teh Terminal? ${LGRN}[y/n]${NONE}";
-	echo;
-	ST="Silent Sync";
+	echo -e "Need some ${LRED}Silence${NONE} in teh Terminal? ${LGRN}[y/n]${NONE}\n";
+	ST="${LRED}Silent${NONE} Sync";
 	shut_my_mouth S $ST;
-	echo;
-	echo -e "Sync only ${LRED}Current${NONE} Branch? ${LGRN}[y/n]${NONE} (Saves Space)";
-	echo;
+	echo -e "Sync only ${LRED}Current${NONE} Branch? ${LGRN}[y/n]${NONE} (Saves Space)\n";
 	ST="Sync ${LRED}Current${NONE} Branch";
 	shut_my_mouth C $ST;
-	echo;
-	echo -e "Sync with ${LRED}clone-bundle${NONE} ${LGRN}[y/n]${NONE}?";
-	echo;
+	echo -e "Sync with ${LRED}clone-bundle${NONE} ${LGRN}[y/n]${NONE}?\n";
 	ST="Use ${LRED}clone-bundle${NONE}";
 	shut_my_mouth B $ST;
-	echo;
-	echo -e "${LRED}=====================================================================${NONE}";
+	echo -e "${LRED}=====================================================================${NONE}\n";
 	#Sync-Options
 	if [[ "$DMS" == "y" ]]; then
 		SILENT=-q;
@@ -356,9 +356,7 @@ function sync
 	else
 		CLN_BUN=--no-clone-bundle;
 	fi
-	echo;
-	echo -e "Let's Sync!";
-	echo;
+	echo -e "${LGRN}Let's Sync!${NONE}\n";
 	repo sync -j${DMJOBS} ${SILENT} ${FORCE} ${SYNC_CRNT} ${CLN_BUN}  2>&1 | tee $RTMP;
 	echo;
 	if [[ $(tac $RTMP | grep -m 1 -c 'Syncing work tree: 100%') == 1 ]]; then
@@ -373,8 +371,7 @@ function sync
 			the_response FAIL Sync;
 		fi
 		echo;
-		echo -e "${LPURP}Done.${NONE}!";
-		echo;
+		echo -e "${LPURP}Done.${NONE}!\n";
 		echo -e "${LRED}=====================================================================${NONE}";
 		echo;
 		if [ ! -f PREF.rc ]; then
@@ -399,8 +396,8 @@ Choose among these (Number Selection)
 4.${DGRAY} AOSP-CAF ${NONE}
 5.${CYAN} BlissRoms by Team Bliss${NONE}
 6.${CYAN} CandyRoms ${NONE}
-7.${LCYAN} Cyan${NONE}${CYAN}ide-L${NONE}
-8.${CYAN} CyanogenMod ${NONE}
+7.${CYAN} Cyanide-L${NONE}
+8.${LCYAN} CyanogenMod ${NONE}
 9.${ORNG} DirtyUnicorns ${NONE}
 10.${YELO} Flayr OS ${NONE}
 11.${BLU} Krexus${NONE}-${GRN}CAF${NONE}
@@ -430,73 +427,61 @@ ${LPURP}=======================================================${NONE}";
 	echo -e "You have chosen ${LCYAN}->${NONE} $ROM_FN";
 	sleep 1;
 	echo;
-	echo -e "Since Branches may live or die at any moment, ${LRED}Specify the Branch${NONE} you're going to sync";
-	echo;
+	echo -e "Since Branches may live or die at any moment, ${LRED}Specify the Branch${NONE} you're going to sync\n";
 	ST="${LRED}Branch${NONE}";
 	shut_my_mouth BR $ST;
-	echo;
-	echo -e "Any ${LRED}Source you have already synced?${NONE} If ${LGRN}yes${NONE}, then say ${LGRN}YES${NONE} and Press ${LCYAN}ENTER${NONE}";
-	echo;
+	echo -e "Any ${LRED}Source you have already synced?${NONE} If ${LGRN}yes${NONE}, then say ${LGRN}YES${NONE} and Press ${LCYAN}ENTER${NONE}\n";
 	shut_my_mouth RF $ST;
 	if [[ "$DMRF" == YES ]]; then
 		echo;
-		echo -e "Provide me the ${LRED}Synced Source's Location${NONE} from / ";
-		echo;
+		echo -e "Provide me the ${LRED}Synced Source's Location${NONE} from ${LRED}/${NONE} \n";
 		ST="Reference ${LRED}Location${NONE}";
 		shut_my_mouth RFL $ST;
 		REF=--reference\=\"${DMRFL}\";
 	else
 		REF=" " ;
 	fi
-	echo;
-	echo -e "Set ${LRED}clone-depth${NONE} ? ${LGRN}[y/n]${NONE} (Basically, it Syncs the ${GRN}Entire commit history of any repo${NONE}, thus Occupying ${LRED}More space${NONE})";
+	echo -e "Set ${LRED}clone-depth${NONE} ? ${LGRN}[y/n]${NONE} (Basically, it Syncs the ${GRN}Entire commit history of any repo${NONE}, thus Occupying ${LRED}More space${NONE})\n";
 	ST="Use ${LRED}clone-depth${NONE}";
 	shut_my_mouth CD $ST;
-	echo;
-	echo -e "Depth ${LRED}Value${NONE}? (Default ${LRED}1${NONE})";
-	echo;
+	echo -e "Depth ${LRED}Value${NONE}? (Default ${LRED}1${NONE})\n";
 	ST="clone-depth ${LRED}Value${NONE}";
 	shut_my_mouth DEP $ST;
 	if [ -z "$DMDEP" ]; then
 		DMDEP=1;
 	fi
-	echo;
 	#Check for Presence of Repo Binary
 	if [[ ! $(which repo) ]]; then
-		echo -e "Looks like the Repo binary isn't installed. Let's Install it.";
+		echo -e "Looks like the Repo binary isn't installed. Let's Install it.\n";
 		if [ ! -d "${HOME}/bin" ]; then
 			mkdir -p ${HOME}/bin;
 		fi
 		curl https://storage.googleapis.com/git-repo-downloads/repo > ~/bin/repo;
 		chmod a+x ~/bin/repo;
-		echo -e "Repo Binary Installed";
-		echo;
-		echo "Adding ~/bin to PATH";
-		echo;
+		echo -e "Repo Binary Installed\n";
+		echo "Adding ~/bin to PATH\n";
 		echo -e "# set PATH so it includes user's private bin if it exists" >> ~/.profile;
 		echo -e "if [ -d \"\$HOME/bin\" ] ; then" >> ~/.profile;
 		echo -e "\tPATH=\"\$HOME/bin:\$PATH\" "; >> ~/.profile;
 		echo -e "fi"; >> ~/.profile;
 		. ~/.profile;
-		echo -e "${LGRN}DONE!${NONE}. Ready to Init Repo";
-		echo;
+		echo -e "${LGRN}DONE!${NONE}. Ready to Init Repo\n";
 	fi
-	echo -e "${LBLU}=========================================================${NONE}";
-	echo;
-	echo -e "Let's Initialize teh ROM Repo";
-	echo;
+	echo -e "${LBLU}=========================================================${NONE}\n";
+	echo -e "Let's Initialize teh ROM Repo\n";
 	repo init ${REF} -u https://github.com/${ROM_NAME}/${MAN} -b ${DMBR} ;
 	echo;
-	echo -e "Repo Init'ed";
-	echo;
+	echo -e "${ROM_NAME} Repo Initialized\n";
 	echo -e "${LBLU}=========================================================${NONE}";
 	echo;
 	mkdir .repo/local_manifests;
-	echo -e "A folder \"local_manifests\" has been created for you.";
-	echo -e "Add either a local_manifest.xml or roomservice.xml as per your choice";
-	echo -e "And add your Device-Specific Repos, essential for Building. Press ENTER to start Syncing.";
-	read ENTER;
-	echo;
+	if [ ! -f PREF.rc ]; then
+		echo -e "A folder \"local_manifests\" has been created for you.";
+		echo -e "Add either a ${LRED}local_manifest.xml${NONE} or ${LRED}roomservice.xml${NONE} as per your choice";
+		echo -e "And add your Device-Specific Repos, essential for Building. Press ENTER to start Syncing.";
+		read ENTER;
+		echo;
+	fi
 	#Start Sync now
 	sync;
 } #init
@@ -506,29 +491,20 @@ function pre_build
 	if [ -f PREF.rc ]; then
 		teh_action 3;
 	fi
-	echo -e "${CYAN}Initializing Build Environment${NONE}";
-	echo;
+	echo -e "${CYAN}Initializing Build Environment${NONE}\n";
 	. build/envsetup.sh;
 	echo;
-	echo -e "${LPURP}Done.${NONE}.";
-	echo; echo;
-	echo -e "${LCYAN}====================== DEVICE INFO ======================${NONE}";
-	echo;
-	echo -e "What's your ${LRED}Device's CodeName${NONE} ${LGRN}[Refer Device Tree - All Lowercases]${NONE}?";
-	echo;
+	echo -e "${LPURP}Done.${NONE}.\n\n";
+	echo -e "${LCYAN}====================== DEVICE INFO ======================${NONE}\n";
+	echo -e "What's your ${LRED}Device's CodeName${NONE} ${LGRN}[Refer Device Tree - All Lowercases]${NONE}?\n";
 	ST="Your Device ${LRED}Name${NONE} is";
 	shut_my_mouth DMDEV $ST;
-	echo;
-	echo -e "The ${LRED}Build type${NONE}? ${LGRN}[userdebug/user/eng]${NONE}";
-	echo;
+	echo -e "The ${LRED}Build type${NONE}? ${LGRN}[userdebug/user/eng]${NONE}\n";
 	ST="Build ${LRED}type${NONE}";
 	shut_my_mouth DMBT $ST;
-	echo;
-	echo -e "Your ${LRED}Device's Company/Vendor${NONE} (All Lowercases)?";
-	echo;
+	echo -e "Your ${LRED}Device's Company/Vendor${NONE} (All Lowercases)?\n";
 	ST="Device's ${LRED}Vendor${NONE}";
 	shut_my_mouth DMCM $ST;
-	echo;
 	echo -e "${LCYAN}=========================================================${NONE}";
 	rom_names $ROMNO;
 	echo;
@@ -551,32 +527,24 @@ function vendor_strat_all
 		else
 			echo -e "Device was already added to ${ROMNIS} vendor";
 		fi
-		echo "${LGRN}DONE!${NONE}!";
-		croot;
 	elif [ -f ${ROMNIS}-device-targets ]; then
-		echo -e "Adding your Device to ROM Vendor (Strategy 4)";
-		echo;
+		echo -e "Adding your Device to ROM Vendor (Strategy 4)\n";
 		if [[ $(grep -c '${DMDEV}' ${ROMNIS}-device-targets) == "0" ]]; then
 			echo -e "${ROMNIS}_${DMDEV}-${DMBT}";
 		else
 			echo -e "Device was already added to ${ROM_FN} vendor";
 		fi
-		echo "${LGRN}DONE!${NONE}";
 	elif [ -f vendorsetup.sh ]; then
-		echo -e "Adding your Device to ROM Vendor (Strategy 2)";
-		echo;
+		echo -e "Adding your Device to ROM Vendor (Strategy 2)\n";
 		if [[ $(grep -c '${DMDEV}' vendorsetup.sh) == "0" ]]; then
 			echo "add_lunch_combo ${ROMNIS}_${DMDEV}-${DMBT}" >> vendorsetup.sh;
 		else
 			echo -e "Device was already added to ${ROMNIS} vendor";
 		fi
-		echo "${LGRN}DONE!${NONE}";
-		croot;
 	else
 		croot;
 		echo "Adding your Device to ROM Vendor (Strategy 3)";
-		echo -e "Let's go to teh ${LRED}Device Directory!${NONE}";
-		echo;
+		echo -e "Let's go to teh ${LRED}Device Directory!${NONE}\n";
 		cd device/${DMCM}/${DMDEV};
 		echo -e "Creating vendorsetup.sh if absent in tree";
 			if [ ! -f vendorsetup.sh ]; then
@@ -587,11 +555,11 @@ function vendor_strat_all
 				echo -e "add_lunch_combo ${ROMNIS}_${DMDEV}-${DMBT}" >> vendorsetup.sh;
 			else
 				echo -e "Device already added to vendorsetup.sh";
+				echo;
 			fi
-		echo;
-		echo "DONE! [2/2]";
-		croot;
 	fi
+	echo -e "${LGRN}DONE!${NONE}!";
+	croot;
 	echo -e "${LPURP}=========================================================${NONE}";
 } #vendor_strat
 
@@ -615,14 +583,13 @@ function vendor_strat_kpa #for ROMs having products folder
 	fi
 	#Create Device-Vendor Conjuctor
 	touch ${THE_FILE};
-	echo -e "Name your Device Specific Configuration File ( eg. ${ROMNIS}.mk / full_${DMDEV}.mk as in your device tree)";
-	echo;
+	echo -e "Name your Device Specific Configuration File ( eg. ${ROMNIS}.mk / full_${DMDEV}.mk as in your device tree)\n";
 	ST="Device Configuration file";
 	shut_my_mouth DMDCON $ST;
 	echo -e "\$(call inherit-product, device/${DMCM}/${DMDEV}/${DMDCON})" >> ${THE_FILE};
 	echo -e "Specify your Device's Resolution in the format ${LCYAN}HORIZONTAL${NONE}${LRED}x${NONE}${LCYAN}VERTICAL${NONE} (eg. 1280x720)";
 	if [ ! -f PREF.rc ]; then
-		echo -e "Among these Values - Select the one which is nearest or almost Equal to that of your Device";
+		echo -e "Among these Values - Select the one which is nearest or almost Equal to that of your Device\n";
 		echo -e "Resolutions which are available for AOKP are shown by \"(AOKP)\". All Res are available for PAC-ROM ";
 		echo -e "
 ${LPURP}240${NONE}x400
@@ -671,21 +638,19 @@ ${LPURP}2560${NONE}x1600";
 		if [ ! -f vendor/${ROMNIS}/products/${ROMNIS}_${DMDEV}.mk || ! -f vendor/${ROMNIS}/products/${DMDEV}.mk ]; then
 			vendor_strat_kpa; #if found products folder
 		else
-			echo -e "Looks like ${DMDEV} has been already added to ${ROM_FN} vendor. Good to go";
+			echo -e "Looks like ${DMDEV} has been already added to ${ROM_FN} vendor. Good to go\n";
 		fi
 	else
 		vendor_strat_all; #if not found
 	fi
 		croot;
 	if [ ! -f PREF.rc ]; then
-		echo -e "${PURP}=========================================================${NONE}";
-		echo;
+		echo -e "${PURP}=========================================================${NONE}\n";
 		if  [[ "$ROMNO" == "3" || "$ROMNO" == "4" || "$ROMNO" == "10" ]]; then
-			echo -e "Now, ${ROMV}ify your Device Tree. Press ${LCYAN}Enter${NONE}, when ${LGRN}done${NONE}";
+			echo -e "Now, ${ROMV}ify your Device Tree. Press ${LCYAN}Enter${NONE}, when ${LGRN}done${NONE}\n";
 		else
-			echo -e "Now, ${ROMNIS}-(i)-fy your Device Tree. Press ${LCYAN}Enter${NONE}, when ${LGRN}done${NONE}";
+			echo -e "Now, ${ROMNIS}-(i)-fy your Device Tree. Press ${LCYAN}Enter${NONE}, when ${LGRN}done${NONE}\n";
 		fi
-		echo;
 		echo -e "${PURP}=========================================================${NONE}";
 		read ENTER;
 		quick_menu;
@@ -711,11 +676,9 @@ function build
 
 	function make_it #Part of make_module
 	{
-		echo -e "${LCYAN}ENTER${NONE} the Directory where the Module is made from";
-		echo;
+		echo -e "${LCYAN}ENTER${NONE} the Directory where the Module is made from\n";
 		read MODDIR;
-		echo -e "Do you want to ${LRED}push the Module${NONE} to the ${LRED}Device${NONE} ? (Running the Same ROM) ${LGRN}[y/n]${NONE}";
-		echo;
+		echo -e "Do you want to ${LRED}push the Module${NONE} to the ${LRED}Device${NONE} ? (Running the Same ROM) ${LGRN}[y/n]${NONE}\n";
 		read PMOD;
 		echo;
 		if [[ "$PMOD" == "y" ]]; then
@@ -730,14 +693,13 @@ function build
 		if [ -z "$1" ]; then
 		echo;
 		read KNWLOC;
-		echo -e '\n'
+		echo;
 		echo -e "Know the Location of the Module?"
 		fi
 		if [[ "$KNWLOC" == "y" || "$1" == "y" ]]; then
 			make_it;
 		else
-			echo -e "Do either of these two actions: \n1. ${BLU}G${NONE}${RED}o${NONE}${YELO}o${NONE}${BLU}g${NONE}${GRN}l${NONE}${RED}e${NONE} it (Easier)\n2. Run this command in terminal : ${LBLU}sgrep \"LOCAL_MODULE := Insert_MODULE_NAME_Here \"${NONE}.\n\n Press ${LCYAN}ENTER${NONE} after it's ${LPURP}Done.${NONE}.";
-			echo;
+			echo -e "Do either of these two actions: \n1. ${BLU}G${NONE}${RED}o${NONE}${YELO}o${NONE}${BLU}g${NONE}${GRN}l${NONE}${RED}e${NONE} it (Easier)\n2. Run this command in terminal : ${LBLU}sgrep \"LOCAL_MODULE := Insert_MODULE_NAME_Here \"${NONE}.\n\n Press ${LCYAN}ENTER${NONE} after it's ${LPURP}Done.${NONE}.\n";
 			read ENTER;
 			make_it;
 		fi
@@ -753,32 +715,24 @@ function build
 		elif [[ $(tac $RMTMP | grep -c -m 1 'No rule to make target') == "1" ]]; then
 			if [ ! -f PREF.rc ]; then
 				echo -e "Looks like a Module isn't getting built / Missing";
-				echo -e "You'll see a line like this:";
-				echo;
-				echo -e "No rule to make target '$(pwd)/out/....../${LRED}<MODULE_NAME>${NONE}_intermediates'";
-				echo;
-				echo -e "${LCYAN}Enter${NONE} whatever you see in place of ${LRED}<MODULE_NAME>${NONE} (Case-Sensitive please)";
+				echo -e "You'll see a line like this:\n";
+				echo -e "No rule to make target '$(pwd)/out/....../${LRED}<MODULE_NAME>${NONE}_intermediates'\n";
+				echo -e "${LCYAN}Enter${NONE} whatever you see in place of ${LRED}<MODULE_NAME>${NONE} (Case-Sensitive please)\n";
 				read MOD_NAME;
-				echo -e "Let's Search for ${LRED}${MOD_NAME}${NONE} ! This will take time, but it's Valuable";
-				echo;
+				echo -e "Let's Search for ${LRED}${MOD_NAME}${NONE} ! This will take time, but it's Valuable\n";
 				sgrep "LOCAL_MODULE := ${MOD_NAME}" 2>&1 | tee mod.txt;
 				echo;
 				if [[ $(grep -c -m 1 'LOCAL_MODULE') == "1" ]]; then
-					echo -e "Looks like you've found that location, let's make it";
-					echo;
+					echo -e "Looks like you've found that location, let's make it\n";
 					echo -e "The location of the module is stored in ${LRED}mod.txt${NONE}. Take a look";
-					echo;
 					make_module y;
 				else
 					echo -e "The Repo which builds that module is ${LRED}missing${NONE}\n";
-					echo -e "======================================================================================================";
-					echo;
-					echo -e "Let me search that module for you -> http://lmgtfy.com/?q=LOCAL_MODULE+%3A%3D+${MOD_NAME}"
-					echo;
-					echo -e "======================================================================================================";
+					echo -e "======================================================================================================\n";
+					echo -e "Let me search that module for you -> http://lmgtfy.com/?q=LOCAL_MODULE+%3A%3D+${MOD_NAME}\n";
+					echo -e "======================================================================================================\n";
 					echo -e "\nIF you found that module's repo, Sync it to the path as shown in the Repo URL\n";
-					echo -e "For Example https://github.com/CyanogenMod/android_bionic should be synced to $(pwd)/bionic";
-					echo;
+					echo -e "For Example https://github.com/CyanogenMod/android_bionic should be synced to $(pwd)/bionic\n";
 					make_module;
 				fi
 			else
@@ -893,7 +847,6 @@ function build
 		echo;
 		ST="Selected Option";
 		shut_my_mouth SLT $ST;
-		echo;
 		if [[ "$DMSLT" == "lunch" ]]; then
 			${DMSLT} ${ROMNIS}_${DMDEV}-${DMBT}
 		elif [[ "$DMSLT" == "breakfast" ]]; then
@@ -924,7 +877,6 @@ function build
 	echo;
 	ST="Option Selected";
 	shut_my_mouth BO $ST;
-	echo;
 	case "$DMBO" in
 		1)
 			hotel_menu;
@@ -932,12 +884,9 @@ function build
 			echo -e "Should i use '${YELO}make${NONE}' or '${RED}mka${NONE}' ?"
 			ST="Selected Method";
 			shut_my_mouth MK $ST;
-			echo;
-			echo -e "Wanna Clean the ${LPURP}/out${NONE} before Building? ${LGRN}[2 - Remove Staging / 3 - Full Clean]${NONE}"
-			echo;
+			echo -e "Wanna Clean the ${LPURP}/out${NONE} before Building? ${LGRN}[2 - Remove Staging / 3 - Full Clean]${NONE}\n"
 			ST="Option Selected";
 			shut_my_mouth CL $ST;
-			echo;
 			clean_build $DMCL; #CLEAN THE BUILD
 			echo;
 			if [[ $(tac ${ANDROID_BUILD_TOP}/build/core/build_id.mk | grep -c 'BUILD_ID=M') == "1" ]]; then
@@ -1100,6 +1049,7 @@ function the_start
 # All above parts are Functions - Line of Execution will start after these two lines
 #START IT --- VROOM!
 the_start; # Pre-Initial Stage
+apt_check;
 if [[ "$1" == "automate" ]]; then
 	. $(pwd)/PREF.rc
 	echo -e "${RED}*${NONE}${LPURP}AutoBot${NONE}${RED}*${NONE} Thanks for Selecting Me. Lem'me do your work";
