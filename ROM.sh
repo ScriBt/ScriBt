@@ -30,6 +30,14 @@
 # Akhil Narang                                                         #
 #======================================================================#
 
+function me_quit_root
+{
+	echo -e "Giving up Mah ${LRED}Powerz!${NONE}"
+	exit;
+	echo;
+	echo -e "Peace."
+}
+
 function exitScriBt
 {
 	echo; echo;
@@ -117,32 +125,35 @@ function installdeps
 		sudo update-alternatives --config javac;
 		echo;
 		echo -e "${BLU}================================================================${NONE}";
+		me_quit_root;
 	}
 
 	function java6
 	{
 		echo -ne '\033]0;ScriBt : Java 6\007';
 		echo -e "Installing OpenJDK-6 (Java 1.6.0)";
-		echo -e "Remove other Versions of Java [y/n]? ( Removing them is Recommended)";
+		echo -e "${LRED}Remove${NONE} other Versions of Java ${LGRN}[y/n]${NONE}? ( Removing them is Recommended)";
 		echo;
 		read REMOJA;
 		echo;
 		if [[ "$REMOJA" == "y" ]]; then
-		sudo apt-get purge openjdk-* icedtea-* icedtea6-*;
-		echo;
-		echo -e "Removed Other Versions successfully";
+			sudo apt-get purge openjdk-* icedtea-* icedtea6-*;
+			echo;
+			echo -e "Removed Other Versions successfully";
 		elif [[ "$REMOJA" == "n" ]]; then
 		 echo -e "Keeping them Intact";
 	 	fi
 	 	echo -e "${RED}==========================================================${NONE}";
 	 	echo;
 		sudo apt-get update;
+		echo;
 		echo -e "${RED}==========================================================${NONE}";
 		echo;
 		sudo apt-get install openjdk-6-jdk;
 		echo;
 		echo -e "${RED}==========================================================${NONE}";
 		echo;
+		me_quit_root;
 		if [[ $( java -version &> $TMP && grep -c 'java version "1.6' $TMP ) == "1" ]]; then
 			echo -e "OpenJDK-6 or Java 6 has been successfully installed";
 			echo;
@@ -154,7 +165,7 @@ function installdeps
 	{
 		echo -ne '\033]0;ScriBt : Java 7\007';
 		echo -e "Installing OpenJDK-7 (Java 1.7.0)";
-		echo -e "Remove other Versions of Java [y/n]? ( Removing them is Recommended)";
+		echo -e "${LRED}Remove${NONE} other Versions of Java ${LRED}[y/n]${NONE}? ( Removing them is Recommended)";
 		echo;
 		read REMOJA;
 		echo;
@@ -173,6 +184,7 @@ function installdeps
 		echo;
 		sudo apt-get install openjdk-7-jdk;
 		echo;
+		me_quit_root;
 		if [[ $(java -version &> $TMP && grep -c 'java version "1.7' $TMP ) == "1" ]]; then
 			echo;
 			echo -e "${RED}==========================================================${NONE}";
@@ -184,7 +196,7 @@ function installdeps
 	function java8
 	{
 		echo -ne '\033]0;ScriBt : Java 8\007';
-		echo -e "Remove other Versions of Java [y/n]? ( Removing them is Recommended)";
+		echo -e "${LRED}Remove${NONE} other Versions of Java ${LGRN}[y/n]${NONE}? ( Removing them is Recommended)";
 		echo;
 		read REMOJA;
 		if [[ "$REMOJA" == "y" ]]; then
@@ -206,11 +218,10 @@ function installdeps
 		echo;
 		sudo apt-get install openjdk-8-jdk;
 		echo;
+		me_quit_root;
 		echo -e "${RED}==========================================================${NONE}";
 		if [[ $( java -version &> $TMP && grep -c 'java version "1.8' $TMP ) == 1 ]]; then
-			echo;
 			echo -e "OpenJDK-8 or Java 8 has been successfully installed";
-			echo;
 		fi
 		echo -e "${RED}==========================================================${NONE}";
 	}
@@ -240,7 +251,6 @@ maven maven2
 	echo;
 	sudo curl --create-dirs -L -o /etc/udev/rules.d/51-android.rules -O -L https://raw.githubusercontent.com/snowdream/51-android/master/51-android.rules;
 	sudo chmod a+r /etc/udev/rules.d/51-android.rules;
-	echo;
 	sudo service udev restart;
 	echo;
 	echo -e "${RED}==========================================================${NONE}";
@@ -255,30 +265,30 @@ maven maven2
 	echo;
 	read JAVAS;
 	echo;
-	if [[ "$JAVAS" == "1" ]]; then
-		echo -ne '\033]0;ScriBt : Java\007';
-		echo -e "Android Version of the ROM you're building ? ";
-		echo -e "1. 4.4 KitKat";
-		echo -e "2. 5.x.x Lollipop & 6.x.x Marshmallow";
-		echo -e "3. Android N (lol)";
-		echo;
-		read ANDVER;
-		echo;
-		if [[ "$ANDVER" == "1" ]]; then
-			java6;
-		elif [[ "$ANDVER" == "2" ]]; then
-			java7;
-		elif [[ "$ANDVER" == "3" ]]; then
-			java8;
-		fi
-		echo -e "Giving up Mah ${LRED}Powerz!${NONE}"
-		exit;
-		echo -e "Peace."
-	elif [[ "$JAVAS" == "2" ]]; then
-		java_select;
-	elif [[ "$JAVAS" == "3" ]]; then
-		main_menu;
-	fi
+	case "$JAVAS" in
+		1)
+			echo -ne '\033]0;ScriBt : Java\007';
+			echo -e "Android Version of the ROM you're building ? ";
+			echo -e "1. 4.4 KitKat";
+			echo -e "2. 5.x.x Lollipop & 6.x.x Marshmallow";
+			echo -e "3. Android N (lol)";
+			echo;
+			read ANDVER;
+			echo;
+			case "$ANDVER" in
+				1)
+					java6 ;;
+				2)
+					java7 ;;
+				3)
+					java8 ;;
+			esac
+			;;
+		2)
+			java_select ;;
+		3)
+			main_menu ;;
+	esac
 } #installdeps
 
 shut_my_mouth ()
@@ -467,7 +477,7 @@ ${LPURP}=======================================================${NONE}";
 		echo -e "if [ -d \"\$HOME/bin\" ] ; then" >> ~/.profile;
 		echo -e "\tPATH=\"\$HOME/bin:\$PATH\" "; >> ~/.profile;
 		echo -e "fi"; >> ~/.profile;
-		source ~/.profile;
+		. ~/.profile;
 		echo -e "${LGRN}DONE!${NONE}. Ready to Init Repo";
 		echo;
 	fi
@@ -502,7 +512,7 @@ function pre_build
 	echo;
 	echo -e "${LPURP}Done.${NONE}.";
 	echo; echo;
-	echo -e "${LCYAN}====================== DMDEV INFO ======================${NONE}";
+	echo -e "${LCYAN}====================== DEVICE INFO ======================${NONE}";
 	echo;
 	echo -e "What's your ${LRED}Device's CodeName${NONE} ${LGRN}[Refer Device Tree - All Lowercases]${NONE}?";
 	echo;
@@ -693,9 +703,9 @@ function build
 	clean_build ()
 	{
 		if [[ "$1" == "1" ]]; then
-			$DMMK installclean
+			$DMMK installclean;
 		elif [[ "$1" == "2" ]]; then
-			$DMMK clean
+			$DMMK clean;
 		fi
 	} #clean_build
 
@@ -816,11 +826,11 @@ function build
 		if [ -f ${HOME}/.bashrc ]; then
 				echo "export USE_CCACHE=1" >> ${HOME}/.bashrc;
 				echo "export CCACHE_DIR=${CCDIR}" >> ${HOME}/.bashrc;
-				source ${HOME}/.bashrc;
+				. ${HOME}/.bashrc;
 		elif [ -f ${HOME}/.profile ]; then
 			echo "export USE_CCACHE=1" >> ${HOME}/.profile;
 			echo "export CCACHE_DIR=${CCDIR}" >> ${HOME}/.profile;
-			source ${HOME}/.profile;
+			. ${HOME}/.profile;
 #		elif [[ $( -f SOME_FILE )]]; then
 #			echo "export USE_CCACHE=1" >> /SOME_LOC/SOME_FILE;
 #			echo "export CCACHE_DIR=${CCDIR}" >> /SOME_LOC/SOME_FILE;
@@ -830,14 +840,11 @@ function build
 			echo -en "export USE_CCACHE=1";
 			echo -en "export CCACHE_DIR=${CCDIR}";
 			echo -e "Now Log-Out and Re-Login. Select Step B. The Changes will be considered after that.";
-			echo -e "Alternatively run source ~/.profile";
+			echo -e "Alternatively run . ~/.profile";
 			sleep 2;
 			exitScriBt;
 		fi
-		echo -e "Giving up Mah Powerz!";
-		exit;
-		echo;
-		echo "Peace.";
+		me_quit_root;
 		echo;
 		set_ccache;
 	} #set_ccvars
@@ -1035,14 +1042,14 @@ function the_start
 	touch ${RTMP} ${RMTMP} ${TMP};
 	# Load the Basic Variables
 	if [ -f "${PWD}/ROM.rc" ]; then
-		source $(pwd)/ROM.rc;
+		. $(pwd)/ROM.rc;
 	else
 		echo "ROM.rc isn't present in ${PWD}, please make sure repo is cloned correctly";
 		exit 1;
 	fi
 	#CHEAT CHEAT CHEAT!
 	if [ -f PREF.rc ]; then
-		source $(pwd)/PREF.rc
+		. $(pwd)/PREF.rc
 		collector; # Get all Information!
 		echo;
 		echo -e "${RED}*${NONE}${LPURP}AutoBot${NONE}${RED}*${NONE} Cheat Code SHUT_MY_MOUTH applied. I won't ask questions anymore";
@@ -1094,8 +1101,8 @@ function the_start
 #START IT --- VROOM!
 the_start; # Pre-Initial Stage
 if [[ "$1" == "automate" ]]; then
-	source $(pwd)/PREF.rc
-	echo -e "*AutoBot* Thanks for Selecting Me. Lem'me do your work";
+	. $(pwd)/PREF.rc
+	echo -e "${RED}*${NONE}${LPURP}AutoBot${NONE}${RED}*${NONE} Thanks for Selecting Me. Lem'me do your work";
 	automate; # Initiate the Build Sequence - Actual "VROOM"!
 else
 	main_menu;
