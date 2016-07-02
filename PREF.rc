@@ -11,38 +11,38 @@ function color
 
 function reposync
 {
-  JOBS=                                    # No of Threads for Sync [Integral Values Plz]
-  FRC=                                     # Force Sync ? [y/n]
-  SIL=                                     # Silent sync ? [y/n]
-  CRNT=                                    # Sync Current Branch ? [y/n]
-  CLN=                                     # USe clone-bundle ? [y/n]
+  DMJOBS=                                  # No of Threads for Sync [Integral Values Plz]
+  DMF=                                     # Force Sync ? [y/n]
+  DMS=                                     # Silent sync ? [y/n]
+  DMC=                                     # Sync Current Branch ? [y/n]
+  DMB=                                     # USe clone-bundle ? [y/n]
 }
 
 function repoinit
 {
   ROMNO=                                   # ROM Selection Number [Refer ROM.sh / README.md]
-  BRANCH=                                  # Branch of the ROM
-  REFY=                                    # Have a Reference ? [YES/NO]
-  REFER=                                   # Reference Source's Location from /
-  CLND=                                    # Set a Clone-Depth ? [y/n]
-  DEPTH=1;                                 # Depth Value (Default 1)
+  DMBR=                                    # Branch of the ROM
+  DMRF=                                    # Have a Reference ? [YES/NO]
+  DMRFL=                                   # Reference Source's Location from /
+  DMCD=                                    # Set a Clone-Depth ? [y/n]
+  DMDEP=1;                                 # Depth Value (Default 1)
 }
 
 function deviceinfo
 {
-  DEVICE=                                  # Device codename (Lowercases)
-  BTYP=                                    # userdebug / user / eng
-  COMP=                                    # Device Company / Vendor
+  DMDEV=                                   # Device codename (Lowercases)
+  DMBT=                                    # userdebug / user / eng
+  DMCM=                                    # Device Company / Vendor
 }
 
 function buildinfo
 {
-  BOPT=1                                   # BOPT=1 for Start Build with Zip Generation at the End - Better not to change
-  SELT=                                    # lunch / brunch / breakfast
-  MKWAY=                                   # make / mka
-  COPT=                                    # Clean Before Build? [ 2 for installclean & 3 for total clean ]
-  USEJK=                                   # Use Jack Toolchain [y/n] ?
-  USEN=                                    # Use Ninja Toolchain [y/n] ?
+  DMBO=1                                   # BOPT=1 for Start Build with Zip Generation at the End - Better not to change
+  DMSLT=                                    # lunch / brunch / breakfast
+  DMMK=                                    # make / mka
+  DMCL=                                    # Clean Before Build? [ 2 for installclean & 3 for total clean ]
+  DMJK=                                    # Use Jack Toolchain [y/n] ?
+  DMNJ=                                    # Use Ninja Toolchain [y/n] ?
 }
 
 function the_cherries                      # Since this is Automated - Use Proper Cherry-picks - conflicts won't be solved

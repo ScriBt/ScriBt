@@ -19,7 +19,7 @@
 #                                                                      #
 # https://github.com/a7r3/scripts - The Original Repo of this ScriBt   #
 #                                                                      #
-# Usage: bash ROM.sh (Manual) | bash ROM.sh automate (Automated work)  #
+# Usage: bash ROM.sh (Manual) | bash ROM.sh automate (Automated)       #
 #                                                                      #
 # You're free to enter your modifications and submit it to me with     #
 # a Pull Request, such Contributions are readily WELCOME               #
@@ -271,12 +271,25 @@ maven maven2
 		elif [[ "$ANDVER" == "3" ]]; then
 			java8;
 		fi
+		echo -e "Giving up Mah ${LRED}Powerz!${NONE}"
+		exit;
+		echo -e "Peace."
 	elif [[ "$JAVAS" == "2" ]]; then
 		java_select;
 	elif [[ "$JAVAS" == "3" ]]; then
 		main_menu;
 	fi
 } #installdeps
+
+shut_my_mouth ()
+{
+	if [ -f PREF.rc ]; then
+		echo -e "${RED}*${NONE}${LPURP}AutoBot${NONE}${RED}*${NONE} $2 : ${DM$1}"
+	else
+		read DM2; #Value
+		export DM$1="${DM2}";
+	fi
+} #shut_my_mouth
 
 function sync
 {
@@ -288,66 +301,47 @@ function sync
 	echo;
 	echo -e "${LRED}Number of Threads${NONE} for Sync?";
 	echo;
-	# SHUT_MY_MOUTH
-	if [ -f PREF.rc ]; then
-		echo -e "${RED}*${NONE}${LPURP}AutoBot${NONE}${RED}*${NONE} No of Threads : ${JOBS}";
-	else
-		read JOBS;
-	fi
+	ST="No of Threads";
+	shut_my_mouth JOBS $ST;
 	echo;
 	echo -e "${LRED}Force Sync${NONE} needed? ${LGRN}[y/n]${NONE}";
 	echo;
-	if [ -f PREF.rc ]; then
-		echo -e "${RED}*${NONE}${LPURP}AutoBot${NONE}${RED}*${NONE} Force Sync : ${FRC}";
-	else
-		read FRC;
-	fi
+	ST="Force Sync";
+	shut_my_mouth F $ST;
 	echo;
 	echo -e "Need some ${LRED}Silence${NONE} in teh Terminal? ${LGRN}[y/n]${NONE}";
 	echo;
-	# SHUT_MY_MOUTH
-	if [ -f PREF.rc ]; then
-		echo -e "${RED}*${NONE}${LPURP}AutoBot${NONE}${RED}*${NONE} Silent Sync : ${SIL}";
-	else
-		read SIL;
-	fi
+	ST="Silent Sync";
+	shut_my_mouth S $ST;
 	echo;
 	echo -e "Sync only ${LRED}Current${NONE} Branch? ${LGRN}[y/n]${NONE} (Saves Space)";
 	echo;
-	# SHUT_MY_MOUTH
-	if [ -f PREF.rc ]; then
-		echo -e  "${RED}*${NONE}${LPURP}AutoBot${NONE}${RED}*${NONE} Sync ${LRED}Current${NONE} Branch : $CRNT";
-	else
-		read CRNT;
-	fi
+	ST="Sync ${LRED}Current${NONE} Branch";
+	shut_my_mouth C $ST;
 	echo;
 	echo -e "Sync with ${LRED}clone-bundle${NONE} ${LGRN}[y/n]${NONE}?";
 	echo;
-	# SHUT_MY_MOUTH
-	if [ -f PREF.rc ]; then
-		echo -e  "${RED}*${NONE}${LPURP}AutoBot${NONE}${RED}*${NONE} Use ${LRED}clone-bundle${NONE} : $CLN";
-	else
-		read CLN;
-	fi
+	ST="Use ${LRED}clone-bundle${NONE}";
+	shut_my_mouth B $ST;
 	echo;
 	echo -e "${LRED}=====================================================================${NONE}";
 	#Sync-Options
-	if [[ "$SIL" == "y" ]]; then
+	if [[ "$DMS" == "y" ]]; then
 		SILENT=-q;
 	else
 		SILENT=" " ;
 	fi
-	if [[ "$FRC" == "y" ]]; then
+	if [[ "$DMF" == "y" ]]; then
 		FORCE=--force-sync;
 	else
 		FORCE=" " ;
 	fi
-	if [[ "$CRNT" == "y" ]]; then
+	if [[ "$DMC" == "y" ]]; then
 		SYNC_CRNT=-c;
 	else
 		SYNC_CRNT=" ";
 	fi
-	if [[ "$CLN" == "y" ]]; then
+	if [[ "$DMB" == "y" ]]; then
 		CLN_BUN=" ";
 	else
 		CLN_BUN=--no-clone-bundle;
@@ -355,7 +349,7 @@ function sync
 	echo;
 	echo -e "Let's Sync!";
 	echo;
-	repo sync -j${JOBS} ${SILENT} ${FORCE} ${SYNC_CRNT} ${CLN_BUN}  2>&1 | tee $RTMP;
+	repo sync -j${DMJOBS} ${SILENT} ${FORCE} ${SYNC_CRNT} ${CLN_BUN}  2>&1 | tee $RTMP;
 	echo;
 	if [[ $(tac $RTMP | grep -m 1 -c 'Syncing work tree: 100%') == 1 ]]; then
 		echo -e "ROM Source synced successfully.";
@@ -428,56 +422,33 @@ ${LPURP}=======================================================${NONE}";
 	echo;
 	echo -e "Since Branches may live or die at any moment, ${LRED}Specify the Branch${NONE} you're going to sync";
 	echo;
-	# SHUT_MY_MOUTH
-	if [ -f PREF.rc ]; then
-		echo -e "${LRED}Branch${NONE} : $BRANCH";
-	else
-		read BRANCH;
-	fi
+	ST="${LRED}Branch${NONE}";
+	shut_my_mouth BR $ST;
 	echo;
 	echo -e "Any ${LRED}Source you have already synced?${NONE} If ${LGRN}yes${NONE}, then say ${LGRN}YES${NONE} and Press ${LCYAN}ENTER${NONE}";
 	echo;
-	# SHUT_MY_MOUTH
-	if [ -f PREF.rc ]; then
-		if [[ "$REFY" == YES ]]; then
-			echo -e "${RED}*${NONE}${LPURP}AutoBot${NONE}${RED}*${NONE} ${LGRN}YES${NONE}, you have a Reference Source";
-			echo;
-			echo -e "${RED}*${NONE}${LPURP}AutoBot${NONE}${RED}*${NONE} The Reference location is : ${REF}";
-		else
-			echo -e "${RED}*${NONE}${LPURP}AutoBot${NONE}${RED}*${NONE} ${LRED}NO${NONE}, you don't have a Reference Source. Going for a ${LGRN}Fresh${NONE} Sync";
-		fi
+	shut_my_mouth RF $ST;
+	if [[ "$DMRF" == YES ]]; then
+		echo;
+		echo -e "Provide me the ${LRED}Synced Source's Location${NONE} from / ";
+		echo;
+		ST="Reference ${LRED}Location${NONE}";
+		shut_my_mouth RFL $ST;
+		REF=--reference\=\"${DMRFL}\";
 	else
-		read REFY;
-	fi
-
-	if [ ! -f PREF.rc ]; then
-		if [[ "$REFY" == YES ]]; then
-			echo;
-			echo -e "Provide me the ${LRED}Synced Source's Location${NONE} from / ";
-			echo;
-			read REFER;
-			REF=--reference\=\"${REFER}\";
-		else
-			REF=" " ;
-		fi
+		REF=" " ;
 	fi
 	echo;
 	echo -e "Set ${LRED}clone-depth${NONE} ? ${LGRN}[y/n]${NONE} (Basically, it Syncs the ${GRN}Entire commit history of any repo${NONE}, thus Occupying ${LRED}More space${NONE})";
-	if [ -f PREF.rc ]; then
-		echo -e "Use ${LRED}clone-depth${NONE} : ${CLND}";
-	else
-		read CLND;
-	fi
+	ST="Use ${LRED}clone-depth${NONE}";
+	shut_my_mouth CD $ST;
 	echo;
 	echo -e "Depth ${LRED}Value${NONE}? (Default ${LRED}1${NONE})";
 	echo;
-	if [ -f PREF.rc ]; then
-		echo -e "clone-depth ${LRED}Value${NONE} : ${DEPTH}";
-	else
-		read DEPTH;
-	fi
-	if [ -z "$DEPTH" ]; then
-		DEPTH=1;
+	ST="clone-depth ${LRED}Value${NONE}";
+	shut_my_mouth DEP $ST;
+	if [ -z "$DMDEP" ]; then
+		DMDEP=1;
 	fi
 	echo;
 	#Check for Presence of Repo Binary
@@ -504,7 +475,7 @@ ${LPURP}=======================================================${NONE}";
 	echo;
 	echo -e "Let's Initialize teh ROM Repo";
 	echo;
-	repo init ${REF} -u https://github.com/${ROM_NAME}/${MAN} -b ${BRANCH} ;
+	repo init ${REF} -u https://github.com/${ROM_NAME}/${MAN} -b ${DMBR} ;
 	echo;
 	echo -e "Repo Init'ed";
 	echo;
@@ -531,34 +502,22 @@ function pre_build
 	echo;
 	echo -e "${LPURP}Done.${NONE}.";
 	echo; echo;
-	echo -e "${LCYAN}====================== DEVICE INFO ======================${NONE}";
+	echo -e "${LCYAN}====================== DMDEV INFO ======================${NONE}";
 	echo;
 	echo -e "What's your ${LRED}Device's CodeName${NONE} ${LGRN}[Refer Device Tree - All Lowercases]${NONE}?";
 	echo;
-	# SHUT_MY_MOUTH
-	if [ -f PREF.rc ]; then
-		echo -e "Your Device ${LRED}Name${NONE} is : ${DEVICE}";
-	else
-		read DEVICE;
-	fi
+	ST="Your Device ${LRED}Name${NONE} is";
+	shut_my_mouth DMDEV $ST;
 	echo;
 	echo -e "The ${LRED}Build type${NONE}? ${LGRN}[userdebug/user/eng]${NONE}";
 	echo;
-	# SHUT_MY_MOUTH
-	if [ -f PREF.rc ]; then
-		echo -e "Build ${LRED}type${NONE}: ${DEVICE}";
-	else
-		read BTYP;
-	fi
+	ST="Build ${LRED}type${NONE}";
+	shut_my_mouth DMBT $ST;
 	echo;
 	echo -e "Your ${LRED}Device's Company/Vendor${NONE} (All Lowercases)?";
 	echo;
-	# SHUT_MY_MOUTH
-	if [ -f PREF.rc ]; then
-		echo -e "Device's ${LRED}Vendor${NONE} : ${COMP}";
-	else
-		read COMP;
-	fi
+	ST="Device's ${LRED}Vendor${NONE}";
+	shut_my_mouth DMCM $ST;
 	echo;
 	echo -e "${LCYAN}=========================================================${NONE}";
 	rom_names $ROMNO;
@@ -577,8 +536,8 @@ function vendor_strat_all
 	if [ -f ${ROMNIS}.devices ]; then
 		echo -e "Adding your Device to ROM Vendor (Strategy 1)";
 		echo;
-		if [[ $(grep -c '${DEVICE}' ${ROMNIS}.devices) == "0" ]]; then
-			echo "${DEVICE}" >> ${ROMNIS}.devices;
+		if [[ $(grep -c '${DMDEV}' ${ROMNIS}.devices) == "0" ]]; then
+			echo "${DMDEV}" >> ${ROMNIS}.devices;
 		else
 			echo -e "Device was already added to ${ROMNIS} vendor";
 		fi
@@ -587,8 +546,8 @@ function vendor_strat_all
 	elif [ -f ${ROMNIS}-device-targets ]; then
 		echo -e "Adding your Device to ROM Vendor (Strategy 4)";
 		echo;
-		if [[ $(grep -c '${DEVICE}' ${ROMNIS}-device-targets) == "0" ]]; then
-			echo -e "${ROMNIS}_${DEVICE}-${BTYP}";
+		if [[ $(grep -c '${DMDEV}' ${ROMNIS}-device-targets) == "0" ]]; then
+			echo -e "${ROMNIS}_${DMDEV}-${DMBT}";
 		else
 			echo -e "Device was already added to ${ROM_FN} vendor";
 		fi
@@ -596,8 +555,8 @@ function vendor_strat_all
 	elif [ -f vendorsetup.sh ]; then
 		echo -e "Adding your Device to ROM Vendor (Strategy 2)";
 		echo;
-		if [[ $(grep -c '${DEVICE}' vendorsetup.sh) == "0" ]]; then
-			echo "add_lunch_combo ${ROMNIS}_${DEVICE}-${BTYP}" >> vendorsetup.sh;
+		if [[ $(grep -c '${DMDEV}' vendorsetup.sh) == "0" ]]; then
+			echo "add_lunch_combo ${ROMNIS}_${DMDEV}-${DMBT}" >> vendorsetup.sh;
 		else
 			echo -e "Device was already added to ${ROMNIS} vendor";
 		fi
@@ -608,14 +567,14 @@ function vendor_strat_all
 		echo "Adding your Device to ROM Vendor (Strategy 3)";
 		echo -e "Let's go to teh ${LRED}Device Directory!${NONE}";
 		echo;
-		cd device/${COMP}/${DEVICE};
+		cd device/${DMCM}/${DMDEV};
 		echo -e "Creating vendorsetup.sh if absent in tree";
 			if [ ! -f vendorsetup.sh ]; then
 				touch vendorsetup.sh;
 				echo -e "Done [1/2]";
 			fi
-			if [[ $(grep -c '${ROMNIS}_${DEVICE}' vendorsetup.sh ) == "0" ]]; then
-				echo -e "add_lunch_combo ${ROMNIS}_${DEVICE}-${BTYP}" >> vendorsetup.sh;
+			if [[ $(grep -c '${ROMNIS}_${DMDEV}' vendorsetup.sh ) == "0" ]]; then
+				echo -e "add_lunch_combo ${ROMNIS}_${DMDEV}-${DMBT}" >> vendorsetup.sh;
 			else
 				echo -e "Device already added to vendorsetup.sh";
 			fi
@@ -633,28 +592,24 @@ function vendor_strat_kpa #for ROMs having products folder
 	# SHUT_MY_MOUTH
 	if [ ! -f PREF.rc ]; then
 		if [[ "$ROMNIS" == "pac" || "$ROMNIS" == "krexus" ]]; then
-			THE_FILE=${ROMNIS}_${DEVICE}.mk;
+			THE_FILE=${ROMNIS}_${DMDEV}.mk;
 		else
 			#AOKP
-			THE_FILE=${DEVICE}.mk
+			THE_FILE=${DMDEV}.mk;
 			echo -e '\n' >> AndroidProducts.mk;
 			echo "PRODUCT_MAKEFILES := \ " >> AndroidProducts.mk;
-			echo -e "\t$(LOCAL_DIR)/${DEVICE}.mk" >> AndroidProducts.mk;
+			echo -e "\t$(LOCAL_DIR)/${DMDEV}.mk" >> AndroidProducts.mk;
 		fi
 	else
-		${RED}*${NONE}${LPURP}AutoBot${NONE}${RED}*${NONE} Device-Vendor Conjunction File : ${THE_FILE};
+		echo -e "${RED}*${NONE}${LPURP}AutoBot${NONE}${RED}*${NONE} Device-Vendor Conjunction File : ${THE_FILE}";
 	fi
 	#Create Device-Vendor Conjuctor
 	touch ${THE_FILE};
-	echo -e "Name your Device Specific Configuration File ( eg. ${ROMNIS}.mk / full_huashan.mk as in your device tree)";
+	echo -e "Name your Device Specific Configuration File ( eg. ${ROMNIS}.mk / full_${DMDEV}.mk as in your device tree)";
 	echo;
-	# SHUT_MY_MOUTH
-	if [ ! -f PREF.rc ]; then
-		read DEVCON;
-	else
-		echo -e "${RED}*${NONE}${LPURP}AutoBot${NONE}${RED}*${NONE} Device Configuration file : ${DEVCON}";
-	fi
-	echo -e "\$(call inherit-product, device/${COMP}/${DEVICE}/${DEVCON})" >> ${THE_FILE};
+	ST="Device Configuration file";
+	shut_my_mouth DMDCON $ST;
+	echo -e "\$(call inherit-product, device/${DMCM}/${DMDEV}/${DMDCON})" >> ${THE_FILE};
 	echo -e "Specify your Device's Resolution in the format ${LCYAN}HORIZONTAL${NONE}${LRED}x${NONE}${LCYAN}VERTICAL${NONE} (eg. 1280x720)";
 	if [ ! -f PREF.rc ]; then
 		echo -e "Among these Values - Select the one which is nearest or almost Equal to that of your Device";
@@ -699,14 +654,14 @@ ${LPURP}2560${NONE}x1600";
     echo -e "\tvendor/aokp/prebuilt/bootanimation/bootanimation_${BOOTRES}.zip:system/media/bootanimation.zip" >> ${THE_FILE};
 	fi
 	#PRODUCT_NAME is the only ROM-dependent variable, setting it here is better.
-	echo "PRODUCT_NAME := ${ROMNIS}_${DEVICE}" >> ${THE_FILE};
+	echo "PRODUCT_NAME := ${ROMNIS}_${DMDEV}" >> ${THE_FILE};
 } #vendor_strat_kpa
 
 	if [ -f vendor/${ROMNIS}/products ]; then
-		if [ ! -f vendor/${ROMNIS}/products/${ROMNIS}_${DEVICE}.mk || ! -f vendor/${ROMNIS}/products/${DEVICE}.mk ]; then
+		if [ ! -f vendor/${ROMNIS}/products/${ROMNIS}_${DMDEV}.mk || ! -f vendor/${ROMNIS}/products/${DMDEV}.mk ]; then
 			vendor_strat_kpa; #if found products folder
 		else
-			echo -e "Looks like ${DEVICE} has been already added to ${ROM_FN} vendor. Good to go";
+			echo -e "Looks like ${DMDEV} has been already added to ${ROM_FN} vendor. Good to go";
 		fi
 	else
 		vendor_strat_all; #if not found
@@ -723,8 +678,6 @@ ${LPURP}2560${NONE}x1600";
 		echo;
 		echo -e "${PURP}=========================================================${NONE}";
 		read ENTER;
-	fi
-	if [ ! -f PREF.rc ]; then
 		quick_menu;
 	else
 	the_response COOL Pre-Build;
@@ -740,9 +693,9 @@ function build
 	clean_build ()
 	{
 		if [[ "$1" == "1" ]]; then
-			$MKWAY installclean
+			$DMMK installclean
 		elif [[ "$1" == "2" ]]; then
-			$MKWAY clean
+			$DMMK clean
 		fi
 	} #clean_build
 
@@ -891,25 +844,26 @@ function build
 
 	function build_make
 	{
+		echo -e "${LGRN}Starting Compilation - ${ROM_FN} for ${DMDEV}${NONE}";
 		# For Brunchers
-		if [[ "$SELT" == "brunch" ]]; then
+		if [[ "$DMSLT" == "brunch" ]]; then
 			clean_build;
-			time ${SELT} ${DEVICE};
+			time ${DMSLT} ${DMDEV};
 		else
 			# For Mka-s/Make-rs
-			if [[ "$MKWAY" == "make" ]]; then
+			if [[ "$DMMK" == "make" ]]; then
 				BCORES=$(grep -c ^processor /proc/cpuinfo);
 			else
 				BCORES="";
 			fi
 			if [[ "$ROMNIS" == "tipsy" || "$ROMNIS" == "validus" || "$ROMNIS" == "tesla" ]]; then
-				time	$MKWAY $ROMNIS $BCORES 2>&1 | tee $RMTMP;
+				time	$DMMK $ROMNIS $BCORES 2>&1 | tee $RMTMP;
 				echo;
 			elif [[ $(grep -q "^bacon:" "${ANDROID_BUILD_TOP}/build/core/Makefile") ]]; then
-				time $MKWAY bacon $BCORES 2>&1 | tee $RMTMP;
+				time $DMMK bacon $BCORES 2>&1 | tee $RMTMP;
 				echo;
 			else
-				time $MKWAY otapackage $BCORES 2>&1 | tee $RMTMP;
+				time $DMMK otapackage $BCORES 2>&1 | tee $RMTMP;
 				echo;
 			fi
 			post_build;
@@ -930,17 +884,13 @@ function build
 		echo -e "${YELO}Tip!${NONE} - If you're building it for the first time, then select ${RED}lunch${NONE} (Recommended)";
 		echo -e "${LBLU}===========================================================================================${NONE}";
 		echo;
-		# SHUT_MY_MOUTH
-		if [ -f PREF.rc ]; then
-			echo -e "${RED}*${NONE}${LPURP}AutoBot${NONE}${RED}*${NONE} Selected Option : $SELT"
-		else
-			read SELT;
-		fi
+		ST="Selected Option";
+		shut_my_mouth SLT $ST;
 		echo;
-		if [[ "$SELT" == "lunch" ]]; then
-			${SELT} ${ROMNIS}_${DEVICE}-${BTYP}
-		elif [[ "$SELT" == "breakfast" ]]; then
-			${SELT} ${DEVICE} ${BTYP}
+		if [[ "$DMSLT" == "lunch" ]]; then
+			${DMSLT} ${ROMNIS}_${DMDEV}-${DMBT}
+		elif [[ "$DMSLT" == "breakfast" ]]; then
+			${DMSLT} ${DMDEV} ${DMBT}
 		fi
 		echo;
 	} #hotel_menu
@@ -965,57 +915,37 @@ function build
 	echo;
 	echo -e "${LPURP}=========================================================${NONE}"
 	echo;
-	if [ -f PREF.rc ]; then
-		echo -e "${RED}*${NONE}${LPURP}AutoBot${NONE}${RED}*${NONE} Option Selected : $BOPT"
-	else
-		read BOPT;
-	fi
+	ST="Option Selected";
+	shut_my_mouth BO $ST;
 	echo;
-	case "$BOPT" in
+	case "$DMBO" in
 		1)
 			hotel_menu;
 			echo;
 			echo -e "Should i use '${YELO}make${NONE}' or '${RED}mka${NONE}' ?"
-			# SHUT_MY_MOUTH
-			echo;
-			if [ -f PREF.rc ]; then
-				echo -e "${RED}*${NONE}${LPURP}AutoBot${NONE}${RED}*${NONE} Selected Method : $MKWAY "
-			else
-				read MKWAY;
-			fi
+			ST="Selected Method";
+			shut_my_mouth MK $ST;
 			echo;
 			echo -e "Wanna Clean the ${LPURP}/out${NONE} before Building? ${LGRN}[2 - Remove Staging / 3 - Full Clean]${NONE}"
 			echo;
-			if [ -f PREF.rc ]; then
-				echo -e "${RED}*${NONE}${LPURP}AutoBot${NONE}${RED}*${NONE} Option Selected : $COPT ";
-			else
-				read COPT;
-			fi
+			ST="Option Selected";
+			shut_my_mouth CL $ST;
 			echo;
-				clean_build $COPT; #CLEAN THE BUILD
+			clean_build $DMCL; #CLEAN THE BUILD
 			echo;
 			if [[ $(tac ${ANDROID_BUILD_TOP}/build/core/build_id.mk | grep -c 'BUILD_ID=M') == "1" ]]; then
 				echo -e "Wanna use Jack Toolchain ? [y/n]"
-				# SHUT_MY_MOUTH
-				if [ -f PREF.rc ]; then
-					echo -e "${RED}*${NONE}${LPURP}AutoBot${NONE}${RED}*${NONE} Use ${LRED}Jacky${NONE} : ${USEJK}";
-				else
-					read USEJK;
-				fi
+				ST="Use ${LRED}Jacky${NONE}";
+				shut_my_mouth JK $ST;
 				if [[ "$USEJK" == n ]]; then
 					export ANDROID_COMPILE_WITH_JACK=false;
 				else
 					export ANDROID_COMPILE_WITH_JACK=true;
 				fi
 #			elif [[ $(tac ${ANDROID_BUILD_TOP}/build/core/build_id.mk | grep -c 'BUILD_ID=N') == "1" ]]; then
-#				echo -e "Wanna use Ninja Toolchain ? [y/n]"
-#				# SHUT_MY_MOUTH
-#				if [ -f PREF.rc ]; then
-#					echo -e "${RED}*${NONE}${LPURP}AutoBot${NONE}${RED}*${NONE} Use ${LRED}Ninja${NONE} : ${USEJK}";
-#				else
-#					read USEN;
-#				fi
-#				if [[ "$USEN" == n ]]; then
+#				ST="Wanna use Ninja Toolchain ? [y/n]";
+#				shut_my_mouth NJ $ST;
+#				if [[ "$DMNJ" == n ]]; then
 #					export ANDROID_COMPILE_WITH_NINJA=false; # ??? WiP - When Builds start, It'll get Edited
 #				else
 #					export ANDROID_COMPILE_WITH_NINJA=true;  # ???
