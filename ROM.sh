@@ -28,15 +28,16 @@
 # Arvind Raj (Myself)                                                  #
 # Adrian DC                                                            #
 # Akhil Narang                                                         #
+# CubeDev                                                              #
 #======================================================================#
 
 function apt_check
 {
-	if [ -f "/bin/yum" ]; then
-		echo -e "Wew, ScriBt only works on Debian/Ubuntu";
+	if [ -d "/etc/apt" ]; then
+		echo -e "${LRED}Alright, apt detected.${NONE}";
+	else
+		echo -e "Apt configuration has not been found. A Debian/Ubuntu based Distribution is required to run ScriBt.";
 		exit 1;
-	elif [ -d "/etc/apt" ]; then
-		echo -e "${LRED}apt detected${NONE}. Good to go"
 	fi
 }
 
