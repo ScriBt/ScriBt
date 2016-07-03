@@ -41,20 +41,29 @@ function apt_check
 	fi
 }
 
+function enter_the_root
+{
+	echo -e "Provide ${LRED}Root${LRED} access to ScriBt. No Hacks Honestly (Check the Code)\n";
+	sudo -i;
+	if [[ $(whoami) == "root" ]]; then
+		echo -e "${LGRN}Root access OK.${NONE} Performing Changes.";
+	else
+		echo -e "No Root Access, Abort.";
+		main_menu;
+	fi
+}
+
 function me_quit_root
 {
-	echo -e "Giving up Mah ${LRED}Powerz!${NONE}";
+	echo -e "Giving up Mah ${LRED}Powerz!${NONE}\n";
 	exit;
-	echo;
 	echo -e "Peace.";
 }
 
 function exitScriBt
 {
-	echo; echo;
-	echo -e "Thanks for using this ${LRED}S${NONE}cri${GRN}B${NONE}t. Have a Nice Day";
+	echo -e "\n\nThanks for using this ${LRED}S${NONE}cri${GRN}B${NONE}t. Have a Nice Day\n\n";
 	sleep 2;
-	echo;
 	echo -e "${LRED}Bye!${NONE}";
 	exit 0;
 } #exitScriBt
@@ -73,21 +82,16 @@ function main_menu
 	echo -ne '\033]0;ScriBt : Main Menu\007';
 	echo -e "${LRED}=======================================================${NONE}";
 	echo -e "${LRED}====================${NONE}${CYAN}[*]${NONE}${PURP}MAIN MENU${NONE}${CYAN}[*]${NONE}${LRED}====================${NONE}";
-	echo -e "${LRED}=======================================================${NONE}";
-	echo;
-	echo -e "         Select the Action you want to perform         ";
-	echo;
+	echo -e "${LRED}=======================================================${NONE}\n";
+	echo -e "         Select the Action you want to perform\n";
 	echo -e "${LBLU}1${NONE}${CYAN} ................${NONE}${RED}Choose ROM & Init*${NONE}${CYAN}.................${NONE} ${LBLU}1${NONE}";
 	echo -e "${LBLU}2${NONE}${CYAN} .......................${NONE}${YELO}Sync${NONE}${CYAN}........................${NONE} ${LBLU}2${NONE}";
 	echo -e "${LBLU}3${NONE}${CYAN} .....................${NONE}${GRN}Pre-Build${NONE}${CYAN}.....................${NONE} ${LBLU}3${NONE}";
 	echo -e "${LBLU}4${NONE}${CYAN} .......................${NONE}${LGRN}Build${NONE}${CYAN}.......................${NONE} ${LBLU}4${NONE}";
-	echo -e "${LBLU}5${NONE}${CYAN} ........${NONE}${PURP}Check and Install Build Dependencies${NONE}${CYAN}.......${NONE} ${LBLU}5${NONE}";
-	echo;
-	echo -e "6 .......................EXIT........................ 6";
-	echo;
+	echo -e "${LBLU}5${NONE}${CYAN} ........${NONE}${PURP}Check and Install Build Dependencies${NONE}${CYAN}.......${NONE} ${LBLU}5${NONE}\n";
+	echo -e "6 .......................EXIT........................ 6\n";
 	echo -e "* - Sync will Automatically Start after Init'ing Repo";
-	echo -e "${LRED}=======================================================${NONE}";
-	echo;
+	echo -e "${LRED}=======================================================${NONE}\n";
 	read ACTION;
 	teh_action $ACTION;
 } #main_menu
@@ -97,7 +101,7 @@ function quick_menu
 	echo -ne '\033]0;ScriBt : Quick Menu\007';
 	echo -e "${YELO}============================${NONE} ${LRED}QUICK-MENU${NONE} ${YELO}=============================${NONE}";
 	echo -e "${RED}1. Init${NONE} | ${YELO}2. Sync${NONE} | ${GRN}3. Pre-Build${NONE} | ${LGRN}4. Build${NONE} | ${PURP}5. Install Dependencies${NONE}";
-	echo -e "                               6. Exit                               ";
+	echo -e "                               6. Exit";
 	echo -e "${YELO}=====================================================================${NONE}";
 	read ACTION;
 	teh_action $ACTION;
@@ -106,15 +110,11 @@ function quick_menu
 cherrypick ()
 {
 	echo -ne '\033]0;ScriBt : Picking Cherries\007';
-	echo -e "${GRN}========================= Teh${NONE} ${LRED}Cherry${NONE} ${GRN}Picker========================${NONE}";
- 	echo;
-	echo -e "     ${RED}*${NONE}${LPURP}AutoBot${NONE}${RED}*${NONE} Attempting to Cherry-Pick Provided Commits         ";
-	echo;
-  	git fetch https://github.com/${REPOPK}/${REPONAME} ${CP_BRNC};
- 	echo;
+	echo -e "${GRN}========================= Teh${NONE} ${LRED}Cherry${NONE} ${GRN}Picker========================${NONE}\n";
+	echo -e "     ${RED}*${NONE}${LPURP}AutoBot${NONE}${RED}*${NONE} Attempting to Cherry-Pick Provided Commits\n";
+  git fetch https://github.com/${REPOPK}/${REPONAME} ${CP_BRNC};
  	git cherry-pick $1;
-	echo;
- 	echo -e "IT's possible that you may face conflicts while merging a C-Pick. Solve those and then Continue.";
+ 	echo -e "\nIT's possible that you may face conflicts while merging a C-Pick. Solve those and then Continue.";
 	echo -e "${GRN}==================================================================${NONE}";
 }
 
@@ -127,15 +127,12 @@ function installdeps
 	{
 		echo -e "If you have Installed Multiple Versions of Java or Installed Java from Different Providers (OpenJDK / Oracle)";
 		echo -e "You may now select the Version of Java which is to be used BY-DEFAULT";
-		echo -e "${BLU}================================================================${NONE}";
-		echo;
-		sudo update-alternatives --config java;
-		echo;
-		echo -e "${BLU}================================================================${NONE}";
-		echo;
-		sudo update-alternatives --config javac;
-		echo;
-		echo -e "${BLU}================================================================${NONE}";
+		enter_the_root;
+		echo -e "${BLU}================================================================${NONE}\n";
+		update-alternatives --config java;
+		echo -e "\n${BLU}================================================================${NONE}\n";
+		update-alternatives --config javac;
+		echo -e "\n${BLU}================================================================${NONE}";
 		me_quit_root;
 	}
 
@@ -143,31 +140,24 @@ function installdeps
 	{
 		echo -ne '\033]0;ScriBt : Java 6\007';
 		echo -e "Installing OpenJDK-6 (Java 1.6.0)";
-		echo -e "${LRED}Remove${NONE} other Versions of Java ${LGRN}[y/n]${NONE}? ( Removing them is Recommended)";
-		echo;
+		echo -e "${LRED}Remove${NONE} other Versions of Java ${LGRN}[y/n]${NONE}? ( Removing them is Recommended)\n";
 		read REMOJA;
 		echo;
+		enter_the_root;
 		if [[ "$REMOJA" == "y" ]]; then
-			sudo apt-get purge openjdk-* icedtea-* icedtea6-*;
-			echo;
-			echo -e "Removed Other Versions successfully";
+			apt-get purge openjdk-* icedtea-* icedtea6-*;
+			echo -e "\nRemoved Other Versions successfully";
 		elif [[ "$REMOJA" == "n" ]]; then
 		 echo -e "Keeping them Intact";
 	 	fi
-	 	echo -e "${RED}==========================================================${NONE}";
-	 	echo;
-		sudo apt-get update;
-		echo;
-		echo -e "${RED}==========================================================${NONE}";
-		echo;
-		sudo apt-get install openjdk-6-jdk;
-		echo;
-		echo -e "${RED}==========================================================${NONE}";
-		echo;
+	 	echo -e "${RED}==========================================================${NONE}\n";
+		apt-get update;
+		echo -e "\n${RED}==========================================================${NONE}\n";
+		apt-get install openjdk-6-jdk;
 		me_quit_root;
+		echo -e "\n${RED}==========================================================${NONE}";
 		if [[ $( java -version &> $TMP && grep -c 'java version "1.6' $TMP ) == "1" ]]; then
 			echo -e "OpenJDK-6 or Java 6 has been successfully installed";
-			echo;
 			echo -e "${RED}==========================================================${NONE}";
 		fi
 	}
@@ -176,28 +166,23 @@ function installdeps
 	{
 		echo -ne '\033]0;ScriBt : Java 7\007';
 		echo -e "Installing OpenJDK-7 (Java 1.7.0)";
-		echo -e "${LRED}Remove${NONE} other Versions of Java ${LRED}[y/n]${NONE}? ( Removing them is Recommended)";
-		echo;
+		echo -e "${LRED}Remove${NONE} other Versions of Java ${LRED}[y/n]${NONE}? ( Removing them is Recommended)\n";
 		read REMOJA;
 		echo;
+		enter_the_root;
 		if [[ "$REMOJA" == "y" ]]; then
-			sudo apt-get purge openjdk-\* icedtea-\* icedtea6-\*
-			echo -e "Removed Other Versions successfully";
+			apt-get purge openjdk-\* icedtea-\* icedtea6-\*
+			echo -e "\nRemoved Other Versions successfully";
 		elif [[ "$REMOJA" == "n" ]]; then
 		 	echo -e "Keeping them Intact";
 	 	fi
-	 	echo;
-	 	echo -e "${RED}==========================================================${NONE}";
-		echo;
-		sudo apt-get update;
-		echo;
-		echo -e "${RED}==========================================================${NONE}";
-		echo;
-		sudo apt-get install openjdk-7-jdk;
+	 	echo -e "\n${RED}==========================================================${NONE}\n";
+		apt-get update;
+		echo -e "\n${RED}==========================================================${NONE}\n";
+		apt-get install openjdk-7-jdk;
 		echo;
 		me_quit_root;
 		if [[ $(java -version &> $TMP && grep -c 'java version "1.7' $TMP ) == "1" ]]; then
-			echo;
 			echo -e "${RED}==========================================================${NONE}";
 			echo -e "OpenJDK-7 or Java 7 has been successfully installed";
 		fi
@@ -207,27 +192,22 @@ function installdeps
 	function java8
 	{
 		echo -ne '\033]0;ScriBt : Java 8\007';
-		echo -e "${LRED}Remove${NONE} other Versions of Java ${LGRN}[y/n]${NONE}? ( Removing them is Recommended)";
-		echo;
+		echo -e "${LRED}Remove${NONE} other Versions of Java ${LGRN}[y/n]${NONE}? ( Removing them is Recommended)\n";
 		read REMOJA;
+		echo;
+		enter_the_root;
 		if [[ "$REMOJA" == "y" ]]; then
-			echo;
-			sudo apt-get purge openjdk-* icedtea-* icedtea6-*;
-			echo;
-			echo -e "Removed Other Versions successfully";
+			apt-get purge openjdk-* icedtea-* icedtea6-*;
+			echo -e "\nRemoved Other Versions successfully";
 		elif [[ "$REMOJA" == "n" ]]; then
 		 	echo -e "Keeping them Intact";
 	 	fi
 		echo;
-		echo -e "Installing OpenJDK-8 (Java 1.8.0)";
-		echo;
-		echo -e "${RED}==========================================================${NONE}";
-		echo;
-		sudo apt-get update;
-		echo;
-		echo -e "${RED}==========================================================${NONE}";
-		echo;
-		sudo apt-get install openjdk-8-jdk;
+		echo -e "Installing OpenJDK-8 (Java 1.8.0)\n";
+		echo -e "${RED}==========================================================${NONE}\n";
+		apt-get update;
+		echo -e "\n${RED}==========================================================${NONE}\n";
+		apt-get install openjdk-8-jdk;
 		echo;
 		me_quit_root;
 		echo -e "${RED}==========================================================${NONE}";
@@ -237,11 +217,10 @@ function installdeps
 		echo -e "${RED}==========================================================${NONE}";
 	}
 
-	echo -e "${RED}==========================================================${NONE}";
-	echo;
-	echo -e "Installing Build Dependencies...";
-	echo;
-sudo apt-get install git-core gnupg ccache lzop flex bison \
+	enter_the_root;
+	echo -e "${RED}==========================================================${NONE}\n";
+	echo -e "Installing Build Dependencies...\n";
+apt-get install git-core gnupg ccache lzop flex bison \
 gperf build-essential zip curl zlib1g-dev \
 zlib1g-dev:i386 libc6-dev lib32ncurses5 lib32z1 \
 lib32bz2-1.0 lib32ncurses5-dev x11proto-core-dev \
@@ -255,25 +234,19 @@ libreadline6:i386 bzip2 libbz2-dev libbz2-1.0 libghc-bzlib-dev \
 lib32bz2-dev libsdl1.2-dev libesd0-dev squashfs-tools \
 pngcrush schedtool libwxgtk2.8-dev python liblz4-tool \
 maven maven2
+	echo -e "\n${RED}==========================================================${NONE}\n";
+	echo -e "Updating / Creating Android udev rules (51-android)\n";
+	curl --create-dirs -L -o /etc/udev/rules.d/51-android.rules -O -L https://raw.githubusercontent.com/snowdream/51-android/master/51-android.rules;
+	chmod a+r /etc/udev/rules.d/51-android.rules;
+	service udev restart;
 	echo;
-	echo -e "${RED}==========================================================${NONE}";
-	echo;
-	echo -e "Updating / Creating Android udev rules (51-android)";
-	echo;
-	sudo curl --create-dirs -L -o /etc/udev/rules.d/51-android.rules -O -L https://raw.githubusercontent.com/snowdream/51-android/master/51-android.rules;
-	sudo chmod a+r /etc/udev/rules.d/51-android.rules;
-	sudo service udev restart;
-	echo;
-	echo -e "${RED}==========================================================${NONE}";
-	echo; echo;
-	echo -e "${LGRN}=====================${NONE} ${LPURP}JAVA Installation${NONE} ${LGRN}====================${NONE}";
-	echo;
+	me_quit_root;
+	echo -e "${RED}==========================================================${NONE}\n\n";
+	echo -e "${LGRN}=====================${NONE} ${LPURP}JAVA Installation${NONE} ${LGRN}====================${NONE}\n";
 	echo -e "1. Install Java";
-	echo -e "2. Switch Between Java Versions / Providers";
-	echo;
+	echo -e "2. Switch Between Java Versions / Providers\n";
 	echo -e "3. Already Configured? Back to Main Menu";
-	echo -e "${LGRN}==========================================================${NONE}";
-	echo;
+	echo -e "${LGRN}==========================================================${NONE}\n";
 	read JAVAS;
 	echo;
 	case "$JAVAS" in
@@ -282,8 +255,7 @@ maven maven2
 			echo -e "Android Version of the ROM you're building ? ";
 			echo -e "1. 4.4 KitKat";
 			echo -e "2. 5.x.x Lollipop & 6.x.x Marshmallow";
-			echo -e "3. Android N (lol)";
-			echo;
+			echo -e "3. Android N (lol)\n";
 			read ANDVER;
 			echo;
 			case "$ANDVER" in
@@ -318,8 +290,7 @@ function sync
 	if [ -f PREF.rc ]; then
 		teh_action 2;
 	fi
-	echo;
-	echo -e "Preparing for Sync\n";
+	echo -e "\nPreparing for Sync\n";
 	echo -e "${LRED}Number of Threads${NONE} for Sync?\n";
 	ST="${LRED}Number${NONE} of Threads";
 	shut_my_mouth JOBS $ST;
@@ -361,20 +332,16 @@ function sync
 	repo sync -j${DMJOBS} ${SILENT} ${FORCE} ${SYNC_CRNT} ${CLN_BUN}  2>&1 | tee $RTMP;
 	echo;
 	if [[ $(tac $RTMP | grep -m 1 -c 'Syncing work tree: 100%') == 1 ]]; then
-		echo -e "ROM Source synced successfully.";
+		echo -e "ROM Source synced successfully.\n";
 		if [ -f PREF.rc ]; then
-			echo;
 			the_response COOL Sync;
 		fi
 	else
 		if [ -f PREF.rc ]; then
-			echo;
 			the_response FAIL Sync;
 		fi
-		echo;
-		echo -e "${LPURP}Done.${NONE}!\n";
-		echo -e "${LRED}=====================================================================${NONE}";
-		echo;
+		echo -e "\n${LPURP}Done.${NONE}!\n";
+		echo -e "${LRED}=====================================================================${NONE}\n";
 		if [ ! -f PREF.rc ]; then
 			quick_menu;
 		fi
@@ -386,8 +353,7 @@ function init
 	if [ -f PREF.rc ]; then
 		teh_action 1;
 	fi
-	echo -e "${LPURP}=======================================================${NONE}";
-	echo;
+	echo -e "${LPURP}=======================================================${NONE}\n";
 	echo -e "Which ROM are you trying to build?
 Choose among these (Number Selection)
 
@@ -415,8 +381,7 @@ Choose among these (Number Selection)
 22.${LCYAN} XenonHD by Team Horizon ${NONE}
 23.${BLU} Xperia Open Source Project aka XOSP ${NONE}
 
-${LPURP}=======================================================${NONE}";
-	echo;
+${LPURP}=======================================================${NONE}\n";
 	if [ ! -f PREF.rc ]; then
 		read ROMN;
 		export ROMNO=$ROMN; # Only for Manual Usage
@@ -424,18 +389,15 @@ ${LPURP}=======================================================${NONE}";
 	#
 	rom_names $ROMNO;
 	#
-	echo;
-	echo -e "You have chosen ${LCYAN}->${NONE} $ROM_FN";
+	echo -e "\nYou have chosen ${LCYAN}->${NONE} $ROM_FN\n";
 	sleep 1;
-	echo;
 	echo -e "Since Branches may live or die at any moment, ${LRED}Specify the Branch${NONE} you're going to sync\n";
 	ST="${LRED}Branch${NONE}";
 	shut_my_mouth BR $ST;
 	echo -e "Any ${LRED}Source you have already synced?${NONE} If ${LGRN}yes${NONE}, then say ${LGRN}YES${NONE} and Press ${LCYAN}ENTER${NONE}\n";
 	shut_my_mouth RF $ST;
 	if [[ "$DMRF" == YES ]]; then
-		echo;
-		echo -e "Provide me the ${LRED}Synced Source's Location${NONE} from ${LRED}/${NONE} \n";
+		echo -e "\nProvide me the ${LRED}Synced Source's Location${NONE} from ${LRED}/${NONE} \n";
 		ST="Reference ${LRED}Location${NONE}";
 		shut_my_mouth RFL $ST;
 		REF=--reference\=\"${DMRFL}\";
@@ -471,14 +433,12 @@ ${LPURP}=======================================================${NONE}";
 	echo -e "${LBLU}=========================================================${NONE}\n";
 	echo -e "Let's Initialize teh ROM Repo\n";
 	repo init ${REF} -u https://github.com/${ROM_NAME}/${MAN} -b ${DMBR} ;
-	echo;
-	echo -e "${ROM_NAME} Repo Initialized\n";
-	echo -e "${LBLU}=========================================================${NONE}";
-	echo;
+	echo -e "\n${ROM_NAME} Repo Initialized\n";
+	echo -e "${LBLU}=========================================================${NONE}\n";
 	mkdir .repo/local_manifests;
 	if [ ! -f PREF.rc ]; then
 		echo -e "A folder \"local_manifests\" has been created for you.";
-		echo -e "Add either a ${LRED}local_manifest.xml${NONE} or ${LRED}roomservice.xml${NONE} as per your choice";
+		echo -e "Add either a ${LRED}local_manifest.xml${NONE} or ${LRED}roomservice.xml${NONE} as per your choice\n";
 		echo -e "And add your Device-Specific Repos, essential for Building. Press ENTER to start Syncing.";
 		read ENTER;
 		echo;
@@ -494,8 +454,7 @@ function pre_build
 	fi
 	echo -e "${CYAN}Initializing Build Environment${NONE}\n";
 	. build/envsetup.sh;
-	echo;
-	echo -e "${LPURP}Done.${NONE}.\n\n";
+	echo -e "\n${LPURP}Done.${NONE}.\n\n";
 	echo -e "${LCYAN}====================== DEVICE INFO ======================${NONE}\n";
 	echo -e "What's your ${LRED}Device's CodeName${NONE} ${LGRN}[Refer Device Tree - All Lowercases]${NONE}?\n";
 	ST="Your Device ${LRED}Name${NONE} is";
@@ -506,10 +465,8 @@ function pre_build
 	echo -e "Your ${LRED}Device's Company/Vendor${NONE} (All Lowercases)?\n";
 	ST="Device's ${LRED}Vendor${NONE}";
 	shut_my_mouth DMCM $ST;
-	echo -e "${LCYAN}=========================================================${NONE}";
+	echo -e "${LCYAN}=========================================================${NONE}\n\n";
 	rom_names $ROMNO;
-	echo;
-	echo;
 
 function vendor_strat_all
 {
@@ -518,11 +475,9 @@ function vendor_strat_all
 	else
 		cd vendor/${ROMNIS};
 	fi
-	echo -e "${LPURP}=========================================================${NONE}";
-	echo;
+	echo -e "${LPURP}=========================================================${NONE}\n";
 	if [ -f ${ROMNIS}.devices ]; then
-		echo -e "Adding your Device to ROM Vendor (Strategy 1)";
-		echo;
+		echo -e "Adding your Device to ROM Vendor (Strategy 1)\n";
 		if [[ $(grep -c '${DMDEV}' ${ROMNIS}.devices) == "0" ]]; then
 			echo "${DMDEV}" >> ${ROMNIS}.devices;
 		else
@@ -555,8 +510,7 @@ function vendor_strat_all
 			if [[ $(grep -c '${ROMNIS}_${DMDEV}' vendorsetup.sh ) == "0" ]]; then
 				echo -e "add_lunch_combo ${ROMNIS}_${DMDEV}-${DMBT}" >> vendorsetup.sh;
 			else
-				echo -e "Device already added to vendorsetup.sh";
-				echo;
+				echo -e "Device already added to vendorsetup.sh\n";
 			fi
 	fi
 	echo -e "${LGRN}DONE!${NONE}!";
@@ -609,8 +563,7 @@ ${LPURP}1440${NONE}x2560
 ${LPURP}1536${NONE}x2048
 ${LPURP}1600${NONE}x2560
 ${LPURP}1920${NONE}x1200
-${LPURP}2560${NONE}x1600";
-		echo;
+${LPURP}2560${NONE}x1600\n";
 		echo -e "Type only the First (Highlighted in ${LPURP}Purple${NONE}) Number (eg. if 720x1280 then type in 720)";
 		read BOOTRES;
 	else
@@ -694,8 +647,7 @@ function build
 		if [ -z "$1" ]; then
 		echo;
 		read KNWLOC;
-		echo;
-		echo -e "Know the Location of the Module?"
+		echo -e "\nKnow the Location of the Module?"
 		fi
 		if [[ "$KNWLOC" == "y" || "$1" == "y" ]]; then
 			make_it;
@@ -709,22 +661,20 @@ function build
 	function post_build
 	{
 		if [[ $(tac $RMTMP | grep -c -m 1 '#### make completed successfully') == "1" ]]; then
-			echo;
-			echo -e "Build Completed ${LGRN}Successfully!${NONE} Cool. Now make it ${LRED}Boot!${NONE}";
+			echo -e "\nBuild Completed ${LGRN}Successfully!${NONE} Cool. Now make it ${LRED}Boot!${NONE}\n";
 			the_response COOL Build;
 			teh_action 6 COOL;
 		elif [[ $(tac $RMTMP | grep -c -m 1 'No rule to make target') == "1" ]]; then
 			if [ ! -f PREF.rc ]; then
-				echo -e "Looks like a Module isn't getting built / Missing";
-				echo -e "You'll see a line like this:\n";
+				echo -e "Looks like a Module isn't getting built / Missing\n";
+				echo -e "You'll see a line like this:";
 				echo -e "No rule to make target '$(pwd)/out/....../${LRED}<MODULE_NAME>${NONE}_intermediates'\n";
 				echo -e "${LCYAN}Enter${NONE} whatever you see in place of ${LRED}<MODULE_NAME>${NONE} (Case-Sensitive please)\n";
 				read MOD_NAME;
 				echo -e "Let's Search for ${LRED}${MOD_NAME}${NONE} ! This will take time, but it's Valuable\n";
 				sgrep "LOCAL_MODULE := ${MOD_NAME}" 2>&1 | tee mod.txt;
-				echo;
 				if [[ $(grep -c -m 1 'LOCAL_MODULE') == "1" ]]; then
-					echo -e "Looks like you've found that location, let's make it\n";
+					echo -e "Looks like we have found that location, let's make it\n";
 					echo -e "The location of the module is stored in ${LRED}mod.txt${NONE}. Take a look";
 					make_module y;
 				else
@@ -741,7 +691,7 @@ function build
 				teh_action 6 FAIL;
 			fi
 		else
-			echo -e "WEW. ${YELO}I_iz_Noob${NONE}. Probably you need to Search the Internet for Resolution of the Above Error";
+			echo -e "WEW. ${YELO}I_iz_Noob${NONE}. Probably you need to Search the Internet for Resolution of the Above Error\n";
 			if [ -f PREF.rc ]; then
 				teh_action 6 FAIL;
 				the_response FAIL Build;
@@ -754,29 +704,15 @@ function build
 		echo -e "Setting up CCACHE";
 		echo;
 		prebuilts/misc/linux-x86/ccache/ccache -M ${CCSIZE}G;
-		echo -e "CCACHE Setup ${GRN}Successful${NONE}.";
-		echo;
+		echo -e "CCACHE Setup ${GRN}Successful${NONE}.\n";
 	} #set_ccache
 
 	function set_ccvars
 	{
-		echo -e "Provide this Script Root-Access, so that it can write CCACHE export values. No Hacks Honestly (Check the Code)";
-		echo -en "Why? Coz .bashrc or it's equivalents can only be Modified by a Root user";
-		echo;
-		sudo -i;
-		echo;
-		if [[ $(whoami) == "root" ]]; then
-			echo -e "Thanks, Performing Changes.";
-		else
-			echo -e "No Root Access, Abort.";
-			main_menu;
-		fi
-		echo;
-		echo -e "CCACHE Size must be ${LRED}>50 GB${NONE}.\n Think about it and Specify the Size (Number) for Reservation of CCACHE (in GB)";
-		echo;
+		rootcheck;
+		echo -e "\nCCACHE Size must be ${LRED}>50 GB${NONE}.\n Think about it and Specify the Size (Number) for Reservation of CCACHE (in GB)\n";
 		read CCSIZE;
-		echo -e "Create a New Folder for CCACHE and Specify it's location from / here";
-		echo;
+		echo -e "Create a New Folder for CCACHE and Specify it's location from / here\n";
 		read CCDIR;
 		if [ -f ${HOME}/.bashrc ]; then
 				echo "export USE_CCACHE=1" >> ${HOME}/.bashrc;
@@ -820,32 +756,26 @@ function build
 			fi
 			if [[ "$ROMNIS" == "tipsy" || "$ROMNIS" == "validus" || "$ROMNIS" == "tesla" ]]; then
 				time	$DMMK $ROMNIS $BCORES 2>&1 | tee $RMTMP;
-				echo;
 			elif [[ $(grep -q "^bacon:" "${ANDROID_BUILD_TOP}/build/core/Makefile") ]]; then
 				time $DMMK bacon $BCORES 2>&1 | tee $RMTMP;
-				echo;
 			else
 				time $DMMK otapackage $BCORES 2>&1 | tee $RMTMP;
-				echo;
 			fi
+			echo;
 			post_build;
 		fi
 	} #build_make
 
 	function hotel_menu
 	{
-		echo -e "${LBLU}====================================${NONE}${RED}[*]${NONE} ${GRN}HOTEL MENU${NONE} ${RED}[*]${NONE}${LBLU}=====================================${NONE}";
-		echo;
-		echo -e "${LRED}A SideNote : Menu is only for your Device, not for you. No Complaints plz.${NONE}";
-		echo;
+		echo -e "${LBLU}====================================${NONE}${RED}[*]${NONE} ${GRN}HOTEL MENU${NONE} ${RED}[*]${NONE}${LBLU}=====================================${NONE}\n";
+		echo -e "${LRED}A SideNote : Menu is only for your Device, not for you. No Complaints plz.${NONE}\n";
 		echo -e "[*] ${RED}lunch${NONE} - If your Device is not in the ROM's Devices list - ${ORNG}Unofficial${NONE} [*]";
 		echo -e "[*] ${YELO}breakfast${NONE} - (If your Device is a ${GRN}Official Device${NONE} for that particular ROM - ${GRN}Official${NONE} [*]";
-		echo -e "[*] ${GRN}brunch${NONE} - lunch + sync repos from ${ROMNIS}.dependencies + build - ${ORNG}Official/Unofficial${NONE} [*]";
-		echo;
+		echo -e "[*] ${GRN}brunch${NONE} - lunch + sync repos from ${ROMNIS}.dependencies + build - ${ORNG}Official/Unofficial${NONE} [*]\n";
 		echo -e "Type in the Option you want to select";
 		echo -e "${YELO}Tip!${NONE} - If you're building it for the first time, then select ${RED}lunch${NONE} (Recommended)";
-		echo -e "${LBLU}===========================================================================================${NONE}";
-		echo;
+		echo -e "${LBLU}===========================================================================================${NONE}\n";
 		ST="Selected Option";
 		shut_my_mouth SLT $ST;
 		if [[ "$DMSLT" == "lunch" ]]; then
@@ -856,33 +786,23 @@ function build
 		echo;
 	} #hotel_menu
 
-	echo;
-	echo -e "${YELO}=========================================================${NONE}";
-	echo -e "             ${CYAN}Initializing Build Environment${NONE}";
-	echo;
+	echo -e "\n${YELO}=========================================================${NONE}";
+	echo -e "             ${CYAN}Initializing Build Environment${NONE}\n";
 	. build/envsetup.sh;
-	echo;
-	echo -e "${YELO}=========================================================${NONE}";
-	echo;
-	echo -e "${LPURP}Done.${NONE}.";
-	echo;
-	echo -e "${LPURP}=========================================================${NONE}";
-	echo -e '\n;'
+	echo -e "\n${YELO}=========================================================${NONE}\n";
+	echo -e "${LPURP}Done.${NONE}.\n";
+	echo -e "${LPURP}=========================================================${NONE}\n";
 	echo -e "Select the Build Option:\n";
-	echo;
 	echo -e "${LCYAN}1. Start Building ROM (ZIP output) (Clean Options Available)${NONE}";
 	echo -e "${LGRN}2. Make a Particular Module${NONE}";
-	echo -e "${LBLU}3. Setup CCACHE for Faster Builds ${NONE}";
-	echo;
-	echo -e "${LPURP}=========================================================${NONE}"
-	echo;
+	echo -e "${LBLU}3. Setup CCACHE for Faster Builds ${NONE}\n";
+	echo -e "${LPURP}=========================================================${NONE}\n"
 	ST="Option Selected";
 	shut_my_mouth BO $ST;
 	case "$DMBO" in
 		1)
 			hotel_menu;
-			echo;
-			echo -e "Should i use '${YELO}make${NONE}' or '${RED}mka${NONE}' ?"
+			echo -e "\nShould i use '${YELO}make${NONE}' or '${RED}mka${NONE}' ?"
 			ST="Selected Method";
 			shut_my_mouth MK $ST;
 			echo -e "Wanna Clean the ${LPURP}/out${NONE} before Building? ${LGRN}[2 - Remove Staging / 3 - Full Clean]${NONE}\n"
@@ -916,16 +836,14 @@ function build
 	3)
 		echo -e "Two Steps. Select one of them (If seeing this for first time - ${LCYAN}Enter${NONE} A)";
 		echo -e "\tA. Enabling CCACHE Variables in .bashrc or it's equivalent"
-		echo -e "\tB. Reserving Space for CCACHE";
-		echo;
+		echo -e "\tB. Reserving Space for CCACHE\n";
 		read CCOPT;
 		if [[ "$CCOPT" == "A" ]]; then
 			set_ccvars;
 		elif [[ "$CCOPT" == "B" ]]; then
 			set_ccache;
 		else
-			echo;
-			echo -e "${YELO}Drunk?${NONE} Back to Build Menu...";
+			echo -e "\n${YELO}Drunk?${NONE} Back to Build Menu...";
 			sleep 2;
 			build_menu;
 		fi
@@ -1001,19 +919,14 @@ function the_start
 	if [ -f PREF.rc ]; then
 		. $(pwd)/PREF.rc
 		collector; # Get all Information!
-		echo;
-		echo -e "${RED}*${NONE}${LPURP}AutoBot${NONE}${RED}*${NONE} Cheat Code SHUT_MY_MOUTH applied. I won't ask questions anymore";
-		echo;
+		echo -e "\n${RED}*${NONE}${LPURP}AutoBot${NONE}${RED}*${NONE} Cheat Code SHUT_MY_MOUTH applied. I won't ask questions anymore\n";
 	else
-		echo -e "Using this for first time?\nDon't lose patience the next time. ${LCYAN}Enter${NONE} your Values in PREF.rc and Shut my Mouth! lol";
-		echo;
+		echo -e "Using this for first time?\nDon't lose patience the next time. ${LCYAN}Enter${NONE} your Values in PREF.rc and Shut my Mouth! lol\n";
 		echo -e "PREF.rc is the file"
 	fi
-	echo;
-	echo "=======================================================";
+	echo "\n=======================================================";
 	echo -e "Before I can start, do you like a \033[1;31mC\033[0m\033[0;32mo\033[0m\033[0;33ml\033[0m\033[0;34mo\033[0m\033[0;36mr\033[0m\033[1;33mf\033[0m\033[1;32mu\033[0m\033[0;31ml\033[0m life? [y/n]";
-	echo "=======================================================";
-	echo;
+	echo "=======================================================\n";
 	if [ -f PREF.rc ]; then
 		echo -e "${RED}*${NONE}${LPURP}AutoBot${NONE}${RED}*${NONE} Coloured ScriBt : $COLOR "
 	else
@@ -1029,8 +942,7 @@ function the_start
 	sleep 2;
 	clear;
 	echo -ne '\033]0;ScriBt\007';
-	echo; echo;
-	echo -e "                 ${LRED}╔═╗${NONE}${YELO}╦═╗${NONE}${LCYAN}╔═╗${NONE}${LGRN} ╦${NONE}${LCYAN}╔═╗${NONE}${YELO}╦╔═${NONE}${LRED}╔╦╗${NONE}";
+	echo -e "\n\n                 ${LRED}╔═╗${NONE}${YELO}╦═╗${NONE}${LCYAN}╔═╗${NONE}${LGRN} ╦${NONE}${LCYAN}╔═╗${NONE}${YELO}╦╔═${NONE}${LRED}╔╦╗${NONE}";
 	echo -e "                 ${LRED}╠═╝${NONE}${YELO}╠╦╝${NONE}${LCYAN}║ ║${NONE}${LGRN} ║${NONE}${LCYAN}║╣ ${NONE}${YELO}╠╩╗${NONE}${LRED} ║ ${NONE}";
 	echo -e "                 ${LRED}╩  ${NONE}${YELO}╩╚═${NONE}${LCYAN}╚═╝${NONE}${LGRN}╚╝${NONE}${LCYAN}╚═╝${NONE}${YELO}╩ ╩${NONE}${LRED} ╩${NONE}";
 	echo -e "      ${LRED}███████${NONE}${RED}╗${NONE} ${LRED}██████${NONE}${RED}╗${NONE}${LRED}██████${NONE}${RED}╗${NONE} ${LRED}██${NONE}${RED}╗${NONE}${LRED}██████${NONE}${RED}╗${NONE} ${LRED}████████${NONE}${RED}╗${NONE}";
@@ -1038,13 +950,10 @@ function the_start
 	echo -e "      ${LRED}███████${NONE}${RED}╗${NONE}${LRED}██${NONE}${RED}║${NONE}     ${LRED}██████${NONE}${RED}╔╝${NONE}${LRED}██${NONE}${RED}║${NONE}${LRED}██████${NONE}${RED}╔╝${NONE}   ${LRED}██${NONE}${RED}║${NONE}";
 	echo -e "      ${RED}╚════${NONE}$LRED██${NONE}${RED}║${NONE}${LRED}██${NONE}${RED}║${NONE}     ${LRED}██${NONE}${RED}╔══${NONE}${LRED}██${NONE}${RED}╗${NONE}${LRED}██${NONE}${RED}║${NONE}${LRED}██${NONE}${RED}╔══${NONE}${LRED}██${NONE}${RED}╗${NONE}   ${LRED}██${NONE}${RED}║${NONE}";
 	echo -e "      ${LRED}███████${NONE}${RED}║╚${NONE}${LRED}██████${NONE}${RED}╗${NONE}${LRED}██${NONE}${RED}║${NONE}  ${LRED}██${NONE}${RED}║${NONE}${LRED}██${NONE}${RED}║${NONE}${LRED}██████${NONE}${RED}╔╝${NONE}   ${LRED}██${NONE}${RED}║${NONE}";
-	echo -e "      ${RED}╚══════╝ ╚═════╝╚═╝  ╚═╝╚═╝╚═════╝    ╚═╝${NONE}";
-	echo;
+	echo -e "      ${RED}╚══════╝ ╚═════╝╚═╝  ╚═╝╚═╝╚═════╝    ╚═╝${NONE}\n";
 	sleep 0.1;
-	echo -e "${LCYAN}~#~#~#~#~#~#~#~#~#${NONE} ${LRED}By Arvind7352${NONE} - ${YELO}XDA${NONE} ${LCYAN}#~#~#~#~#~#~#~#~${NONE}";
+	echo -e "${LCYAN}~#~#~#~#~#~#~#~#~#${NONE} ${LRED}By Arvind7352${NONE} - ${YELO}XDA${NONE} ${LCYAN}#~#~#~#~#~#~#~#~${NONE}\n\n";
 	sleep 5;
-	echo;
-	echo;
 } #the_start
 
 # All above parts are Functions - Line of Execution will start after these two lines
