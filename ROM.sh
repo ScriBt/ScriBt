@@ -236,19 +236,19 @@ function sync
 		teh_action 2;
 	fi
 	echo -e "\nPreparing for Sync\n";
-	echo -e "${LRED}Number of Threads${NONE} for Sync?\n";
+	echo -e "${LRED}Number of Threads${NONE} for Sync?\n${LBLU}(Slow Speed? Recommended value - 1. Else your wish)${NONE}\n";
 	ST="${LRED}Number${NONE} of Threads";
 	shut_my_mouth JOBS $ST;
-	echo -e "${LRED}Force Sync${NONE} needed? ${LGRN}[y/n]${NONE}\n";
+	echo -e "${LRED}Force Sync${NONE} needed? ${LGRN}[y/n]${NONE}\n${LBLU}(Overwrite Local Sources with Remote)${NONE}\n";
 	ST="${LRED}Force${NONE} Sync";
 	shut_my_mouth F $ST;
-	echo -e "Need some ${LRED}Silence${NONE} in teh Terminal? ${LGRN}[y/n]${NONE}\n";
+	echo -e "Need some ${LRED}Silence${NONE} in teh Terminal? ${LGRN}[y/n]${NONE}\n${LBLU}(Checkout output will appear)${NONE}\n";
 	ST="${LRED}Silent${NONE} Sync";
 	shut_my_mouth S $ST;
-	echo -e "Sync only ${LRED}Current${NONE} Branch? ${LGRN}[y/n]${NONE} (Saves Space)\n";
+	echo -e "Sync only ${LRED}Current${NONE} Branch? ${LGRN}[y/n]${NONE}\n${LBLU}(If Enabled, syncs only the desired branch as specified in the manifest, instead of syncing all branches. Saves Space)${NONE}\n";
 	ST="Sync ${LRED}Current${NONE} Branch";
 	shut_my_mouth C $ST;
-	echo -e "Sync with ${LRED}clone-bundle${NONE} ${LGRN}[y/n]${NONE}?\n";
+	echo -e "Sync with ${LRED}clone-bundle${NONE} ${LGRN}[y/n]${NONE}?\n${LBLU}(Works with AOSP repositories, Downloads a prepackaged bundle file instead of objects from the server (Less objects, better sync). Sync takes place faster coz Google!${NONE}\n";
 	ST="Use ${LRED}clone-bundle${NONE}";
 	shut_my_mouth B $ST;
 	echo -e "${LRED}=====================================================================${NONE}\n";
@@ -302,21 +302,21 @@ function init
 	echo -e "Which ROM are you trying to build?
 Choose among these (Number Selection)
 
-1.${BLU} AICP ${NONE}
-2.${RED} AOKP ${NONE}
+1.${LGRN} AICP ${NONE}
+2.${LRED} AOKP ${NONE}
 3.${LGRN} AOSP-RRO ${NONE}
 4.${DGRAY} AOSP-CAF ${NONE}
-5.${CYAN} BlissRoms by Team Bliss${NONE}
-6.${CYAN} CandyRoms ${NONE}
-7.${CYAN} Cyanide-L${NONE}
+5.${LBLU} BlissRoms by Team Bliss${NONE}
+6.${LGRN} CandyRoms ${NONE}
+7.${LBLU} Cyanide-L${NONE}
 8.${LCYAN} CyanogenMod ${NONE}
-9.${ORNG} DirtyUnicorns ${NONE}
+9.${LRED} DirtyUnicorns ${NONE}
 10.${YELO} Flayr OS ${NONE}
-11.${BLU} Krexus${NONE}-${GRN}CAF${NONE}
-12.${GRN} OmniROM ${NONE}
-13.${PURP} Orion OS ${NONE}
-14.${ORNG} OwnROM ${NONE}
-15.${BLU} PAC-ROM ${NONE}
+11.${LBLU} Krexus${NONE}-${GRN}CAF${NONE}
+12.${LGRN} OmniROM ${NONE}
+13.${LPURP} Orion OS ${NONE}
+14.${YELO} OwnROM ${NONE}
+15.${LBLU} PAC-ROM ${NONE}
 16.${LRED} Resurrection Remix ${NONE}
 17.${LBLU} SlimRoms ${NONE}
 18.${LRED} Temasek ${NONE}
@@ -324,7 +324,7 @@ Choose among these (Number Selection)
 20.${YELO} Tipsy OS ${NONE}
 21.${LPURP} GZR Validus ${NONE}
 22.${LCYAN} XenonHD by Team Horizon ${NONE}
-23.${BLU} Xperia Open Source Project aka XOSP ${NONE}
+23.${LBLU} Xperia Open Source Project aka XOSP ${NONE}
 
 ${LPURP}=======================================================${NONE}\n";
 	if [ ! -f PREF.rc ]; then
@@ -339,7 +339,7 @@ ${LPURP}=======================================================${NONE}\n";
 	echo -e "Since Branches may live or die at any moment, ${LRED}Specify the Branch${NONE} you're going to sync\n";
 	ST="${LRED}Branch${NONE}";
 	shut_my_mouth BR $ST;
-	echo -e "Any ${LRED}Source you have already synced?${NONE} If ${LGRN}yes${NONE}, then say ${LGRN}YES${NONE} and Press ${LCYAN}ENTER${NONE}\n";
+	echo -e "Any ${LRED}Source you have already synced?${NONE} ${LGRN}[YES/NO]${NONE}\n${LBLU}(If you have any ROM's source completely synced, giving this source a reference source, will avoid redownloading common projects, thus saving a lot of time)${NONE}\n";
 	shut_my_mouth RF $ST;
 	if [[ "$DMRF" == YES ]]; then
 		echo -e "\nProvide me the ${LRED}Synced Source's Location${NONE} from ${LRED}/${NONE} \n";
@@ -349,7 +349,7 @@ ${LPURP}=======================================================${NONE}\n";
 	else
 		REF=" " ;
 	fi
-	echo -e "Set ${LRED}clone-depth${NONE} ? ${LGRN}[y/n]${NONE} (Basically, it Syncs the ${GRN}Entire commit history of any repo${NONE}, thus Occupying ${LRED}More space${NONE})\n";
+	echo -e "Set ${LRED}clone-depth${NONE} ? ${LGRN}[y/n]${NONE}\n${LBLU}(If unset, Syncs the Entire commit history of any repo which is better for future syncs)\n(Unless you know what you're doing,${NONE} ${LRED}Answer n${NONE})\n";
 	ST="Use ${LRED}clone-depth${NONE}";
 	shut_my_mouth CD $ST;
 	echo -e "Depth ${LRED}Value${NONE}? (Default ${LRED}1${NONE})\n";
@@ -869,9 +869,9 @@ function the_start
 		echo -e "Using this for first time?\nDon't lose patience the next time. ${LCYAN}Enter${NONE} your Values in PREF.rc and Shut my Mouth! lol\n";
 		echo -e "PREF.rc is the file"
 	fi
-	echo "\n=======================================================";
+	echo -e "\n=======================================================";
 	echo -e "Before I can start, do you like a \033[1;31mC\033[0m\033[0;32mo\033[0m\033[0;33ml\033[0m\033[0;34mo\033[0m\033[0;36mr\033[0m\033[1;33mf\033[0m\033[1;32mu\033[0m\033[0;31ml\033[0m life? [y/n]";
-	echo "=======================================================\n";
+	echo -e "=======================================================\n";
 	if [ -f PREF.rc ]; then
 		echo -e "${RED}*${NONE}${LPURP}AutoBot${NONE}${RED}*${NONE} Coloured ScriBt : $COLOR "
 	else
