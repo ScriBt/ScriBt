@@ -5,7 +5,7 @@
 
 Ready to use. Extensive Testing needed.
 
-The Script consists of five main Actions:
+ScriBt consists of five main Actions:
 
 #####1. Init -
 
@@ -13,9 +13,11 @@ The Script consists of five main Actions:
 
   b. Initialize it's Repo
 
-  c. Add a local_manifest for Device Specfic things
+  c. Add a local_manifest for Device Specfic Additions / Changes
 
-#####2. Sync -  Sync the Sources
+#####2. Sync
+
+  Sync the Sources - Setting Sync Options / Flags available
 
 #####3. Pre Build -
 
@@ -25,11 +27,21 @@ The Script consists of five main Actions:
 
   a. Build the Entire ROM
 
-  b. Clean /out Entirely or only Staging Directories
+    * Clean /out Entirely or only Staging Directories
+
+    * Start Build
 
   c. Make a Particular Module
 
   d. Setup CCACHE
+
+  e. Give comments based on the Final Build Status
+
+    * Build Success
+
+    * no rule to make target: /out/*****/{MODULE_NAME}_intermediates - Search for MODULE_NAME in Build, Else give Search Suggestions based on MODULE_NAME
+
+    * Arbitrary Error (Can't help because Entropy of Increase in Errors gets Incremented day by day :P)
 
 #####5. Install Deps
 
@@ -56,9 +68,9 @@ way, bash ROM.sh won't :D
 
 #####Automation Notes
 
-Automation Works are complete, though it needs testing in every way!
+Automation Works are complete, though it needs testing in every way! Users can add their own commands in the default sequence ( I do it )
 
-For Automating the ScriBt
+For Automating ScriBt
 
 1. PREF.rc must have your Desired Values in all Functions
 
