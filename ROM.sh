@@ -413,85 +413,85 @@ function pre_build
 	echo -e "${LCYAN}=========================================================${NONE}\n\n";
 	rom_names $ROMNO;
 
-function vendor_strat_all
-{
-	if  [[ "$ROMNO" == "3" || "$ROMNO" == "4" || "$ROMNO" == "10" ]]; then
-		cd vendor/${ROMV};
-	else
-		cd vendor/${ROMNIS};
-	fi
-	echo -e "${LPURP}=========================================================${NONE}\n";
-	if [ -f ${ROMNIS}.devices ]; then
-		echo -e "Adding your Device to ROM Vendor (Strategy 1)\n";
-		if [[ $(grep -c '${DMDEV}' ${ROMNIS}.devices) == "0" ]]; then
-			echo "${DMDEV}" >> ${ROMNIS}.devices;
+	function vendor_strat_all
+	{
+		if  [[ "$ROMNO" == "3" || "$ROMNO" == "4" || "$ROMNO" == "10" ]]; then
+			cd vendor/${ROMV};
 		else
-			echo -e "Device was already added to ${ROMNIS} vendor";
+			cd vendor/${ROMNIS};
 		fi
-	elif [ -f ${ROMNIS}-device-targets ]; then
-		echo -e "Adding your Device to ROM Vendor (Strategy 4)\n";
-		if [[ $(grep -c '${DMDEV}' ${ROMNIS}-device-targets) == "0" ]]; then
-			echo -e "${ROMNIS}_${DMDEV}-${DMBT}";
-		else
-			echo -e "Device was already added to ${ROM_FN} vendor";
-		fi
-	elif [ -f vendorsetup.sh ]; then
-		echo -e "Adding your Device to ROM Vendor (Strategy 2)\n";
-		if [[ $(grep -c '${DMDEV}' vendorsetup.sh) == "0" ]]; then
-			echo "add_lunch_combo ${ROMNIS}_${DMDEV}-${DMBT}" >> vendorsetup.sh;
-		else
-			echo -e "Device was already added to ${ROMNIS} vendor";
-		fi
-	else
-		croot;
-		echo "Adding your Device to ROM Vendor (Strategy 3)";
-		echo -e "Let's go to teh ${LRED}Device Directory!${NONE}\n";
-		cd device/${DMCM}/${DMDEV};
-		echo -e "Creating vendorsetup.sh if absent in tree";
-			if [ ! -f vendorsetup.sh ]; then
-				touch vendorsetup.sh;
-				echo -e "Done [1/2]";
-			fi
-			if [[ $(grep -c '${ROMNIS}_${DMDEV}' vendorsetup.sh ) == "0" ]]; then
-				echo -e "add_lunch_combo ${ROMNIS}_${DMDEV}-${DMBT}" >> vendorsetup.sh;
+		echo -e "${LPURP}=========================================================${NONE}\n";
+		if [ -f ${ROMNIS}.devices ]; then
+			echo -e "Adding your Device to ROM Vendor (Strategy 1)\n";
+			if [[ $(grep -c '${DMDEV}' ${ROMNIS}.devices) == "0" ]]; then
+				echo "${DMDEV}" >> ${ROMNIS}.devices;
 			else
-				echo -e "Device already added to vendorsetup.sh\n";
+				echo -e "Device was already added to ${ROMNIS} vendor";
 			fi
-	fi
-	echo -e "${LGRN}DONE!${NONE}!";
-	croot;
-	echo -e "${LPURP}=========================================================${NONE}";
-} # vendor_strat
-
-function vendor_strat_kpa #for ROMs having products folder
-{
-	croot;
-	cd vendor/${ROMNIS}/products;
-	# SHUT_MY_MOUTH
-	if [ ! -f PREF.rc ]; then
-		if [[ "$ROMNIS" == "pac" || "$ROMNIS" == "krexus" ]]; then
-			THE_FILE=${ROMNIS}_${DMDEV}.mk;
+		elif [ -f ${ROMNIS}-device-targets ]; then
+			echo -e "Adding your Device to ROM Vendor (Strategy 4)\n";
+			if [[ $(grep -c '${DMDEV}' ${ROMNIS}-device-targets) == "0" ]]; then
+				echo -e "${ROMNIS}_${DMDEV}-${DMBT}";
+			else
+				echo -e "Device was already added to ${ROM_FN} vendor";
+			fi
+		elif [ -f vendorsetup.sh ]; then
+			echo -e "Adding your Device to ROM Vendor (Strategy 2)\n";
+			if [[ $(grep -c '${DMDEV}' vendorsetup.sh) == "0" ]]; then
+				echo "add_lunch_combo ${ROMNIS}_${DMDEV}-${DMBT}" >> vendorsetup.sh;
+			else
+				echo -e "Device was already added to ${ROMNIS} vendor";
+			fi
 		else
-			#AOKP
-			THE_FILE=${DMDEV}.mk;
-			echo -e '\n' >> AndroidProducts.mk;
-			echo "PRODUCT_MAKEFILES := \ " >> AndroidProducts.mk;
-			echo -e "\t$(LOCAL_DIR)/${DMDEV}.mk" >> AndroidProducts.mk;
+			croot;
+			echo "Adding your Device to ROM Vendor (Strategy 3)";
+			echo -e "Let's go to teh ${LRED}Device Directory!${NONE}\n";
+			cd device/${DMCM}/${DMDEV};
+			echo -e "Creating vendorsetup.sh if absent in tree";
+				if [ ! -f vendorsetup.sh ]; then
+					touch vendorsetup.sh;
+					echo -e "Done [1/2]";
+				fi
+				if [[ $(grep -c '${ROMNIS}_${DMDEV}' vendorsetup.sh ) == "0" ]]; then
+					echo -e "add_lunch_combo ${ROMNIS}_${DMDEV}-${DMBT}" >> vendorsetup.sh;
+				else
+					echo -e "Device already added to vendorsetup.sh\n";
+				fi
 		fi
-	else
-		echo -e "${RED}*${NONE}${LPURP}AutoBot${NONE}${RED}*${NONE} Device-Vendor Conjunction File : ${THE_FILE}";
-	fi
-	#Create Device-Vendor Conjuctor
-	touch ${THE_FILE};
-	echo -e "Name your Device Specific Configuration File ( eg. ${ROMNIS}.mk / full_${DMDEV}.mk as in your device tree)\n";
-	ST="Device Configuration file";
-	shut_my_mouth DMDCON $ST;
-	echo -e "\$(call inherit-product, device/${DMCM}/${DMDEV}/${DMDCON})" >> ${THE_FILE};
-	echo -e "Specify your Device's Resolution in the format ${LCYAN}HORIZONTAL${NONE}${LRED}x${NONE}${LCYAN}VERTICAL${NONE} (eg. 1280x720)";
-	if [ ! -f PREF.rc ]; then
-		echo -e "Among these Values - Select the one which is nearest or almost Equal to that of your Device\n";
-		echo -e "Resolutions which are available for AOKP are shown by \"(AOKP)\". All Res are available for PAC-ROM ";
-		echo -e "
+		echo -e "${LGRN}DONE!${NONE}!";
+		croot;
+		echo -e "${LPURP}=========================================================${NONE}";
+	} # vendor_strat
+
+	function vendor_strat_kpa #for ROMs having products folder
+	{
+		croot;
+		cd vendor/${ROMNIS}/products;
+		# SHUT_MY_MOUTH
+		if [ ! -f PREF.rc ]; then
+			if [[ "$ROMNIS" == "pac" || "$ROMNIS" == "krexus" ]]; then
+				THE_FILE=${ROMNIS}_${DMDEV}.mk;
+			else
+				#AOKP
+				THE_FILE=${DMDEV}.mk;
+				echo -e '\n' >> AndroidProducts.mk;
+				echo "PRODUCT_MAKEFILES := \ " >> AndroidProducts.mk;
+				echo -e "\t$(LOCAL_DIR)/${DMDEV}.mk" >> AndroidProducts.mk;
+			fi
+		else
+			echo -e "${RED}*${NONE}${LPURP}AutoBot${NONE}${RED}*${NONE} Device-Vendor Conjunction File : ${THE_FILE}";
+		fi
+		#Create Device-Vendor Conjuctor
+		touch ${THE_FILE};
+		echo -e "Name your Device Specific Configuration File ( eg. ${ROMNIS}.mk / full_${DMDEV}.mk as in your device tree)\n";
+		ST="Device Configuration file";
+		shut_my_mouth DMDCON $ST;
+		echo -e "\$(call inherit-product, device/${DMCM}/${DMDEV}/${DMDCON})" >> ${THE_FILE};
+		echo -e "Specify your Device's Resolution in the format ${LCYAN}HORIZONTAL${NONE}${LRED}x${NONE}${LCYAN}VERTICAL${NONE} (eg. 1280x720)";
+		if [ ! -f PREF.rc ]; then
+			echo -e "Among these Values - Select the one which is nearest or almost Equal to that of your Device\n";
+			echo -e "Resolutions which are available for AOKP are shown by \"(AOKP)\". All Res are available for PAC-ROM ";
+			echo -e "
 ${LPURP}240${NONE}x400
 ${LPURP}320${NONE}x480 (AOKP)
 ${LPURP}480${NONE}x800 and ${LPURP}480${NONE}x854 (AOKP)
@@ -509,29 +509,29 @@ ${LPURP}1536${NONE}x2048
 ${LPURP}1600${NONE}x2560
 ${LPURP}1920${NONE}x1200
 ${LPURP}2560${NONE}x1600\n";
-		echo -e "Type only the First (Highlighted in ${LPURP}Purple${NONE}) Number (eg. if 720x1280 then type in 720)";
-		read BOOTRES;
-	else
-		echo -e "${RED}*${NONE}${LPURP}AutoBot${NONE}${RED}*${NONE} Resolution Choosed : ${BOOTRES}";
-	fi
-	#Vendor-Calls
-	if [[ "$ROMNIS" == "krexus" ]]; then
-		echo -e "\$( call inherit-product, vendor/${ROMNIS}/products/common.mk)" >> ${THE_FILE};
-		echo -e "\$( call inherit-product, vendor/${ROMNIS}/products/vendorless.mk)" >> ${THE_FILE};
-	fi
-	if [[ "$ROMNIS" == "pac" ]]; then
-			echo -e "\$( call inherit-product, vendor/${ROMNIS}/products/pac_common.mk)" >> ${THE_FILE};
-			echo "PAC_BOOTANIMATION_NAME := ${BOOTRES};" >> ${THE_FILE};
-	fi
-	if [[ "$ROMNIS" == "aokp" ]]; then
-		# Boot animation
-		echo -e "\$(call inherit-product, vendor/${ROMNIS}/configs/common.mk)" >> ${THE_FILE};
-		echo "PRODUCT_COPY_FILES += \ " >> ${THE_FILE};
-    echo -e "\tvendor/aokp/prebuilt/bootanimation/bootanimation_${BOOTRES}.zip:system/media/bootanimation.zip" >> ${THE_FILE};
-	fi
-	#PRODUCT_NAME is the only ROM-dependent variable, setting it here is better.
-	echo "PRODUCT_NAME := ${ROMNIS}_${DMDEV}" >> ${THE_FILE};
-} # vendor_strat_kpa
+			echo -e "Type only the First (Highlighted in ${LPURP}Purple${NONE}) Number (eg. if 720x1280 then type in 720)";
+			read BOOTRES;
+		else
+			echo -e "${RED}*${NONE}${LPURP}AutoBot${NONE}${RED}*${NONE} Resolution Choosed : ${BOOTRES}";
+		fi
+		#Vendor-Calls
+		if [[ "$ROMNIS" == "krexus" ]]; then
+			echo -e "\$( call inherit-product, vendor/${ROMNIS}/products/common.mk)" >> ${THE_FILE};
+			echo -e "\$( call inherit-product, vendor/${ROMNIS}/products/vendorless.mk)" >> ${THE_FILE};
+		fi
+		if [[ "$ROMNIS" == "pac" ]]; then
+				echo -e "\$( call inherit-product, vendor/${ROMNIS}/products/pac_common.mk)" >> ${THE_FILE};
+				echo "PAC_BOOTANIMATION_NAME := ${BOOTRES};" >> ${THE_FILE};
+		fi
+		if [[ "$ROMNIS" == "aokp" ]]; then
+			# Boot animation
+			echo -e "\$(call inherit-product, vendor/${ROMNIS}/configs/common.mk)" >> ${THE_FILE};
+			echo "PRODUCT_COPY_FILES += \ " >> ${THE_FILE};
+	    echo -e "\tvendor/aokp/prebuilt/bootanimation/bootanimation_${BOOTRES}.zip:system/media/bootanimation.zip" >> ${THE_FILE};
+		fi
+		#PRODUCT_NAME is the only ROM-dependent variable, setting it here is better.
+		echo "PRODUCT_NAME := ${ROMNIS}_${DMDEV}" >> ${THE_FILE};
+	} # vendor_strat_kpa
 
 	if [ -f vendor/${ROMNIS}/products ]; then
 		if [ ! -f vendor/${ROMNIS}/products/${ROMNIS}_${DMDEV}.mk || ! -f vendor/${ROMNIS}/products/${DMDEV}.mk ]; then
