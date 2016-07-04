@@ -39,7 +39,7 @@ function apt_check
 		echo -e "Apt configuration has not been found. A Debian/Ubuntu based Distribution is required to run ScriBt.";
 		exit 1;
 	fi
-}
+} # apt_check
 
 function enter_the_root
 {
@@ -51,14 +51,14 @@ function enter_the_root
 		echo -e "No Root Access, Abort.";
 		main_menu;
 	fi
-}
+} # enter_the_root
 
 function me_quit_root
 {
 	echo -e "Giving up Mah ${LRED}Powerz!${NONE}\n";
 	exit;
 	echo -e "Peace.";
-}
+} # me_quit_root
 
 function exitScriBt
 {
@@ -66,7 +66,7 @@ function exitScriBt
 	sleep 2;
 	echo -e "${LRED}Bye!${NONE}";
 	exit 0;
-} #exitScriBt
+} # exitScriBt
 
 the_response ()
 {
@@ -75,7 +75,7 @@ the_response ()
 	elif [[ "$1" == "FAIL" ]]; then
 		echo -e "${RED}*${NONE}${LPURP}AutoBot${NONE}${RED}*${NONE} Automated $2 ${LRED}Failed :(${NONE}"
 	fi
-}
+} # the_response
 
 function main_menu
 {
@@ -94,7 +94,7 @@ function main_menu
 	echo -e "${LRED}=======================================================${NONE}\n";
 	read ACTION;
 	teh_action $ACTION;
-} #main_menu
+} # main_menu
 
 function quick_menu
 {
@@ -105,7 +105,7 @@ function quick_menu
 	echo -e "${YELO}=====================================================================${NONE}";
 	read ACTION;
 	teh_action $ACTION;
-}
+} # quick_menu
 
 cherrypick ()
 {
@@ -116,7 +116,7 @@ cherrypick ()
  	git cherry-pick $1;
  	echo -e "\nIT's possible that you may face conflicts while merging a C-Pick. Solve those and then Continue.";
 	echo -e "${GRN}==================================================================${NONE}";
-}
+} # cherrypick
 
 function installdeps
 {
@@ -134,12 +134,12 @@ function installdeps
 		update-alternatives --config javac;
 		echo -e "\n${BLU}================================================================${NONE}";
 		me_quit_root;
-	}
+	} # java_select
 
-	function java6
+	java ()
 	{
-		echo -ne '\033]0;ScriBt : Java 6\007';
-		echo -e "Installing OpenJDK-6 (Java 1.6.0)";
+		echo -ne "\033]0;ScriBt : Java $1\007";
+		echo -e "Installing OpenJDK-$1 (Java 1.$1.0)";
 		echo -e "${LRED}Remove${NONE} other Versions of Java ${LGRN}[y/n]${NONE}? ( Removing them is Recommended)\n";
 		read REMOJA;
 		echo;
@@ -153,69 +153,14 @@ function installdeps
 	 	echo -e "${RED}==========================================================${NONE}\n";
 		apt-get update;
 		echo -e "\n${RED}==========================================================${NONE}\n";
-		apt-get install openjdk-6-jdk;
+		apt-get install openjdk-$1-jdk;
 		me_quit_root;
 		echo -e "\n${RED}==========================================================${NONE}";
-		if [[ $( java -version &> $TMP && grep -c 'java version "1.6' $TMP ) == "1" ]]; then
-			echo -e "OpenJDK-6 or Java 6 has been successfully installed";
+		if [[ $( java -version &> $TMP && grep -c "java version \"1.$1" $TMP ) == "1" ]]; then
+			echo -e "OpenJDK-$1 or Java 1.$1.0 has been successfully installed";
 			echo -e "${RED}==========================================================${NONE}";
 		fi
-	}
-
-	function java7
-	{
-		echo -ne '\033]0;ScriBt : Java 7\007';
-		echo -e "Installing OpenJDK-7 (Java 1.7.0)";
-		echo -e "${LRED}Remove${NONE} other Versions of Java ${LRED}[y/n]${NONE}? ( Removing them is Recommended)\n";
-		read REMOJA;
-		echo;
-		enter_the_root;
-		if [[ "$REMOJA" == "y" ]]; then
-			apt-get purge openjdk-\* icedtea-\* icedtea6-\*
-			echo -e "\nRemoved Other Versions successfully";
-		elif [[ "$REMOJA" == "n" ]]; then
-		 	echo -e "Keeping them Intact";
-	 	fi
-	 	echo -e "\n${RED}==========================================================${NONE}\n";
-		apt-get update;
-		echo -e "\n${RED}==========================================================${NONE}\n";
-		apt-get install openjdk-7-jdk;
-		echo;
-		me_quit_root;
-		if [[ $(java -version &> $TMP && grep -c 'java version "1.7' $TMP ) == "1" ]]; then
-			echo -e "${RED}==========================================================${NONE}";
-			echo -e "OpenJDK-7 or Java 7 has been successfully installed";
-		fi
-		echo -e "${RED}==========================================================${NONE}";
-	}
-
-	function java8
-	{
-		echo -ne '\033]0;ScriBt : Java 8\007';
-		echo -e "${LRED}Remove${NONE} other Versions of Java ${LGRN}[y/n]${NONE}? ( Removing them is Recommended)\n";
-		read REMOJA;
-		echo;
-		enter_the_root;
-		if [[ "$REMOJA" == "y" ]]; then
-			apt-get purge openjdk-* icedtea-* icedtea6-*;
-			echo -e "\nRemoved Other Versions successfully";
-		elif [[ "$REMOJA" == "n" ]]; then
-		 	echo -e "Keeping them Intact";
-	 	fi
-		echo;
-		echo -e "Installing OpenJDK-8 (Java 1.8.0)\n";
-		echo -e "${RED}==========================================================${NONE}\n";
-		apt-get update;
-		echo -e "\n${RED}==========================================================${NONE}\n";
-		apt-get install openjdk-8-jdk;
-		echo;
-		me_quit_root;
-		echo -e "${RED}==========================================================${NONE}";
-		if [[ $( java -version &> $TMP && grep -c 'java version "1.8' $TMP ) == 1 ]]; then
-			echo -e "OpenJDK-8 or Java 8 has been successfully installed";
-		fi
-		echo -e "${RED}==========================================================${NONE}";
-	}
+	} # java
 
 	enter_the_root;
 	echo -e "${RED}==========================================================${NONE}\n";
@@ -235,7 +180,7 @@ lib32bz2-dev libsdl1.2-dev libesd0-dev squashfs-tools \
 pngcrush schedtool libwxgtk2.8-dev python liblz4-tool \
 maven maven2
 	echo -e "\n${RED}==========================================================${NONE}\n";
-	echo -e "Updating / Creating Android udev rules (51-android)\n";
+	echo -e "Updating / Creating Android ${LGRN}USB udev rules${NONE} (51-android)\n";
 	curl --create-dirs -L -o /etc/udev/rules.d/51-android.rules -O -L https://raw.githubusercontent.com/snowdream/51-android/master/51-android.rules;
 	chmod a+r /etc/udev/rules.d/51-android.rules;
 	service udev restart;
@@ -253,26 +198,26 @@ maven maven2
 		1)
 			echo -ne '\033]0;ScriBt : Java\007';
 			echo -e "Android Version of the ROM you're building ? ";
-			echo -e "1. 4.4 KitKat";
-			echo -e "2. 5.x.x Lollipop & 6.x.x Marshmallow";
-			echo -e "3. Android N (lol)\n";
+			echo -e "1. 4.4 KitKat ( Java 1.6.0 )";
+			echo -e "2. 5.x.x Lollipop & 6.x.x Marshmallow ( Java 1.7.0 )";
+			echo -e "3. 7.x.x Nougat ( Java 1.8.0 )\n";
 			read ANDVER;
 			echo;
 			case "$ANDVER" in
 				1)
-					java6 ;;
+					java 6 ;;
 				2)
-					java7 ;;
+					java 7 ;;
 				3)
-					java8 ;;
-			esac
+					java 8 ;;
+			esac # ANDVER
 			;;
 		2)
 			java_select ;;
 		3)
 			main_menu ;;
-	esac
-} #installdeps
+	esac # JAVAS
+} # installdeps
 
 shut_my_mouth ()
 {
@@ -283,7 +228,7 @@ shut_my_mouth ()
 		export DM$1="${DM2}";
 	fi
 	echo;
-} #shut_my_mouth
+} # shut_my_mouth
 
 function sync
 {
@@ -346,7 +291,7 @@ function sync
 			quick_menu;
 		fi
 	fi
-} #sync
+} # sync
 
 function init
 {
@@ -445,7 +390,7 @@ ${LPURP}=======================================================${NONE}\n";
 	fi
 	#Start Sync now
 	sync;
-} #init
+} # init
 
 function pre_build
 {
@@ -516,7 +461,7 @@ function vendor_strat_all
 	echo -e "${LGRN}DONE!${NONE}!";
 	croot;
 	echo -e "${LPURP}=========================================================${NONE}";
-} #vendor_strat
+} # vendor_strat
 
 function vendor_strat_kpa #for ROMs having products folder
 {
@@ -586,7 +531,7 @@ ${LPURP}2560${NONE}x1600\n";
 	fi
 	#PRODUCT_NAME is the only ROM-dependent variable, setting it here is better.
 	echo "PRODUCT_NAME := ${ROMNIS}_${DMDEV}" >> ${THE_FILE};
-} #vendor_strat_kpa
+} # vendor_strat_kpa
 
 	if [ -f vendor/${ROMNIS}/products ]; then
 		if [ ! -f vendor/${ROMNIS}/products/${ROMNIS}_${DMDEV}.mk || ! -f vendor/${ROMNIS}/products/${DMDEV}.mk ]; then
@@ -611,7 +556,7 @@ ${LPURP}2560${NONE}x1600\n";
 	else
 	the_response COOL Pre-Build;
 	fi
-} #pre_build
+} # pre_build
 
 function build
 {
@@ -626,7 +571,7 @@ function build
 		elif [[ "$1" == "2" ]]; then
 			$DMMK clean;
 		fi
-	} #clean_build
+	} # clean_build
 
 	function make_it #Part of make_module
 	{
@@ -640,7 +585,7 @@ function build
 		else
 			mmm -B $MODDIR;
 		fi
-	} #make_it
+	} # make_it
 
 	make_module ()
 	{
@@ -656,7 +601,7 @@ function build
 			read ENTER;
 			make_it;
 		fi
-	} #make_module
+	} # make_module
 
 	function post_build
 	{
@@ -697,7 +642,7 @@ function build
 				the_response FAIL Build;
 			fi
 		fi
-	}
+	} # post_build
 
 	function set_ccache
 	{
@@ -705,7 +650,7 @@ function build
 		echo;
 		prebuilts/misc/linux-x86/ccache/ccache -M ${CCSIZE}G;
 		echo -e "CCACHE Setup ${GRN}Successful${NONE}.\n";
-	} #set_ccache
+	} # set_ccache
 
 	function set_ccvars
 	{
@@ -738,7 +683,7 @@ function build
 		me_quit_root;
 		echo;
 		set_ccache;
-	} #set_ccvars
+	} # set_ccvars
 
 	function build_make
 	{
@@ -764,7 +709,7 @@ function build
 			echo;
 			post_build;
 		fi
-	} #build_make
+	} # build_make
 
 	function hotel_menu
 	{
@@ -784,7 +729,7 @@ function build
 			${DMSLT} ${DMDEV} ${DMBT}
 		fi
 		echo;
-	} #hotel_menu
+	} # hotel_menu
 
 	echo -e "\n${YELO}=========================================================${NONE}";
 	echo -e "             ${CYAN}Initializing Build Environment${NONE}\n";
@@ -849,7 +794,7 @@ function build
 		fi
 	;;
 esac
-} #build
+} # build
 
 teh_action ()
 {
@@ -898,7 +843,7 @@ teh_action ()
 		esac
 	;;
 	esac
-} #teh_action
+} # teh_action
 
 function the_start
 {
@@ -935,7 +880,7 @@ function the_start
 	echo;
 	if [[ "$COLOR" == "y" ]]; then
 		color_my_life;
-		echo -e "Coloring AutoBot";
+		echo -e "Coloring ScriBt and AutoBot";
 	else
 		i_like_colourless;
 	fi
@@ -954,7 +899,7 @@ function the_start
 	sleep 0.1;
 	echo -e "${LCYAN}~#~#~#~#~#~#~#~#~#${NONE} ${LRED}By Arvind7352${NONE} - ${YELO}XDA${NONE} ${LCYAN}#~#~#~#~#~#~#~#~${NONE}\n\n";
 	sleep 5;
-} #the_start
+} # the_start
 
 # All above parts are Functions - Line of Execution will start after these two lines
 #START IT --- VROOM!

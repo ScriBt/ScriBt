@@ -82,6 +82,7 @@ bash ROM.sh automate
 * Arvind Raj "a7r3" (Myself)
 * Adrian DC "AdrianDC"
 * Akhil Narang "akhilnarang"
+* CubeDev
 * Many more as this goes public
 
 #Supported ROMs
