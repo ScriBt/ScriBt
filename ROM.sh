@@ -687,11 +687,12 @@ function build
 
 	function build_make
 	{
+		start=$(date +"%s");
 		echo -e "${LGRN}Starting Compilation - ${ROM_FN} for ${DMDEV}${NONE}";
 		# For Brunchers
 		if [[ "$DMSLT" == "brunch" ]]; then
 			clean_build;
-			time ${DMSLT} ${DMDEV};
+			${DMSLT} ${DMDEV};
 		else
 			# For Mka-s/Make-rs
 			if [[ "$DMMK" == "make" ]]; then
@@ -700,15 +701,18 @@ function build
 				BCORES="";
 			fi
 			if [[ "$ROMNIS" == "tipsy" || "$ROMNIS" == "validus" || "$ROMNIS" == "tesla" ]]; then
-				time	$DMMK $ROMNIS $BCORES 2>&1 | tee $RMTMP;
+				$DMMK $ROMNIS $BCORES 2>&1 | tee $RMTMP;
 			elif [[ $(grep -q "^bacon:" "${ANDROID_BUILD_TOP}/build/core/Makefile") ]]; then
-				time $DMMK bacon $BCORES 2>&1 | tee $RMTMP;
+				$DMMK bacon $BCORES 2>&1 | tee $RMTMP;
 			else
-				time $DMMK otapackage $BCORES 2>&1 | tee $RMTMP;
+				$DMMK otapackage $BCORES 2>&1 | tee $RMTMP;
 			fi
 			echo;
 			post_build;
 		fi
+		end=$(date +"%s");
+		sec=$(($end - $start));
+		echo -e "Build took $(($sec / 3600)) hour(s), $(($sec / 60 % 60)) minute(s) and $(($sec % 60)) second(s)." | tee -a rom_compile.txt;
 	} # build_make
 
 	function hotel_menu
