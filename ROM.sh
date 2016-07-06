@@ -93,7 +93,7 @@ function main_menu
 	echo -e "* - Sync will Automatically Start after Init'ing Repo";
 	echo -e "${LRED}=======================================================${NONE}\n";
 	read ACTION;
-	teh_action $ACTION;
+	teh_action $ACTION "mm";
 } # main_menu
 
 function quick_menu
@@ -104,7 +104,7 @@ function quick_menu
 	echo -e "                               6. Exit";
 	echo -e "${YELO}=====================================================================${NONE}";
 	read ACTION;
-	teh_action $ACTION;
+	teh_action $ACTION "qm";
 } # quick_menu
 
 cherrypick ()
@@ -186,43 +186,56 @@ maven maven2
 	service udev restart;
 	echo;
 	me_quit_root;
-	echo -e "${RED}==========================================================${NONE}\n\n";
-	echo -e "${LGRN}=====================${NONE} ${LPURP}JAVA Installation${NONE} ${LGRN}====================${NONE}\n";
-	echo -e "1. Install Java";
-	echo -e "2. Switch Between Java Versions / Providers\n";
-	echo -e "3. Already Configured? Back to Main Menu";
-	echo -e "${LGRN}==========================================================${NONE}\n";
-	read JAVAS;
-	echo;
-	case "$JAVAS" in
-		1)
-			echo -ne '\033]0;ScriBt : Java\007';
-			echo -e "Android Version of the ROM you're building ? ";
-			echo -e "1. 4.4 KitKat ( Java 1.6.0 )";
-			echo -e "2. 5.x.x Lollipop & 6.x.x Marshmallow ( Java 1.7.0 )";
-			echo -e "3. 7.x.x Nougat ( Java 1.8.0 )\n";
-			read ANDVER;
-			echo;
-			case "$ANDVER" in
-				1)
-					java 6 ;;
-				2)
-					java 7 ;;
-				3)
-					java 8 ;;
-			esac # ANDVER
-			;;
-		2)
-			java_select ;;
-		3)
-			main_menu ;;
-	esac # JAVAS
+
+	function java_menu
+	{
+		echo -e "${RED}==========================================================${NONE}\n\n";
+		echo -e "${LGRN}=====================${NONE} ${LPURP}JAVA Installation${NONE} ${LGRN}====================${NONE}\n";
+		echo -e "1. Install Java";
+		echo -e "2. Switch Between Java Versions / Providers\n";
+		echo -e "3. Already Configured? Back to Main Menu";
+		echo -e "${LGRN}==========================================================${NONE}\n";
+		read JAVAS;
+		echo;
+		case "$JAVAS" in
+			1)
+				echo -ne '\033]0;ScriBt : Java\007';
+				echo -e "Android Version of the ROM you're building ? ";
+				echo -e "1. 4.4 KitKat ( Java 1.6.0 )";
+				echo -e "2. 5.x.x Lollipop & 6.x.x Marshmallow ( Java 1.7.0 )";
+				echo -e "3. 7.x.x Nougat ( Java 1.8.0 )\n";
+				read ANDVER;
+				echo;
+				case "$ANDVER" in
+					1)
+						java 6 ;;
+					2)
+						java 7 ;;
+					3)
+						java 8 ;;
+					*)
+						echo -e "\n${LRED}Invalid Selection${NONE}. Going back\n"
+						java_menu ;;
+				esac # ANDVER
+				;;
+			2)
+				java_select ;;
+			3)
+				main_menu ;;
+			*)
+				echo -e "\n${LRED}Invalid Selection${NONE}. Going back\n"
+				java_menu ;;
+		esac # JAVAS
+	} #java_menu
+
+	java_menu;
 } # installdeps
 
 shut_my_mouth ()
 {
 	if [ -f PREF.rc ]; then
-		echo -e "${RED}*${NONE}${LPURP}AutoBot${NONE}${RED}*${NONE} $2 : ${DM$1}"
+		RST="DM$1";
+		echo -e "${RED}*${NONE}${LPURP}AutoBot${NONE}${RED}*${NONE} $2 : ${!RST}"
 	else
 		read DM2; #Value
 		export DM$1="${DM2}";
@@ -238,19 +251,19 @@ function sync
 	echo -e "\nPreparing for Sync\n";
 	echo -e "${LRED}Number of Threads${NONE} for Sync?\n${LBLU}(Slow Speed? Recommended value - 1. Else your wish)${NONE}\n";
 	ST="${LRED}Number${NONE} of Threads";
-	shut_my_mouth JOBS $ST;
+	shut_my_mouth JOBS "$ST";
 	echo -e "${LRED}Force Sync${NONE} needed? ${LGRN}[y/n]${NONE}\n${LBLU}(Overwrite Local Sources with Remote)${NONE}\n";
 	ST="${LRED}Force${NONE} Sync";
-	shut_my_mouth F $ST;
+	shut_my_mouth F "$ST";
 	echo -e "Need some ${LRED}Silence${NONE} in teh Terminal? ${LGRN}[y/n]${NONE}\n${LBLU}(Checkout output will appear)${NONE}\n";
 	ST="${LRED}Silent${NONE} Sync";
-	shut_my_mouth S $ST;
+	shut_my_mouth S "$ST";
 	echo -e "Sync only ${LRED}Current${NONE} Branch? ${LGRN}[y/n]${NONE}\n${LBLU}(If Enabled, syncs only the desired branch as specified in the manifest, instead of syncing all branches. Saves Space)${NONE}\n";
 	ST="Sync ${LRED}Current${NONE} Branch";
-	shut_my_mouth C $ST;
+	shut_my_mouth C "$ST";
 	echo -e "Sync with ${LRED}clone-bundle${NONE} ${LGRN}[y/n]${NONE}?\n${LBLU}(Works with AOSP repositories, Downloads a prepackaged bundle file instead of objects from the server (Less objects, better sync). Sync takes place faster coz Google!${NONE}\n";
 	ST="Use ${LRED}clone-bundle${NONE}";
-	shut_my_mouth B $ST;
+	shut_my_mouth B "$ST";
 	echo -e "${LRED}=====================================================================${NONE}\n";
 	#Sync-Options
 	if [[ "$DMS" == "y" ]]; then
@@ -338,23 +351,23 @@ ${LPURP}=======================================================${NONE}\n";
 	sleep 1;
 	echo -e "Since Branches may live or die at any moment, ${LRED}Specify the Branch${NONE} you're going to sync\n";
 	ST="${LRED}Branch${NONE}";
-	shut_my_mouth BR $ST;
+	shut_my_mouth BR "$ST";
 	echo -e "Any ${LRED}Source you have already synced?${NONE} ${LGRN}[YES/NO]${NONE}\n${LBLU}(If you have any ROM's source completely synced, giving this source a reference source, will avoid redownloading common projects, thus saving a lot of time)${NONE}\n";
-	shut_my_mouth RF $ST;
+	shut_my_mouth RF "$ST";
 	if [[ "$DMRF" == YES ]]; then
 		echo -e "\nProvide me the ${LRED}Synced Source's Location${NONE} from ${LRED}/${NONE} \n";
 		ST="Reference ${LRED}Location${NONE}";
-		shut_my_mouth RFL $ST;
+		shut_my_mouth RFL "$ST";
 		REF=--reference\=\"${DMRFL}\";
 	else
 		REF=" " ;
 	fi
 	echo -e "Set ${LRED}clone-depth${NONE} ? ${LGRN}[y/n]${NONE}\n${LBLU}(If unset, Syncs the Entire commit history of any repo which is better for future syncs)\n(Unless you know what you're doing,${NONE} ${LRED}Answer n${NONE})\n";
 	ST="Use ${LRED}clone-depth${NONE}";
-	shut_my_mouth CD $ST;
+	shut_my_mouth CD "$ST";
 	echo -e "Depth ${LRED}Value${NONE}? (Default ${LRED}1${NONE})\n";
 	ST="clone-depth ${LRED}Value${NONE}";
-	shut_my_mouth DEP $ST;
+	shut_my_mouth DEP "$ST";
 	if [ -z "$DMDEP" ]; then
 		DMDEP=1;
 	fi
@@ -403,13 +416,13 @@ function pre_build
 	echo -e "${LCYAN}====================== DEVICE INFO ======================${NONE}\n";
 	echo -e "What's your ${LRED}Device's CodeName${NONE} ${LGRN}[Refer Device Tree - All Lowercases]${NONE}?\n";
 	ST="Your Device ${LRED}Name${NONE} is";
-	shut_my_mouth DMDEV $ST;
+	shut_my_mouth DEV "$ST";
 	echo -e "The ${LRED}Build type${NONE}? ${LGRN}[userdebug/user/eng]${NONE}\n";
 	ST="Build ${LRED}type${NONE}";
-	shut_my_mouth DMBT $ST;
+	shut_my_mouth BT "$ST";
 	echo -e "Your ${LRED}Device's Company/Vendor${NONE} (All Lowercases)?\n";
 	ST="Device's ${LRED}Vendor${NONE}";
-	shut_my_mouth DMCM $ST;
+	shut_my_mouth CM "$ST";
 	echo -e "${LCYAN}=========================================================${NONE}\n\n";
 	rom_names $ROMNO;
 
@@ -485,7 +498,7 @@ function pre_build
 		touch ${THE_FILE};
 		echo -e "Name your Device Specific Configuration File ( eg. ${ROMNIS}.mk / full_${DMDEV}.mk as in your device tree)\n";
 		ST="Device Configuration file";
-		shut_my_mouth DMDCON $ST;
+		shut_my_mouth DCON "$ST";
 		echo -e "\$(call inherit-product, device/${DMCM}/${DMDEV}/${DMDCON})" >> ${THE_FILE};
 		echo -e "Specify your Device's Resolution in the format ${LCYAN}HORIZONTAL${NONE}${LRED}x${NONE}${LCYAN}VERTICAL${NONE} (eg. 1280x720)";
 		if [ ! -f PREF.rc ]; then
@@ -636,7 +649,7 @@ function build
 				teh_action 6 FAIL;
 			fi
 		else
-			echo -e "WEW. ${YELO}I_iz_Noob${NONE}. Probably you need to Search the Internet for Resolution of the Above Error\n";
+			echo -e "WEW. ${YELO}I_iz_Noob${NONE}. Probably you need to Search the Internet for Resolution of Above Error\n";
 			if [ -f PREF.rc ]; then
 				teh_action 6 FAIL;
 				the_response FAIL Build;
@@ -712,7 +725,7 @@ function build
 		fi
 		end=$(date +"%s");
 		sec=$(($end - $start));
-		echo -e "Build took $(($sec / 3600)) hour(s), $(($sec / 60 % 60)) minute(s) and $(($sec % 60)) second(s)." | tee -a rom_compile.txt;
+		echo -e "${YELO}Build took $(($sec / 3600)) hour(s), $(($sec / 60 % 60)) minute(s) and $(($sec % 60)) second(s).${NONE}" | tee -a rom_compile.txt;
 	} # build_make
 
 	function hotel_menu
@@ -726,11 +739,11 @@ function build
 		echo -e "${YELO}Tip!${NONE} - If you're building it for the first time, then select ${RED}lunch${NONE} (Recommended)";
 		echo -e "${LBLU}===========================================================================================${NONE}\n";
 		ST="Selected Option";
-		shut_my_mouth SLT $ST;
+		shut_my_mouth SLT "$ST";
 		if [[ "$DMSLT" == "lunch" ]]; then
-			${DMSLT} ${ROMNIS}_${DMDEV}-${DMBT}
+			${DMSLT} ${ROMNIS}_${DMDEV}-${DMBT};
 		elif [[ "$DMSLT" == "breakfast" ]]; then
-			${DMSLT} ${DMDEV} ${DMBT}
+			${DMSLT} ${DMDEV} ${DMBT};
 		fi
 		echo;
 	} # hotel_menu
@@ -747,22 +760,22 @@ function build
 	echo -e "${LBLU}3. Setup CCACHE for Faster Builds ${NONE}\n";
 	echo -e "${LPURP}=========================================================${NONE}\n"
 	ST="Option Selected";
-	shut_my_mouth BO $ST;
+	shut_my_mouth BO "$ST";
 	case "$DMBO" in
 		1)
 			hotel_menu;
 			echo -e "\nShould i use '${YELO}make${NONE}' or '${RED}mka${NONE}' ?"
 			ST="Selected Method";
-			shut_my_mouth MK $ST;
-			echo -e "Wanna Clean the ${LPURP}/out${NONE} before Building? ${LGRN}[2 - Remove Staging / 3 - Full Clean]${NONE}\n"
+			shut_my_mouth MK "$ST";
+			echo -e "Wanna Clean the ${LPURP}/out${NONE} before Building? ${LGRN}[1 - Remove Staging / 2 - Full Clean]${NONE}\n"
 			ST="Option Selected";
-			shut_my_mouth CL $ST;
+			shut_my_mouth CL "$ST";
 			clean_build $DMCL; #CLEAN THE BUILD
 			echo;
 			if [[ $(tac ${ANDROID_BUILD_TOP}/build/core/build_id.mk | grep -c 'BUILD_ID=M') == "1" ]]; then
 				echo -e "Wanna use Jack Toolchain ? [y/n]"
 				ST="Use ${LRED}Jacky${NONE}";
-				shut_my_mouth JK $ST;
+				shut_my_mouth JK "$ST";
 				if [[ "$USEJK" == n ]]; then
 					export ANDROID_COMPILE_WITH_JACK=false;
 				else
@@ -770,7 +783,7 @@ function build
 				fi
 #			elif [[ $(tac ${ANDROID_BUILD_TOP}/build/core/build_id.mk | grep -c 'BUILD_ID=N') == "1" ]]; then
 #				ST="Wanna use Ninja Toolchain ? [y/n]";
-#				shut_my_mouth NJ $ST;
+#				shut_my_mouth NJ "$ST";
 #				if [[ "$DMNJ" == n ]]; then
 #					export ANDROID_COMPILE_WITH_NINJA=false; # ??? WiP - When Builds start, It'll get Edited
 #				else
@@ -794,8 +807,12 @@ function build
 		else
 			echo -e "\n${YELO}Drunk?${NONE} Back to Build Menu...";
 			sleep 2;
-			build_menu;
+			build;
 		fi
+	;;
+	*)
+		echo -e "${LRED}Invalid Selection.${NONE} Going back."
+		build;
 	;;
 esac
 } # build
@@ -844,6 +861,15 @@ teh_action ()
 		"FAIL")
 		echo -ne "\033]0;${ROM_FN} : Fail\007";
 		;;
+		esac
+	;;
+	*)
+		echo -e "\n${LRED}Invalid Selection.${NONE} Going back.\n";
+		case "$2" in
+			"qm")
+				quick_menu ;;
+			"mm")
+				main_menu ;;
 		esac
 	;;
 	esac

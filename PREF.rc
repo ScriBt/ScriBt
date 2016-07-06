@@ -37,10 +37,10 @@ function deviceinfo
 
 function buildinfo
 {
-  DMBO=1                                   # BOPT=1 for Start Build with Zip Generation at the End - Better not to change
+  DMBO=1                                   # DMBO=1 for Start Build with Zip Generation at the End - Better not to change
   DMSLT=                                   # lunch / brunch / breakfast
   DMMK=                                    # make / mka
-  DMCL=                                    # Clean Before Build? [ 2 for installclean & 3 for total clean ]
+  DMCL=                                    # Clean Before Build? [ 1 for installclean & 2 for total clean ]
   DMJK=                                    # Use Jack Toolchain [y/n] ?
   DMNJ=                                    # Use Ninja Toolchain [y/n] ?
 }
