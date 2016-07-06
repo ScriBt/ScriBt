@@ -289,21 +289,21 @@ function sync
     echo -e "${LGRN}Let's Sync!${NONE}\n";
     repo sync -j${DMJOBS} ${SILENT} ${FORCE} ${SYNC_CRNT} ${CLN_BUN}  2>&1 | tee $RTMP;
     echo;
-    if [[ $(tac $RTMP | grep -m 1 -c 'Syncing work tree: 100%') == 1 ]]; then
-        echo -e "ROM Source synced successfully.\n";
-        if [ -f PREF.rc ]; then
+ #   if [[ $(tac $RTMP | grep -m 1 -c 'Syncing work tree: 100%') == 1 ]]; then
+ #       echo -e "ROM Source synced successfully.\n";
+ #       if [ -f PREF.rc ]; then
             the_response COOL Sync;
-        fi
-    else
-        if [ -f PREF.rc ]; then
-            the_response FAIL Sync;
-        fi
+ #       fi
+ #   else
+ #       if [ -f PREF.rc ]; then
+ #           the_response FAIL Sync;
+ #       fi
         echo -e "\n${LPURP}Done.${NONE}!\n";
         echo -e "${LRED}=====================================================================${NONE}\n";
         if [ ! -f PREF.rc ]; then
             quick_menu;
         fi
-    fi
+#    fi
 } # sync
 
 function init
@@ -321,23 +321,24 @@ Choose among these (Number Selection)
 4.${DGRAY} AOSP-CAF ${NONE}
 5.${LBLU} BlissRoms by Team Bliss${NONE}
 6.${LGRN} CandyRoms ${NONE}
-7.${LBLU} Cyanide-L${NONE}
-8.${LCYAN} CyanogenMod ${NONE}
-9.${LRED} DirtyUnicorns ${NONE}
-10.${YELO} Flayr OS ${NONE}
-11.${LBLU} Krexus${NONE}-${GRN}CAF${NONE}
-12.${LGRN} OmniROM ${NONE}
-13.${LPURP} Orion OS ${NONE}
-14.${YELO} OwnROM ${NONE}
-15.${LBLU} PAC-ROM ${NONE}
-16.${LRED} Resurrection Remix ${NONE}
-17.${LBLU} SlimRoms ${NONE}
-18.${LRED} Temasek ${NONE}
-19.${LBLU} GZR Tesla ${NONE}
-20.${YELO} Tipsy OS ${NONE}
-21.${LPURP} GZR Validus ${NONE}
-22.${LCYAN} XenonHD by Team Horizon ${NONE}
-23.${LBLU} Xperia Open Source Project aka XOSP ${NONE}
+7.${YELO} crDroid ${NONE}
+8.${LBLU} Cyanide-L${NONE}
+9.${LCYAN} CyanogenMod ${NONE}
+10.${LRED} DirtyUnicorns ${NONE}
+11.${YELO} Flayr OS ${NONE}
+12.${LBLU} Krexus${NONE}-${GRN}CAF${NONE}
+13.${LGRN} OmniROM ${NONE}
+14.${LPURP} Orion OS ${NONE}
+15.${YELO} OwnROM ${NONE}
+16.${LBLU} PAC-ROM ${NONE}
+17.${LRED} Resurrection Remix ${NONE}
+18.${LBLU} SlimRoms ${NONE}
+19.${LRED} Temasek ${NONE}
+20.${LBLU} GZR Tesla ${NONE}
+21.${YELO} Tipsy OS ${NONE}
+22.${LPURP} GZR Validus ${NONE}
+23.${LCYAN} XenonHD by Team Horizon ${NONE}
+24.${LBLU} Xperia Open Source Project aka XOSP ${NONE}
 
 ${LPURP}=======================================================${NONE}\n";
     if [ ! -f PREF.rc ]; then
