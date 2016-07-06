@@ -44,103 +44,109 @@ rom_names ()
     MAN=candy.git;
   ;;
   7)
-    ROM_NAME="CyanideL";
+    ROM_NAME="crdroidandroid";
+    ROM_FN="crDroid";
+    ROMNIS="crdroid";
+    MAN=android.git;
+  ;;
+  8)
+	  ROM_NAME="CyanideL";
     ROM_FN="Cyanide";
     ROMNIS="cyanide";
     MAN=cyanide_manifest.git;
   ;;
-  8)
+  9)
     ROM_NAME="CyanogenMod";
     ROM_FN="CyanogenMod";
     ROMNIS="cm";
     MAN=android.git;
   ;;
-  9)
+  10)
     ROM_NAME="DirtyUnicorns";
     ROM_FN="Dirty Unicorns";
     ROMNIS="du";
     MAN=android_manifest.git;
   ;;
-  10)
+  11)
     ROM_NAME="FlayrOS";
     ROM_FN="Flayr OS";
     ROMNIS="full";
     ROMV="flayr";
     MAN=manifest.git;
   ;;
-  11)
+  12)
     ROM_NAME="Krexus-CAF";
     ROM_FN="Krexus CAF";
     ROMNIS="krexus";
     MAN=manifest.git;
   ;;
-  12)
+  13)
     ROM_NAME="OmniROM";
     ROM_FN="OmniROM";
     ROMNIS="omni";
     MAN=android.git;
   ;;
-  13)
+  14)
     ROM_NAME="TeamOrion";
     ROM_FN="Orion OS";
     ROMNIS="orion";
     MAN=platform_manifest.git;
   ;;
-  14)
+  15)
     ROM_NAME="OwnROM";
     ROM_FN="OwnROM";
     ROMNIS="ownrom";
     MAN=android.git;
   ;;
-  15)
+  16)
     ROM_NAME="PAC-ROM";
     ROM_FN="PAC ROM";
     ROMNIS="pac";
     MAN=pac-rom.git;
   ;;
-  16)
+  17)
     ROM_NAME="ResurrectionRemix";
     ROM_FN="Resurrection Remix";
     ROMNIS="cm";
     MAN=platform_manifest.git;
   ;;
-  17)
+  18)
     ROM_NAME="SlimRoms";
     ROM_FN="SlimRoms";
     ROMNIS="slim";
     MAN=platform_manifest.git;
   ;;
-  18)
+  19)
     ROM_NAME="temasek";
     ROM_FN="Temasek";
     ROMNIS="cm";
     MAN=android.git;
   ;;
-  19)
+  20)
     ROM_NAME="Tesla-M";
     ROM_FN="GZR Tesla";
     ROMNIS="tesla";
     MAN=manifest.git;
   ;;
-  20)
+  21)
     ROM_NAME="TipsyOs";
     ROM_FN="TipsyOs";
     ROMNIS="tipsy";
     MAN=platform_manifest.git;
   ;;
-  21)
+  22)
     ROM_NAME="ValidusOs-M";
     ROM_FN="GZR Validus";
     ROMNIS="validus";
     MAN=manifest.git;
   ;;
-  22)
+  23)
     ROM_NAME="TeamHorizon";
     ROM_FN="XenonHD";
     ROMNIS=xenonhd";
     MAN=platform_manifest.git;
   ;;
-  23)
+  24)
     ROM_NAME=XOSP-Project;
     ROM_FN="XOSP";
     ROMNIS="xosp;

@@ -105,23 +105,24 @@ bash ROM.sh automate
 4. Android Open Source Project with RRO aka "AOSP-RRO"
 5. BlissRoms
 6. CandyRoms
-7. Cyanide-L
-8. CyanogenMod
-9. Dirty Unicorns
-10. FlayrOS
-11. Krexus - CAF
-12. OmniROM
-13. OrionOS
-14. OwnROM
-15. PAC-ROMs
-16. Resurrection Remix
-17. SlimRoms
-18. Temasek
-19. GZR Tesla
-20. TipsyOs
-21. GZR Validus
-22. XenonHD by Team Horizon
-23. Xperia Open Source Project aka "XOSP"
+7. crDroid
+8. Cyanide-L
+9. CyanogenMod
+10. Dirty Unicorns
+11. FlayrOS
+12. Krexus - CAF
+13. OmniROM
+14. OrionOS
+15. OwnROM
+16. PAC-ROMs
+17. Resurrection Remix
+18. SlimRoms
+19. Temasek
+20. GZR Tesla
+21. TipsyOs
+22. GZR Validus
+23. XenonHD by Team Horizon
+24. Xperia Open Source Project aka "XOSP"
 
 More ROMs will be added, if missed 'em
 
