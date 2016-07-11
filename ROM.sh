@@ -147,12 +147,13 @@ function installdeps
         case "$REMOJA" in
             "y")
                 apt-get purge openjdk-* icedtea-* icedtea6-*;
-                echo -e "\nRemoved Other Versions successfully";
+                echo -e "\nRemoved Other Versions successfully" ;;
             "n")
-                echo -e "Keeping them Intact";
+                echo -e "Keeping them Intact" ;;
             *)
                 echo -e "${LRED}Invalid Selection.${NONE} RE-Answer it."
-                java $1;
+                java $1; 
+            ;;
             esac
         echo -e "${RED}==========================================================${NONE}\n";
         ap-get update;
@@ -244,23 +245,38 @@ shut_my_mouth ()
     echo;
 } # shut_my_mouth
 
+gimme_info ()
+{
+    if [ ! -f PREF.rc ]; then
+        case "$1" in
+            "jobs") echo -e "${LBLU}(Slow Speed? Recommended value - 1. Else your wish)${NONE}\n";;
+            "fsync") echo -e "${LBLU}(Overwrite Local Sources with Remote)${NONE}\n" ;;
+            "ssync") echo -e "${LBLU}(Checkout output will appear)${NONE}\n" ;;
+            "syncrt") echo -e "${LBLU}(If Enabled, syncs only the desired branch as specified in the manifest, instead of syncing all branches. Saves Space)${NONE}\n" ;;
+            "clnbun") echo -e "${LBLU}(Works with AOSP repositories, Downloads a prepackaged bundle file instead of objects from the server (Less objects, better sync). Sync takes place faster coz Google!${NONE}\n" ;;
+            "refer") echo -e "${LBLU}(If you have any ROM's source completely synced, giving this source a reference source, will avoid redownloading common projects, thus saving a lot of time)${NONE}\n" ;;
+            "cldp") echo -e "${LBLU}(If unset, Syncs the Entire commit history of any repo which is better for future syncs)\n(Unless you know what you're doing,${NONE} ${LRED}Answer n${NONE})\n" ;;
+        esac
+    fi
+}
+
 function sync
 {
     if [ -f PREF.rc ]; then teh_action 2; fi
     echo -e "\nPreparing for Sync\n";
-    echo -e "${LRED}Number of Threads${NONE} for Sync?\n${LBLU}(Slow Speed? Recommended value - 1. Else your wish)${NONE}\n";
+    echo -e "${LRED}Number of Threads${NONE} for Sync?\n"; gimme_info "jobs";
     ST="${LRED}Number${NONE} of Threads";
     shut_my_mouth JOBS "$ST";
-    echo -e "${LRED}Force Sync${NONE} needed? ${LGRN}[y/n]${NONE}\n${LBLU}(Overwrite Local Sources with Remote)${NONE}\n";
+    echo -e "${LRED}Force Sync${NONE} needed? ${LGRN}[y/n]${NONE}\n"; gimme_info "fsync";
     ST="${LRED}Force${NONE} Sync";
     shut_my_mouth F "$ST";
-    echo -e "Need some ${LRED}Silence${NONE} in teh Terminal? ${LGRN}[y/n]${NONE}\n${LBLU}(Checkout output will appear)${NONE}\n";
+    echo -e "Need some ${LRED}Silence${NONE} in teh Terminal? ${LGRN}[y/n]${NONE}\n"; gimme_info "ssync";
     ST="${LRED}Silent${NONE} Sync";
     shut_my_mouth S "$ST";
-    echo -e "Sync only ${LRED}Current${NONE} Branch? ${LGRN}[y/n]${NONE}\n${LBLU}(If Enabled, syncs only the desired branch as specified in the manifest, instead of syncing all branches. Saves Space)${NONE}\n";
+    echo -e "Sync only ${LRED}Current${NONE} Branch? ${LGRN}[y/n]${NONE}\n"; gimme_info "syncrt";
     ST="Sync ${LRED}Current${NONE} Branch";
     shut_my_mouth C "$ST";
-    echo -e "Sync with ${LRED}clone-bundle${NONE} ${LGRN}[y/n]${NONE}?\n${LBLU}(Works with AOSP repositories, Downloads a prepackaged bundle file instead of objects from the server (Less objects, better sync). Sync takes place faster coz Google!${NONE}\n";
+    echo -e "Sync with ${LRED}clone-bundle${NONE} ${LGRN}[y/n]${NONE}?\n"; gimme_info "clnbun";
     ST="Use ${LRED}clone-bundle${NONE}";
     shut_my_mouth B "$ST";
     echo -e "${LRED}=====================================================================${NONE}\n";
@@ -332,7 +348,7 @@ ${LPURP}=======================================================${NONE}\n";
     echo -e "Since Branches may live or die at any moment, ${LRED}Specify the Branch${NONE} you're going to sync\n";
     ST="${LRED}Branch${NONE}";
     shut_my_mouth BR "$ST";
-    echo -e "Any ${LRED}Source you have already synced?${NONE} ${LGRN}[YES/NO]${NONE}\n${LBLU}(If you have any ROM's source completely synced, giving this source a reference source, will avoid redownloading common projects, thus saving a lot of time)${NONE}\n";
+    echo -e "Any ${LRED}Source you have already synced?${NONE} ${LGRN}[YES/NO]${NONE}\n"; gimme_info "refer";
     shut_my_mouth RF "$ST";
     if [[ "$DMRF" == YES ]]; then
         echo -e "\nProvide me the ${LRED}Synced Source's Location${NONE} from ${LRED}/${NONE} \n";
@@ -342,7 +358,7 @@ ${LPURP}=======================================================${NONE}\n";
     else
         REF=" " ;
     fi
-    echo -e "Set ${LRED}clone-depth${NONE} ? ${LGRN}[y/n]${NONE}\n${LBLU}(If unset, Syncs the Entire commit history of any repo which is better for future syncs)\n(Unless you know what you're doing,${NONE} ${LRED}Answer n${NONE})\n";
+    echo -e "Set ${LRED}clone-depth${NONE} ? ${LGRN}[y/n]${NONE}\n"; gimme_info "cldp";
     ST="Use ${LRED}clone-depth${NONE}";
     shut_my_mouth CD "$ST";
     echo -e "Depth ${LRED}Value${NONE}? (Default ${LRED}1${NONE})\n";
@@ -418,7 +434,7 @@ function pre_build
         elif [ -f ${ROMNIS}-device-targets ]; then
             echo -e "Adding your Device to ROM Vendor ${LGRN}(Strategy 4)${NONE}\n";
             if [[ $(grep -c '${DMDEV}' ${ROMNIS}-device-targets) == "0" ]]; then
-                echo -e "${ROMNIS}_${DMDEV}-${DMBT}";
+                echo -e "${ROMNIS}_${DMDEV}-${DMBT}" >> ${ROMNIS}-device-targets;
             else
                 echo -e "Device was already added to ${ROM_FN} vendor";
             fi
