@@ -6,102 +6,102 @@
 
 function color
 {
-  COLOR=                                   # Like Colors? [y/n]
+    COLOR=                                   # Like Colors? [y/n]
 }
 
 function reposync
 {
-  DMJOBS=                                  # No of Threads for Sync [Integral Values Plz]
-  DMF=                                     # Force Sync ? [y/n]
-  DMS=                                     # Silent sync ? [y/n]
-  DMC=                                     # Sync Current Branch ? [y/n]
-  DMB=                                     # USe clone-bundle ? [y/n]
+    DMJOBS=                                  # No of Threads for Sync [Integral Values Plz]
+    DMF=                                     # Force Sync ? [y/n]
+    DMS=                                     # Silent sync ? [y/n]
+    DMC=                                     # Sync Current Branch ? [y/n]
+    DMB=                                     # USe clone-bundle ? [y/n]
 }
 
 function repoinit
 {
-  ROMNO=                                   # ROM Selection Number [Refer ROM.sh / README.md]
-  DMBR=                                    # Branch of the ROM
-  DMRF=                                    # Have a Reference ? [YES/NO]
-  DMRFL=                                   # Reference Source's Location from /
-  DMCD=                                    # Set a Clone-Depth ? [y/n]
-  DMDEP=1;                                 # Depth Value (Default 1)
+    ROMNO=                                   # ROM Selection Number [Refer ROM.sh / README.md]
+    DMBR=                                    # Branch of the ROM
+    DMRF=                                    # Have a Reference ? [YES/NO]
+    DMRFL=                                   # Reference Source's Location from /
+    DMCD=                                    # Set a Clone-Depth ? [y/n]
+    DMDEP=1;                                 # Depth Value (Default 1)
 }
 
 function deviceinfo
 {
-  DMDEV=                                   # Device codename (Lowercases)
-  DMBT=                                    # userdebug / user / eng
-  DMCM=                                    # Device Company / Vendor
+    DMDEV=                                   # Device codename (Lowercases)
+    DMBT=                                    # userdebug / user / eng
+    DMCM=                                    # Device Company / Vendor
 }
 
 function buildinfo
 {
-  DMBO=1                                   # DMBO=1 for Start Build with Zip Generation at the End - Better not to change
-  DMSLT=                                   # lunch / brunch / breakfast
-  DMMK=                                    # make / mka
-  DMCL=                                    # Clean Before Build? [ 1 for installclean & 2 for total clean ]
-  DMJK=                                    # Use Jack Toolchain [y/n] ?
-  DMNJ=                                    # Use Ninja Toolchain [y/n] ?
+    DMBO=1                                   # DMBO=1 for Start Build with Zip Generation at the End - Better not to change
+    DMSLT=                                   # lunch / brunch / breakfast
+    DMMK=                                    # make / mka
+    DMCL=                                    # Clean Before Build? [ 1 for installclean & 2 for total clean ]
+    DMJK=                                    # Use Jack Toolchain [y/n] ?
+    DMNJ=                                    # Use Ninja Toolchain [y/n] ?
 }
 
 function the_cherries                      # Since this is Automated - Use Proper Cherry-picks - conflicts won't be solved
 {
-  builddir=$(pwd);                         # TO get back to Build Dir
+    builddir=$(pwd);                         # TO get back to Build Dir
 
-#  #===========PICK 1=============#
-#  cd ${builddir}/[ENTER_DIRECTORY];       # The Directory in which you need to Pick a Commit
-#  REPOPK=[ENTER_ORGANIZATION_NAME];       # Repo Provider who has that Repo
-#  REPONAME=[ENTER_REPO_NAME];             # Name of the Repo
-#  CP_BRNC=[ENTER_BRANCH_NAME];            # Branch of the Repo
-#  cherrypick [ENTER_COMMIT_ID];           # Commit ID in place of -> '[ENTER_COMMIT_ID]'
-#  cd $builddir;
-#  #==============================#
-#
-#  #===========PICK 2=============#
-#  cd ${builddir}/[ENTER_DIRECTORY];       # The Directory in which you need to Pick a Commit
-#  REPOPK=[ENTER_ORGANIZATION_NAME];       # Repo Provider who has that Repo
-#  REPONAME=[ENTER_REPO_NAME];             # Name of the Repo
-#  CP_BRNC=[ENTER_BRANCH_NAME];            # Branch of the Repo
-#  cherrypick [ENTER_COMMIT_ID];           # Commit ID in place of -> '[ENTER_COMMIT_ID]'
-#  cd $builddir;
-#  #==============================#
+#   #===========PICK 1=============#
+#   cd ${builddir}/[ENTER_DIRECTORY];       # The Directory in which you need to Pick a Commit
+#   REPOPK=[ENTER_ORGANIZATION_NAME];       # Repo Provider who has that Repo
+#   REPONAME=[ENTER_REPO_NAME];             # Name of the Repo
+#   CP_BRNC=[ENTER_BRANCH_NAME];            # Branch of the Repo
+#   cherrypick [ENTER_COMMIT_ID];           # Commit ID in place of -> '[ENTER_COMMIT_ID]'
+#   cd $builddir;
+#   #==============================#
+# 
+#   #===========PICK 2=============#
+#   cd ${builddir}/[ENTER_DIRECTORY];       # The Directory in which you need to Pick a Commit
+#   REPOPK=[ENTER_ORGANIZATION_NAME];       # Repo Provider who has that Repo
+#   REPONAME=[ENTER_REPO_NAME];             # Name of the Repo
+#   CP_BRNC=[ENTER_BRANCH_NAME];            # Branch of the Repo
+#   cherrypick [ENTER_COMMIT_ID];           # Commit ID in place of -> '[ENTER_COMMIT_ID]'
+#   cd $builddir;
+#   #==============================#
 
-# You may add many more picks like this.
+#   You may add many more picks like this.
 }
 
 function vendor_strat                      # Only Enter Values if Building PAC till 5.1 / AOKP till 4.4 / Krexus-6.0
 {
-  THE_FILE=                                # The Device-Vendor Conjuctor File's name (eg. pac_${DEVICE}.mk / ${DEVICE}.mk )
-  DEVCON=                                  # Device Basic Config file name (as in Device Tree -> eg. full_${DEVICE}.mk)
-  BOOTRES=                                 # Boot Anim Resolution Value (as instructed in main ScriBt)
+    THE_FILE=                                # The Device-Vendor Conjuctor File's name (eg. pac_${DEVICE}.mk / ${DEVICE}.mk )
+    DEVCON=                                  # Device Basic Config file name (as in Device Tree -> eg. full_${DEVICE}.mk)
+    BOOTRES=                                 # Boot Anim Resolution Value (as instructed in main ScriBt)
 }
 
 function collector
 {
-  # Collect all Information
-  color;
-  repoinit;
-  rom_names $ROMNO;
-  reposync;
-  deviceinfo;
-  buildinfo;
-  vendor_strat;
+    # Collect all Information
+    color;
+    repoinit;
+    rom_names $ROMNO;
+    reposync;
+    deviceinfo;
+    buildinfo;
+    vendor_strat;
 }
 
 function automate                          # Function will only work if it has all the Values Pre-Defined in function 'collector'
 {
-  # You may Enter your Desired Build Sequence here
-  # Default Sequence - You may change this
-  # You may enter your own build/device-specific commands, normally between any of these calls below, works.
-  #
-  # Don't remove this call tho.
-  #
-  collector;
-  #
+    # You may Enter your Desired Build Sequence here
+    # Default Sequence - You may change this
+    # You may enter your own build/device-specific commands, normally between any of these calls below, works.
+    #
+    # Don't remove this call tho.
+    #
+    collector;
+    #
 
-  sync;
-  the_cherries;
-  build;
-  exitScriBt;
+    sync;
+    the_cherries;
+    build;
+    exitScriBt;
 }

@@ -115,14 +115,15 @@ bash ROM.sh automate
 14. OrionOS
 15. OwnROM
 16. PAC-ROMs
-17. Resurrection Remix
-18. SlimRoms
-19. Temasek
-20. GZR Tesla
-21. TipsyOs
-22. GZR Validus
-23. XenonHD by Team Horizon
-24. Xperia Open Source Project aka "XOSP"
+17. Paranoid Android aka AOSPA
+18. Resurrection Remix
+19. SlimRoms
+20. Temasek
+21. GZR Tesla
+22. TipsyOs
+23. GZR Validus
+24. XenonHD by Team Horizon
+25. Xperia Open Source Project aka "XOSP"
 
 More ROMs will be added, if missed 'em
 
