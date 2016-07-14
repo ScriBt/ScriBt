@@ -72,8 +72,7 @@ function the_cherries                      # Since this is Automated - Use Prope
 
 function vendor_strat                      # Only Enter Values if Building PAC till 5.1 / AOKP till 4.4 / Krexus-6.0
 {
-    THE_FILE=                                # The Device-Vendor Conjuctor File's name (eg. pac_${DEVICE}.mk / ${DEVICE}.mk )
-    DEVCON=                                  # Device Basic Config file name (as in Device Tree -> eg. full_${DEVICE}.mk)
+    VENF=                                # The Device-Vendor Conjuctor File's name (eg. pac_${DEVICE}.mk / ${DEVICE}.mk )
     BOOTRES=                                 # Boot Anim Resolution Value (as instructed in main ScriBt)
 }
 
