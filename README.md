@@ -5,51 +5,64 @@
 
 Ready to use. Extensive Testing needed.
 
+(**Tip!** : **ROMNIS** - **ROM** **N**ame **I**n **S**ource - eg. cm, bliss, candy, crdroid etc.)
+
 ScriBt consists of five main Actions:
 
 #####1. Init -
 
-  a. Choose a ROM
+a. **Choose** a ROM
 
-  b. Initialize it's Repo
+b. **Initialize** it's Repo
 
-  c. Add a local_manifest for Device Specfic Additions / Changes
+c. **Add** a local_manifest for Device Specfic Additions / Changes
 
 #####2. Sync
 
-  Sync the Sources - Setting Sync Options / Flags available
+**Sync** the Sources - Setting Sync Options / Flags available
 
 #####3. Pre Build -
 
-  Add Device to the ROM Vendor, that's all
+a. **Add Device** to ROM Vendor
+  
+b. Make an **Interactive Makefile** under Device Tree (Identifiable by ROM's BuildSystem)
+    
+  * This was created in order to prevent unnecessary Modifications to already present files in the Device Tree and messing it up eventually...
+    
+  * Idea came into existence, When I saw most of the ROMs (... not having ```products``` folder in ROM vendor && excluding AOSP-CAF/AOSP-RRO) having these lines in one of the BuildSystem's files...
+  
+  ```# A ROMNIS build needs only the ROMNIS product makefiles.```
+    
+  ```ifneq ($(ROMNIS_BUILD),)
+    all_product_configs := $(shell ls device/*/$(ROMNIS_BUILD)/ROMNIS.mk)```
 
 #####4. Build -
 
-  a. Build the Entire ROM
+a. Build the Entire ROM
 
-    * Clean /out Entirely or only Staging Directories
+   * **Clean** /out Entirely or only Staging Directories
 
-    * Start Build
+   * **Start** Build
 
-  c. Make a Particular Module
+b. Make a Particular Module
 
-  d. Setup CCACHE
+c. Setup **CCACHE**
 
-  e. Give comments based on the Final Build Status
+d. Give **comments** based on the Final Build Status
 
-    * Build Success
+   * Build Success
 
-    * no rule to make target: /out/*****/{MODULE_NAME}_intermediates - Search for MODULE_NAME in Build, Else give Search Suggestions based on MODULE_NAME
+   * ```no rule to make target: /out/*****/{MODULE_NAME}_intermediates``` - Search for ```MODULE_NAME``` in Build, Else give Search Suggestions based on ```MODULE_NAME```
 
-    * Arbitrary Error (Can't help because Entropy of Increase in Errors gets Incremented day by day :P)
-
+   * Arbitrary Error (Can't help because Entropy of Increase in Errors gets Incremented day by day :P)
+ 
 #####5. Install Deps
 
-  a. Install Build Dependencies
+a. Install Build Dependencies
 
-  b. Install / Configure JAVA
+b. Install / Configure **JAVA**
 
-  c. Setup android-51 rules (For proper usage of ADB)
+c. Setup **android-51** rules (For proper usage of ADB)
 
 #####6. Automated Cherry Picking
 
@@ -83,11 +96,11 @@ bash ROM.sh automate
 #####Functions that can be automated
 
 * sync
-* pre_build ^
+* pre_build **^**
 * build
 * the_cherries
 
-^ - The Device Tree must be Compatible with the ROM you're building. Else, Issues :) :P
+**^** - The Device Tree must be Compatible with the ROM you're building (Extra Toolchain Configs, Overlays etc. **ROMNIS-fying is taken care of in Point 3b** ) Else, Issues :) :P
 
 #CONTRIBUTORS
 
