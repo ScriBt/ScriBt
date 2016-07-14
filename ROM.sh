@@ -417,15 +417,30 @@ function pre_build
     echo -e "${LCYAN}=========================================================${NONE}\n\n";
     rom_names $ROMNO;
 
-dtree_mod ()
+    function find_ddc   # For Finding Default Device Configuration file
     {
-        interactive_mk()
-        {
-            echo -e "${LPURP}Creating Interactive Makefile for getting Identified by the ROM's BuildSystem...${NONE}";
-            sleep 2;
-            cd device/${DMCM}/${DMDEV};
-            INTF=interact.mk;
-            echo "#                       Interactive Makefile                     # 
+        ROMS=( aicp aokp aosp bliss candy crdroid cyanide cm du orion ownrom slim tesla tipsy validus xenonhd xosp );
+        for ROM in ${ROMS[*]}
+        do
+            # Possible Default Device Configuration (DDC) Files
+            DDCS=( ${ROM}_${DMDEV}.mk aosp_${DMDEV}.mk full_${DMDEV}.mk ${ROM}.mk );
+            # Inherit DDC
+            for ACTUAL_DDC in ${DDCS[*]}
+            do
+                if [ -f $ACTUAL_DDC ]; then
+                    export DDC="$ACTUAL_DDC";
+                fi
+            done
+        done
+    }
+
+    interactive_mk()
+    {
+        echo -e "${PURP}Creating Interactive Makefile for getting Identified by the ROM's BuildSystem...${NONE}";
+        sleep 2;
+        cd device/${DMCM}/${DMDEV};
+        INTF=interact.mk;
+        echo "#                 ##### Interactive Makefile #####
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -437,65 +452,42 @@ dtree_mod ()
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
-# limitations under the License." >> $INTF 
+# limitations under the License." >> $INTF;
 
-            if [ -f vendor/${ROMNIS}/config ]; then
-                CNF="config";
-            else
-                CNF="configs";
-            fi
+        if [ -d vendor/${ROMNIS}/config ]; then
+            CNF="config";
+        else
+            CNF="configs";
+        fi
 
-            # Inherit Vendor specific files
-            echo -e "\n# Inherit ${ROMNIS} common stuff\n\$(call inherit-product, vendor/${ROMNIS}/${CNF}/common_full_phone.mk)" >> $INTF;
+        find_ddc; # Find Default Device Configuration File
 
-            ROMS=( aicp aokp aosp bliss candy crdroid cyanide cm du orion ownrom slim tesla tipsy validus xenonhd xosp );  
+        # Work on Interactive Makefile Start
+        echo -e "\n# Inherit ${ROMNIS} common stuff\n\$(call inherit-product, vendor/${ROMNIS}/${CNF}/common_full_phone.mk)" >> $INTF;
+        # Inherit Vendor specific files
+        if [[ $(grep -c -q "nfc_enhanced" $DDC) == "1" ]] && [ -f vendor/${ROMNIS}/${CNF}/nfc_enhanced.mk ]; then
+            echo -e "\n# Enhanced NFC" >> $INTF;
+            echo -e "\$(call inherit-product, vendor/${ROM}/${CNF}/nfc_enhanced.mk)" >> $INTF;
+        fi
+        if [[ $(grep -c -q "telephony" $DDC) == "1" ]] && [ -f vendor/${ROMNIS}/${CNF}/telephony.mk ]; then
+            echo -e "\n# Inherit telephony stuff" >> $INTF;
+            echo -e "\$(call inherit-product, vendor/${ROM}/${CNF}/telephony.mk)" >> $INTF;
+        fi
+        echo -e "\n# Calling Default Device Configuration File" >> $INTF;
+        echo -e "\$(call inherit-product, device/${DMCM}/${DMDEV}/${DDC})" >> $INTF;
+        echo -e "\n# ROM Specific Identifier\nPRODUCT_NAME := ${ROMNIS}_${DMDEV}" >> $INTF;
+        # To prevent Missing Vendor Calls
+        sed -i -e 's/inherit-product, vendor\/${ROM}/inherit-product-if-exists, vendor\/${ROM}/g' $DDC;
+        # Work on Interactive Makefile Complete
 
-            for ROM in ${ROMS[*]}
-            do
-                # Possible Default Device Configuration (DDC) Files
-                DDCS=( ${ROM}.mk full_${DMDEV}.mk aosp_${DMDEV}.mk ${ROM}_${DMDEV}.mk );
-                # Inherit DDC
-                for DDC in ${DDCS[*]}
-                do
-                    if [ -f $DDC ]; then
-                        if [[ $(grep -c -q 'nfc_enhanced' $DDC) == "1" ]] && [ -f vendor/${ROMNIS}/${CNF}/nfc_enhanced.mk ]; then
-                            echo -e "\n# Enhanced NFC" >> $INTF;
-                            echo -e "\$(call inherit-product, vendor/${ROM}/${CNF}/nfc_enhanced.mk)" >> $INTF;
-                        fi
-                        if [[ $(grep -c -q 'telephony' $DDC) == "1" ]] && [ -f vendor/${ROMNIS}/${CNF}/telephony.mk ]; then
-                            echo -e "\n# Inherit telephony stuff" >> $INTF;
-                            echo -e "\$(call inherit-product, vendor/${ROM}/${CNF}/telephony.mk)" >> $INTF;
-                        fi
-                        echo -e "\n# Calling Default Device Configuration File" >> $INTF;
-                        echo -e "\$(call inherit-product, device/${DMCM}/${DMDEV}/${DDC})" >> $INTF;
-                        # To prevent Missing Vendor Calls
-                        sed -i -e 's/inherit-product, vendor\/${ROM}/inherit-product-if-exists, vendor\/${ROM}/g' $DDC;
-                    fi
-                done
-            done
-            mv $INTF ${ROMNIS}.mk;  # Make it Identifiable
-            echo -e "Renaming .dependencies file...";
-            if [ ! -f ${ROMNIS}.dependencies ]; then
-                mv -f *.dependencies ${ROMNIS}.dependencies
-                echo -e "Done.";
-            fi
-            echo -e "\n# ROM Specific Identifier\nPRODUCT_NAME := ${ROMNIS}_${DMDEV}" >> $INT_FILE;
-            croot;
-        } # interactive_mk
-
-        case "$1" in
-        1|3|4|11|12|13) echo -e "Interactive Makefile Unneeded, continuing..." ;;
-        2|16)
-            if [[ "$DMBR" == "kitkat" || "$DMBR" == "pac-5.1" ]]; then
-                echo -e "Interactive Makefile Unneeded, continuing..."
-            else
-                interactive_mk "$1";
-            fi
-        ;;
-        *) interactive_mk $1 ;;
-        esac   
-    } # dtree_mod
-
+        mv $INTF ${ROMNIS}.mk;  # Make it Identifiable
+        echo -e "${GRN}Renaming .dependencies file...${NONE}";
+        if [ ! -f ${ROMNIS}.dependencies ]; then
+            mv -f *.dependencies ${ROMNIS}.dependencies;
+        fi
+        echo -e "${LRED}Done.${NONE}";
+        croot;
+    } # interactive_mk
 
     function vendor_strat_all
     {
@@ -507,21 +499,21 @@ dtree_mod ()
         echo -e "${LPURP}=========================================================${NONE}\n";
         if [ -f ${ROMNIS}.devices ]; then
             echo -e "Adding your Device to ROM Vendor ${LGRN}(Strategy 1)${NONE}\n";
-            if [[ $(grep -c '${DMDEV}' ${ROMNIS}.devices) == "0" ]]; then
+            if [[ $(grep -c "${DMDEV}" ${ROMNIS}.devices) == "0" ]]; then
                 echo "${DMDEV}" >> ${ROMNIS}.devices;
             else
                 echo -e "Device was already added to ${ROMNIS} vendor";
             fi
         elif [ -f ${ROMNIS}-device-targets ]; then
             echo -e "Adding your Device to ROM Vendor ${LGRN}(Strategy 4)${NONE}\n";
-            if [[ $(grep -c '${DMDEV}' ${ROMNIS}-device-targets) == "0" ]]; then
+            if [[ $(grep -c "${DMDEV}" ${ROMNIS}-device-targets) == "0" ]]; then
                 echo -e "${ROMNIS}_${DMDEV}-${DMBT}" >> ${ROMNIS}-device-targets;
             else
                 echo -e "Device was already added to ${ROM_FN} vendor";
             fi
         elif [ -f vendorsetup.sh ]; then
             echo -e "Adding your Device to ROM Vendor ${LGRN}(Strategy 2)${NONE}\n";
-            if [[ $(grep -c '${DMDEV}' vendorsetup.sh) == "0" ]]; then
+            if [[ $(grep -c "${DMDEV}" vendorsetup.sh) == "0" ]]; then
                 echo "add_lunch_combo ${ROMNIS}_${DMDEV}-${DMBT}" >> vendorsetup.sh;
             else
                 echo -e "Device was already added to ${ROMNIS} vendor";
@@ -536,7 +528,7 @@ dtree_mod ()
                     touch vendorsetup.sh;
                     echo -e "Done [1/2]";
                 fi
-                if [[ $(grep -c '${ROMNIS}_${DMDEV}' vendorsetup.sh ) == "0" ]]; then
+                if [[ $(grep -c "${ROMNIS}_${DMDEV}" vendorsetup.sh ) == "0" ]]; then
                     echo -e "add_lunch_combo ${ROMNIS}_${DMDEV}-${DMBT}" >> vendorsetup.sh;
                 else
                     echo -e "Device already added to vendorsetup.sh\n";
@@ -554,24 +546,22 @@ dtree_mod ()
         if [ ! -f PREF.rc ]; then
             case "$ROMNIS" in       # Add Device Makefile to AndroidProducts.mk
             "krexus"|"pac")
-                THE_FILE=${ROMNIS}_${DMDEV}.mk ;;
+                VENF=${ROMNIS}_${DMDEV}.mk ;;
             "aokp"|"aicp")
-                THE_FILE=${DMDEV}.mk;
+                VENF=${DMDEV}.mk;
                 echo -e "\t\$(LOCAL_DIR)/${DMDEV}.mk" >> AndroidProducts.mk;
             ;;
             "pa")
-                THE_FILE="${DMDEV}/pa_${DMDEV}.mk";
-                echo -e "# ${DMCM} ${DMDEV}";
+                VENF="${DMDEV}/pa_${DMDEV}.mk";
+                echo -e "# ${DMCM} ${DMDEV}" >> AndroidProducts.mk
                 echo -e "\nifeq (pa_${DMDEV},\$(TARGET_PRODUCT))" >> AndroidProducts.mk;
-                echo -e "\tPRODUCT_MAKEFILES += $(LOCAL_DIR)/${DMDEV}/pa_${DMDEV}.mk" >> AndroidProducts.mk;
-                echo -e "endif" >> AndroidProducts.mk;
+                echo -e "\tPRODUCT_MAKEFILES += $(LOCAL_DIR)/${DMDEV}/pa_${DMDEV}.mk\nendif" >> AndroidProducts.mk;
             ;;
             esac
         else
-            echo -e "${RED}*${NONE}${LPURP}AutoBot${NONE}${RED}*${NONE} Device-Vendor Conjunction File : ${THE_FILE}";
+            echo -e "${RED}*${NONE}${LPURP}AutoBot${NONE}${RED}*${NONE} Device-Vendor Conjunction File : $VENF";
         fi
 
-        echo -e "\$(call inherit-product, device/${DMCM}/${DMDEV}/${DMDCON})" >> ${THE_FILE};
         echo -e "Specify your Device's Resolution in the format ${LCYAN}HORIZONTAL${NONE}${LRED}x${NONE}${LCYAN}VERTICAL${NONE} (eg. 1280x720)";
         if [ ! -f PREF.rc ]; then
             echo -e "Among these Values - Select the one which is nearest or almost Equal to that of your Device\n";
@@ -602,34 +592,38 @@ ${LPURP}2560${NONE}x1600\n";
         #Vendor-Calls
         case "$ROMNIS" in
         "krexus")
-            echo -e "\$( call inherit-product, vendor/${ROMNIS}/products/common.mk)" >> ${THE_FILE};
-            echo -e "\$( call inherit-product, vendor/${ROMNIS}/products/vendorless.mk)" >> ${THE_FILE}; 
+            echo -e "\$( call inherit-product, vendor/${ROMNIS}/products/common.mk)" >> $VENF;
+            echo -e "\$( call inherit-product, vendor/${ROMNIS}/products/vendorless.mk)" >> $VENF;
             ;;
         "pac")
-            echo -e "\$( call inherit-product, vendor/${ROMNIS}/products/pac_common.mk)" >> ${THE_FILE};
-            echo "PAC_BOOTANIMATION_NAME := ${BOOTRES};" >> ${THE_FILE}; 
+            echo -e "\$( call inherit-product, vendor/${ROMNIS}/products/pac_common.mk)" >> $VENF;
+            echo "PAC_BOOTANIMATION_NAME := ${BOOTRES};" >> $VENF;
             ;;
         "aokp")
-            echo -e "\$(call inherit-product, vendor/${ROMNIS}/configs/common.mk)" >> ${THE_FILE};
+            echo -e "\$(call inherit-product, vendor/${ROMNIS}/configs/common.mk)" >> $VENF;
             # Boot animation
-            echo -e "\nPRODUCT_COPY_FILES += \ " >> ${THE_FILE};
-            echo -e "\tvendor/aokp/prebuilt/bootanimation/bootanimation_${BOOTRES}.zip:system/media/bootanimation.zip" >> ${THE_FILE};
+            echo -e "\nPRODUCT_COPY_FILES += \ " >> $VENF;
+            echo -e "\tvendor/aokp/prebuilt/bootanimation/bootanimation_${BOOTRES}.zip:system/media/bootanimation.zip" >> $VENF;
             ;;
         "pa")
-            echo -e "\ninclude vendor/${ROMNIS}/main.mk" >> ${THE_FILE}
+            echo -e "\ninclude vendor/${ROMNIS}/main.mk" >> $VENF;
             ;;
         "aicp")
-            echo -e "\n# Inherit telephony stuff\n\$(call inherit-product, vendor/${ROMNIS}/configs/telephony.mk)"
-            echo -e "\$(call inherit-product, vendor/${ROMNIS}/configs/common.mk)" >> ${THE_FILE}
+            echo -e "\n# Inherit telephony stuff\n\$(call inherit-product, vendor/${ROMNIS}/configs/telephony.mk)" >> $VENF;
+            echo -e "\$(call inherit-product, vendor/${ROMNIS}/configs/common.mk)" >> $VENF;
             ;;
         esac
-        
+
+        find_ddc;
+        echo -e "\n# Calling Default Device Configuration File" >> $VENF;
+        echo -e "\$(call inherit-product, device/${DMCM}/${DMDEV}/${DDC})" >> $VENF;
+
         #PRODUCT_NAME is the only ROM-dependent variable, setting it here is better.
-        echo "PRODUCT_NAME := ${ROMNIS}_${DMDEV}" >> ${THE_FILE};
-    
+        echo "\nPRODUCT_NAME := ${ROMNIS}_${DMDEV}" >> $VENF;
+
     } # vendor_strat_kpa
 
-    if [ -f vendor/${ROMNIS}/products ]; then
+    if [ -d vendor/${ROMNIS}/products ]; then
         if [ ! -f vendor/${ROMNIS}/products/${ROMNIS}_${DMDEV}.mk || ! -f vendor/${ROMNIS}/products/${DMDEV}.mk ]; then
             vendor_strat_kpa; #if found products folder
         else
@@ -639,11 +633,23 @@ ${LPURP}2560${NONE}x1600\n";
         vendor_strat_all; #if not found
     fi
     croot;
-    echo -e "${ROMNIS}-fying Device Tree..."
-    dtree_mod "$ROMNO";
+    echo -e "${LBLU}${ROMNIS}-fying Device Tree...${NONE}"
+
+    case "$ROMNO" in
+    1|3|4|11|12|13) echo -e "Interactive Makefile Unneeded, continuing..." ;;
+    2|16)
+        if [[ "$DMBR" == "kitkat" || "$DMBR" == "pac-5.1" ]]; then
+            echo -e "Interactive Makefile Unneeded, continuing..."
+        else
+            interactive_mk "$ROMNO";
+        fi
+        ;;
+        *) interactive_mk "$ROMNO" ;;
+    esac
+
     sleep 2;
     quick_menu;
-    
+
 } # pre_build
 
 function build
