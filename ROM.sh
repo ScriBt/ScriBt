@@ -258,7 +258,7 @@ gimme_info ()
             "cldp") echo -e "${LBLU}(If unset, Syncs the Entire commit history of any repo which is better for future syncs)\n(Unless you know what you're doing,${NONE} ${LRED}Answer n${NONE})\n" ;;
         esac
     fi
-}
+} # gimme_info
 
 function sync
 {
@@ -372,8 +372,7 @@ ${LPURP}=======================================================${NONE}\n";
         if [ ! -d "${HOME}/bin" ]; then mkdir -p ${HOME}/bin; fi;
         curl https://storage.googleapis.com/git-repo-downloads/repo > ~/bin/repo;
         chmod a+x ~/bin/repo;
-        echo -e "Repo Binary Installed\n";
-        echo "Adding ~/bin to PATH\n";
+        echo -e "Repo Binary Installed\nAdding ~/bin to PATH\n";
         echo -e "# set PATH so it includes user's private bin if it exists" >> ~/.profile;
         echo -e "if [ -d \"\$HOME/bin\" ] ; then" >> ~/.profile;
         echo -e "\tPATH=\"\$HOME/bin:\$PATH\" "; >> ~/.profile;
@@ -432,7 +431,7 @@ function pre_build
                 fi
             done
         done
-    }
+    } # find_ddc
 
     interactive_mk()
     {
@@ -497,44 +496,43 @@ function pre_build
             cd vendor/${ROMNIS};
         fi
         echo -e "${LPURP}=========================================================${NONE}\n";
-        if [ -f ${ROMNIS}.devices ]; then
-            echo -e "Adding your Device to ROM Vendor ${LGRN}(Strategy 1)${NONE}\n";
-            if [[ $(grep -c "${DMDEV}" ${ROMNIS}.devices) == "0" ]]; then
-                echo "${DMDEV}" >> ${ROMNIS}.devices;
-            else
-                echo -e "Device was already added to ${ROMNIS} vendor";
-            fi
-        elif [ -f ${ROMNIS}-device-targets ]; then
-            echo -e "Adding your Device to ROM Vendor ${LGRN}(Strategy 4)${NONE}\n";
-            if [[ $(grep -c "${DMDEV}" ${ROMNIS}-device-targets) == "0" ]]; then
-                echo -e "${ROMNIS}_${DMDEV}-${DMBT}" >> ${ROMNIS}-device-targets;
-            else
-                echo -e "Device was already added to ${ROM_FN} vendor";
-            fi
-        elif [ -f vendorsetup.sh ]; then
-            echo -e "Adding your Device to ROM Vendor ${LGRN}(Strategy 2)${NONE}\n";
-            if [[ $(grep -c "${DMDEV}" vendorsetup.sh) == "0" ]]; then
-                echo "add_lunch_combo ${ROMNIS}_${DMDEV}-${DMBT}" >> vendorsetup.sh;
-            else
-                echo -e "Device was already added to ${ROMNIS} vendor";
-            fi
-        else
-            croot;
-            echo "Adding your Device to ROM Vendor ${LGRN}(Strategy 3)${NONE}\n";
-            echo -e "Let's go to teh ${LRED}Device Directory!${NONE}\n";
+
+        function dtree_add
+        {
+            echo -e "Moving to D-Tree\n\n And adding Lunch Combo..";
             cd device/${DMCM}/${DMDEV};
-            echo -e "Creating vendorsetup.sh if absent in tree";
-                if [ ! -f vendorsetup.sh ]; then
-                    touch vendorsetup.sh;
-                    echo -e "Done [1/2]";
+            if [ ! -f vendorsetup.sh ]; then
+                touch vendorsetup.sh;
+            fi
+            if [[ $(grep -c "${ROMNIS}_${DMDEV}" vendorsetup.sh ) == "0" ]]; then
+                echo -e "add_lunch_combo ${ROMNIS}_${DMDEV}-${DMBT}" >> vendorsetup.sh;
+            else
+                echo -e "Lunch combo already added to vendorsetup.sh\n";
+            fi
+        } # dtree_add
+
+        echo -e "Adding Device to ROM Vendor...";
+        STRTS=( "${ROMNIS}.devices" "${ROMNIS}-device-targets" vendorsetup.sh )
+        for STRT in ${STRTS[*]}
+        do
+            if [ -f $STRT ] && [[ "$STDN" != "y" ]]; then
+                if [[ $(grep -c "${DMDEV}" $STRT) == "0" ]]; then
+                    case "$STRT" in
+                        ${ROMNIS}.devices)
+                            echo -e "${DMDEV}" >> $STRT ;;
+                        ${ROMNIS}-device-targets)
+                            echo -e "${ROMNIS}_${DMDEV}-${DMBT}" >> $STRT;;
+                        vendorsetup.sh)
+                            echo -e "add_lunch_combo ${ROMNIS}_${DMDEV}-${DMBT}" >> $STRT ;;
+       				  esac
+				export STDN=y; # File Found, Strat Done
+				else
+                    echo -e "Device already added to $STRT"
                 fi
-                if [[ $(grep -c "${ROMNIS}_${DMDEV}" vendorsetup.sh ) == "0" ]]; then
-                    echo -e "add_lunch_combo ${ROMNIS}_${DMDEV}-${DMBT}" >> vendorsetup.sh;
-                else
-                    echo -e "Device already added to vendorsetup.sh\n";
-                fi
-        fi
-        echo -e "${LGRN}DONE!${NONE}!";
+			fi
+        done
+		if [[ "$STDN" != "y" ]]; then dtree_add; fi; # If none of the Strategies Worked
+        echo -e "${LGRN}Done.${NONE}";
         croot;
         echo -e "${LPURP}=========================================================${NONE}";
     } # vendor_strat
@@ -543,29 +541,10 @@ function pre_build
     {
         croot;
         cd vendor/${ROMNIS}/products;
-        if [ ! -f PREF.rc ]; then
-            case "$ROMNIS" in       # Add Device Makefile to AndroidProducts.mk
-            "krexus"|"pac")
-                VENF=${ROMNIS}_${DMDEV}.mk ;;
-            "aokp"|"aicp")
-                VENF=${DMDEV}.mk;
-                echo -e "\t\$(LOCAL_DIR)/${DMDEV}.mk" >> AndroidProducts.mk;
-            ;;
-            "pa")
-                VENF="${DMDEV}/pa_${DMDEV}.mk";
-                echo -e "# ${DMCM} ${DMDEV}" >> AndroidProducts.mk
-                echo -e "\nifeq (pa_${DMDEV},\$(TARGET_PRODUCT))" >> AndroidProducts.mk;
-                echo -e "\tPRODUCT_MAKEFILES += $(LOCAL_DIR)/${DMDEV}/pa_${DMDEV}.mk\nendif" >> AndroidProducts.mk;
-            ;;
-            esac
-        else
-            echo -e "${RED}*${NONE}${LPURP}AutoBot${NONE}${RED}*${NONE} Device-Vendor Conjunction File : $VENF";
-        fi
-
-        echo -e "Specify your Device's Resolution in the format ${LCYAN}HORIZONTAL${NONE}${LRED}x${NONE}${LCYAN}VERTICAL${NONE} (eg. 1280x720)";
+        echo -e "About Device's Resolution...\n";
         if [ ! -f PREF.rc ]; then
             echo -e "Among these Values - Select the one which is nearest or almost Equal to that of your Device\n";
-            echo -e "Resolutions which are available for AOKP are shown by \"(AOKP)\". All Res are available for PAC-ROM ";
+            echo -e "Resolutions which are available for a ROM is shown by it's name. All Res are available for PAC-ROM ";
             echo -e "
 ${LPURP}240${NONE}x400
 ${LPURP}320${NONE}x480 (AOKP)
@@ -584,34 +563,45 @@ ${LPURP}1536${NONE}x2048
 ${LPURP}1600${NONE}x2560
 ${LPURP}1920${NONE}x1200
 ${LPURP}2560${NONE}x1600\n";
-            echo -e "Type only the First (Highlighted in ${LPURP}Purple${NONE}) Number (eg. if 720x1280 then type in 720)";
+            echo -e "Enter the Desired Highlighted Number...";
             read BOOTRES;
         else
             echo -e "${RED}*${NONE}${LPURP}AutoBot${NONE}${RED}*${NONE} Resolution Choosed : ${BOOTRES}";
         fi
+
         #Vendor-Calls
         case "$ROMNIS" in
         "krexus")
+            VENF="${ROMNIS}_${DMDEV}.mk";
             echo -e "\$( call inherit-product, vendor/${ROMNIS}/products/common.mk)" >> $VENF;
             echo -e "\$( call inherit-product, vendor/${ROMNIS}/products/vendorless.mk)" >> $VENF;
-            ;;
+        ;;
         "pac")
+            VENF="${ROMNIS}_${DMDEV}.mk";
             echo -e "\$( call inherit-product, vendor/${ROMNIS}/products/pac_common.mk)" >> $VENF;
             echo "PAC_BOOTANIMATION_NAME := ${BOOTRES};" >> $VENF;
-            ;;
+        ;;
         "aokp")
+            VENF="${DMDEV}.mk";
+            echo -e "\t\$(LOCAL_DIR)/${DMDEV}.mk" >> AndroidProducts.mk;
             echo -e "\$(call inherit-product, vendor/${ROMNIS}/configs/common.mk)" >> $VENF;
             # Boot animation
             echo -e "\nPRODUCT_COPY_FILES += \ " >> $VENF;
             echo -e "\tvendor/aokp/prebuilt/bootanimation/bootanimation_${BOOTRES}.zip:system/media/bootanimation.zip" >> $VENF;
-            ;;
+        ;;
         "pa")
+             VENF="${DMDEV}/pa_${DMDEV}.mk";
+            echo -e "# ${DMCM} ${DMDEV}" >> AndroidProducts.mk
+            echo -e "\nifeq (pa_${DMDEV},\$(TARGET_PRODUCT))" >> AndroidProducts.mk;
+            echo -e "\tPRODUCT_MAKEFILES += $(LOCAL_DIR)/${DMDEV}/pa_${DMDEV}.mk\nendif" >> AndroidProducts.mk;
             echo -e "\ninclude vendor/${ROMNIS}/main.mk" >> $VENF;
-            ;;
+        ;;
         "aicp")
+            VENF="${DMDEV}.mk";
+            echo -e "\t\$(LOCAL_DIR)/${DMDEV}.mk" >> AndroidProducts.mk;
             echo -e "\n# Inherit telephony stuff\n\$(call inherit-product, vendor/${ROMNIS}/configs/telephony.mk)" >> $VENF;
             echo -e "\$(call inherit-product, vendor/${ROMNIS}/configs/common.mk)" >> $VENF;
-            ;;
+        ;;
         esac
 
         find_ddc;
@@ -633,18 +623,20 @@ ${LPURP}2560${NONE}x1600\n";
         vendor_strat_all; #if not found
     fi
     croot;
-    echo -e "${LBLU}${ROMNIS}-fying Device Tree...${NONE}"
-
+    echo -e "${LBLU}${ROMNIS}-fying Device Tree...${NONE}";
     case "$ROMNO" in
     1|3|4|11|12|13) echo -e "Interactive Makefile Unneeded, continuing..." ;;
+#   AICP|AOSP-CAF*|AOSP-RRO*|FlayrOs|Krexus|OmniROM*
+#   * Int-Mk Needed + AndroidProducts.mk Additions, thinking...
     2|16)
+#   AOKP-4.4|PAC-5.1
         if [[ "$DMBR" == "kitkat" || "$DMBR" == "pac-5.1" ]]; then
             echo -e "Interactive Makefile Unneeded, continuing..."
         else
             interactive_mk "$ROMNO";
         fi
         ;;
-        *) interactive_mk "$ROMNO" ;;
+    *) interactive_mk "$ROMNO" ;;
     esac
 
     sleep 2;
@@ -742,23 +734,18 @@ function build
         echo -e "Create a New Folder for CCACHE and Specify it's location from / here\n";
         read CCDIR;
         if [ -f ${HOME}/.bashrc ]; then
-                echo "export USE_CCACHE=1" >> ${HOME}/.bashrc;
-                echo "export CCACHE_DIR=${CCDIR}" >> ${HOME}/.bashrc;
-                . ${HOME}/.bashrc;
+            echo "export USE_CCACHE=1" >> ${HOME}/.bashrc;
+            echo "export CCACHE_DIR=${CCDIR}" >> ${HOME}/.bashrc;
+            . ${HOME}/.bashrc;
         elif [ -f ${HOME}/.profile ]; then
             echo "export USE_CCACHE=1" >> ${HOME}/.profile;
             echo "export CCACHE_DIR=${CCDIR}" >> ${HOME}/.profile;
             . ${HOME}/.profile;
-#        elif [[ $( -f SOME_FILE )]]; then
-#            echo "export USE_CCACHE=1" >> /SOME_LOC/SOME_FILE;
-#            echo "export CCACHE_DIR=${CCDIR}" >> /SOME_LOC/SOME_FILE;
-#            echo "Restart your PC and Select Step 'B'";
         else
             echo -e "Strategies failed. If you have knowledge of finding .bashrc's equivalent in your Distro, then Paste these lines at the end of the File";
             echo -en "export USE_CCACHE=1";
             echo -en "export CCACHE_DIR=${CCDIR}";
-            echo -e "Now Log-Out and Re-Login. Select Step B. The Changes will be considered after that.";
-            echo -e "Alternatively run . ~/.profile";
+            echo -e "Log-Out and Re-Login. Select Step B. The Changes will be considered after that.";
             sleep 2;
             exitScriBt;
         fi
@@ -774,7 +761,7 @@ function build
         # For Brunchers
         if [[ "$DMSLT" == "brunch" ]]; then
             clean_build;
-            ${DMSLT} ${DMDEV};
+            ${DMSLT} ${DMDEV} ${DMBT};
         else
             # For Mka-s/Make-rs
             case "$DMMK" in
@@ -822,7 +809,7 @@ function build
     . build/envsetup.sh;
     echo -e "\n${YELO}=========================================================${NONE}\n";
     echo -e "${LPURP}Done.${NONE}.\n";
-    
+
     function build_menu
     {
         echo -e "${LPURP}=========================================================${NONE}\n";
@@ -834,9 +821,9 @@ function build
         ST="Option Selected";
         shut_my_mouth BO "$ST";
     }
-    
+
     if [[ "$ERR" == "0" ]]; then build_menu; fi;
-    
+
     case "$DMBO" in
         1)
             hotel_menu;
@@ -885,11 +872,11 @@ function build
              "B") set_ccache ;;
                *) echo -e "\n${LRED}Invalid Selection.${NONE} Going back."; build ;;
         esac
-    ;;   
+    ;;
     *)
         echo -e "${LRED}Invalid Selection.${NONE} Going back."
         build;
-    ;; 
+    ;;
     esac
 } # build
 
@@ -990,7 +977,7 @@ function the_start
 } # the_start
 
 # All above parts are Functions - Line of Execution will start after these two lines
-#START IT --- VROOM!
+# START IT --- VROOM!
 the_start; # Pre-Initial Stage
 apt_check;
 if [[ "$1" == "automate" ]]; then
