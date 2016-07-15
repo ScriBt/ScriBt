@@ -441,36 +441,36 @@ function pre_build
         INTF=interact.mk;
         echo "#                 ##### Interactive Makefile #####
 #
-# Licensed under the Apache License, Version 2.0 (the "License");
+# Licensed under the Apache License, Version 2.0 (the \"License\");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
 #
 #      http://www.apache.org/licenses/LICENSE-2.0
 #
 # Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
+# distributed under the License is distributed on an \"AS IS\" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License." >> $INTF;
 
         if [ -d vendor/${ROMNIS}/config ]; then
-            CNF="config";
+            CNF="config/";
         else
-            CNF="configs";
+            CNF="configs/";
         fi
 
         find_ddc; # Find Default Device Configuration File
 
         # Work on Interactive Makefile Start
-        echo -e "\n# Inherit ${ROMNIS} common stuff\n\$(call inherit-product, vendor/${ROMNIS}/${CNF}/common_full_phone.mk)" >> $INTF;
+        echo -e "\n# Inherit ${ROMNIS} common stuff\n\$(call inherit-product, vendor/${ROMNIS}/${CNF}${VNF}.mk)" >> $INTF;
         # Inherit Vendor specific files
-        if [[ $(grep -c -q "nfc_enhanced" $DDC) == "1" ]] && [ -f vendor/${ROMNIS}/${CNF}/nfc_enhanced.mk ]; then
+        if [[ $(grep -c -q "nfc_enhanced" $DDC) == "1" ]] && [ -f vendor/${ROMNIS}/${CNF}nfc_enhanced.mk ]; then
             echo -e "\n# Enhanced NFC" >> $INTF;
-            echo -e "\$(call inherit-product, vendor/${ROM}/${CNF}/nfc_enhanced.mk)" >> $INTF;
+            echo -e "\$(call inherit-product, vendor/${ROM}/${CNF}nfc_enhanced.mk)" >> $INTF;
         fi
-        if [[ $(grep -c -q "telephony" $DDC) == "1" ]] && [ -f vendor/${ROMNIS}/${CNF}/telephony.mk ]; then
+        if [[ $(grep -c -q "telephony" $DDC) == "1" ]] && [ -f vendor/${ROMNIS}/${CNF}telephony.mk ]; then
             echo -e "\n# Inherit telephony stuff" >> $INTF;
-            echo -e "\$(call inherit-product, vendor/${ROM}/${CNF}/telephony.mk)" >> $INTF;
+            echo -e "\$(call inherit-product, vendor/${ROM}/${CNF}telephony.mk)" >> $INTF;
         fi
         echo -e "\n# Calling Default Device Configuration File" >> $INTF;
         echo -e "\$(call inherit-product, device/${DMCM}/${DMDEV}/${DDC})" >> $INTF;
@@ -479,7 +479,14 @@ function pre_build
         sed -i -e 's/inherit-product, vendor\/${ROM}/inherit-product-if-exists, vendor\/${ROM}/g' $DDC;
         # Work on Interactive Makefile Complete
 
-        mv $INTF ${ROMNIS}.mk;  # Make it Identifiable
+		# Make it Identifiable
+        if [ -f vendor/${ROMNIS}/common.mk ]; then
+			mv $INTF ${ROMNIS}_${DMDEV}.mk;
+			echo -e "PRODUCT_MAKEFILES +=  \\ \n\t\$(LOCAL_DIR)/${ROMNIS}_${DEVICE}.mk" >> AndroidProducts.mk;
+		else
+			mv $INTF ${ROMNIS}.mk;
+        fi
+
         echo -e "${GRN}Renaming .dependencies file...${NONE}";
         if [ ! -f ${ROMNIS}.dependencies ]; then
             mv -f *.dependencies ${ROMNIS}.dependencies;
@@ -490,7 +497,7 @@ function pre_build
 
     function vendor_strat_all
     {
-        if  [[ "$ROMNO" == "3" || "$ROMNO" == "4" || "$ROMNO" == "10" ]]; then
+        if  [[ "$ROMNO" == "10" ]]; then
             cd vendor/${ROMV};
         else
             cd vendor/${ROMNIS};
@@ -524,14 +531,14 @@ function pre_build
                             echo -e "${ROMNIS}_${DMDEV}-${DMBT}" >> $STRT;;
                         vendorsetup.sh)
                             echo -e "add_lunch_combo ${ROMNIS}_${DMDEV}-${DMBT}" >> $STRT ;;
-       				  esac
-				export STDN=y; # File Found, Strat Done
-				else
+                    esac
+                    export STDN=y; # File Found, Strat Done
+                else
                     echo -e "Device already added to $STRT"
                 fi
-			fi
+            fi
         done
-		if [[ "$STDN" != "y" ]]; then dtree_add; fi; # If none of the Strategies Worked
+        if [[ "$STDN" != "y" ]]; then dtree_add; fi; # If none of the Strategies Worked
         echo -e "${LGRN}Done.${NONE}";
         croot;
         echo -e "${LPURP}=========================================================${NONE}";
@@ -623,20 +630,32 @@ ${LPURP}2560${NONE}x1600\n";
         vendor_strat_all; #if not found
     fi
     croot;
-    echo -e "${LBLU}${ROMNIS}-fying Device Tree...${NONE}";
+    echo -e "\n${LBLU}${ROMNIS}-fying Device Tree...${NONE}\n";
+
     case "$ROMNO" in
-    1|3|4|11|12|13) echo -e "Interactive Makefile Unneeded, continuing..." ;;
-#   AICP|AOSP-CAF*|AOSP-RRO*|FlayrOs|Krexus|OmniROM*
-#   * Int-Mk Needed + AndroidProducts.mk Additions, thinking...
-    2|16)
-#   AOKP-4.4|PAC-5.1
-        if [[ "$DMBR" == "kitkat" || "$DMBR" == "pac-5.1" ]]; then
-            echo -e "Interactive Makefile Unneeded, continuing..."
-        else
-            interactive_mk "$ROMNO";
-        fi
+        3|4) # AOSP-CAF/RRO
+            VNF=common;
+            CNF="";
+            interactive_mk "$ROMNO"
+	;;
+        13) # OmniROM
+            VNF=common;
+            CNF="config/";
+            interactive_mk "$ROMNO"
         ;;
-    *) interactive_mk "$ROMNO" ;;
+        2|16) # AOKP-4.4 | PAC-5.1
+            VNF="common_full_phone";
+            if [[ "$DMBR" == "kitkat" || "$DMBR" == "pac-5.1" ]]; then
+                echo -e "Interactive Makefile Unneeded, continuing...";
+            else
+                interactive_mk "$ROMNO";
+            fi
+        ;;
+        1|12|17) # AICP | Krexus-CAF | PA
+            echo -e "Interactive Makefile Unneeded, continuing...";
+        *) # Rest of the ROMs
+            VNF="common_full_phone";
+            interactive_mk "$ROMNO" ;;
     esac
 
     sleep 2;
