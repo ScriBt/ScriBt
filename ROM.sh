@@ -34,9 +34,9 @@
 function apt_check
 {
     if [ -d "/etc/apt" ]; then
-        echo -e "${LRED}Alright, apt detected.${NONE}";
+        echo -e "\n${LRED}Alright, apt detected.${NONE}\n";
     else
-        echo -e "Apt configuration has not been found. A Debian/Ubuntu based Distribution is required to run ScriBt.";
+        echo -e "\nApt configuration has not been found. A Debian/Ubuntu based Distribution is required to run ScriBt.\n";
         exit 1;
     fi
 } # apt_check
@@ -70,11 +70,10 @@ function exitScriBt
 
 the_response ()
 {
-    if [[ "$1" == "COOL" ]]; then
-        echo -e "${RED}*${NONE}${LPURP}AutoBot${NONE}${RED}*${NONE} Automated $2 ${LGRN}Successful! :)${NONE}"
-    elif [[ "$1" == "FAIL" ]]; then
-        echo -e "${RED}*${NONE}${LPURP}AutoBot${NONE}${RED}*${NONE} Automated $2 ${LRED}Failed :(${NONE}"
-    fi
+    case "$1" in
+    "COOL") echo -e "${RED}*${NONE}${LPURP}AutoBot${NONE}${RED}*${NONE} Automated $2 ${LGRN}Successful! :)${NONE}"
+    "FAIL") echo -e "${RED}*${NONE}${LPURP}AutoBot${NONE}${RED}*${NONE} Automated $2 ${LRED}Failed :(${NONE}"
+    esac
 } # the_response
 
 function main_menu
@@ -156,7 +155,7 @@ function installdeps
             ;;
             esac
         echo -e "${RED}==========================================================${NONE}\n";
-        ap-get update;
+        apt-get update;
         echo -e "\n${RED}==========================================================${NONE}\n";
         apt-get install openjdk-$1-jdk;
         me_quit_root;
@@ -216,7 +215,7 @@ maven maven2
                     2) java 7 ;;
                     3) java 8 ;;
                     *)
-                        echo -e "\n${LRED}Invalid Selection${NONE}. Going back\n"
+                        echo -e "\n${LRED}Invalid Selection${NONE}. Going back\n";
                         java_menu ;;
                 esac # ANDVER
                 ;;
@@ -341,9 +340,7 @@ ${LPURP}=======================================================${NONE}\n";
         read ROMN;
         export ROMNO=$ROMN; # Only for Manual Usage
     fi
-    #
     rom_names $ROMNO;
-    #
     echo -e "\nYou have chosen ${LCYAN}->${NONE} $ROM_FN\n";
     sleep 1;
     echo -e "Since Branches may live or die at any moment, ${LRED}Specify the Branch${NONE} you're going to sync\n";
@@ -351,8 +348,8 @@ ${LPURP}=======================================================${NONE}\n";
     shut_my_mouth BR "$ST";
     echo -e "Any ${LRED}Source you have already synced?${NONE} ${LGRN}[YES/NO]${NONE}\n"; gimme_info "refer";
     shut_my_mouth RF "$ST";
-    if [[ "$DMRF" == YES ]]; then
-        echo -e "\nProvide me the ${LRED}Synced Source's Location${NONE} from ${LRED}/${NONE} \n";
+    if [[ "$DMRF" == "YES" ]]; then
+        echo -e "\nProvide me the ${LRED}Synced Source's Location${NONE} from ${LRED}/${NONE}\n";
         ST="Reference ${LRED}Location${NONE}";
         shut_my_mouth RFL "$ST";
         REF=--reference\=\"${DMRFL}\";
@@ -407,12 +404,12 @@ function pre_build
     echo -e "What's your ${LRED}Device's CodeName${NONE} ${LGRN}[Refer Device Tree - All Lowercases]${NONE}?\n";
     ST="Your Device ${LRED}Name${NONE} is";
     shut_my_mouth DEV "$ST";
-    echo -e "The ${LRED}Build type${NONE}? ${LGRN}[userdebug/user/eng]${NONE}\n";
-    ST="Build ${LRED}type${NONE}";
-    shut_my_mouth BT "$ST";
     echo -e "Your ${LRED}Device's Company/Vendor${NONE} ${LGRN}(All Lowercases)${NONE}?\n";
     ST="Device's ${LRED}Vendor${NONE}";
     shut_my_mouth CM "$ST";
+    echo -e "The ${LRED}Build type${NONE}? ${LGRN}[userdebug/user/eng]${NONE}\n";
+    ST="Build ${LRED}type${NONE}";
+    shut_my_mouth BT "$ST";
     echo -e "${LCYAN}=========================================================${NONE}\n\n";
     rom_names $ROMNO;
 
@@ -435,7 +432,9 @@ function pre_build
 
     interactive_mk()
     {
-        echo -e "${PURP}Creating Interactive Makefile for getting Identified by the ROM's BuildSystem...${NONE}";
+        echo -e "${YELO}Initializing Build Environment${NONE}\n";
+        . build/envsetup.sh;
+        echo -e "\n${PURP}Creating Interactive Makefile for getting Identified by the ROM's BuildSystem...${NONE}\n";
         sleep 2;
         cd device/${DMCM}/${DMDEV};
         INTF=interact.mk;
@@ -452,23 +451,20 @@ function pre_build
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License." >> $INTF;
-
-        if [ -d vendor/${ROMNIS}/config ]; then
+        if [ -d ${ANDROID_BUILD_TOP}/vendor/${ROMNIS}/config ]; then
             CNF="config/";
         else
             CNF="configs/";
         fi
-
         find_ddc; # Find Default Device Configuration File
-
         # Work on Interactive Makefile Start
         echo -e "\n# Inherit ${ROMNIS} common stuff\n\$(call inherit-product, vendor/${ROMNIS}/${CNF}${VNF}.mk)" >> $INTF;
         # Inherit Vendor specific files
-        if [[ $(grep -c -q "nfc_enhanced" $DDC) == "1" ]] && [ -f vendor/${ROMNIS}/${CNF}nfc_enhanced.mk ]; then
+        if [[ $(grep -c -q "nfc_enhanced" $DDC) == "1" ]] && [ -f ${ANDROID_BUILD_TOP}/vendor/${ROMNIS}/${CNF}nfc_enhanced.mk ]; then
             echo -e "\n# Enhanced NFC" >> $INTF;
             echo -e "\$(call inherit-product, vendor/${ROM}/${CNF}nfc_enhanced.mk)" >> $INTF;
         fi
-        if [[ $(grep -c -q "telephony" $DDC) == "1" ]] && [ -f vendor/${ROMNIS}/${CNF}telephony.mk ]; then
+        if [[ $(grep -c -q "telephony" $DDC) == "1" ]] && [ -f ${ANDROID_BUILD_TOP}/vendor/${ROMNIS}/${CNF}telephony.mk ]; then
             echo -e "\n# Inherit telephony stuff" >> $INTF;
             echo -e "\$(call inherit-product, vendor/${ROM}/${CNF}telephony.mk)" >> $INTF;
         fi
@@ -477,17 +473,29 @@ function pre_build
         echo -e "\n# ROM Specific Identifier\nPRODUCT_NAME := ${ROMNIS}_${DMDEV}" >> $INTF;
         # To prevent Missing Vendor Calls
         sed -i -e 's/inherit-product, vendor\/${ROM}/inherit-product-if-exists, vendor\/${ROM}/g' $DDC;
-        # Work on Interactive Makefile Complete
-
-		# Make it Identifiable
-        if [ -f vendor/${ROMNIS}/common.mk ]; then
+        # Work on Interactive Makefile Complete -- ^^
+        # Add User-desired Makefile Calls -- vv
+        echo -e "Missed some Makefile calls? Enter number of Desired Makefile calls... [0 if none]";
+        read NMK;
+        for (( CNT=1; CNT<="$NMK"; CNT++ ))
+        do
+            echo -e "Enter Makefile location from Root of BuildSystem"\n;
+            read LOC;
+            if [ -f ${ANDROID_BUILD_TOP}/$LOC ]; then
+                echo -e "${LGRN}Adding Makefile...${NONE}";
+                echo -e "\$(call inherit-product, $MK)" >> $INTF;
+            else
+                echo -e "${LRED}Makefile not Found. Aborting...${NONE}";
+            fi
+        done
+        # Make it Identifiable
+        if [ -f ${ANDROID_BUILD_TOP}/vendor/${ROMNIS}/${CNF}common.mk ]; then
 			mv $INTF ${ROMNIS}_${DMDEV}.mk;
-			echo -e "PRODUCT_MAKEFILES +=  \\ \n\t\$(LOCAL_DIR)/${ROMNIS}_${DEVICE}.mk" >> AndroidProducts.mk;
+			echo -e "PRODUCT_MAKEFILES +=  \\ \n\t\$(LOCAL_DIR)/${ROMNIS}_${DMDEV}.mk" >> AndroidProducts.mk;
 		else
 			mv $INTF ${ROMNIS}.mk;
         fi
-
-        echo -e "${GRN}Renaming .dependencies file...${NONE}";
+        echo -e "${GRN}Renaming .dependencies file...${NONE}\n";
         if [ ! -f ${ROMNIS}.dependencies ]; then
             mv -f *.dependencies ${ROMNIS}.dependencies;
         fi
@@ -505,7 +513,8 @@ function pre_build
         echo -e "${LPURP}=========================================================${NONE}\n";
 
         function dtree_add
-        {
+        {   # AOSP-CAF - AOSP-RRO - OmniROM
+            croot;
             echo -e "Moving to D-Tree\n\n And adding Lunch Combo..";
             cd device/${DMCM}/${DMDEV};
             if [ ! -f vendorsetup.sh ]; then
@@ -549,7 +558,7 @@ function pre_build
         croot;
         cd vendor/${ROMNIS}/products;
         echo -e "About Device's Resolution...\n";
-        if [ ! -f PREF.rc ]; then
+        if [ ! -f ../../../PREF.rc ]; then
             echo -e "Among these Values - Select the one which is nearest or almost Equal to that of your Device\n";
             echo -e "Resolutions which are available for a ROM is shown by it's name. All Res are available for PAC-ROM ";
             echo -e "
@@ -575,49 +584,44 @@ ${LPURP}2560${NONE}x1600\n";
         else
             echo -e "${RED}*${NONE}${LPURP}AutoBot${NONE}${RED}*${NONE} Resolution Choosed : ${BOOTRES}";
         fi
-
         #Vendor-Calls
         case "$ROMNIS" in
-        "krexus")
-            VENF="${ROMNIS}_${DMDEV}.mk";
-            echo -e "\$( call inherit-product, vendor/${ROMNIS}/products/common.mk)" >> $VENF;
-            echo -e "\$( call inherit-product, vendor/${ROMNIS}/products/vendorless.mk)" >> $VENF;
-        ;;
-        "pac")
-            VENF="${ROMNIS}_${DMDEV}.mk";
-            echo -e "\$( call inherit-product, vendor/${ROMNIS}/products/pac_common.mk)" >> $VENF;
-            echo "PAC_BOOTANIMATION_NAME := ${BOOTRES};" >> $VENF;
-        ;;
-        "aokp")
-            VENF="${DMDEV}.mk";
-            echo -e "\t\$(LOCAL_DIR)/${DMDEV}.mk" >> AndroidProducts.mk;
-            echo -e "\$(call inherit-product, vendor/${ROMNIS}/configs/common.mk)" >> $VENF;
-            # Boot animation
-            echo -e "\nPRODUCT_COPY_FILES += \ " >> $VENF;
-            echo -e "\tvendor/aokp/prebuilt/bootanimation/bootanimation_${BOOTRES}.zip:system/media/bootanimation.zip" >> $VENF;
-        ;;
-        "pa")
-             VENF="${DMDEV}/pa_${DMDEV}.mk";
-            echo -e "# ${DMCM} ${DMDEV}" >> AndroidProducts.mk
-            echo -e "\nifeq (pa_${DMDEV},\$(TARGET_PRODUCT))" >> AndroidProducts.mk;
-            echo -e "\tPRODUCT_MAKEFILES += $(LOCAL_DIR)/${DMDEV}/pa_${DMDEV}.mk\nendif" >> AndroidProducts.mk;
-            echo -e "\ninclude vendor/${ROMNIS}/main.mk" >> $VENF;
-        ;;
-        "aicp")
-            VENF="${DMDEV}.mk";
-            echo -e "\t\$(LOCAL_DIR)/${DMDEV}.mk" >> AndroidProducts.mk;
-            echo -e "\n# Inherit telephony stuff\n\$(call inherit-product, vendor/${ROMNIS}/configs/telephony.mk)" >> $VENF;
-            echo -e "\$(call inherit-product, vendor/${ROMNIS}/configs/common.mk)" >> $VENF;
-        ;;
+            "krexus")
+                VENF="${ROMNIS}_${DMDEV}.mk";
+                echo -e "\$( call inherit-product, vendor/${ROMNIS}/products/common.mk)" >> $VENF;
+                echo -e "\$( call inherit-product, vendor/${ROMNIS}/products/vendorless.mk)" >> $VENF;
+            ;;
+            "pac")
+                VENF="${ROMNIS}_${DMDEV}.mk";
+                echo -e "\$( call inherit-product, vendor/${ROMNIS}/products/pac_common.mk)" >> $VENF;
+                echo "PAC_BOOTANIMATION_NAME := ${BOOTRES};" >> $VENF;
+            ;;
+            "aokp")
+                VENF="${DMDEV}.mk";
+                echo -e "\t\$(LOCAL_DIR)/${DMDEV}.mk" >> AndroidProducts.mk;
+                echo -e "\$(call inherit-product, vendor/${ROMNIS}/configs/common.mk)" >> $VENF;
+                echo -e "\nPRODUCT_COPY_FILES += \ " >> $VENF;
+                echo -e "\tvendor/aokp/prebuilt/bootanimation/bootanimation_${BOOTRES}.zip:system/media/bootanimation.zip" >> $VENF;
+            ;;
+            "pa")
+                 VENF="${DMDEV}/pa_${DMDEV}.mk";
+                echo -e "# ${DMCM} ${DMDEV}" >> AndroidProducts.mk
+                echo -e "\nifeq (pa_${DMDEV},\$(TARGET_PRODUCT))" >> AndroidProducts.mk;
+                echo -e "\tPRODUCT_MAKEFILES += $(LOCAL_DIR)/${DMDEV}/pa_${DMDEV}.mk\nendif" >> AndroidProducts.mk;
+                echo -e "\ninclude vendor/${ROMNIS}/main.mk" >> $VENF;
+            ;;
+            "aicp")
+                VENF="${DMDEV}.mk";
+                echo -e "\t\$(LOCAL_DIR)/${DMDEV}.mk" >> AndroidProducts.mk;
+                echo -e "\n# Inherit telephony stuff\n\$(call inherit-product, vendor/${ROMNIS}/configs/telephony.mk)" >> $VENF;
+                echo -e "\$(call inherit-product, vendor/${ROMNIS}/configs/common.mk)" >> $VENF;
+            ;;
         esac
-
         find_ddc;
         echo -e "\n# Calling Default Device Configuration File" >> $VENF;
         echo -e "\$(call inherit-product, device/${DMCM}/${DMDEV}/${DDC})" >> $VENF;
-
         #PRODUCT_NAME is the only ROM-dependent variable, setting it here is better.
         echo "\nPRODUCT_NAME := ${ROMNIS}_${DMDEV}" >> $VENF;
-
     } # vendor_strat_kpa
 
     if [ -d vendor/${ROMNIS}/products ]; then
@@ -631,15 +635,14 @@ ${LPURP}2560${NONE}x1600\n";
     fi
     croot;
     echo -e "\n${LBLU}${ROMNIS}-fying Device Tree...${NONE}\n";
-
     case "$ROMNO" in
         3|4) # AOSP-CAF/RRO
-            VNF=common;
+            VNF="common";
             CNF="";
             interactive_mk "$ROMNO"
-	;;
+        ;;
         13) # OmniROM
-            VNF=common;
+            VNF="common";
             CNF="config/";
             interactive_mk "$ROMNO"
         ;;
@@ -657,16 +660,14 @@ ${LPURP}2560${NONE}x1600\n";
             VNF="common_full_phone";
             interactive_mk "$ROMNO" ;;
     esac
-
     sleep 2;
     quick_menu;
-
 } # pre_build
 
 function build
 {
     if [ -f PREF.rc ]; then teh_action 4; fi;
-
+    
     function make_it #Part of make_module
     {
         echo -e "${LCYAN}ENTER${NONE} the Directory where the Module is made from\n";
@@ -776,7 +777,7 @@ function build
     function build_make
     {
         start=$(date +"%s");
-        echo -e "${LGRN}Starting Compilation - ${ROM_FN} for ${DMDEV}${NONE}";
+        echo -e "\n${LGRN}Starting Compilation - ${ROM_FN} for ${DMDEV}${NONE}\n";
         # For Brunchers
         if [[ "$DMSLT" == "brunch" ]]; then
             clean_build;
@@ -840,16 +841,15 @@ function build
         ST="Option Selected";
         shut_my_mouth BO "$ST";
     }
-
+    
     if [[ "$ERR" == "0" ]]; then build_menu; fi;
-
     case "$DMBO" in
         1)
             hotel_menu;
-            echo -e "\nShould i use '${YELO}make${NONE}' or '${RED}mka${NONE}' ?"
+            echo -e "\nShould i use '${YELO}make${NONE}' or '${RED}mka${NONE}' ?";
             ST="Selected Method";
             shut_my_mouth MK "$ST";
-            echo -e "Wanna Clean the ${LPURP}/out${NONE} before Building? ${LGRN}[1 - Remove Staging / 2 - Full Clean]${NONE}\n"
+            echo -e "Wanna Clean the ${LPURP}/out${NONE} before Building? ${LGRN}[1 - Remove Staging / 2 - Full Clean]${NONE}\n";
             ST="Option Selected";
             shut_my_mouth CL "$ST";
             case "$DMCL" in 
@@ -870,11 +870,10 @@ function build
 #           elif [[ $(tac ${ANDROID_BUILD_TOP}/build/core/build_id.mk | grep -c 'BUILD_ID=N') == "1" ]]; then
 #               ST="Wanna use Ninja Toolchain ? [y/n]";
 #               shut_my_mouth NJ "$ST";
-#               if [[ "$DMNJ" == n ]]; then
-#                  export ANDROID_COMPILE_WITH_NINJA=false; # ??? WiP - When Builds start, It'll get Edited
-#               else
-#                  export ANDROID_COMPILE_WITH_NINJA=true;  # ???
-#               fi
+#               case "$DMNJ" in
+#               n) export ANDROID_COMPILE_WITH_NINJA=false ;; # ??? WiP - When Builds start, It'll get Edited
+#               y) export ANDROID_COMPILE_WITH_NINJA=true ;;  # ???
+#               esac
             fi
              build_make; #Start teh Build!
         ;;
@@ -883,7 +882,7 @@ function build
     ;;
     3)
         echo -e "Two Steps. Select one of them (If seeing this for first time - ${LCYAN}Enter${NONE} A)";
-        echo -e "\tA. Enabling CCACHE Variables in .bashrc or it's equivalent"
+        echo -e "\tA. Enabling CCACHE Variables in .bashrc or it's equivalent";
         echo -e "\tB. Reserving Space for CCACHE\n";
         read CCOPT;
         case "$CCOPT" in
@@ -893,7 +892,7 @@ function build
         esac
     ;;
     *)
-        echo -e "${LRED}Invalid Selection.${NONE} Going back."
+        echo -e "${LRED}Invalid Selection.${NONE} Going back.";
         build;
     ;;
     esac
@@ -946,7 +945,7 @@ function the_start
     RTMP=repo_log.txt; # repo sync logs
     RMTMP=rom_compile.txt; # rom build Logs
     rm -rf ${TMP} ${RTMP} ${RMTMP};
-    touch ${RTMP} ${RMTMP} ${TMP};
+    touch ${TMP} ${RTMP} ${RMTMP};
     # Load the Basic Variables
     if [ -f "${PWD}/ROM.rc" ]; then
         . $(pwd)/ROM.rc;
