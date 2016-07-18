@@ -45,7 +45,7 @@ function buildinfo
     DMNJ=                                    # Use Ninja Toolchain [y/n] ?
 }
 
-function the_cherries                      # Since this is Automated - Use Proper Cherry-picks - conflicts won't be solved
+function the_cherries                        # Since this is Automated - Use Proper Cherry-picks - conflicts won't be solved
 {
     builddir=$(pwd);                         # TO get back to Build Dir
 
@@ -70,9 +70,12 @@ function the_cherries                      # Since this is Automated - Use Prope
 #   You may add many more picks like this.
 }
 
-function vendor_strat                      # Only Enter Values if Building PAC till 5.1 / AOKP till 4.4 / Krexus-6.0
+function vendor_strat                       # Only Enter Values if Building PAC till 5.1 / AOKP till 4.4 / Krexus-6.0
 {
-    BOOTRES=                                 # Boot Anim Resolution Value (as instructed in main ScriBt)
+    BOOTRES=                                # Boot Anim Resolution Value (as instructed in main ScriBt)
+    NMK=                                    # No of Makefile calls you want to add  
+    LOC=((    ));                           # Enter Location of each Makefile, seperated by spaces...
+                                            # ...Example -> LOC=(( vendor/ex1/exmp.mk vendor/ex2/exmp.mk some/file/here.mk ))
 }
 
 function collector

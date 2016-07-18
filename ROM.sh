@@ -71,8 +71,8 @@ function exitScriBt
 the_response ()
 {
     case "$1" in
-    "COOL") echo -e "${RED}*${NONE}${LPURP}AutoBot${NONE}${RED}*${NONE} Automated $2 ${LGRN}Successful! :)${NONE}"
-    "FAIL") echo -e "${RED}*${NONE}${LPURP}AutoBot${NONE}${RED}*${NONE} Automated $2 ${LRED}Failed :(${NONE}"
+    "COOL") echo -e "${RED}*${NONE}${LPURP}AutoBot${NONE}${RED}*${NONE} Automated $2 ${LGRN}Successful! :)${NONE}" ;;
+    "FAIL") echo -e "${RED}*${NONE}${LPURP}AutoBot${NONE}${RED}*${NONE} Automated $2 ${LRED}Failed :(${NONE}" ;;
     esac
 } # the_response
 
@@ -452,48 +452,49 @@ function pre_build
 # See the License for the specific language governing permissions and
 # limitations under the License." >> $INTF;
         if [ -d ${ANDROID_BUILD_TOP}/vendor/${ROMNIS}/config ]; then
-            CNF="config/";
+            CNF="vendor/${ROMNIS}/config";
         else
-            CNF="configs/";
+            CNF="vendor/${ROMNIS}/configs";
         fi
         find_ddc; # Find Default Device Configuration File
         # Work on Interactive Makefile Start
-        echo -e "\n# Inherit ${ROMNIS} common stuff\n\$(call inherit-product, vendor/${ROMNIS}/${CNF}${VNF}.mk)" >> $INTF;
+        echo -e "\n# Inherit ${ROMNIS} common stuff\n\$(call inherit-product, ${CNF}/${VNF}.mk)" >> $INTF;
         # Inherit Vendor specific files
-        if [[ $(grep -c -q "nfc_enhanced" $DDC) == "1" ]] && [ -f ${ANDROID_BUILD_TOP}/vendor/${ROMNIS}/${CNF}nfc_enhanced.mk ]; then
-            echo -e "\n# Enhanced NFC" >> $INTF;
-            echo -e "\$(call inherit-product, vendor/${ROM}/${CNF}nfc_enhanced.mk)" >> $INTF;
+        if [[ $(grep -c -q "nfc_enhanced" $DDC) == "1" ]] && [ -f ${ANDROID_BUILD_TOP}/${CNF}/nfc_enhanced.mk ]; then
+            echo -e "\n# Enhanced NFC\n\$(call inherit-product, ${CNF}/nfc_enhanced.mk)" >> $INTF;
         fi
-        if [[ $(grep -c -q "telephony" $DDC) == "1" ]] && [ -f ${ANDROID_BUILD_TOP}/vendor/${ROMNIS}/${CNF}telephony.mk ]; then
-            echo -e "\n# Inherit telephony stuff" >> $INTF;
-            echo -e "\$(call inherit-product, vendor/${ROM}/${CNF}telephony.mk)" >> $INTF;
+        if [[ $(grep -c -q "telephony" $DDC) == "1" ]] && [ -f ${ANDROID_BUILD_TOP}/${CNF}/telephony.mk ]; then
+            echo -e "\n# Inherit telephony stuff\n\$(call inherit-product, ${CNF}/telephony.mk)" >> $INTF;
         fi
         echo -e "\n# Calling Default Device Configuration File" >> $INTF;
         echo -e "\$(call inherit-product, device/${DMCM}/${DMDEV}/${DDC})" >> $INTF;
         echo -e "\n# ROM Specific Identifier\nPRODUCT_NAME := ${ROMNIS}_${DMDEV}" >> $INTF;
         # To prevent Missing Vendor Calls
-        sed -i -e 's/inherit-product, vendor\/${ROM}/inherit-product-if-exists, vendor\/${ROM}/g' $DDC;
+        sed -i -e 's/inherit-product, vendor\//inherit-product-if-exists, vendor\//g' $DDC;
         # Work on Interactive Makefile Complete -- ^^
         # Add User-desired Makefile Calls -- vv
         echo -e "Missed some Makefile calls? Enter number of Desired Makefile calls... [0 if none]";
-        read NMK;
+        if [ ! -f ${ANDROID_BUILD_TOP}/PREF.rc ]; then read NMK; fi;
         for (( CNT=1; CNT<="$NMK"; CNT++ ))
         do
-            echo -e "Enter Makefile location from Root of BuildSystem"\n;
-            read LOC;
-            if [ -f ${ANDROID_BUILD_TOP}/$LOC ]; then
-                echo -e "${LGRN}Adding Makefile...${NONE}";
+            if [ ! -f ${ANDROID_BUILD_TOP}/PREF.rc ]; then
+            echo -e "\nEnter Makefile location from Root of BuildSystem";
+            read LOC[$CNT];
+            fi
+            if [ -f ${ANDROID_BUILD_TOP}/${LOC[$CNT]} ]; then
+                echo -e "\n${LGRN}Adding Makefile $CNT ...${NONE}";
                 echo -e "\$(call inherit-product, $MK)" >> $INTF;
             else
-                echo -e "${LRED}Makefile not Found. Aborting...${NONE}";
+                echo -e "${LRED}Makefile ${LOC[$CNT]} not Found. Aborting...${NONE}";
             fi
         done
+        # That's done..
         # Make it Identifiable
-        if [ -f ${ANDROID_BUILD_TOP}/vendor/${ROMNIS}/${CNF}common.mk ]; then
-			mv $INTF ${ROMNIS}_${DMDEV}.mk;
-			echo -e "PRODUCT_MAKEFILES +=  \\ \n\t\$(LOCAL_DIR)/${ROMNIS}_${DMDEV}.mk" >> AndroidProducts.mk;
-		else
-			mv $INTF ${ROMNIS}.mk;
+        if [ -f ${ANDROID_BUILD_TOP}/${CNF}/common.mk ]; then
+            mv $INTF ${ROMNIS}_${DMDEV}.mk;
+            echo -e "PRODUCT_MAKEFILES +=  \\ \n\t\$(LOCAL_DIR)/${ROMNIS}_${DMDEV}.mk" >> AndroidProducts.mk;
+        else
+            mv $INTF ${ROMNIS}.mk;
         fi
         echo -e "${GRN}Renaming .dependencies file...${NONE}\n";
         if [ ! -f ${ROMNIS}.dependencies ]; then
@@ -558,7 +559,7 @@ function pre_build
         croot;
         cd vendor/${ROMNIS}/products;
         echo -e "About Device's Resolution...\n";
-        if [ ! -f ../../../PREF.rc ]; then
+        if [ ! -f ${ANDROID_BUILD_TOP}/PREF.rc ]; then
             echo -e "Among these Values - Select the one which is nearest or almost Equal to that of your Device\n";
             echo -e "Resolutions which are available for a ROM is shown by it's name. All Res are available for PAC-ROM ";
             echo -e "
@@ -589,7 +590,7 @@ ${LPURP}2560${NONE}x1600\n";
             "krexus")
                 VENF="${ROMNIS}_${DMDEV}.mk";
                 echo -e "\$( call inherit-product, vendor/${ROMNIS}/products/common.mk)" >> $VENF;
-                echo -e "\$( call inherit-product, vendor/${ROMNIS}/products/vendorless.mk)" >> $VENF;
+                echo -e "\n\$( call inherit-product, vendor/${ROMNIS}/products/vendorless.mk)" >> $VENF;
             ;;
             "pac")
                 VENF="${ROMNIS}_${DMDEV}.mk";
@@ -620,8 +621,8 @@ ${LPURP}2560${NONE}x1600\n";
         find_ddc;
         echo -e "\n# Calling Default Device Configuration File" >> $VENF;
         echo -e "\$(call inherit-product, device/${DMCM}/${DMDEV}/${DDC})" >> $VENF;
-        #PRODUCT_NAME is the only ROM-dependent variable, setting it here is better.
-        echo "\nPRODUCT_NAME := ${ROMNIS}_${DMDEV}" >> $VENF;
+        # PRODUCT_NAME is the only ROM-specific Identifier, setting it here is better.
+        echo -e "\nPRODUCT_NAME := ${ROMNIS}_${DMDEV}" >> $VENF;
     } # vendor_strat_kpa
 
     if [ -d vendor/${ROMNIS}/products ]; then
@@ -638,12 +639,11 @@ ${LPURP}2560${NONE}x1600\n";
     case "$ROMNO" in
         3|4) # AOSP-CAF/RRO
             VNF="common";
-            CNF="";
+            CNF="vendor/${ROMNIS}";
             interactive_mk "$ROMNO"
         ;;
         13) # OmniROM
             VNF="common";
-            CNF="config/";
             interactive_mk "$ROMNO"
         ;;
         2|16) # AOKP-4.4 | PAC-5.1
@@ -656,9 +656,11 @@ ${LPURP}2560${NONE}x1600\n";
         ;;
         1|12|17) # AICP | Krexus-CAF | PA
             echo -e "Interactive Makefile Unneeded, continuing...";
+        ;;
         *) # Rest of the ROMs
             VNF="common_full_phone";
-            interactive_mk "$ROMNO" ;;
+            interactive_mk "$ROMNO" 
+        ;;
     esac
     sleep 2;
     quick_menu;
@@ -871,8 +873,8 @@ function build
 #               ST="Wanna use Ninja Toolchain ? [y/n]";
 #               shut_my_mouth NJ "$ST";
 #               case "$DMNJ" in
-#               n) export ANDROID_COMPILE_WITH_NINJA=false ;; # ??? WiP - When Builds start, It'll get Edited
-#               y) export ANDROID_COMPILE_WITH_NINJA=true ;;  # ???
+#                   n) export ANDROID_COMPILE_WITH_NINJA=false ;; # ??? WiP - When Builds start, It'll get Edited
+#                   y) export ANDROID_COMPILE_WITH_NINJA=true ;;  # ???
 #               esac
             fi
              build_make; #Start teh Build!
