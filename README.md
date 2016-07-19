@@ -9,7 +9,7 @@ Ready to use. Extensive Testing needed.
 
 ScriBt consists of five main Actions:
 
-#####1. Init -
+#1. Init
 
 a. **Choose** a ROM
 
@@ -17,11 +17,11 @@ b. **Initialize** it's Repo
 
 c. **Add** a local_manifest for Device Specfic Additions / Changes
 
-#####2. Sync
+#2. Sync
 
 **Sync** the Sources - Setting Sync Options / Flags available
 
-#####3. Pre Build -
+#3. Pre Build
 
 a. **Add Device** to ROM Vendor
   
@@ -36,7 +36,7 @@ b. Make an **Interactive Makefile** under Device Tree (Identifiable by ROM's Bui
   ```ifneq ($(ROMNIS_BUILD),)
     all_product_configs := $(shell ls device/*/$(ROMNIS_BUILD)/ROMNIS.mk)```
 
-#####4. Build -
+#4. Build
 
 a. Build the Entire ROM
 
@@ -56,7 +56,7 @@ d. Give **comments** based on the Final Build Status
 
    * Arbitrary Error (Can't help because Entropy of Increase in Errors gets Incremented day by day :P)
  
-#####5. Install Deps
+#5. Install Dependencies
 
 a. Install Build Dependencies
 
@@ -64,13 +64,13 @@ b. Install / Configure **JAVA**
 
 c. Setup **android-51** rules (For proper usage of ADB)
 
-#####6. Automated Cherry Picking
+#6. Automated Cherry Picking
 
 as said before,
 #Extensive Testing is needed.
 
 
-#####Usage
+#Usage
 ```
 bash ROM.sh
 ```
@@ -79,7 +79,7 @@ bash ROM.sh
 ```exit``` command will close the terminal when script is called in that
 way, bash ROM.sh won't :D
 
-#####Automation Notes
+#Automation Notes
 
 Automation Works are complete, though it needs testing in every way! Users can add their own commands in the default sequence ( I do it )
 

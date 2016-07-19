@@ -41,25 +41,6 @@ function apt_check
     fi
 } # apt_check
 
-function enter_the_root
-{
-    echo -e "Provide ${LRED}Root${LRED} access to ScriBt. No Hacks Honestly ${LGRN}(Check the Code)${NONE}\n";
-    sudo -i;
-    if [[ $(whoami) == "root" ]]; then
-        echo -e "${LGRN}Root access OK.${NONE} Performing Changes.";
-    else
-        echo -e "No Root Access, Abort.";
-        main_menu;
-    fi
-} # enter_the_root
-
-function me_quit_root
-{
-    echo -e "Giving up Mah ${LRED}Powerz!${NONE}\n";
-    exit;
-    echo -e "Peace.";
-} # me_quit_root
-
 function exitScriBt
 {
     echo -e "\n\nThanks for using ${LRED}S${NONE}cri${GRN}B${NONE}t. Have a Nice Day\n\n";
@@ -126,13 +107,11 @@ function installdeps
     {
         echo -e "If you have Installed Multiple Versions of Java or Installed Java from Different Providers (OpenJDK / Oracle)";
         echo -e "You may now select the Version of Java which is to be used BY-DEFAULT";
-        enter_the_root;
         echo -e "${BLU}================================================================${NONE}\n";
-        update-alternatives --config java;
+        sudo update-alternatives --config java;
         echo -e "\n${BLU}================================================================${NONE}\n";
-        update-alternatives --config javac;
+        sudo update-alternatives --config javac;
         echo -e "\n${BLU}================================================================${NONE}";
-        me_quit_root;
     } # java_select
 
     java ()
@@ -142,10 +121,9 @@ function installdeps
         echo -e "${LRED}Remove${NONE} other Versions of Java ${LGRN}[y/n]${NONE}? ( Removing them is Recommended)\n";
         read REMOJA;
         echo;
-        enter_the_root;
         case "$REMOJA" in
             "y")
-                apt-get purge openjdk-* icedtea-* icedtea6-*;
+               sudo apt-get purge openjdk-* icedtea-* icedtea6-*;
                 echo -e "\nRemoved Other Versions successfully" ;;
             "n")
                 echo -e "Keeping them Intact" ;;
@@ -155,10 +133,9 @@ function installdeps
             ;;
             esac
         echo -e "${RED}==========================================================${NONE}\n";
-        apt-get update;
+        sudo apt-get update;
         echo -e "\n${RED}==========================================================${NONE}\n";
-        apt-get install openjdk-$1-jdk;
-        me_quit_root;
+        sudo apt-get install openjdk-$1-jdk;
         echo -e "\n${RED}==========================================================${NONE}";
         if [[ $( java -version &> $TMP && grep -c "java version \"1.$1" $TMP ) == "1" ]]; then
             echo -e "OpenJDK-$1 or Java 1.$1.0 has been successfully installed";
@@ -166,10 +143,9 @@ function installdeps
         fi
     } # java
 
-    enter_the_root;
     echo -e "${RED}==========================================================${NONE}\n";
     echo -e "Installing Build Dependencies...\n";
-apt-get install git-core gnupg ccache lzop flex bison \
+sudo apt-get install git-core gnupg ccache lzop flex bison \
 gperf build-essential zip curl zlib1g-dev \
 zlib1g-dev:i386 libc6-dev lib32ncurses5 lib32z1 \
 lib32bz2-1.0 lib32ncurses5-dev x11proto-core-dev \
@@ -185,11 +161,10 @@ pngcrush schedtool libwxgtk2.8-dev python liblz4-tool \
 maven maven2
     echo -e "\n${RED}==========================================================${NONE}\n";
     echo -e "Updating / Creating Android ${LGRN}USB udev rules${NONE} (51-android)\n";
-    curl --create-dirs -L -o /etc/udev/rules.d/51-android.rules -O -L https://raw.githubusercontent.com/snowdream/51-android/master/51-android.rules;
-    chmod a+r /etc/udev/rules.d/51-android.rules;
-    service udev restart;
+    sudo curl --create-dirs -L -o /etc/udev/rules.d/51-android.rules -O -L https://raw.githubusercontent.com/snowdream/51-android/master/51-android.rules;
+    sudo chmod a+r /etc/udev/rules.d/51-android.rules;
+    sudo service udev restart;
     echo;
-    me_quit_root;
 
     function java_menu
     {
@@ -750,18 +725,17 @@ function build
 
     function set_ccvars
     {
-        rootcheck;
         echo -e "\nCCACHE Size must be ${LRED}>50 GB${NONE}.\n Think about it and Specify the Size (Number) for Reservation of CCACHE (in GB)\n";
         read CCSIZE;
         echo -e "Create a New Folder for CCACHE and Specify it's location from / here\n";
         read CCDIR;
         if [ -f ${HOME}/.bashrc ]; then
-            echo "export USE_CCACHE=1" >> ${HOME}/.bashrc;
-            echo "export CCACHE_DIR=${CCDIR}" >> ${HOME}/.bashrc;
+            sudo echo "export USE_CCACHE=1" >> ${HOME}/.bashrc;
+            sudo echo "export CCACHE_DIR=${CCDIR}" >> ${HOME}/.bashrc;
             . ${HOME}/.bashrc;
         elif [ -f ${HOME}/.profile ]; then
-            echo "export USE_CCACHE=1" >> ${HOME}/.profile;
-            echo "export CCACHE_DIR=${CCDIR}" >> ${HOME}/.profile;
+            sudo echo "export USE_CCACHE=1" >> ${HOME}/.profile;
+            sudo echo "export CCACHE_DIR=${CCDIR}" >> ${HOME}/.profile;
             . ${HOME}/.profile;
         else
             echo -e "Strategies failed. If you have knowledge of finding .bashrc's equivalent in your Distro, then Paste these lines at the end of the File";
@@ -771,7 +745,6 @@ function build
             sleep 2;
             exitScriBt;
         fi
-        me_quit_root;
         echo;
         set_ccache;
     } # set_ccvars
@@ -952,17 +925,16 @@ function the_start
     if [ -f "${PWD}/ROM.rc" ]; then
         . $(pwd)/ROM.rc;
     else
-        echo "ROM.rc isn't present in ${PWD}, please make sure repo is cloned correctly";
+        echo "${LRED}ROM.rc isn't present in ${PWD}${NONE}, please make sure repo is cloned correctly";
         exit 1;
     fi
     #CHEAT CHEAT CHEAT!
     if [ -f PREF.rc ]; then
         . $(pwd)/PREF.rc
         collector; # Get all Information!
-        echo -e "\n${RED}*${NONE}${LPURP}AutoBot${NONE}${RED}*${NONE} Cheat Code SHUT_MY_MOUTH applied. I won't ask questions anymore\n";
+        echo -e "\n${RED}*${NONE}${LPURP}AutoBot${NONE}${RED}*${NONE} Cheat Code shut_my_mouth applied. I won't ask questions anymore\n";
     else
-        echo -e "Using this for first time?\nDon't lose patience the next time. ${LCYAN}Enter${NONE} your Values in PREF.rc and Shut my Mouth! lol\n";
-        echo -e "PREF.rc is the file"
+        echo -e "Using this for first time?\nDon't lose patience the next time. Take a look on PREF.rc and shut_my_mouth\n";
     fi
     echo -e "\n=======================================================";
     echo -e "Before I can start, do you like a \033[1;31mC\033[0m\033[0;32mo\033[0m\033[0;33ml\033[0m\033[0;34mo\033[0m\033[0;36mr\033[0m\033[1;33mf\033[0m\033[1;32mu\033[0m\033[0;31ml\033[0m life? [y/n]";
@@ -979,7 +951,10 @@ function the_start
     else
         i_like_colourless;
     fi
-    sleep 2;
+    echo -e "\n${LBLU}Prompting for Root Access...${NONE}\n";
+    sudo echo -e "\n${LGRN}Root access OK. You won't be asked again${NONE}";
+    apt_check;
+    sleep 3;
     clear;
     echo -ne '\033]0;ScriBt\007';
     echo -e "\n\n                 ${LRED}╔═╗${NONE}${YELO}╦═╗${NONE}${LCYAN}╔═╗${NONE}${LGRN} ╦${NONE}${LCYAN}╔═╗${NONE}${YELO}╦╔═${NONE}${LRED}╔╦╗${NONE}";
@@ -993,13 +968,12 @@ function the_start
     echo -e "      ${RED}╚══════╝ ╚═════╝╚═╝  ╚═╝╚═╝╚═════╝    ╚═╝${NONE}\n";
     sleep 1;
     echo -e "${LCYAN}~#~#~#~#~#~#~#~#~#${NONE} ${LRED}By Arvind7352${NONE} - ${YELO}XDA${NONE} ${LCYAN}#~#~#~#~#~#~#~#~${NONE}\n\n";
-    sleep 5;
+    sleep 3;
 } # the_start
 
 # All above parts are Functions - Line of Execution will start after these two lines
 # START IT --- VROOM!
 the_start; # Pre-Initial Stage
-apt_check;
 if [[ "$1" == "automate" ]]; then
     . $(pwd)/PREF.rc
     echo -e "${RED}*${NONE}${LPURP}AutoBot${NONE}${RED}*${NONE} Thanks for Selecting Me. Lem'me do your work";
