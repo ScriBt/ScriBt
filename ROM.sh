@@ -236,6 +236,7 @@ gimme_info ()
 
 function sync
 {
+    if [[ "${inited}" != "1" ]]; then init; fi;
     if [ -f PREF.rc ]; then teh_action 2; fi
     echo -e "\nPreparing for Sync\n";
     echo -e "${LRED}Number of Threads${NONE} for Sync?\n"; gimme_info "jobs";
@@ -277,9 +278,8 @@ function sync
 #    fi
 } # sync
 
-function init
+function rom_select
 {
-    if [ -f PREF.rc ]; then teh_action 1; fi;
     echo -e "${LPURP}=======================================================${NONE}\n";
     echo -e "Which ROM are you trying to build?
 Choose among these (Number Selection)
@@ -311,11 +311,14 @@ Choose among these (Number Selection)
 25.${LBLU} Xperia Open Source Project aka XOSP ${NONE}
 
 ${LPURP}=======================================================${NONE}\n";
-    if [ ! -f PREF.rc ]; then
-        read ROMN;
-        export ROMNO=$ROMN; # Only for Manual Usage
-    fi
-    rom_names $ROMNO;
+    if [ ! -f PREF.rc ]; then read ROMNO; fi;
+    rom_names "$ROMNO";
+}
+
+function init
+{
+    if [ -f PREF.rc ]; then teh_action 1; fi;
+    rom_select;
     echo -e "\nYou have chosen ${LCYAN}->${NONE} $ROM_FN\n";
     sleep 1;
     echo -e "Since Branches may live or die at any moment, ${LRED}Specify the Branch${NONE} you're going to sync\n";
@@ -365,16 +368,13 @@ ${LPURP}=======================================================${NONE}\n";
         read ENTER;
         echo;
     fi
+    export inited=1;
     #Start Sync now
     sync;
 } # init
 
-function pre_build
+function device_info
 {
-    if [ -f PREF.rc ]; then teh_action 3; fi;
-    echo -e "${CYAN}Initializing Build Environment${NONE}\n";
-    . build/envsetup.sh;
-    echo -e "\n${LPURP}Done.${NONE}.\n\n";
     echo -e "${LCYAN}====================== DEVICE INFO ======================${NONE}\n";
     echo -e "What's your ${LRED}Device's CodeName${NONE} ${LGRN}[Refer Device Tree - All Lowercases]${NONE}?\n";
     ST="Your Device ${LRED}Name${NONE} is";
@@ -386,7 +386,16 @@ function pre_build
     ST="Build ${LRED}type${NONE}";
     shut_my_mouth BT "$ST";
     echo -e "${LCYAN}=========================================================${NONE}\n\n";
-    rom_names $ROMNO;
+} # device_info
+
+function pre_build
+{
+    if [ -f PREF.rc ]; then teh_action 3; fi;
+    echo -e "${CYAN}Initializing Build Environment${NONE}\n";
+    . build/envsetup.sh;
+    echo -e "\n${LPURP}Done.${NONE}.\n\n";
+    device_info;
+    if [[ "${inited}" != 1 ]]; then rom_select; fi;
 
     function find_ddc   # For Finding Default Device Configuration file
     {
@@ -638,13 +647,18 @@ ${LPURP}2560${NONE}x1600\n";
         ;;
     esac
     sleep 2;
-    quick_menu;
+    export prebuilded=1;
+    if [ ! -f ${ANDROID_BUILD_TOP}/PREF.rc ]; then
+        quick_menu;
+    fi
 } # pre_build
 
 function build
 {
     if [ -f PREF.rc ]; then teh_action 4; fi;
-    
+    if [[ "${prebuilded}" != "1" ]]; then device_info; fi
+    if [[ "${inited}" != 1 ]]; then rom_select; fi;
+
     function make_it #Part of make_module
     {
         echo -e "${LCYAN}ENTER${NONE} the Directory where the Module is made from\n";
@@ -749,33 +763,27 @@ function build
         set_ccache;
     } # set_ccvars
 
-    function build_make
+    build_make ()
     {
-        start=$(date +"%s");
-        echo -e "\n${LGRN}Starting Compilation - ${ROM_FN} for ${DMDEV}${NONE}\n";
-        # For Brunchers
-        if [[ "$DMSLT" == "brunch" ]]; then
-            clean_build;
-            ${DMSLT} ${DMDEV} ${DMBT};
-        else
-            # For Mka-s/Make-rs
+        if [[ "$1" != "brunch" ]]; then
+            start=$(date +"%s");
             case "$DMMK" in
                 "make") BCORES=$(grep -c ^processor /proc/cpuinfo) ;;
                 *) BCORES="" ;;
             esac
-            if [[ "$ROMNIS" == "tipsy" || "$ROMNIS" == "validus" || "$ROMNIS" == "tesla" ]]; then
+            if [ $(grep -q "^${ROMNIS}:" "${ANDROID_BUILD_TOP}/build/core/Makefile") ]; then
                 $DMMK $ROMNIS $BCORES 2>&1 | tee $RMTMP;
-            elif [[ $(grep -q "^bacon:" "${ANDROID_BUILD_TOP}/build/core/Makefile") ]]; then
+            elif [ $(grep -q "^bacon:" "${ANDROID_BUILD_TOP}/build/core/Makefile") ]; then
                 $DMMK bacon $BCORES 2>&1 | tee $RMTMP;
             else
                 $DMMK otapackage $BCORES 2>&1 | tee $RMTMP;
             fi
             echo;
             post_build;
-        fi
         end=$(date +"%s");
         sec=$(($end - $start));
         echo -e "${YELO}Build took $(($sec / 3600)) hour(s), $(($sec / 60 % 60)) minute(s) and $(($sec % 60)) second(s).${NONE}" | tee -a rom_compile.txt;
+        fi
     } # build_make
 
     function hotel_menu
@@ -792,7 +800,11 @@ function build
         shut_my_mouth SLT "$ST";
         case "$DMSLT" in
             "lunch") ${DMSLT} ${ROMNIS}_${DMDEV}-${DMBT} ;;
-            "breakfast") ${DMSLT} ${DMDEV} ;;
+            "breakfast") ${DMSLT} ${DMDEV} ${DMBT} ;;
+            "brunch")
+                echo -e "\n${LGRN}Starting Compilation - ${ROM_FN} for ${DMDEV}${NONE}\n";
+                ${DMSLT} ${DMDEV};
+            ;;
             *)  echo -e "${LRED}Invalid Selection.${NONE} Going Back."; hotel_menu ;;
         esac
         echo;
@@ -817,27 +829,20 @@ function build
         shut_my_mouth BO "$ST";
     }
     
-    if [[ "$ERR" == "0" ]]; then build_menu; fi;
+    build_menu;
     case "$DMBO" in
         1)
-            hotel_menu;
-            echo -e "\nShould i use '${YELO}make${NONE}' or '${RED}mka${NONE}' ?";
+            echo -e "\nShould i use '${YELO}make${NONE}' or '${RED}mka${NONE}' ?\n";
             ST="Selected Method";
             shut_my_mouth MK "$ST";
-            echo -e "Wanna Clean the ${LPURP}/out${NONE} before Building? ${LGRN}[1 - Remove Staging / 2 - Full Clean]${NONE}\n";
+            echo -e "Wanna Clean the ${LPURP}/out${NONE} before Building? ${LGRN}[1 - Remove Staging Dirs / 2 - Full Clean]${NONE}\n";
             ST="Option Selected";
             shut_my_mouth CL "$ST";
-            case "$DMCL" in 
-                1) $DMMK installclean ;;
-                2) $DMMK clean ;;
-                *) echo -e "${LRED}Invalid Selection.${NONE} Going Back."; ERR="1"; build_menu ;;
-            esac
-            echo;
             if [[ $(tac ${ANDROID_BUILD_TOP}/build/core/build_id.mk | grep -c 'BUILD_ID=M') == "1" ]]; then
-                echo -e "Wanna use ${LRED}Jack Toolchain${NONE} ? ${LGRN}[y/n]${NONE}";
+                echo -e "Wanna use ${LRED}Jack Toolchain${NONE} ? ${LGRN}[y/n]${NONE}\n";
                 ST="Use ${LRED}Jacky${NONE}";
                 shut_my_mouth JK "$ST";
-                case "$USEJK" in
+                case "$DMJK" in
                      "y")export ANDROID_COMPILE_WITH_JACK=true ;;
                      "n")export ANDROID_COMPILE_WITH_JACK=false ;;
                      *) echo -e "${LRED}Invalid Selection${NONE}. RE-Answer this."; shut_my_mouth JK "$ST" ;;
@@ -850,7 +855,17 @@ function build
 #                   y) export ANDROID_COMPILE_WITH_NINJA=true ;;  # ???
 #               esac
             fi
-             build_make; #Start teh Build!
+            case "$DMCL" in
+                1)
+                    # Temporarily lunching the Device for installclean to work
+                    lunch ${ROMNIS}_${DMDEV}-${DMBT};
+                    $DMMK installclean;
+                ;;
+                2) $DMMK clean ;;
+                *) echo -e "${LRED}Invalid Selection.${NONE} Going Back.";;
+            esac
+            hotel_menu; # Launches Build Only For Brunchers.
+            build_make "$DMSLT"; # Launch Build. For Non-Brunchers
         ;;
     2)
         make_module;
