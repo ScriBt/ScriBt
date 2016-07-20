@@ -1,6 +1,6 @@
 #!/bin/bash
-#==========================Projekt ScriBt==============================#
-#============ Copyright 2016, Arvind Raj Thangaraj - "a7r3" ===========#
+#========================< Projekt ScriBt >============================#
+#===========< Copyright 2016, Arvind Raj Thangaraj - "a7r3" >==========#
 #======================================================================#
 #                                                                      #
 # This software is licensed under the terms of the GNU General Public  #
@@ -14,10 +14,7 @@
 #                                                                      #
 #======================================================================#
 #                                                                      #
-# Create a folder for your Source (If First Sync) and                  #
-# Place these files inside it                                          #
-#                                                                      #
-# https://github.com/a7r3/scripts - The Original Repo of this ScriBt   #
+# https://github.com/a7r3/ScriBt - Original Repo of ScriBt             #
 #                                                                      #
 # Usage: bash ROM.sh (Manual) | bash ROM.sh automate (Automated)       #
 #                                                                      #
@@ -52,8 +49,8 @@ function exitScriBt
 the_response ()
 {
     case "$1" in
-    "COOL") echo -e "${RED}*${NONE}${LPURP}AutoBot${NONE}${RED}*${NONE} Automated $2 ${LGRN}Successful! :)${NONE}" ;;
-    "FAIL") echo -e "${RED}*${NONE}${LPURP}AutoBot${NONE}${RED}*${NONE} Automated $2 ${LRED}Failed :(${NONE}" ;;
+    "COOL") echo -e "${RED}*${NONE}${PNK}AutoBot${NONE}${RED}*${NONE} Automated $2 ${LGRN}Successful! :)${NONE}" ;;
+    "FAIL") echo -e "${RED}*${NONE}${PNK}AutoBot${NONE}${RED}*${NONE} Automated $2 ${LRED}Failed :(${NONE}" ;;
     esac
 } # the_response
 
@@ -90,8 +87,8 @@ function quick_menu
 cherrypick ()
 {
     echo -ne '\033]0;ScriBt : Picking Cherries\007';
-    echo -e "${GRN}========================= Teh${NONE} ${LRED}Cherry${NONE} ${GRN}Picker========================${NONE}\n";
-    echo -e "     ${RED}*${NONE}${LPURP}AutoBot${NONE}${RED}*${NONE} Attempting to Cherry-Pick Provided Commits\n";
+    echo -e "${GRN}========================= the${NONE} ${LRED}Cherry${NONE} ${GRN}Picker========================${NONE}\n";
+    echo -e "     ${RED}*${NONE}${PNK}AutoBot${NONE}${RED}*${NONE} Attempting to Cherry-Pick Provided Commits\n";
     git fetch https://github.com/${REPOPK}/${REPONAME} ${CP_BRNC};
     git cherry-pick $1;
     echo -e "\nIT's possible that you may face conflicts while merging a C-Pick. Solve those and then Continue.";
@@ -100,9 +97,8 @@ cherrypick ()
 
 function installdeps
 {
-    if [ -f PREF.rc ]; then
-        teh_action 5;
-    fi
+    if [ -f PREF.rc ]; then teh_action 5; fi;
+
     function java_select
     {
         echo -e "If you have Installed Multiple Versions of Java or Installed Java from Different Providers (OpenJDK / Oracle)";
@@ -117,8 +113,8 @@ function installdeps
     java ()
     {
         echo -ne "\033]0;ScriBt : Java $1\007";
-        echo -e "Installing OpenJDK-$1 (Java 1.$1.0)";
-        echo -e "${LRED}Remove${NONE} other Versions of Java ${LGRN}[y/n]${NONE}? ( Removing them is Recommended)\n";
+        echo -e "\nInstalling OpenJDK-$1 (Java 1.$1.0)";
+        echo -e "$\n{LRED}Remove${NONE} other Versions of Java ${LGRN}[y/n]${NONE}? (Removing them is Recommended)\n";
         read REMOJA;
         echo;
         case "$REMOJA" in
@@ -169,11 +165,11 @@ maven maven2
     function java_menu
     {
         echo -e "${RED}==========================================================${NONE}\n\n";
-        echo -e "${LGRN}=====================${NONE} ${LPURP}JAVA Installation${NONE} ${LGRN}====================${NONE}\n";
+        echo -e "${LGRN}=====================${NONE} ${PNK}JAVA Installation${NONE} ${LGRN}====================${NONE}\n";
         echo -e "1. Install Java";
         echo -e "2. Switch Between Java Versions / Providers\n";
         echo -e "3. Already Configured? Back to Main Menu";
-        echo -e "${LGRN}==========================================================${NONE}\n";
+        echo -e "\n${LGRN}==========================================================${NONE}\n";
         read JAVAS;
         echo;
         case "$JAVAS" in
@@ -182,9 +178,8 @@ maven maven2
                 echo -e "Android Version of the ROM you're building ? ";
                 echo -e "1. 4.4 KitKat ( Java 1.6.0 )";
                 echo -e "2. 5.x.x Lollipop & 6.x.x Marshmallow ( Java 1.7.0 )";
-                echo -e "3. 7.x.x Nougat ( Java 1.8.0 )\n";
+                echo -e "3. 7.x.x Nougat / Ubuntu 16.04 ( Java 1.8.0 )\n";
                 read ANDVER;
-                echo;
                 case "$ANDVER" in
                     1) java 6 ;;
                     2) java 7 ;;
@@ -202,7 +197,7 @@ maven maven2
                 echo -e "\n${LRED}Invalid Selection${NONE}. Going back\n"
                 java_menu ;;
         esac # JAVAS
-    } #java_menu
+    } # java_menu
 
     java_menu;
 } # installdeps
@@ -211,7 +206,7 @@ shut_my_mouth ()
 {
     if [ -f PREF.rc ]; then
         RST="DM$1";
-        echo -e "${RED}*${NONE}${LPURP}AutoBot${NONE}${RED}*${NONE} $2 : ${!RST}"
+        echo -e "${RED}*${NONE}${PNK}AutoBot${NONE}${RED}*${NONE} $2 : ${!RST}"
     else
         read DM2; #Value
         export DM$1="${DM2}";
@@ -245,7 +240,7 @@ function sync
     echo -e "${LRED}Force Sync${NONE} needed? ${LGRN}[y/n]${NONE}\n"; gimme_info "fsync";
     ST="${LRED}Force${NONE} Sync";
     shut_my_mouth F "$ST";
-    echo -e "Need some ${LRED}Silence${NONE} in teh Terminal? ${LGRN}[y/n]${NONE}\n"; gimme_info "ssync";
+    echo -e "Need some ${LRED}Silence${NONE} in the Terminal? ${LGRN}[y/n]${NONE}\n"; gimme_info "ssync";
     ST="${LRED}Silent${NONE} Sync";
     shut_my_mouth S "$ST";
     echo -e "Sync only ${LRED}Current${NONE} Branch? ${LGRN}[y/n]${NONE}\n"; gimme_info "syncrt";
@@ -272,7 +267,7 @@ function sync
  #       if [ -f PREF.rc ]; then
  #           the_response FAIL Sync;
  #       fi
-        echo -e "\n${LPURP}Done.${NONE}!\n";
+        echo -e "\n${PNK}Done.${NONE}!\n";
         echo -e "${LRED}=====================================================================${NONE}\n";
         if [ ! -f PREF.rc ]; then quick_menu; fi;
 #    fi
@@ -280,7 +275,7 @@ function sync
 
 function rom_select
 {
-    echo -e "${LPURP}=======================================================${NONE}\n";
+    echo -e "${PNK}=======================================================${NONE}\n";
     echo -e "Which ROM are you trying to build?
 Choose among these (Number Selection)
 
@@ -297,7 +292,7 @@ Choose among these (Number Selection)
 11.${YELO} Flayr OS ${NONE}
 12.${LBLU} Krexus${NONE}-${GRN}CAF${NONE}
 13.${LGRN} OmniROM ${NONE}
-14.${LPURP} Orion OS ${NONE}
+14.${PNK} Orion OS ${NONE}
 15.${YELO} OwnROM ${NONE}
 16.${LBLU} PAC-ROM ${NONE}
 17.${LGRN} Paranoid Android aka AOSPA ${NONE}
@@ -306,14 +301,14 @@ Choose among these (Number Selection)
 20.${LRED} Temasek ${NONE}
 21.${LBLU} GZR Tesla ${NONE}
 22.${YELO} Tipsy OS ${NONE}
-23.${LPURP} GZR Validus ${NONE}
+23.${PNK} GZR Validus ${NONE}
 24.${LCYAN} XenonHD by Team Horizon ${NONE}
 25.${LBLU} Xperia Open Source Project aka XOSP ${NONE}
 
-${LPURP}=======================================================${NONE}\n";
+${PNK}=======================================================${NONE}\n";
     if [ ! -f PREF.rc ]; then read ROMNO; fi;
     rom_names "$ROMNO";
-}
+} # rom_select
 
 function init
 {
@@ -356,7 +351,7 @@ function init
         echo -e "${LGRN}DONE!${NONE}. Ready to Init Repo\n";
     fi
     echo -e "${LBLU}=========================================================${NONE}\n";
-    echo -e "Let's Initialize teh ROM Repo\n";
+    echo -e "Let's Initialize the ROM Repo\n";
     repo init ${REF} -u https://github.com/${ROM_NAME}/${MAN} -b ${DMBR} ;
     echo -e "\n${ROM_NAME} Repo Initialized\n";
     echo -e "${LBLU}=========================================================${NONE}\n";
@@ -393,7 +388,7 @@ function pre_build
     if [ -f PREF.rc ]; then teh_action 3; fi;
     echo -e "${CYAN}Initializing Build Environment${NONE}\n";
     . build/envsetup.sh;
-    echo -e "\n${LPURP}Done.${NONE}.\n\n";
+    echo -e "\n${PNK}Done.${NONE}.\n\n";
     device_info;
     if [[ "${inited}" != 1 ]]; then rom_select; fi;
 
@@ -447,15 +442,11 @@ function pre_build
         if [[ $(grep -c -q "nfc_enhanced" $DDC) == "1" ]] && [ -f ${ANDROID_BUILD_TOP}/${CNF}/nfc_enhanced.mk ]; then
             echo -e "\n# Enhanced NFC\n\$(call inherit-product, ${CNF}/nfc_enhanced.mk)" >> $INTF;
         fi
-        if [[ $(grep -c -q "telephony" $DDC) == "1" ]] && [ -f ${ANDROID_BUILD_TOP}/${CNF}/telephony.mk ]; then
-            echo -e "\n# Inherit telephony stuff\n\$(call inherit-product, ${CNF}/telephony.mk)" >> $INTF;
-        fi
         echo -e "\n# Calling Default Device Configuration File" >> $INTF;
         echo -e "\$(call inherit-product, device/${DMCM}/${DMDEV}/${DDC})" >> $INTF;
         echo -e "\n# ROM Specific Identifier\nPRODUCT_NAME := ${ROMNIS}_${DMDEV}" >> $INTF;
         # To prevent Missing Vendor Calls
         sed -i -e 's/inherit-product, vendor\//inherit-product-if-exists, vendor\//g' $DDC;
-        # Work on Interactive Makefile Complete -- ^^
         # Add User-desired Makefile Calls -- vv
         echo -e "Missed some Makefile calls? Enter number of Desired Makefile calls... [0 if none]";
         if [ ! -f ${ANDROID_BUILD_TOP}/PREF.rc ]; then read NMK; fi;
@@ -472,7 +463,6 @@ function pre_build
                 echo -e "${LRED}Makefile ${LOC[$CNT]} not Found. Aborting...${NONE}";
             fi
         done
-        # That's done..
         # Make it Identifiable
         if [ -f ${ANDROID_BUILD_TOP}/${CNF}/common.mk ]; then
             mv $INTF ${ROMNIS}_${DMDEV}.mk;
@@ -495,7 +485,7 @@ function pre_build
         else
             cd vendor/${ROMNIS};
         fi
-        echo -e "${LPURP}=========================================================${NONE}\n";
+        echo -e "${PNK}=========================================================${NONE}\n";
 
         function dtree_add
         {   # AOSP-CAF - AOSP-RRO - OmniROM
@@ -535,7 +525,7 @@ function pre_build
         if [[ "$STDN" != "y" ]]; then dtree_add; fi; # If none of the Strategies Worked
         echo -e "${LGRN}Done.${NONE}";
         croot;
-        echo -e "${LPURP}=========================================================${NONE}";
+        echo -e "${PNK}=========================================================${NONE}";
     } # vendor_strat
 
     function vendor_strat_kpa # AOKP-4.4, AICP, PAC-5.1, Krexus-CAF, PA
@@ -545,29 +535,29 @@ function pre_build
         echo -e "About Device's Resolution...\n";
         if [ ! -f ${ANDROID_BUILD_TOP}/PREF.rc ]; then
             echo -e "Among these Values - Select the one which is nearest or almost Equal to that of your Device\n";
-            echo -e "Resolutions which are available for a ROM is shown by it's name. All Res are available for PAC-ROM ";
+            echo -e "Resolutions which are available for a ROM is shown by it's name. All Res are available for PAC-5.1 ";
             echo -e "
-${LPURP}240${NONE}x400
-${LPURP}320${NONE}x480 (AOKP)
-${LPURP}480${NONE}x800 and ${LPURP}480${NONE}x854 (AOKP & PA)
-${LPURP}540${NONE}x960 (AOKP)
-${LPURP}600${NONE}x1024
-${LPURP}720${NONE}x1280 (AOKP & PA)
-${LPURP}768${NONE}x1024 and ${LPURP}768${NONE}x1280 (AOKP)
-${LPURP}800${NONE}x1280 (AOKP)
-${LPURP}960${NONE}x540
-${LPURP}1080${NONE}x1920 (AOKP & PA)
-${LPURP}1200${NONE}x1920
-${LPURP}1280${NONE}x800
-${LPURP}1440${NONE}x2560 (PA)
-${LPURP}1536${NONE}x2048
-${LPURP}1600${NONE}x2560
-${LPURP}1920${NONE}x1200
-${LPURP}2560${NONE}x1600\n";
-            echo -e "Enter the Desired Highlighted Number...";
+${PNK}240${NONE}x400
+${PNK}320${NONE}x480 (AOKP)
+${PNK}480${NONE}x800 and ${PNK}480${NONE}x854 (AOKP & PA)
+${PNK}540${NONE}x960 (AOKP)
+${PNK}600${NONE}x1024
+${PNK}720${NONE}x1280 (AOKP & PA)
+${PNK}768${NONE}x1024 and ${PNK}768${NONE}x1280 (AOKP)
+${PNK}800${NONE}x1280 (AOKP)
+${PNK}960${NONE}x540
+${PNK}1080${NONE}x1920 (AOKP & PA)
+${PNK}1200${NONE}x1920
+${PNK}1280${NONE}x800
+${PNK}1440${NONE}x2560 (PA)
+${PNK}1536${NONE}x2048
+${PNK}1600${NONE}x2560
+${PNK}1920${NONE}x1200
+${PNK}2560${NONE}x1600\n";
+            echo -e "Enter the Desired Highlighted Number...\n";
             read BOOTRES;
         else
-            echo -e "${RED}*${NONE}${LPURP}AutoBot${NONE}${RED}*${NONE} Resolution Choosed : ${BOOTRES}";
+            echo -e "${RED}*${NONE}${PNK}AutoBot${NONE}${RED}*${NONE} Resolution Choosed : ${BOOTRES}";
         fi
         #Vendor-Calls
         case "$ROMNIS" in
@@ -663,13 +653,13 @@ function build
     {
         echo -e "${LCYAN}ENTER${NONE} the Directory where the Module is made from\n";
         read MODDIR;
-        echo -e "Do you want to ${LRED}push the Module${NONE} to the ${LRED}Device${NONE} ? (Running the Same ROM) ${LGRN}[y/n]${NONE}\n";
+        echo -e "\nDo you want to ${LRED}push the Module${NONE} to the ${LRED}Device${NONE} ? (Running the Same ROM) ${LGRN}[y/n]${NONE}\n";
         read PMOD;
         echo;
         case "$PMOD" in
             "y") mmmp -B $MODDIR ;;
             "n") mmm -B $MODDIR ;;
-            *) echo -e "${LRED}Invalid Selection.${NONE} Going Back."; make_it ;;
+            *) echo -e "${LRED}Invalid Selection.${NONE} Going Back.\n"; make_it ;;
         esac
     } # make_it
 
@@ -678,12 +668,12 @@ function build
         if [ -z "$1" ]; then
         echo;
         read KNWLOC;
-        echo -e "\nKnow the Location of the Module?";
+        echo -e "\nKnow the Location of the Module?\n";
         fi
         if [[ "$KNWLOC" == "y" || "$1" == "y" ]]; then
             make_it;
         else
-            echo -e "Do either of these two actions: \n1. ${BLU}G${NONE}${RED}o${NONE}${YELO}o${NONE}${BLU}g${NONE}${GRN}l${NONE}${RED}e${NONE} it (Easier)\n2. Run this command in terminal : ${LBLU}sgrep \"LOCAL_MODULE := Insert_MODULE_NAME_Here \"${NONE}.\n\n Press ${LCYAN}ENTER${NONE} after it's ${LPURP}Done.${NONE}.\n";
+            echo -e "Do either of these two actions:\n1. ${BLU}G${NONE}${RED}o${NONE}${YELO}o${NONE}${BLU}g${NONE}${GRN}l${NONE}${RED}e${NONE} it (Easier)\n2. Run this command in terminal : ${LBLU}sgrep \"LOCAL_MODULE := Insert_MODULE_NAME_Here \"${NONE}.\n\n Press ${LCYAN}ENTER${NONE} after it's ${PNK}Done.${NONE}.\n";
             read ENTER;
             make_it;
         fi
@@ -732,9 +722,9 @@ function build
 
     function set_ccache
     {
-        echo -e "Setting up CCACHE\n";
+        echo -e "\n${PNK}Setting up CCACHE${NONE}\n";
         prebuilts/misc/linux-x86/ccache/ccache -M ${CCSIZE}G;
-        echo -e "\nCCACHE Setup ${GRN}Successful${NONE}.\n";
+        echo -e "\nCCACHE Setup ${LGRN}Successful${NONE}.\n";
     } # set_ccache
 
     function set_ccvars
@@ -788,14 +778,14 @@ function build
 
     function hotel_menu
     {
-        echo -e "${LBLU}====================================${NONE}${RED}[*]${NONE} ${GRN}HOTEL MENU${NONE} ${RED}[*]${NONE}${LBLU}=====================================${NONE}\n";
-        echo -e "${LRED}A SideNote : Menu is only for your Device, not for you. No Complaints plz.${NONE}\n";
-        echo -e "[*] ${RED}lunch${NONE} - If your Device is not in the ROM's Devices list - ${ORNG}Unofficial${NONE} [*]";
-        echo -e "[*] ${YELO}breakfast${NONE} - (If your Device is a ${GRN}Official Device${NONE} for that particular ROM - ${GRN}Official${NONE} [*]";
-        echo -e "[*] ${GRN}brunch${NONE} - lunch + sync repos from ${ROMNIS}.dependencies + build - ${ORNG}Official/Unofficial${NONE} [*]\n";
-        echo -e "Type in the Option you want to select";
-        echo -e "${YELO}Tip!${NONE} - If you're building it for the first time, then select ${RED}lunch${NONE} (Recommended)";
-        echo -e "${LBLU}===========================================================================================${NONE}\n";
+        echo -e "${LBLU}======================${NONE}${RED}[*]${NONE} ${GRN}HOTEL MENU${NONE} ${RED}[*]${NONE}${LBLU}=======================${NONE}";
+        echo -e "${LRED} Menu is only for your Device, not for you. No Complaints pls.${NONE}\n";
+        echo -e "[*] ${RED}lunch${NONE} - Setup Build Environment for the Device [*]";
+        echo -e "[*] ${YELO}breakfast${NONE} - Download Device Dependencies and ${RED}lunch${NONE} [*]";
+        echo -e "[*] ${GRN}brunch${NONE} - ${YELO}breakfast${NONE} + ${RED}lunch${NONE} then ${GRN}Start Build${NONE} [*]\n";
+        echo -e "Type in the Option you want to select\n";
+        echo -e "${YELO}Tip!${NONE} - Building for the first time ? select ${RED}lunch${NONE}";
+        echo -e "${LBLU}===============================================================${NONE}\n";
         ST="Selected Option";
         shut_my_mouth SLT "$ST";
         case "$DMSLT" in
@@ -815,27 +805,27 @@ function build
     echo -e "             ${CYAN}Initializing Build Environment${NONE}\n";
     . build/envsetup.sh;
     echo -e "\n${YELO}=========================================================${NONE}\n";
-    echo -e "${LPURP}Done.${NONE}.\n";
+    echo -e "${PNK}Done.${NONE}.\n";
 
     function build_menu
     {
-        echo -e "${LPURP}=========================================================${NONE}\n";
+        echo -e "${PNK}=========================================================${NONE}\n";
         echo -e "Select the Build Option:\n";
         echo -e "${LCYAN}1. Start Building ROM (ZIP output) (Clean Options Available)${NONE}";
         echo -e "${LGRN}2. Make a Particular Module${NONE}";
         echo -e "${LBLU}3. Setup CCACHE for Faster Builds ${NONE}\n";
-        echo -e "${LPURP}=========================================================${NONE}\n"
+        echo -e "${PNK}=========================================================${NONE}\n"
         ST="Option Selected";
         shut_my_mouth BO "$ST";
     }
-    
+
     build_menu;
     case "$DMBO" in
         1)
             echo -e "\nShould i use '${YELO}make${NONE}' or '${RED}mka${NONE}' ?\n";
             ST="Selected Method";
             shut_my_mouth MK "$ST";
-            echo -e "Wanna Clean the ${LPURP}/out${NONE} before Building? ${LGRN}[1 - Remove Staging Dirs / 2 - Full Clean]${NONE}\n";
+            echo -e "Wanna Clean the ${PNK}/out${NONE} before Building? ${LGRN}[1 - Remove Staging Dirs / 2 - Full Clean]${NONE}\n";
             ST="Option Selected";
             shut_my_mouth CL "$ST";
             if [[ $(tac ${ANDROID_BUILD_TOP}/build/core/build_id.mk | grep -c 'BUILD_ID=M') == "1" ]]; then
@@ -857,7 +847,7 @@ function build
             fi
             case "$DMCL" in
                 1)
-                    # Temporarily lunching the Device for installclean to work
+                    # Temporary lunch
                     lunch ${ROMNIS}_${DMDEV}-${DMBT};
                     $DMMK installclean;
                 ;;
@@ -865,19 +855,19 @@ function build
                 *) echo -e "${LRED}Invalid Selection.${NONE} Going Back.";;
             esac
             hotel_menu; # Launches Build Only For Brunchers.
-            build_make "$DMSLT"; # Launch Build. For Non-Brunchers
+            build_make "$DMSLT"; # Launches Build. For Non-Brunchers
         ;;
     2)
         make_module;
     ;;
     3)
-        echo -e "Two Steps. Select one of them (If seeing this for first time - ${LCYAN}Enter${NONE} A)";
-        echo -e "\tA. Enabling CCACHE Variables in .bashrc or it's equivalent";
-        echo -e "\tB. Reserving Space for CCACHE\n";
+        echo -e "CCache Menu...\n";
+        echo -e "\t1. Enabling CCACHE Variables in .bashrc or it's equivalent";
+        echo -e "\t2. Reserving Space for CCACHE\n";
         read CCOPT;
         case "$CCOPT" in
-             "A") set_ccvars ;;
-             "B") set_ccache ;;
+             1) set_ccvars ;;
+             2) set_ccache ;;
                *) echo -e "\n${LRED}Invalid Selection.${NONE} Going back."; build ;;
         esac
     ;;
@@ -905,7 +895,7 @@ teh_action ()
     ;;
     4)
         if [ ! -f PREF.rc ]; then build; fi;
-        echo -ne "\033]0;ScriBt : Building ${ROM_FN}\007";
+        echo -ne "\033]0;${ROMNIS}_${DMDEV} : Building\007";
     ;;
     5)
         if [ ! -f PREF.rc ]; then installdeps; fi;
@@ -914,8 +904,8 @@ teh_action ()
     6)
         if [ ! -f PREF.rc ]; then exitScriBt; fi;
         case "$2" in
-            "COOL") echo -ne "\033]0;${ROM_FN} : Success\007" ;;
-            "FAIL") echo -ne "\033]0;${ROM_FN} : Fail\007" ;;
+            "COOL") echo -ne "\033]0;${ROMNIS}_${DMDEV} : Success\007" ;;
+            "FAIL") echo -ne "\033]0;${ROMNIS}_${DMDEV} : Fail\007" ;;
         esac
     ;;
     *)
@@ -930,6 +920,8 @@ teh_action ()
 
 function the_start
 {
+    echo -e "\n${LBLU}Prompting for Root Access...${NONE}\n";
+    sudo echo -e "\n${LGRN}Root access OK. You won't be asked again${NONE}";
     # Create a Text file to Store Intermediate Outputs for Working on Some Commands
     TMP=temp.txt; # temp
     RTMP=repo_log.txt; # repo sync logs
@@ -947,7 +939,7 @@ function the_start
     if [ -f PREF.rc ]; then
         . $(pwd)/PREF.rc
         collector; # Get all Information!
-        echo -e "\n${RED}*${NONE}${LPURP}AutoBot${NONE}${RED}*${NONE} Cheat Code shut_my_mouth applied. I won't ask questions anymore\n";
+        echo -e "\n${RED}*${NONE}${PNK}AutoBot${NONE}${RED}*${NONE} Cheat Code shut_my_mouth applied. I won't ask questions anymore\n";
     else
         echo -e "Using this for first time?\nDon't lose patience the next time. Take a look on PREF.rc and shut_my_mouth\n";
     fi
@@ -955,7 +947,7 @@ function the_start
     echo -e "Before I can start, do you like a \033[1;31mC\033[0m\033[0;32mo\033[0m\033[0;33ml\033[0m\033[0;34mo\033[0m\033[0;36mr\033[0m\033[1;33mf\033[0m\033[1;32mu\033[0m\033[0;31ml\033[0m life? [y/n]";
     echo -e "=======================================================\n";
     if [ -f PREF.rc ]; then
-        echo -e "${RED}*${NONE}${LPURP}AutoBot${NONE}${RED}*${NONE} Coloured ScriBt : $COLOR "
+        echo -e "${RED}*${NONE}${PNK}AutoBot${NONE}${RED}*${NONE} Coloured ScriBt : $COLOR "
     else
         read COLOR;
     fi
@@ -966,8 +958,6 @@ function the_start
     else
         i_like_colourless;
     fi
-    echo -e "\n${LBLU}Prompting for Root Access...${NONE}\n";
-    sudo echo -e "\n${LGRN}Root access OK. You won't be asked again${NONE}";
     apt_check;
     sleep 3;
     clear;
@@ -991,7 +981,7 @@ function the_start
 the_start; # Pre-Initial Stage
 if [[ "$1" == "automate" ]]; then
     . $(pwd)/PREF.rc
-    echo -e "${RED}*${NONE}${LPURP}AutoBot${NONE}${RED}*${NONE} Thanks for Selecting Me. Lem'me do your work";
+    echo -e "${RED}*${NONE}${PNK}AutoBot${NONE}${RED}*${NONE} Thanks for Selecting Me. Lem'me do your work";
     automate; # Initiate the Build Sequence - Actual "VROOM"!
 else
     main_menu;
