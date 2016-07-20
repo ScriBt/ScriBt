@@ -168,22 +168,22 @@ rom_names ()
 function color_my_life
 {
 
-    BLAK="\033[0;30m";      #Black
-    DGRAY="\033[1;30m";     #DarkGray
-    RED="\033[0;31m";       #Red
-    LRED="\033[1;31m";      #LightRed
-    GRN="\033[0;32m";       #Green
-    LGRN="\033[1;32m";      #LightGreen
-    ORNG="\033[0;33m";      #Orange
-    YELO="\033[1;33m";      #Yellow
-    BLU="\033[0;34m";       #Blue
-    LBLU="\033[1;34m";      #LightBlue
-    PURP="\033[0;35m";      #Purple
-    LPURP="\033[1;35m";     #LightPurple
-    CYAN="\033[0;36m";      #Cyan
-    LCYAN="\033[1;36m";     #LightCyan
-    LGRAY="\033[0;37m";     #LightGray
-    WITE="\033[1;37m";      #White
+    BLAK="\033[0;30m";      # Black
+    DGRAY="\033[1;30m";     # DarkGray
+    RED="\033[0;31m";       # Red
+    LRED="\033[1;31m";      # BoldRed
+    GRN="\033[0;32m";       # Green
+    LGRN="\033[1;32m";      # BoldGreen
+    ORNG="\033[0;33m";      # Orange
+    YELO="\033[1;33m";      # Yellow
+    BLU="\033[0;34m";       # Blue
+    LBLU="\033[1;34m";      # BoldBlue
+    PURP="\033[0;35m";      # Purple
+    PNK="\033[1;35m";       # Pink
+    CYAN="\033[0;36m";      # Cyan
+    LCYAN="\033[1;36m";     # BoldCyan
+    LGRAY="\033[0;37m";     # BoldGray
+    WITE="\033[1;37m";      # White
 
     NONE="\033[0m";         #ColorStop
 
