@@ -5,210 +5,183 @@
 rom_names ()
 {
     case "$1" in
-      1)
-          ROM_NAME="AICP";
-          ROM_FN="AICP";
-          ROMNIS="aicp";
-          MAN="platform_manifest.git";
-      ;;
-      2)
-          ROM_NAME="AOKP";
-          ROM_FN="AOKP";
-          ROMNIS="aokp";
-          MAN="platform_manifest.git";
-      ;;
-      3)
-          ROM_NAME="AOSP-CAF";
-          ROM_FN="AOSP-CAF";
-          ROMNIS="aosp";
-          MAN="platform_manifest.git";
-      ;;
-      4)
-          ROM_NAME="AOSP-RRO";
-          ROM_FN="AOSP-RRO";
-          ROMNIS="aosp";
-          MAN="manifest.git";
-      ;;
-      5)
-          ROM_NAME="BlissRoms";
-          ROM_FN="BlissRoms";
-          ROMNIS="bliss";
-          MAN="platform_manifest.git";
-      ;;
-      6)
-          ROM_NAME="CandyRoms";
-          ROM_FN="CandyRoms";
-          ROMNIS="candy";
-          MAN="candy.git";
-      ;;
-      7)
-          ROM_NAME="crdroidandroid";
-          ROM_FN="crDroid";
-          ROMNIS="crdroid";
-          MAN="android.git";
-      ;;
-      8)
-          ROM_NAME="CyanideL";
-          ROM_FN="Cyanide";
-          ROMNIS="cyanide";
-          MAN="cyanide_manifest.git";
-      ;;
-      9)
-          ROM_NAME="CyanogenMod";
-          ROM_FN="CyanogenMod";
-          ROMNIS="cm";
-          MAN="android.git";
-      ;;
-      10)
-          ROM_NAME="DirtyUnicorns";
-          ROM_FN="Dirty Unicorns";
-          ROMNIS="du";
-          MAN="android_manifest.git";
-      ;;
-      11)
-          ROM_NAME="FlayrOS";
-          ROM_FN="Flayr OS";
-          ROMNIS="full";
-          ROMV="flayr";
-          MAN="manifest.git";
-      ;;
-      12)
-          ROM_NAME="Krexus-CAF";
-          ROM_FN="Krexus CAF";
-          ROMNIS="krexus";
-          MAN="manifest.git";
-      ;;
-      13)
-          ROM_NAME="OmniROM";
-          ROM_FN="OmniROM";
-          ROMNIS="omni";
-          MAN="android.git";
-      ;;
-      14)
-          ROM_NAME="TeamOrion";
-          ROM_FN="Orion OS";
-          ROMNIS="orion";
-          MAN="platform_manifest.git";
-      ;;
-      15)
-          ROM_NAME="OwnROM";
-          ROM_FN="OwnROM";
-          ROMNIS="ownrom";
-          MAN="android.git";
-      ;;
-      16)
-          ROM_NAME="PAC-ROM";
-          ROM_FN="PAC ROM";
-          ROMNIS="pac";
-          MAN="pac-rom.git";
-      ;;
-      17)
-          ROM_NAME="AOSPA";
-          ROM_FN="Paranoid Android";
-          ROMNIS="pa";
-          MAN="manifest.git";
-      ;;
-      18)
-          ROM_NAME="ResurrectionRemix";
-          ROM_FN="Resurrection Remix";
-          ROMNIS="cm";
-          MAN="platform_manifest.git";
-      ;;
-      19)
-          ROM_NAME="SlimRoms";
-          ROM_FN="SlimRoms";
-          ROMNIS="slim";
-          MAN="platform_manifest.git";
-      ;;
-      20)
-          ROM_NAME="temasek";
-          ROM_FN="Temasek";
-          ROMNIS="cm";
-          MAN="android.git";
-      ;;
-      21)
-          ROM_NAME="Tesla-M";
-          ROM_FN="GZR Tesla";
-          ROMNIS="tesla";
-          MAN="manifest.git";
-      ;;
-      22)
-          ROM_NAME="TipsyOs";
-          ROM_FN="TipsyOs";
-          ROMNIS="tipsy";
-          MAN="platform_manifest.git";
-      ;;
-      23)
-          ROM_NAME="ValidusOs-M";
-          ROM_FN="GZR Validus";
-          ROMNIS="validus";
-          MAN="manifest.git";
-      ;;
-      24)
-          ROM_NAME="TeamHorizon";
-          ROM_FN="XenonHD";
-          ROMNIS="xenonhd";
-          MAN="platform_manifest.git";
-      ;;
-      25)
-          ROM_NAME="XOSP-Project";
-          ROM_FN="XOSP";
-          ROMNIS="xosp";
-          MAN="platform_manifest.git";
-      ;;
-      *)
-          if [ ! -f PREF.rc ]; then
-              echo -e "${LRED}Invalid Selection.${NONE} Going back."; init;
-          fi
-	  ;;
+        1)
+            ROM_NAME="AICP";
+            ROM_FN="AICP";
+            ROMNIS="aicp";
+            MAN="platform_manifest.git";
+        ;;
+        2)
+            ROM_NAME="AOKP";
+            ROM_FN="AOKP";
+            ROMNIS="aokp";
+            MAN="platform_manifest.git";
+        ;;
+        3)
+            ROM_NAME="AOSP-CAF";
+            ROM_FN="AOSP-CAF";
+            ROMNIS="aosp";
+            MAN="platform_manifest.git";
+        ;;
+        4)
+            ROM_NAME="AOSP-RRO";
+            ROM_FN="AOSP-RRO";
+            ROMNIS="aosp";
+            MAN="manifest.git";
+        ;;
+        5)
+            ROM_NAME="BlissRoms";
+            ROM_FN="BlissRoms";
+            ROMNIS="bliss";
+            MAN="platform_manifest.git";
+        ;;
+        6)
+            ROM_NAME="CandyRoms";
+            ROM_FN="CandyRoms";
+            ROMNIS="candy";
+            MAN="candy.git";
+        ;;
+        7)
+            ROM_NAME="crdroidandroid";
+            ROM_FN="crDroid";
+            ROMNIS="crdroid";
+            MAN="android.git";
+        ;;
+        8)
+            ROM_NAME="CyanideL";
+            ROM_FN="Cyanide";
+            ROMNIS="cyanide";
+            MAN="cyanide_manifest.git";
+        ;;
+        9)
+            ROM_NAME="CyanogenMod";
+            ROM_FN="CyanogenMod";
+            ROMNIS="cm";
+            MAN="android.git";
+        ;;
+        10)
+            ROM_NAME="DirtyUnicorns";
+            ROM_FN="Dirty Unicorns";
+            ROMNIS="du";
+            MAN="android_manifest.git";
+        ;;
+        11)
+            ROM_NAME="FlayrOS";
+            ROM_FN="Flayr OS";
+            ROMNIS="full";
+            ROMV="flayr";
+            MAN="manifest.git";
+        ;;
+        12)
+            ROM_NAME="Krexus-CAF";
+            ROM_FN="Krexus CAF";
+            ROMNIS="krexus";
+            MAN="manifest.git";
+        ;;
+        13)
+            ROM_NAME="OmniROM";
+            ROM_FN="OmniROM";
+            ROMNIS="omni";
+            MAN="android.git";
+        ;;
+        14)
+            ROM_NAME="TeamOrion";
+            ROM_FN="Orion OS";
+            ROMNIS="orion";
+            MAN="platform_manifest.git";
+        ;;
+        15)
+            ROM_NAME="OwnROM";
+            ROM_FN="OwnROM";
+            ROMNIS="ownrom";
+            MAN="android.git";
+        ;;
+        16)
+           ROM_NAME="PAC-ROM";
+           ROM_FN="PAC ROM";
+           ROMNIS="pac";
+           MAN="pac-rom.git";
+        ;;
+        17)
+            ROM_NAME="AOSPA";
+            ROM_FN="Paranoid Android";
+            ROMNIS="pa";
+            MAN="manifest.git";
+        ;;
+        18)
+            ROM_NAME="ResurrectionRemix";
+            ROM_FN="Resurrection Remix";
+            ROMNIS="cm";
+            MAN="platform_manifest.git";
+        ;;
+        19)
+            ROM_NAME="SlimRoms";
+            ROM_FN="SlimRoms";
+            ROMNIS="slim";
+            MAN="platform_manifest.git";
+        ;;
+        20)
+            ROM_NAME="temasek";
+            ROM_FN="Temasek";
+            ROMNIS="cm";
+            MAN="android.git";
+        ;;
+        21)
+            ROM_NAME="Tesla-M";
+            ROM_FN="GZR Tesla";
+            ROMNIS="tesla";
+            MAN="manifest.git";
+        ;;
+        22)
+            ROM_NAME="TipsyOs";
+            ROM_FN="TipsyOs";
+            ROMNIS="tipsy";
+            MAN="platform_manifest.git";
+        ;;
+        23)
+            ROM_NAME="ValidusOs-M";
+            ROM_FN="GZR Validus";
+            ROMNIS="validus";
+            MAN="manifest.git";
+        ;;
+        24)
+            ROM_NAME="TeamHorizon";
+            ROM_FN="XenonHD";
+            ROMNIS="xenonhd";
+            MAN="platform_manifest.git";
+        ;;
+        25)
+            ROM_NAME="XOSP-Project";
+            ROM_FN="XOSP";
+            ROMNIS="xosp";
+            MAN="platform_manifest.git";
+        ;;
+        *)
+            if [ ! -f PREF.rc ]; then
+                echo -e "${LRED}Invalid Selection.${NONE} Going back."; init;
+            fi
+	    ;;
     esac
 
 } # rom_names
 
-function color_my_life
+CLR_0=( BLK RED GRN ORG BLU PRP CYN LGR );
+CLR_1=( DGR LRD LGN YEL LBL PNK LCN WYT );
+
+color_my_life ()
 {
-
-    BLAK="\033[0;30m";      # Black
-    DGRAY="\033[1;30m";     # DarkGray
-    RED="\033[0;31m";       # Red
-    LRED="\033[1;31m";      # BoldRed
-    GRN="\033[0;32m";       # Green
-    LGRN="\033[1;32m";      # BoldGreen
-    ORNG="\033[0;33m";      # Orange
-    YELO="\033[1;33m";      # Yellow
-    BLU="\033[0;34m";       # Blue
-    LBLU="\033[1;34m";      # BoldBlue
-    PURP="\033[0;35m";      # Purple
-    PNK="\033[1;35m";       # Pink
-    CYAN="\033[0;36m";      # Cyan
-    LCYAN="\033[1;36m";     # BoldCyan
-    LGRAY="\033[0;37m";     # BoldGray
-    WITE="\033[1;37m";      # White
-
-    NONE="\033[0m";         #ColorStop
-
+    for NO in {0..1}
+    do
+        CT=0;
+        CLR="CLR_${NO}[*]";
+        for COLOR in ${!CLR}
+        do
+            case "$1" in
+                y) export CCD="\033[${NO};3${CT}m"; NONE="\033[0m" ;;
+                n) CCD=""; NONE="" ;;
+            esac
+            export CL_${COLOR}="${CCD}";
+            ((CT++));
+        done
+    done
 } # color_my_life
-
-function i_like_colorless
-{
-
-    BLAK="";      #Gray
-    DGRAY="";     #Gray
-    RED="";       #Gray
-    LRED="";      #Gray
-    GRN="";       #Gray
-    LGRN="";      #Gray
-    ORNG="";      #Gray
-    YELO="";      #Gray
-    BLU="";       #Gray
-    LBLU="";      #Gray
-    PURP="";      #Gray
-    LPURP="";     #Gray
-    CYAN="";      #Gray
-    LCYAN="";     #Gray
-    LGRAY="";     #Gray
-    WITE="";      #Gray
-
-    NONE="";      #ColorStop
-
-} # i_like_colorless
