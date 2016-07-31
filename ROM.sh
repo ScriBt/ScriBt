@@ -281,8 +281,8 @@ Choose among these (Number Selection)
 1.${CL_LGN} AICP ${NONE}
 2.${CL_LRD} AOKP ${NONE}
 3.${CL_PNK} AOSiP ${NONE}
-4.${CL_LGN} AOSP-RRO ${NONE}
-5.${CL_DGR} AOSP-CAF ${NONE}
+4.${CL_LGN} AOSP-CAF ${NONE}
+5.${CL_DGR} AOSP-RRO ${NONE}
 6.${CL_LBL} BlissRoms${NONE}
 7.${CL_LGN} CandyRoms ${NONE}
 8.${CL_YEL} crDroid ${NONE}
