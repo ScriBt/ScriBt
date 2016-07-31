@@ -33,6 +33,7 @@ function deviceinfo
     DMDEV=                                  # Device codename (Lowercases)
     DMBT=                                   # userdebug / user / eng
     DMCM=                                   # Device Company / Vendor
+    DMDTP=.                                 # Device Type
 }
 
 function buildinfo
