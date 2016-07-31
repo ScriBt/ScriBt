@@ -102,6 +102,20 @@ bash ROM.sh automate
 
 **^** - The Device Tree must be Compatible with the ROM you're building (Extra Toolchain Configs, Overlays etc. **ROMNIS-fying is taken care of in Point 3b** ) Else, Issues :) :P
 
+# Device Types
+
+* ```full``` - This indicates that the Device has **Adequate Storage Space** for building Entire Android System for it
+* ```mini``` - This indicates that the Device has a **Low Storage Space**, so only Android Essentials are built ( Lesser Apps and Stuff )
+
+* **common_full_phone, common_mini_phone** - An Android SmartPhone
+* **common_full_tablet, common_mini_tablet, common_tablet** - An Android Tablet
+* **common_full_tablet_lte** - A Tablet with LTE (4G) Functionality
+* **common_full_tablet_wifionly** - A Tablet with Wi-Fi functionality
+* **common_full_tv, common_mini_tv** - Android TV
+* **common_full_hybrid_wifionly** - Android Device with any Size ( Phone / Tablet ) ( used if Device Type is unknown )
+
+* NOTE : IF you're building for a Phone and common_full_phone / common_mini_phone isn't in the list, then press Enter (Leave Blank) as the ROM will consider the Device as a Phone.
+
 #CONTRIBUTORS
 
 * Arvind Raj "a7r3" (Myself)
@@ -114,29 +128,31 @@ bash ROM.sh automate
 
 1. Android Ice Cold Project aka "AICP"
 2. Android Open Kang Project aka "AOKP"
-3. Android Open Source Project - CAF aka "AOSP-CAF"
-4. Android Open Source Project with RRO aka "AOSP-RRO"
-5. BlissRoms
-6. CandyRoms
-7. crDroid
-8. Cyanide-L
-9. CyanogenMod
-10. Dirty Unicorns
-11. FlayrOS
-12. Krexus - CAF
-13. OmniROM
-14. OrionOS
-15. OwnROM
-16. PAC-ROMs
-17. Paranoid Android aka AOSPA
-18. Resurrection Remix
-19. SlimRoms
-20. Temasek
-21. GZR Tesla
-22. TipsyOs
-23. GZR Validus
-24. XenonHD by Team Horizon
-25. Xperia Open Source Project aka "XOSP"
+3. Android Open Source Illusion Project aka "AOSiP"
+4. Android Open Source Project - CAF aka "AOSP-CAF"
+5. Android Open Source Project with RRO aka "AOSP-RRO"
+6. BlissRoms
+7. CandyRoms
+8. crDroid
+9. Cyanide-L
+10. CyanogenMod
+11. Dirty Unicorns
+12. FlayrOS
+13. Krexus - CAF
+14. OmniROM
+15. OrionOS
+16. OwnROM
+17. PAC-ROMs
+18. Paranoid Android aka AOSPA
+19. Resurrection Remix
+20. SlimRoms
+21. Temasek
+22. GZR Tesla
+23. TipsyOs
+24. GZR Validus
+25. XenonHD by Team Horizon
+26. Xperia Open Source Project aka "XOSP"
+27. Zephyr-OS
 
 More ROMs will be added, if missed 'em
 
