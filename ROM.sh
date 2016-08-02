@@ -408,7 +408,7 @@ function pre_build
     . build/envsetup.sh;
     echo -e "\n${CL_PNK}Done.${NONE}.\n\n";
     if [[ "${inited}" != 1 ]]; then rom_select; fi;
-    if [ -d ${ANDROID_BUILD_TOP}/vendor/${ROMNIS}/config ]; then
+    if [ -d ${CALL_ME_ROOT}/vendor/${ROMNIS}/config ]; then
             CNF="vendor/${ROMNIS}/config";
     else
             CNF="vendor/${ROMNIS}/configs";
@@ -440,7 +440,7 @@ function pre_build
         sleep 2;
         cd device/${DMCM}/${DMDEV};
         INTF=interact.mk;
-        echo "                 ##### Interactive Makefile #####
+        echo "#                ##### Interactive Makefile #####
 #
 # Licensed under the Apache License, Version 2.0 (the \"License\");
 # you may not use this file except in compliance with the License.
@@ -457,7 +457,7 @@ function pre_build
         # Work on Interactive Makefile Start
         echo -e "\n# Inherit ${ROMNIS} common stuff\n\$(call inherit-product, ${CNF}/${VNF}.mk)" >> $INTF;
         # Inherit Vendor specific files
-        if [[ $(grep -c -q "nfc_enhanced" $DDC) == "1" ]] && [ -f ${ANDROID_BUILD_TOP}/${CNF}/nfc_enhanced.mk ]; then
+        if [[ $(grep -c 'nfc_enhanced' $DDC) == "1" ]] && [ -f ${CALL_ME_ROOT}/${CNF}/nfc_enhanced.mk ]; then
             echo -e "\n# Enhanced NFC\n\$(call inherit-product, ${CNF}/nfc_enhanced.mk)" >> $INTF;
         fi
         echo -e "\n# Calling Default Device Configuration File" >> $INTF;
@@ -466,14 +466,14 @@ function pre_build
         sed -i -e 's/inherit-product, vendor\//inherit-product-if-exists, vendor\//g' $DDC;
         # Add User-desired Makefile Calls -- vv
         echo -e "Missed some Makefile calls? Enter number of Desired Makefile calls... [0 if none]";
-        if [ ! -f ${ANDROID_BUILD_TOP}/PREF.rc ]; then read NMK; fi;
+        if [ ! -f ${CALL_ME_ROOT}/PREF.rc ]; then read NMK; fi;
         for (( CNT=1; CNT<="$NMK"; CNT++ ))
         do
-            if [ ! -f ${ANDROID_BUILD_TOP}/PREF.rc ]; then
+            if [ ! -f ${CALL_ME_ROOT}/PREF.rc ]; then
                 echo -e "\nEnter Makefile location from Root of BuildSystem";
                 read LOC[$CNT];
             fi
-            if [ -f ${ANDROID_BUILD_TOP}/${LOC[$CNT]} ]; then
+            if [ -f ${CALL_ME_ROOT}/${LOC[$CNT]} ]; then
                 echo -e "\n${CL_LGN}Adding Makefile $CNT ...${NONE}";
                 echo -e "\n\$(call inherit-product, ${LOC[$CNT]})" >> $INTF;
             else
@@ -482,7 +482,7 @@ function pre_build
         done
         echo -e "\n# ROM Specific Identifier\nPRODUCT_NAME := ${ROMNIS}_${DMDEV}" >> $INTF;
         # Make it Identifiable
-        if [ -f ${ANDROID_BUILD_TOP}/vendor/${ROMNIS}/common.mk ]; then
+        if [ -f ${CALL_ME_ROOT}/vendor/${ROMNIS}/common.mk ]; then
             mv $INTF ${ROMNIS}_${DMDEV}.mk;
             echo -e "PRODUCT_MAKEFILES +=  \\ \n\t\$(LOCAL_DIR)/${ROMNIS}_${DMDEV}.mk" >> AndroidProducts.mk;
         else
@@ -548,7 +548,7 @@ function pre_build
         croot;
         cd vendor/${ROMNIS}/products;
         echo -e "About Device's Resolution...\n";
-        if [ ! -f ${ANDROID_BUILD_TOP}/PREF.rc ]; then
+        if [ ! -f ${CALL_ME_ROOT}/PREF.rc ]; then
             echo -e "Among these Values - Select the one which is nearest or almost Equal to that of your Device\n";
             echo -e "Resolutions which are available for a ROM is shown by it's name. All Res are available for PAC-5.1 ";
             echo -e "
@@ -600,7 +600,7 @@ ${CL_PNK}2560${NONE}x1600\n";
                 echo -e "\nifeq (pa_${DMDEV},\$(TARGET_PRODUCT))" >> AndroidProducts.mk;
                 echo -e "\tPRODUCT_MAKEFILES += \$(LOCAL_DIR)/${DMDEV}/pa_${DMDEV}.mk\nendif" >> AndroidProducts.mk;
                 echo -e "\ninclude vendor/${ROMNIS}/main.mk" >> $VENF;
-                mv ${ANDROID_BUILD_TOP}/device/${DMCM}/${DMDEV}/*.dependencies ${DMDEV}/pa.dependencies;
+                mv ${CALL_ME_ROOT}/device/${DMCM}/${DMDEV}/*.dependencies ${DMDEV}/pa.dependencies;
             ;;
             "pac")
                 VENF="${ROMNIS}_${DMDEV}.mk";
@@ -665,7 +665,7 @@ ${CL_PNK}2560${NONE}x1600\n";
     esac
     sleep 2;
     export prebuilded=1;
-    if [ ! -f ${ANDROID_BUILD_TOP}/PREF.rc ]; then quick_menu; fi;
+    if [ ! -f ${CALL_ME_ROOT}/PREF.rc ]; then quick_menu; fi;
 } # pre_build
 
 function build
@@ -778,9 +778,9 @@ function build
                 "make") BCORES=$(grep -c ^processor /proc/cpuinfo) ;;
                 *) BCORES="" ;;
             esac
-            if [ $(grep -q "^${ROMNIS}:" "${ANDROID_BUILD_TOP}/build/core/Makefile") ]; then
+            if [ $(grep -q "^${ROMNIS}:" "${CALL_ME_ROOT}/build/core/Makefile") ]; then
                 $DMMK $ROMNIS $BCORES 2>&1 | tee $RMTMP;
-            elif [ $(grep -q "^bacon:" "${ANDROID_BUILD_TOP}/build/core/Makefile") ]; then
+            elif [ $(grep -q "^bacon:" "${CALL_ME_ROOT}/build/core/Makefile") ]; then
                 $DMMK bacon $BCORES 2>&1 | tee $RMTMP;
             else
                 $DMMK otapackage $BCORES 2>&1 | tee $RMTMP;
@@ -845,7 +845,7 @@ function build
             echo -e "Wanna Clean the ${CL_PNK}/out${NONE} before Building? ${CL_LGN}[1 - Remove Staging Dirs / 2 - Full Clean]${NONE}\n";
             ST="Option Selected";
             shut_my_mouth CL "$ST";
-            if [[ $(tac ${ANDROID_BUILD_TOP}/build/core/build_id.mk | grep -c 'BUILD_ID=M') == "1" ]]; then
+            if [[ $(tac ${CALL_ME_ROOT}/build/core/build_id.mk | grep -c 'BUILD_ID=M') == "1" ]]; then
                 echo -e "Wanna use ${CL_LRD}Jack Toolchain${NONE} ? ${CL_LGN}[y/n]${NONE}\n";
                 ST="Use ${CL_LRD}Jacky${NONE}";
                 shut_my_mouth JK "$ST";
@@ -854,7 +854,7 @@ function build
                      "n")export ANDROID_COMPILE_WITH_JACK=false ;;
                      *) echo -e "${CL_LRD}Invalid Selection${NONE}. RE-Answer this."; shut_my_mouth JK "$ST" ;;
                 esac
-#           elif [[ $(tac ${ANDROID_BUILD_TOP}/build/core/build_id.mk | grep -c 'BUILD_ID=N') == "1" ]]; then
+#           elif [[ $(tac ${CALL_ME_ROOT}/build/core/build_id.mk | grep -c 'BUILD_ID=N') == "1" ]]; then
 #               ST="Wanna use Ninja Toolchain ? [y/n]";
 #               shut_my_mouth NJ "$ST";
 #               case "$DMNJ" in
@@ -963,6 +963,7 @@ function the_start
     echo -e "\n${CL_LBL}Prompting for Root Access...${NONE}\n";
     sudo echo -e "\n${CL_LGN}Root access OK. You won't be asked again${NONE}";
     apt_check;
+    export CALL_ME_ROOT="$(pwd)";
     sleep 3;
     clear;
     echo -ne '\033]0;ScriBt\007';
