@@ -182,7 +182,7 @@ CLR_1=( DGR LRD LGN YEL LBL PNK LCN WYT );
 
 color_my_life ()
 {
-    for NO in {0..1}
+    for NO in 0 1
     do
         CT=0;
         CLR="CLR_${NO}[*]";
