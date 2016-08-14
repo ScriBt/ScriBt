@@ -178,8 +178,8 @@ function tools
         echo -e "     2. Install Java (OpenJDK 6/7/8)";
         echo -e "     3. Install and/or Set-up CCACHE";
         echo -e "     4. Install/Update ADB udev rules";
-# TODO: echo -e "     5. Find an Android Module's Directory";
-# TODO: echo -e "     6. Install / Revert to make 3.81";
+# TODO: echo -e "     6. Find an Android Module's Directory";
+        echo -e "     5. Install / Revert to make 3.81";
         echo -e "${CL_PNK}==============================================${NONE}\n";
         read TOOL;
         case "$TOOL" in
@@ -187,8 +187,8 @@ function tools
             2) java_menu ;;
             3) set_ccvars ;;
             4) udev_rules ;;
-# TODO:     5) find_mod ;;
-# TODO:     6) make_me_old ;;
+# TODO:     6) find_mod ;;
+            5) make_me_old "do_it"; make_me_old "chk_it" ;;
             *) echo -e "Invalid Selection. Going Back."; tool_menu ;;
         esac
     }
@@ -288,6 +288,26 @@ function tools
         echo -e "\n${CL_RED}==========================================================${NONE}\n";
     } # udev_rules
 
+    make_me_old ()
+    {
+        MKVR=$(make -v | head -1 | awk '{print $3}');
+        case "$1" in
+            "do_it")
+                case "${MKVR}" in
+                    "3.81")
+                        echo -e "${CL_LGN}make 3.81 has already been installed${NONE}" ;;
+                    *)
+                        echo "Installing make 3.81...";
+                        sudo install utils/make /usr/bin/;
+                    ;;
+                esac
+            ;;
+            "chk_it")
+                if [[ "$MKVR" == "3.81" ]]; then echo -e "${CL_LGN}make 3.81 present${NONE}"; fi
+            ;;
+        esac
+    } # make_me_old
+    
     tool_menu;
 } # tools
 
