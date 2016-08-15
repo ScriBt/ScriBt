@@ -813,32 +813,32 @@ function build
             the_response COOL Build;
             teh_action 6 COOL;
         elif [[ $(tac $RMTMP | grep -c -m 1 'No rule to make target') == "1" ]]; then
-            if [[ "${automate}" != "y" ]]; then
-                echo -e "Looks like a Module isn't getting built / Missing\n";
-                echo -e "You'll see a line like this:\n";
-                echo -e "No rule to make target '$(pwd)/out/....../${CL_LRD}<MODULE_NAME>${NONE}_intermediates'\n";
-                echo -e "${CL_LCN}Enter${NONE} whatever you see in place of ${CL_LRD}<MODULE_NAME>${NONE} (Case-Sensitive please)\n";
-                read MOD_NAME;
-                echo -e "Let's Search for ${CL_LRD}${MOD_NAME}${NONE} ! This will take time, but it's Valuable\n";
-                sgrep "LOCAL_MODULE := ${MOD_NAME}" 2>&1 | tee mod.txt;
-                if [[ $(grep -c -m 1 'LOCAL_MODULE' mod.txt) == "1" ]]; then
-                    echo -e "Looks like we have found it's location\n";
-                    cat mod.txt;
-                    make_module y;
-                else
-                    echo -e "The Repo which builds that module is ${CL_LRD}missing${NONE}\n";
-                    echo -e "======================================================================================================\n";
-                    echo -e "Let me search that module for you -> http://lmgtfy.com/?q=LOCAL_MODULE+%3A%3D+${MOD_NAME}\n";
-                    echo -e "======================================================================================================\n";
-                    echo -e "\nIF you found that module's repo, Sync it to the path as shown in the Repo URL\n";
-                    echo -e "For Example https://github.com/CyanogenMod/android_bionic should be synced to $(pwd)/bionic\n";
-                    make_module;
-                fi
-            else
-                the_response FAIL Build;
-                teh_action 6 FAIL;
-            fi
-        else
+#           if [[ "${automate}" != "y" ]]; then
+#               echo -e "Looks like a Module isn't getting built / Missing\n";
+#               echo -e "You'll see a line like this:\n";
+#               echo -e "No rule to make target '$(pwd)/out/....../${CL_LRD}<MODULE_NAME>${NONE}_intermediates'\n";
+#               echo -e "${CL_LCN}Enter${NONE} whatever you see in place of ${CL_LRD}<MODULE_NAME>${NONE} (Case-Sensitive please)\n";
+#               read MOD_NAME;
+#               echo -e "Let's Search for ${CL_LRD}${MOD_NAME}${NONE} ! This will take time, but it's Valuable\n";
+#               sgrep "LOCAL_MODULE := ${MOD_NAME}" 2>&1 | tee mod.txt;
+#               if [[ $(grep -c -m 1 'LOCAL_MODULE' mod.txt) == "1" ]]; then
+#                   echo -e "Looks like we have found it's location\n";
+#                   cat mod.txt;
+#                   make_module y;
+#               else
+#                   echo -e "The Repo which builds that module is ${CL_LRD}missing${NONE}\n";
+#                   echo -e "======================================================================================================\n";
+#                   echo -e "Let me search that module for you -> http://lmgtfy.com/?q=LOCAL_MODULE+%3A%3D+${MOD_NAME}\n";
+#                   echo -e "======================================================================================================\n";
+#                   echo -e "\nIF you found that module's repo, Sync it to the path as shown in the Repo URL\n";
+#                   echo -e "For Example https://github.com/CyanogenMod/android_bionic should be synced to $(pwd)/bionic\n";
+#                   make_module;
+#               fi
+#           else
+#               the_response FAIL Build;
+#               teh_action 6 FAIL;
+#           fi
+#       else
             echo -e "WEW. ${CL_YEL}I_iz_N00b${NONE}. Probably you need to Search the Internet for Resolution of Above Error\n";
             if [[ "${automate}" == "y" ]]; then
                 teh_action 6 FAIL;
