@@ -77,7 +77,7 @@ function quick_menu
 {
     echo -ne '\033]0;ScriBt : Quick Menu\007';
     echo -e "${CL_YEL}============================${NONE} ${CL_LRD}QUICK-MENU${NONE} ${CL_YEL}=============================${NONE}";
-    echo -e "${CL_RED}1. Init${NONE} | ${CL_YEL}2. Sync${NONE} | ${CL_GRN}3. Pre-Build${NONE} | ${CL_LGN}4. Build${NONE} | ${CL_PRP}5. Install Dependencies${NONE}";
+    echo -e "${CL_RED}1. Init${NONE} | ${CL_YEL}2. Sync${NONE} | ${CL_GRN}3. Pre-Build${NONE} | ${CL_LGN}4. Build${NONE} | ${CL_PRP}5. Tools${NONE}";
     echo -e "                               6. Exit";
     echo -e "${CL_YEL}=====================================================================${NONE}";
     read ACTION;
@@ -307,7 +307,7 @@ function tools
             ;;
         esac
     } # make_me_old
-    
+
     tool_menu;
 } # tools
 
@@ -905,7 +905,7 @@ function build
     {
         echo -e "${CL_PNK}=========================================================${NONE}\n";
         echo -e "Select the Build Option:\n";
-        echo -e "${CL_LCN}1. Start Building ROM (ZIP output) (Cleaning Options Available)${NONE}";
+        echo -e "${CL_LCN}1. Start Building ROM (ZIP output) (Clean Options Available)${NONE}";
         echo -e "${CL_LGN}2. Make a Particular Module${NONE}";
         echo -e "${CL_LBL}3. Setup CCACHE for Faster Builds ${NONE}\n";
         echo -e "${CL_PNK}=========================================================${NONE}\n"
@@ -922,27 +922,32 @@ function build
             echo -e "Wanna Clean the ${CL_PNK}/out${NONE} before Building? ${CL_LGN}[1 - Remove Staging Dirs / 2 - Full Clean]${NONE}\n";
             ST="Option Selected";
             shut_my_mouth CL "$ST";
-            if [[ $(tac ${CALL_ME_ROOT}/build/core/build_id.mk | grep -c 'BUILD_ID=M') == "1" ]]; then
-                echo -e "Wanna use ${CL_LRD}Jack Toolchain${NONE} ? ${CL_LGN}[y/n]${NONE}\n";
+            if [[ $(tac ${CALL_ME_ROOT}/build/core/build_id.mk | grep -c 'BUILD_ID=M\|BUILD_ID=N') == "1" ]]; then
+                echo -e "Use ${CL_LRD}Jack Toolchain${NONE} ? ${CL_LGN}[y/n]${NONE}\n";
                 ST="Use ${CL_LRD}Jacky${NONE}";
                 shut_my_mouth JK "$ST";
                 case "$DMJK" in
-                     "y") export ANDROID_COMPILE_WITH_JACK=true ;;
+                     "y")
+                        export ANDROID_COMPILE_WITH_JACK=true;
+                        echo -e "\nBuilding Android with the Non-Ninja BuildSystem\n";
+                        export DMNJ=n ;;
                      "n") export ANDROID_COMPILE_WITH_JACK=false ;;
-                     *) echo -e "${CL_LRD}Invalid Selection${NONE}. RE-Answer this."; shut_my_mouth JK "$ST" ;;
                 esac
-#           elif [[ $(tac ${CALL_ME_ROOT}/build/core/build_id.mk | grep -c 'BUILD_ID=N') == "1" ]]; then
-#               ST="Wanna use Ninja Toolchain ? [y/n]";
-#               shut_my_mouth NJ "$ST";
-#               case "$DMNJ" in
-#                   n) export ANDROID_COMPILE_WITH_NINJA=false ;; # ??? WiP - When Builds start, It'll get Edited
-#                   y) export ANDROID_COMPILE_WITH_NINJA=true ;;  # ???
-#               esac
+            fi
+            if [[ $(tac ${CALL_ME_ROOT}/build/core/build_id.mk | grep -c 'BUILD_ID=N') == "1" ]] && [ -z "$DMNJ" ]; then
+                unset DMNJ;
+                ST="Use Ninja to build Android ? [y/n]";
+                shut_my_mouth NJ "$ST";
+                case "$DMNJ" in
+                    y) export USE_NINJA=true; DMMK="./ninja.sh" ;;
+                    n) export USE_NINJA=false; unset BUILDING_WITH_NINJA ;;
+                    *) echo -e "${CL_LRD}Invalid Selection${NONE}. RE-Answer this."; shut_my_mouth NJ "$ST" ;;
+                esac
             fi
             case "$DMCL" in
                 1) $DMMK installclean ;;
                 2) lunch ${ROMNIS}_${DMDEV}-${DMBT}; $DMMK clean ;;
-                *) echo -e "${CL_LRD}Invalid Selection.${NONE} Going Back.";;
+                *) echo -e "${CL_LRD}Invalid Selection.${NONE} Going Back."; shut_my_mouth CL "$ST";;
             esac
             hotel_menu;
             build_make "$DMSLT";
