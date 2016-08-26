@@ -60,7 +60,6 @@ function main_menu
     echo -e "${CL_LRD}=======================================================${NONE}";
     echo -e "${CL_LRD}====================${NONE}${CL_CYN}[*]${NONE}${CL_PRP}MAIN MENU${NONE}${CL_CYN}[*]${NONE}${CL_LRD}====================${NONE}";
     echo -e "${CL_LRD}=======================================================${NONE}\n";
-    echo -e "         Select the Action you want to perform\n";
     echo -e "${CL_LBL}1${NONE}                 ${CL_RED}Choose ROM & Init*${NONE}${CL_CYN}                 ${NONE} ${CL_LBL}1${NONE}";
     echo -e "${CL_LBL}2${NONE}                       ${CL_YEL}Sync${NONE}${CL_CYN}                         ${NONE} ${CL_LBL}2${NONE}";
     echo -e "${CL_LBL}3${NONE}                     ${CL_GRN}Pre-Build${NONE}${CL_CYN}                      ${NONE} ${CL_LBL}3${NONE}";
@@ -69,6 +68,7 @@ function main_menu
     echo -e "6                        EXIT                         6\n";
     echo -e "* - Sync will Automatically Start after Init'ing Repo";
     echo -e "${CL_LRD}=======================================================${NONE}\n";
+    echo -e "\nSelect the Option you want to start with : \c";
     read ACTION;
     teh_action $ACTION "mm";
 } # main_menu
@@ -79,7 +79,7 @@ function quick_menu
     echo -e "${CL_YEL}============================${NONE} ${CL_LRD}QUICK-MENU${NONE} ${CL_YEL}=============================${NONE}";
     echo -e "${CL_RED}1. Init${NONE} | ${CL_YEL}2. Sync${NONE} | ${CL_GRN}3. Pre-Build${NONE} | ${CL_LGN}4. Build${NONE} | ${CL_PRP}5. Tools${NONE}";
     echo -e "                               6. Exit";
-    echo -e "${CL_YEL}=====================================================================${NONE}";
+    echo -e "${CL_YEL}=====================================================================${NONE}\n";
     read ACTION;
     teh_action $ACTION "qm";
 } # quick_menu
@@ -99,21 +99,20 @@ cherrypick ()
 function set_ccache
 {
     echo -e "\n${CL_PNK}Setting up CCACHE${NONE}\n";
-    prebuilts/misc/linux-x86/ccache/ccache -M ${CCSIZE}G;
+    ccache -M ${CCSIZE}G;
     echo -e "\nCCACHE Setup ${CL_LGN}Successful${NONE}.\n";
 } # set_ccache
 
 function set_ccvars
 {
-    echo -e "\nCCACHE Size must be ${CL_LRD}>50 GB${NONE}.\n Specify the Size (Number) for Reservation of CCACHE (in GB)\n";
+    echo -e "\nCCACHE Size must be ${CL_LRD}>50 GB${NONE}.\n Specify the Size (Number) for Reservation of CCACHE (in GB) : \c";
     read CCSIZE;
-    echo -e "Create a New Folder for CCACHE and Specify it's location from / (ROOT)\n";
+    echo -e "Create a New Folder for CCACHE and Specify it's location from ${CL_LRD}/${NONE} : \c";
     read CCDIR;
     for RC in bashrc profile
     do
     if [ -f ${HOME}/.${RC} ]; then
-        sudo echo "export USE_CCACHE=1" >> ${HOME}/.${RC};
-        sudo echo "export CCACHE_DIR=${CCDIR}" >> ${HOME}/.${RC};
+        sudo echo -e "export USE_CCACHE=1\nexport CCACHE_DIR=${CCDIR}" >> ${HOME}/.${RC};
         . ${HOME}/.${RC};
     fi
     done
@@ -122,7 +121,7 @@ function set_ccvars
 
 function tools
 {
-    if [[ "${automate}" == "y" ]]; then teh_action 5; fi;
+    if [ ! -z "$automate" ]; then teh_action 5; fi;
 
     function java_select
     {
@@ -139,26 +138,26 @@ function tools
     {
         echo -ne "\033]0;ScriBt : Java $1\007";
         echo -e "\nInstalling OpenJDK-$1 (Java 1.$1.0)";
-        echo -e "$\n{LRD}Remove other Versions of Java ${CL_LGN}[y/n]${NONE}? (Removing them is Recommended)\n";
+        echo -e "$\n{LRD}Remove other Versions of Java ${CL_LGN}[y/n]${NONE}? : \c";
         read REMOJA;
         echo;
         case "$REMOJA" in
-            "y")
+            [yY])
                sudo apt-get purge openjdk-* icedtea-* icedtea6-*;
                 echo -e "\nRemoved Other Versions successfully" ;;
-            "n")
+            [nN])
                 echo -e "Keeping them Intact" ;;
             *)
                 echo -e "${CL_LRD}Invalid Selection.${NONE} RE-Answer it."
                 java $1;
             ;;
-            esac
+        esac
         echo -e "${CL_RED}==========================================================${NONE}\n";
         sudo apt-get update -y;
         echo -e "\n${CL_RED}==========================================================${NONE}\n";
         sudo apt-get install openjdk-$1-jdk -y;
         echo -e "\n${CL_RED}==========================================================${NONE}";
-        if [[ $( java -version &> $TMP && grep -c "java version \"1.$1" $TMP ) == "1" ]]; then
+        if [[ $( java -version > $TMP && grep -c "java version \"1\.$1" $TMP ) == "1" ]]; then
             echo -e "OpenJDK-$1 or Java 1.$1.0 has been successfully installed";
             echo -e "${CL_RED}==========================================================${NONE}";
         fi
@@ -166,6 +165,10 @@ function tools
 
     function java_ppa
     {
+        if [[ ! $(which add-apt-repository) ]]; then
+            echo -e "${CL_LRD}add-apt-repository${NONE} not present. Installing it...";
+            sudo apt-get install software-properties-common;
+        fi
         sudo add-apt-repository ppa:openjdk-r/ppa -y;
         sudo apt-get update -y;
         sudo apt-get install openjdk-7-jdk -y;
@@ -195,7 +198,7 @@ function tools
 
     installdeps ()
     {
-        echo -e "Checking the Distro...";
+        echo -e "${CL_PNK}Analyzing Distro...${NONE}";
         PACK="/etc/apt/sources.list.d/official-package-repositories.list";
         DISTROS=( precise quantal raring saucy trusty utopic vivid wily xenial );
         for DIST in ${DISTROS[*]}
@@ -204,38 +207,38 @@ function tools
                 export DISTRO="${DIST}";
             fi
         done
-        echo -e "Installing Build Dependencies...\n";
+        echo -e "\n${CL_LGN}Installing Build Dependencies...${NONE}\n";
         # Common Packages
-        COMMON_PKGS=( git-core git gnupg flex bison gperf build-essential zip curl zlib1g-dev \
-        ccache libxml2-utils xsltproc g++-multilib squashfs-tools \
+        COMMON_PKGS=( git-core git gnupg flex bison gperf build-essential zip curl \
+        ccache libxml2-utils xsltproc g++-multilib squashfs-tools zlib1g-dev \
         pngcrush schedtool libwxgtk2.8-dev python lib32z1-dev lib32z-dev lib32z1 \
         libxml2 optipng python-networkx python-markdown make unzip );
         case "$DISTRO" in # Distro-Specific Pkgs
             "precise"|"quantal")
                 DISTRO_PKGS=( libc6-dev libncurses5-dev:i386 x11proto-core-dev \
                 libx11-dev:i386 libreadline6-dev:i386 libgl1-mesa-glx:i386 \
-                libgl1-mesa-dev mingw32 tofrodos  zlib1g-dev:i386 ) ;;
+                libgl1-mesa-dev mingw32 tofrodos zlib1g-dev:i386 ) ;;
             "raring"|"saucy")
-                DISTRO_PKGS=( zlib1g-dev:i386 libc6-dev lib32ncurses5 lib32z1 \
+                DISTRO_PKGS=( zlib1g-dev:i386 libc6-dev lib32ncurses5 \
                 lib32bz2-1.0 lib32ncurses5-dev x11proto-core-dev \
-                libx11-dev:i386 libreadline6-dev:i386 lib32z-dev \
+                libx11-dev:i386 libreadline6-dev:i386 \
                 libgl1-mesa-glx:i386 libgl1-mesa-dev \
                 mingw32 tofrodos readline-common libreadline6-dev libreadline6 \
                 lib32readline-gplv2-dev libncurses5-dev lib32readline5 \
                 lib32readline6 libreadline-dev libreadline6-dev:i386 \
                 libreadline6:i386 bzip2 libbz2-dev libbz2-1.0 libghc-bzlib-dev \
-                lib32bz2-dev libsdl1.2-dev libesd0-dev libwxgtk2.8-dev ) ;;
+                lib32bz2-dev libsdl1.2-dev libesd0-dev ) ;;
             "trusty"|"utopic")
-                DISTRO_PKGS=( libc6-dev-i386 lib32ncurses5-dev \
-                x11proto-core-dev libx11-dev libgl1-mesa-dev ) ;;
+                DISTRO_PKGS=( libc6-dev-i386 lib32ncurses5-dev liblz4-tool \
+                x11proto-core-dev libx11-dev libgl1-mesa-dev maven maven2 ) ;;
             "vivid"|"wily")
                 DISTRO_PKGS=( libesd0-dev liblz4-tool libncurses5-dev \
-                libsdl1.2-dev libwxgtk2.8-dev lzop maven \
-                lib32ncurses5-dev lib32readline6-dev ) ;;
+                libsdl1.2-dev libwxgtk2.8-dev lzop maven maven2 \
+                lib32ncurses5-dev lib32readline6-dev liblz4-tool ) ;;
             "xenial")
-                DISTRO_PKGS=( automake lzop libesd0-dev \
-                liblz4-tool libncurses5-dev libsdl1.2-dev libwxgtk3.0-dev libxml2 \
-                lzop maven lib32ncurses5-dev lib32readline6-dev lib32z1-dev \
+                DISTRO_PKGS=( automake lzop libesd0-dev maven \
+                liblz4-tool libncurses5-dev libsdl1.2-dev libwxgtk3.0-dev \
+                lzop lib32ncurses5-dev lib32readline6-dev lib32z1-dev \
                 zlib1g-dev:i386 libbz2-dev libbz2-1.0 libghc-bzlib-dev ) ;;
         esac
         # Install 'em all
@@ -313,52 +316,33 @@ function tools
 
 shut_my_mouth ()
 {
-    if [[ "${automate}" == "y" ]]; then
+    if [ ! -z "$automate" ]; then
         RST="DM$1";
-        echo -e "${CL_RED}*${NONE}${CL_PNK}AutoBot${NONE}${CL_RED}*${NONE} $2 : ${!RST}"
+        echo -e "${CL_RED}*${NONE}${CL_PNK}AutoBot${NONE}${CL_RED}*${NONE} $2 : ${!RST}";
     else
-        read DM2; #Value
+        read DM2;
         export DM$1="${DM2}";
     fi
     echo;
 } # shut_my_mouth
 
-gimme_info ()
-{
-    if [[ "${automate}" != "y" ]]; then
-        case "$1" in
-            "jobs") echo -e "${CL_LBL}(Slow Speed? Recommended value - 1. Else your wish)${NONE}\n";;
-            "fsync") echo -e "${CL_LBL}(Overwrite Local Sources with Remote)${NONE}\n" ;;
-            "ssync") echo -e "${CL_LBL}(Checkout output will appear)${NONE}\n" ;;
-            "syncrt") echo -e "${CL_LBL}(If Enabled, syncs only the desired branch as specified in the manifest, instead of syncing all branches. Saves Space)${NONE}\n" ;;
-            "clnbun") echo -e "${CL_LBL}(Works with AOSP repositories, Downloads a prepackaged bundle file instead of objects from the server (Less objects, better sync). Sync takes place faster coz Google!${NONE}\n" ;;
-            "refer") echo -e "${CL_LBL}(If you have any ROM's source completely synced, giving this source a reference source, will avoid redownloading common projects, thus saving a lot of time)${NONE}\n" ;;
-            "cldp") echo -e "${CL_LBL}(If unset, Syncs the Entire commit history of any repo which is better for future syncs)\n(Unless you know what you're doing,${NONE} ${CL_LRD}Answer n${NONE})\n" ;;
-            "device-type") echo -e "${CL_LBL}For Phones : If you don't find common_full_phone / common_mini_phone then leave this field blank\nBuildSystem would consider the Device as a Phone.${NONE}\n" ;;
-        esac
-    fi
-} # gimme_info
-
 function sync
 {
-    if [[ "${inited}" != "1" ]]; then init; fi;
-    if [[ "${automate}" == "y" ]]; then teh_action 2; fi
+    if [ ! -z "$automate" ]; then
+        teh_action 2;
+        if [[ "$inited" != "1" ]]; then init; fi;
+    fi
     echo -e "\nPreparing for Sync\n";
     echo -e "${CL_LRD}Number of Threads${NONE} for Sync?\n"; gimme_info "jobs";
-    ST="${CL_LRD}Number${NONE} of Threads";
-    shut_my_mouth JOBS "$ST";
+    ST="${CL_LRD}Number${NONE} of Threads"; shut_my_mouth JOBS "$ST";
     echo -e "${CL_LRD}Force Sync${NONE} needed? ${CL_LGN}[y/n]${NONE}\n"; gimme_info "fsync";
-    ST="${CL_LRD}Force${NONE} Sync";
-    shut_my_mouth F "$ST";
+    ST="${CL_LRD}Force${NONE} Sync"; shut_my_mouth F "$ST";
     echo -e "Need some ${CL_LRD}Silence${NONE} in the Terminal? ${CL_LGN}[y/n]${NONE}\n"; gimme_info "ssync";
-    ST="${CL_LRD}Silent${NONE} Sync";
-    shut_my_mouth S "$ST";
+    ST="${CL_LRD}Silent${NONE} Sync"; shut_my_mouth S "$ST";
     echo -e "Sync only ${CL_LRD}Current${NONE} Branch? ${CL_LGN}[y/n]${NONE}\n"; gimme_info "syncrt";
-    ST="Sync ${CL_LRD}Current${NONE} Branch";
-    shut_my_mouth C "$ST";
+    ST="Sync ${CL_LRD}Current${NONE} Branch"; shut_my_mouth C "$ST";
     echo -e "Sync with ${CL_LRD}clone-bundle${NONE} ${CL_LGN}[y/n]${NONE}?\n"; gimme_info "clnbun";
-    ST="Use ${CL_LRD}clone-bundle${NONE}";
-    shut_my_mouth B "$ST";
+    ST="Use ${CL_LRD}clone-bundle${NONE}"; shut_my_mouth B "$ST";
     echo -e "${CL_LRD}=====================================================================${NONE}\n";
     #Sync-Options
     if [[ "$DMS" == "y" ]]; then SILENT=-q; else SILENT=" " ; fi;
@@ -366,12 +350,12 @@ function sync
     if [[ "$DMC" == "y" ]]; then SYNC_CRNT=-c; else SYNC_CRNT=" "; fi;
     if [[ "$DMB" == "y" ]]; then CLN_BUN=" "; else CLN_BUN=--no-clone-bundle; fi;
     echo -e "${CL_LGN}Let's Sync!${NONE}\n";
-    repo sync -j${DMJOBS} ${SILENT} ${FORCE} ${SYNC_CRNT} ${CLN_BUN}  2>&1 | tee $RTMP;
+    repo sync -j${DMJOBS} ${SILENT} ${FORCE} ${SYNC_CRNT} ${CLN_BUN}  #2>&1 | tee $RTMP;
     echo;
     the_response COOL Sync;
     echo -e "\n${CL_PNK}Done.${NONE}!\n";
     echo -e "${CL_LRD}=====================================================================${NONE}\n";
-    if [[ "${automate}" != "y" ]]; then quick_menu; fi;
+    if [ -z "$automate" ]; then quick_menu; fi;
 } # sync
 
 function rom_select
@@ -409,35 +393,31 @@ Choose among these (Number Selection)
 27.${CL_LGN} Zephyr-Os ${NONE}
 
 ${CL_PNK}=======================================================${NONE}\n";
-    if [[ "${automate}" != "y" ]]; then read ROMNO; fi;
+    if [ -z "$automate" ]; then read ROMNO; fi;
     rom_names "$ROMNO";
 } # rom_select
 
 function init
 {
-    if [[ "${automate}" == "y" ]]; then teh_action 1; fi;
+    if [ ! -z "$automate" ]; then teh_action 1; fi;
     rom_select;
     echo -e "\nYou have chosen ${CL_LCN}->${NONE} $ROM_FN\n";
     sleep 1;
     echo -e "Since Branches may live or die at any moment, ${CL_LRD}Specify the Branch${NONE} you're going to sync\n";
-    ST="${CL_LRD}Branch${NONE}";
-    shut_my_mouth BR "$ST";
-    echo -e "Any ${CL_LRD}Source you have already synced?${NONE} ${CL_LGN}[YES/NO]${NONE}\n"; gimme_info "refer";
-    shut_my_mouth RF "$ST";
-    if [[ "$DMRF" == "YES" ]]; then
+    ST="${CL_LRD}Branch${NONE}"; shut_my_mouth BR "$ST";
+    echo -e "Any ${CL_LRD}Source you have already synced?${NONE} ${CL_LGN}[Y/N]${NONE}\n"; gimme_info "refer";
+    ST="Use Reference Source"; shut_my_mouth RF "$ST";
+    if [[ "$DMRF" == [Yy] ]]; then
         echo -e "\nProvide me the ${CL_LRD}Synced Source's Location${NONE} from ${CL_LRD}/${NONE}\n";
-        ST="Reference ${CL_LRD}Location${NONE}";
-        shut_my_mouth RFL "$ST";
+        ST="Reference ${CL_LRD}Location${NONE}"; shut_my_mouth RFL "$ST";
         REF=--reference\=\"${DMRFL}\";
     else
         REF=" ";
     fi
     echo -e "Set ${CL_LRD}clone-depth${NONE} ? ${CL_LGN}[y/n]${NONE}\n"; gimme_info "cldp";
-    ST="Use ${CL_LRD}clone-depth${NONE}";
-    shut_my_mouth CD "$ST";
+    ST="Use ${CL_LRD}clone-depth${NONE}"; shut_my_mouth CD "$ST";
     echo -e "Depth ${CL_LRD}Value${NONE}? (Default ${CL_LRD}1${NONE})\n";
-    ST="clone-depth ${CL_LRD}Value${NONE}";
-    shut_my_mouth DEP "$ST";
+    ST="clone-depth ${CL_LRD}Value${NONE}"; shut_my_mouth DEP "$ST";
     if [ -z "$DMDEP" ]; then DMDEP=1; fi
     #Check for Presence of Repo Binary
     if [[ ! $(which repo) ]]; then
@@ -459,14 +439,13 @@ function init
     echo -e "\n${ROM_NAME} Repo Initialized\n";
     echo -e "${CL_LBL}=========================================================${NONE}\n";
     mkdir .repo/local_manifests;
-    if [[ "${automate}" != "y" ]]; then
+    if [ -z "$automate" ]; then
         echo -e "A folder \"local_manifests\" has been created for you.";
-        echo -e "Create a Device Specific manifest and Press ENTER to start sync\n";
+        echo -e "Create a Device Specific manifest and Press ENTER to start sync\c";
         read ENTER;
         echo;
     fi
-    export inited=1;
-    #Start Sync now
+    export inited="y";
     sync;
 } # init
 
@@ -474,14 +453,11 @@ function device_info
 {
     echo -e "${CL_LCN}====================== DEVICE INFO ======================${NONE}\n";
     echo -e "What's your ${CL_LRD}Device's CodeName${NONE} ${CL_LGN}[Refer Device Tree - All Lowercases]${NONE}?\n";
-    ST="Your Device ${CL_LRD}Name${NONE} is";
-    shut_my_mouth DEV "$ST";
+    ST="Your Device ${CL_LRD}Name${NONE} is"; shut_my_mouth DEV "$ST";
     echo -e "Your ${CL_LRD}Device's Company/Vendor${NONE} ${CL_LGN}(All Lowercases)${NONE}?\n";
-    ST="Device's ${CL_LRD}Vendor${NONE}";
-    shut_my_mouth CM "$ST";
+    ST="Device's ${CL_LRD}Vendor${NONE}"; shut_my_mouth CM "$ST";
     echo -e "The ${CL_LRD}Build type${NONE}? ${CL_LGN}[userdebug/user/eng]${NONE}\n";
-    ST="Build ${CL_LRD}type${NONE}";
-    shut_my_mouth BT "$ST";
+    ST="Build ${CL_LRD}type${NONE}"; shut_my_mouth BT "$ST";
     echo -e "Choose your ${CL_LRD}Device type${NONE} among these. Explainations of each file given in README.md"; gimme_info "device-type";
     TYPES=( common_full_phone common_mini_phone common_full_hybrid_wifionly \
     common_full_tablet_lte common_full_tablet_wifionly common_mini_tablet_wifionly common_tablet \
@@ -492,27 +468,33 @@ function device_info
         if [ -f ${CNF}/${TYP}.mk ]; then echo -e "${CL_PNK}${CNT}. $TYP${NONE}"; ((CNT++)); fi;
     done
     echo;
-    ST="Device Type";
-    shut_my_mouth DTP "$ST";
-    if [ -z $DMDTP ]; then
-        DMDTP=common;
-    else
-        DMDTP="${TYPES[${DMDTP}]}";
-    fi
+    ST="Device Type"; shut_my_mouth DTP "$ST";
+    if [ -z $DMDTP ]; then DMDTP=common; else DMDTP="${TYPES[${DMDTP}]}"; fi
     echo -e "${CL_LCN}=========================================================${NONE}\n\n";
 } # device_info
 
+function init_bld
+{
+    echo -e "\n${CL_YEL}=========================================================${NONE}";
+    echo -e "             ${CL_CYN}Initializing Build Environment${NONE}\n";
+    . build/envsetup.sh;
+    echo -e "\n${CL_YEL}=========================================================${NONE}\n";
+    echo -e "${CL_PNK}Done.${NONE}.\n";
+} # init_bld
+
 function pre_build
 {
-    if [[ "${automate}" == "y" ]]; then teh_action 3; fi;
-    echo -e "${CL_CYN}Initializing Build Environment${NONE}\n";
-    . build/envsetup.sh;
-    echo -e "\n${CL_PNK}Done.${NONE}.\n\n";
-    if [[ "${inited}" != 1 ]]; then rom_select; fi;
+    if [ ! -z "$automate" ]; then
+         teh_action 3;
+         if [[ "$inited" != 1 ]]; then rom_select; fi;
+    fi
+    init_bld;
     if [ -d ${CALL_ME_ROOT}/vendor/${ROMNIS}/config ]; then
         CNF="vendor/${ROMNIS}/config";
-    else
+    elif [ -d ${CALL_ME_ROOT}/vendor/${ROMNIS}/config ]; then
         CNF="vendor/${ROMNIS}/configs";
+    else
+        CNF="vendor/${ROMNIS}";
     fi
     device_info;
 
@@ -526,17 +508,14 @@ function pre_build
             # Inherit DDC
             for ACTUAL_DDC in ${DDCS[*]}
             do
-                if [ -f $ACTUAL_DDC ]; then
-                    export DDC="$ACTUAL_DDC";
-                fi
+                if [ -f $ACTUAL_DDC ]; then export DDC="$ACTUAL_DDC"; fi;
             done
         done
     } # find_ddc
 
     interactive_mk()
     {
-        echo -e "${CL_YEL}Initializing Build Environment${NONE}\n";
-        . build/envsetup.sh;
+        init_bld;
         echo -e "\n${CL_PRP}Creating Interactive Makefile for getting Identified by the ROM's BuildSystem...${NONE}\n";
         sleep 2;
         cd device/${DMCM}/${DMDEV};
@@ -566,14 +545,12 @@ function pre_build
         sed -i -e 's/inherit-product, vendor\//inherit-product-if-exists, vendor\//g' $DDC;
         # Add User-desired Makefile Calls -- vv
         echo -e "Missed some Makefile calls? Enter number of Desired Makefile calls... [0 if none]";
-        ST="No of Makefile Calls";
-        shut_my_mouth "$ST" NMK;
+        ST="No of Makefile Calls"; shut_my_mouth "$ST" NMK;
         for (( CNT=1; CNT<="$DMNMK"; CNT++ ))
         do
             if [ ! -f ${CALL_ME_ROOT}/PREF.rc ]; then
                 echo -e "\nEnter Makefile location from Root of BuildSystem";
-                ST="Makefile";
-                shut_my_mouth "$ST" LOC[$CNT];
+                ST="Makefile"; shut_my_mouth "$ST" LOC[$CNT];
             fi
             if [ -f ${CALL_ME_ROOT}/${DMLOC[$CNT]} ]; then
                 echo -e "\n${CL_LGN}Adding Makefile $CNT ...${NONE}";
@@ -601,7 +578,7 @@ function pre_build
     function vendor_strat_all
     {
         case "$ROMNO" in
-            12) cd vendor/${ROMV} ;;
+            12|27) cd vendor/${ROMV} ;;
             *) cd vendor/${ROMNIS} ;;
         esac
         echo -e "${CL_PNK}=========================================================${NONE}\n";
@@ -623,7 +600,7 @@ function pre_build
         STRTS=( "${ROMNIS}.devices" "${ROMNIS}-device-targets" vendorsetup.sh )
         for STRT in ${STRTS[*]}
         do
-            if [ -f $STRT ] && [[ "$STDN" != "y" ]]; then
+            if [ -f "$STRT" ] && [ -z "$STDN" ]; then
                 if [[ $(grep -c "${DMDEV}" $STRT) == "0" ]]; then
                     case "$STRT" in
                         ${ROMNIS}.devices)
@@ -639,7 +616,7 @@ function pre_build
                 export STDN="y"; # File Found, Strat Performed
             fi
         done
-        if [[ "$STDN" != "y" ]]; then dtree_add; fi; # If none of the Strategies Worked
+        if [ -z "$STDN" ]; then dtree_add; fi; # If none of the Strategies Worked
         echo -e "${CL_LGN}Done.${NONE}\n";
         croot;
         echo -e "${CL_PNK}=========================================================${NONE}";
@@ -692,7 +669,7 @@ ${CL_PNK}2560${NONE}x1600\n";
                 echo -e "\tvendor/aokp/prebuilt/bootanimation/bootanimation_${BOOTRES}.zip:system/media/bootanimation.zip" >> $VENF;
             ;;
             "krexus")
-                VENF="${ROMNIS}_${DMDEV}.mk";
+                VENF="krexus_${DMDEV}.mk";
                 echo -e "\$( call inherit-product, vendor/${ROMNIS}/products/common.mk)" >> $VENF;
                 echo -e "\n\$( call inherit-product, vendor/${ROMNIS}/products/vendorless.mk)" >> $VENF;
             ;;
@@ -705,7 +682,7 @@ ${CL_PNK}2560${NONE}x1600\n";
                 mv ${CALL_ME_ROOT}/device/${DMCM}/${DMDEV}/*.dependencies ${DMDEV}/pa.dependencies;
             ;;
             "pac")
-                VENF="${ROMNIS}_${DMDEV}.mk";
+                VENF="pac_${DMDEV}.mk";
                 echo -e "\$( call inherit-product, vendor/${ROMNIS}/products/pac_common.mk)" >> $VENF;
                 echo "PAC_BOOTANIMATION_NAME := ${BOOTRES};" >> $VENF;
             ;;
@@ -731,19 +708,15 @@ ${CL_PNK}2560${NONE}x1600\n";
     croot;
     echo -e "\n${CL_LBL}${ROMNIS}-fying Device Tree...${NONE}\n";
     case "$ROMNO" in
-        4|5|27) # AOSP-CAF/RRO | Zephyr
-            VNF="common";
-            CNF="vendor/${ROMNIS}";
-            interactive_mk "$ROMNO";
-        ;;
-        14) # OmniROM
+        4|5|12|14|27) # AOSP-CAF/RRO | Flayr | Zephyr
+            if [ ! -z "${ROMV}" ]; then export ROMNIS="${ROMV}"; fi; # Change ROMNIS
             VNF="common";
             interactive_mk "$ROMNO";
+            rom_names "$ROMNO"; # Restore ROMNIS
         ;;
         3) # AOSiP-CAF
             if [ ! -f vendor/${ROMNIS}/products ]; then
                 VNF="common";
-                CNF="vendor/${ROMNIS}";
                 interactive_mk "$ROMNO";
             else
                 echo -e "Interactive Makefile Unneeded, continuing...\n";
@@ -766,27 +739,29 @@ ${CL_PNK}2560${NONE}x1600\n";
         ;;
     esac
     sleep 2;
-    export prebuilded=1;
-    export inited=1;
+    export preblded="y";
+    export inited="y";
     if [ ! -f ${CALL_ME_ROOT}/PREF.rc ]; then quick_menu; fi;
 } # pre_build
 
 function build
 {
-    if [[ "${automate}" == "y" ]]; then teh_action 4; fi;
-    if [[ "${prebuilded}" != "1" ]]; then device_info; fi
-    if [[ "${inited}" != 1 ]]; then rom_select; fi;
+    if [ ! -z "$automate" ]; then
+        teh_action 4;
+        if [[ "$preblded" != "y" ]]; then device_info; fi
+        if [[ "$inited" != "y" ]]; then rom_select; fi;
+    fi
 
-    function make_it #Part of make_module
+    function make_it # Part of make_module
     {
-        echo -e "${CL_LCN}ENTER${NONE} the Directory where the Module is made from\n";
+        echo -e "${CL_LCN}ENTER${NONE} the Directory where the Module is made from : \c";
         read MODDIR;
-        echo -e "\nDo you want to ${CL_LRD}push the Module${NONE} to the ${CL_LRD}Device${NONE} ? (Running the Same ROM) ${CL_LGN}[y/n]${NONE}\n";
+        echo -e "\nDo you want to ${CL_LRD}push the Module${NONE} to the ${CL_LRD}Device${NONE} ? (Running the Same ROM) ${CL_LGN}[y/n]${NONE} : \c";
         read PMOD;
         echo;
         case "$PMOD" in
-            "y") mmmp -B $MODDIR ;;
-            "n") mmm -B $MODDIR ;;
+            [yY]) mmmp -B $MODDIR ;;
+            [nN]) mmm -B $MODDIR ;;
             *) echo -e "${CL_LRD}Invalid Selection.${NONE} Going Back.\n"; make_it ;;
         esac
     } # make_it
@@ -794,7 +769,7 @@ function build
     make_module ()
     {
         if [ -z "$1" ]; then
-            echo -e "\nKnow the Location of the Module?\n";
+            echo -e "\nKnow the Location of the Module? : \c";
             read KNWLOC;
         fi
         if [[ "$KNWLOC" == "y" || "$1" == "y" ]]; then
@@ -813,34 +788,8 @@ function build
             the_response COOL Build;
             teh_action 6 COOL;
         elif [[ $(tac $RMTMP | grep -c -m 1 'No rule to make target') == "1" ]]; then
-#           if [[ "${automate}" != "y" ]]; then
-#               echo -e "Looks like a Module isn't getting built / Missing\n";
-#               echo -e "You'll see a line like this:\n";
-#               echo -e "No rule to make target '$(pwd)/out/....../${CL_LRD}<MODULE_NAME>${NONE}_intermediates'\n";
-#               echo -e "${CL_LCN}Enter${NONE} whatever you see in place of ${CL_LRD}<MODULE_NAME>${NONE} (Case-Sensitive please)\n";
-#               read MOD_NAME;
-#               echo -e "Let's Search for ${CL_LRD}${MOD_NAME}${NONE} ! This will take time, but it's Valuable\n";
-#               sgrep "LOCAL_MODULE := ${MOD_NAME}" 2>&1 | tee mod.txt;
-#               if [[ $(grep -c -m 1 'LOCAL_MODULE' mod.txt) == "1" ]]; then
-#                   echo -e "Looks like we have found it's location\n";
-#                   cat mod.txt;
-#                   make_module y;
-#               else
-#                   echo -e "The Repo which builds that module is ${CL_LRD}missing${NONE}\n";
-#                   echo -e "======================================================================================================\n";
-#                   echo -e "Let me search that module for you -> http://lmgtfy.com/?q=LOCAL_MODULE+%3A%3D+${MOD_NAME}\n";
-#                   echo -e "======================================================================================================\n";
-#                   echo -e "\nIF you found that module's repo, Sync it to the path as shown in the Repo URL\n";
-#                   echo -e "For Example https://github.com/CyanogenMod/android_bionic should be synced to $(pwd)/bionic\n";
-#                   make_module;
-#               fi
-#           else
-#               the_response FAIL Build;
-#               teh_action 6 FAIL;
-#           fi
-#       else
-            echo -e "WEW. ${CL_YEL}I_iz_N00b${NONE}. Probably you need to Search the Internet for Resolution of Above Error\n";
-            if [[ "${automate}" == "y" ]]; then
+#           WiP
+            if [ ! -z "$automate" ]; then
                 teh_action 6 FAIL;
                 the_response FAIL Build;
             fi
@@ -880,8 +829,7 @@ function build
         echo -e "Type in the Option you want to select\n";
         echo -e "${CL_YEL}Tip!${NONE} - Building for the first time ? select ${CL_RED}lunch${NONE}";
         echo -e "${CL_LBL}===============================================================${NONE}\n";
-        ST="Selected Option";
-        shut_my_mouth SLT "$ST";
+        ST="Selected Option"; shut_my_mouth SLT "$ST";
         case "$DMSLT" in
             "lunch") ${DMSLT} ${ROMNIS}_${DMDEV}-${DMBT} ;;
             "breakfast") ${DMSLT} ${DMDEV} ${DMBT} ;;
@@ -894,58 +842,47 @@ function build
         echo;
     } # hotel_menu
 
-
-    echo -e "\n${CL_YEL}=========================================================${NONE}";
-    echo -e "             ${CL_CYN}Initializing Build Environment${NONE}\n";
-    . build/envsetup.sh;
-    echo -e "\n${CL_YEL}=========================================================${NONE}\n";
-    echo -e "${CL_PNK}Done.${NONE}.\n";
-
     function build_menu
     {
+        init_bld;
         echo -e "${CL_PNK}=========================================================${NONE}\n";
         echo -e "Select the Build Option:\n";
         echo -e "${CL_LCN}1. Start Building ROM (ZIP output) (Clean Options Available)${NONE}";
         echo -e "${CL_LGN}2. Make a Particular Module${NONE}";
         echo -e "${CL_LBL}3. Setup CCACHE for Faster Builds ${NONE}\n";
         echo -e "${CL_PNK}=========================================================${NONE}\n"
-        ST="Option Selected";
-        shut_my_mouth BO "$ST";
+        ST="Option Selected"; shut_my_mouth BO "$ST";
     }
 
     build_menu;
     case "$DMBO" in
         1)
             echo -e "\nShould i use '${CL_YEL}make${NONE}' or '${CL_RED}mka${NONE}' ?\n";
-            ST="Selected Method";
-            shut_my_mouth MK "$ST";
+            ST="Selected Method"; shut_my_mouth MK "$ST";
             echo -e "Wanna Clean the ${CL_PNK}/out${NONE} before Building? ${CL_LGN}[1 - Remove Staging Dirs / 2 - Full Clean]${NONE}\n";
-            ST="Option Selected";
-            shut_my_mouth CL "$ST";
+            ST="Option Selected"; shut_my_mouth CL "$ST";
             if [[ $(tac ${CALL_ME_ROOT}/build/core/build_id.mk | grep -c 'BUILD_ID=M\|BUILD_ID=N') == "1" ]]; then
                 echo -e "Use ${CL_LRD}Jack Toolchain${NONE} ? ${CL_LGN}[y/n]${NONE}\n";
-                ST="Use ${CL_LRD}Jacky${NONE}";
-                shut_my_mouth JK "$ST";
+                ST="Use ${CL_LRD}Jacky${NONE}"; shut_my_mouth JK "$ST";
                 case "$DMJK" in
-                     "y")
+                     [yY])
                         export ANDROID_COMPILE_WITH_JACK=true;
                         echo -e "\nBuilding Android with the Non-Ninja BuildSystem\n";
                         export DMNJ=n ;;
-                     "n") export ANDROID_COMPILE_WITH_JACK=false ;;
+                     [nN]) export ANDROID_COMPILE_WITH_JACK=false ;;
                 esac
             fi
             if [[ $(tac ${CALL_ME_ROOT}/build/core/build_id.mk | grep -c 'BUILD_ID=N') == "1" ]] && [ -z "$DMNJ" ]; then
                 unset DMNJ;
-                ST="Use Ninja to build Android ? [y/n]";
-                shut_my_mouth NJ "$ST";
+                ST="Use Ninja to build Android ? [y/n]"; shut_my_mouth NJ "$ST";
                 case "$DMNJ" in
-                    y) export USE_NINJA=true; DMMK="./ninja.sh" ;;
-                    n) export USE_NINJA=false; unset BUILDING_WITH_NINJA ;;
+                    [yY]) export USE_NINJA=true; DMMK="./ninja.sh" ;;
+                    [nN]) export USE_NINJA=false; unset BUILDING_WITH_NINJA ;;
                     *) echo -e "${CL_LRD}Invalid Selection${NONE}. RE-Answer this."; shut_my_mouth NJ "$ST" ;;
                 esac
             fi
             case "$DMCL" in
-                1) $DMMK installclean ;;
+                1) lunch ${ROMNIS}_${DMDEV}-${DMBT}; $DMMK installclean ;;
                 2) lunch ${ROMNIS}_${DMDEV}-${DMBT}; $DMMK clean ;;
                 *) echo -e "${CL_LRD}Invalid Selection.${NONE} Going Back."; shut_my_mouth CL "$ST";;
             esac
@@ -953,17 +890,7 @@ function build
             build_make "$DMSLT";
     ;;
     2) make_module ;;
-    3)
-        echo -e "CCache Menu...\n";
-        echo -e "\t1. Enabling CCACHE Variables in .bashrc or it's equivalent";
-        echo -e "\t2. Allocating Space for CCACHE\n";
-        read CCOPT;
-        case "$CCOPT" in
-             1) set_ccvars ;;
-             2) set_ccache ;;
-             *) echo -e "\n${CL_LRD}Invalid Selection.${NONE} Going back."; build ;;
-        esac
-    ;;
+    3) set_ccvars ;;
     *)
         echo -e "${CL_LRD}Invalid Selection.${NONE} Going back.\n";
         build;
@@ -975,27 +902,27 @@ teh_action ()
 {
     case "$1" in
     1)
-        if [[ "${automate}" != "y" ]]; then init; fi;
+        if [ -z "$automate" ]; then init; fi;
         echo -ne '\033]0;ScriBt : Init\007';
     ;;
     2)
-        if [[ "${automate}" != "y" ]]; then sync; fi;
+        if [ -z "$automate" ]; then sync; fi;
         echo -ne "\033]0;ScriBt : Syncing ${ROM_FN}\007";
     ;;
     3)
-        if [[ "${automate}" != "y" ]]; then pre_build; fi;
+        if [ -z "$automate" ]; then pre_build; fi;
         echo -ne '\033]0;ScriBt : Pre-Build\007';
     ;;
     4)
-        if [[ "${automate}" != "y" ]]; then build; fi;
-        echo -ne "\033]0;${ROMNIS}_${DMDEV} : Building\007";
+        if [ -z "$automate" ]; then build; fi;
+        echo -ne "\033]0;${ROMNIS}_${DMDEV} : In Progress\007";
     ;;
     5)
-        if [[ "${automate}" != "y" ]]; then tools; fi;
+        if [ -z "$automate" ]; then tools; fi;
         echo -ne '\033]0;ScriBt : Installing Dependencies\007';
     ;;
     6)
-        if [[ "${automate}" != "y" ]]; then exitScriBt; fi;
+        if [ -z "$automate" ]; then exitScriBt; fi;
         case "$2" in
             "COOL") echo -ne "\033]0;${ROMNIS}_${DMDEV} : Success\007" ;;
             "FAIL") echo -ne "\033]0;${ROMNIS}_${DMDEV} : Fail\007" ;;
@@ -1034,8 +961,7 @@ function the_start
     echo -e "\n=======================================================";
     echo -e "Before I can start, do you like a \033[1;31mC\033[0m\033[0;32mo\033[0m\033[0;33ml\033[0m\033[0;34mo\033[0m\033[0;36mr\033[0m\033[1;33mf\033[0m\033[1;32mu\033[0m\033[0;31ml\033[0m life? [y/n]";
     echo -e "=======================================================\n";
-    ST="Colored ScriBt";
-    shut_my_mouth COL "$ST";
+    ST="Colored ScriBt"; shut_my_mouth COL "$ST";
     color_my_life $DMCOL;
     echo -e "\n${CL_LBL}Prompting for Root Access...${NONE}\n";
     sudo echo -e "\n${CL_LGN}Root access OK. You won't be asked again${NONE}";
@@ -1062,7 +988,7 @@ function the_start
 if [[ "$1" == "automate" ]]; then
     the_start; # Pre-Initial Stage
     echo -e "${CL_RED}*${NONE}${CL_PNK}AutoBot${NONE}${CL_RED}*${NONE} Thanks for Selecting Me. Lem'me do your work";
-    export automate="y";
+    export automate="yus_do_eet";
     automate; # Initiate the Build Sequence - Actual "VROOM!"
 elif [ -z $1 ]; then
     the_start; # Pre-Initial Stage
