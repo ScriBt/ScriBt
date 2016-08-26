@@ -165,14 +165,15 @@ rom_names ()
         27)
             ROM_NAME="Zephyr-OS";
             ROM_FN="Zephyr-OS";
-            ROMNIS="zos";
+            ROMNIS="aosp";
+            ROMV="zos";
             MAN="manifest.git";
         ;;
         *)
-            if [ ! -f PREF.rc ]; then
-                echo -e "${LRED}Invalid Selection.${NONE} Going back."; init;
+            if [ -z "$automate" ]; then
+                echo -e "${LRED}Invalid Selection.${NONE} Going back."; rom_select;
             fi
-	    ;;
+        ;;
     esac
 
 } # rom_names
@@ -197,3 +198,19 @@ color_my_life ()
         done
     done
 } # color_my_life
+
+gimme_info ()
+{
+    if [ -z "$automate" ]; then
+        case "$1" in
+            "jobs") echo -e "${CL_LBL}(Slow Speed? Recommended value - 1. Else your wish)${NONE}\n";;
+            "fsync") echo -e "${CL_LBL}(Overwrite Local Sources with Remote)${NONE}\n" ;;
+            "ssync") echo -e "${CL_LBL}(Checkout output will appear)${NONE}\n" ;;
+            "syncrt") echo -e "${CL_LBL}(If Enabled, syncs only the desired branch as specified in the manifest, instead of syncing all branches. Saves Space)${NONE}\n" ;;
+            "clnbun") echo -e "${CL_LBL}(Works with AOSP repositories, Downloads a prepackaged bundle file instead of objects from the server (Less objects, better sync). Sync takes place faster coz Google!${NONE}\n" ;;
+            "refer") echo -e "${CL_LBL}(If you have any ROM's source completely synced, giving this source a reference source, will avoid redownloading common projects, thus saving a lot of time)${NONE}\n" ;;
+            "cldp") echo -e "${CL_LBL}(If unset, Syncs the Entire commit history of any repo which is better for future syncs)\n(Unless you know what you're doing,${NONE} ${CL_LRD}Answer n${NONE})\n" ;;
+            "device-type") echo -e "${CL_LBL}For Phones : If you don't find common_full_phone / common_mini_phone then leave this field blank\nBuildSystem would consider the Device as a Phone.${NONE}\n" ;;
+        esac
+    fi
+} # gimme_info
