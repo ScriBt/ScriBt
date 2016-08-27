@@ -24,15 +24,15 @@ c. **Add** a local_manifest for Device Specfic Additions / Changes
 #3. Pre Build
 
 a. **Add Device** to ROM Vendor
-  
+
 b. Make an **Interactive Makefile** under Device Tree (Identifiable by ROM's BuildSystem)
-    
+
   * This was created in order to prevent unnecessary Modifications to already present files in the Device Tree and messing it up eventually...
-    
+
   * Idea came into existence, When I saw most of the ROMs (... not having ```products``` folder in ROM vendor && excluding AOSP-CAF/AOSP-RRO) having these lines in one of the BuildSystem's files...
-  
+
   ```# A ROMNIS build needs only the ROMNIS product makefiles.```
-    
+
   ```ifneq ($(ROMNIS_BUILD),)
     all_product_configs := $(shell ls device/*/$(ROMNIS_BUILD)/ROMNIS.mk)```
 
@@ -55,14 +55,18 @@ d. Give **comments** based on the Final Build Status
    * ```no rule to make target: /out/*****/{MODULE_NAME}_intermediates``` - Search for ```MODULE_NAME``` in Build, Else give Search Suggestions based on ```MODULE_NAME```
 
    * Arbitrary Error (Can't help because Entropy of Increase in Errors gets Incremented day by day :P)
- 
-#5. Install Dependencies
 
-a. Install Build Dependencies
+#5. Tools
+
+a. Install Build Dependencies based on Distro Version
 
 b. Install / Configure **JAVA**
 
 c. Setup **android-51** rules (For proper usage of ADB)
+
+d. Revert to make 3.81
+
+e. CCACHE Setup
 
 #6. Automated Cherry Picking
 
@@ -81,11 +85,11 @@ way, bash ROM.sh won't :D
 
 #Automation Notes
 
-Automation Works are complete, though it needs testing in every way! Users can add their own commands in the default sequence ( I do it )
+Users can add their own commands in the default sequence ( I do it )
 
 For Automating ScriBt
 
-1. PREF.rc must have your Desired Values in all Functions
+1. PREF.rc must have your Desired Values for all Variables listed
 
 2. Enter this on Terminal to Start with Automation
 
@@ -126,11 +130,11 @@ bash ROM.sh automate
 
 #Supported ROMs
 
-1. Android Ice Cold Project aka "AICP"
-2. Android Open Kang Project aka "AOKP"
-3. Android Open Source Illusion Project aka "AOSiP"
-4. Android Open Source Project - CAF aka "AOSP-CAF"
-5. Android Open Source Project with RRO aka "AOSP-RRO"
+1. AICP
+2. AOKP
+3. AOSiP
+4. AOSP-CAF
+5. AOSP-RRO
 6. BlissRoms
 7. CandyRoms
 8. crDroid
@@ -143,7 +147,7 @@ bash ROM.sh automate
 15. OrionOS
 16. OwnROM
 17. PAC-ROMs
-18. Paranoid Android aka AOSPA
+18. Paranoid Android / AOSPA
 19. Resurrection Remix
 20. SlimRoms
 21. Temasek
@@ -151,7 +155,7 @@ bash ROM.sh automate
 23. TipsyOs
 24. GZR Validus
 25. XenonHD by Team Horizon
-26. Xperia Open Source Project aka "XOSP"
+26. XOSP
 27. Zephyr-OS
 
 More ROMs will be added, if missed 'em
