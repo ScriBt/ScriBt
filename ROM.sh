@@ -321,17 +321,15 @@ shut_my_mouth ()
         echo -e "${CL_RED}*${NONE}${CL_PNK}AutoBot${NONE}${CL_RED}*${NONE} $2 : ${!RST}";
     else
         read DM2;
-        export DM$1="${DM2}";
+        if [ -z "$3" ]; then export DM$1="${DM2}"; else eval DM$1=${DM2}; fi;
     fi
     echo;
 } # shut_my_mouth
 
 function sync
 {
-    if [ ! -z "$automate" ]; then
-        teh_action 2;
-        if [[ "$inited" != "1" ]]; then init; fi;
-    fi
+    if [ ! -z "$automate" ]; then teh_action 2; fi;
+    if [ ! -f .repo/manifest.xml ]; then init; elif [ -z "$inited" ]; then rom_select; fi;
     echo -e "\nPreparing for Sync\n";
     echo -e "${CL_LRD}Number of Threads${NONE} for Sync?\n"; gimme_info "jobs";
     ST="${CL_LRD}Number${NONE} of Threads"; shut_my_mouth JOBS "$ST";
@@ -484,18 +482,18 @@ function init_bld
 
 function pre_build
 {
-    if [ ! -z "$automate" ]; then
-         teh_action 3;
-         if [[ "$inited" != 1 ]]; then rom_select; fi;
-    fi
+    if [ ! -z "$automate" ]; then teh_action 3; fi
+    if [ -z "$inited" ]; then rom_select; fi;
     init_bld;
+    if [ ! -z "${ROMV}" ]; then export ROMNIS="${ROMV}"; fi; # Change ROMNIS
     if [ -d ${CALL_ME_ROOT}/vendor/${ROMNIS}/config ]; then
         CNF="vendor/${ROMNIS}/config";
-    elif [ -d ${CALL_ME_ROOT}/vendor/${ROMNIS}/config ]; then
+    elif [ -d ${CALL_ME_ROOT}/vendor/${ROMNIS}/configs ]; then
         CNF="vendor/${ROMNIS}/configs";
     else
         CNF="vendor/${ROMNIS}";
     fi
+    rom_names "$ROMNO";
     device_info;
 
     function find_ddc # For Finding Default Device Configuration file
@@ -519,7 +517,8 @@ function pre_build
         echo -e "\n${CL_PRP}Creating Interactive Makefile for getting Identified by the ROM's BuildSystem...${NONE}\n";
         sleep 2;
         cd device/${DMCM}/${DMDEV};
-        INTF=interact.mk;
+        INTM=interact.mk;
+        if [ -z "$INTF" ]; then INTF="${ROMNIS}.mk"; fi;
         echo "#                ##### Interactive Makefile #####
 #
 # Licensed under the Apache License, Version 2.0 (the \"License\");
@@ -532,41 +531,34 @@ function pre_build
 # distributed under the License is distributed on an \"AS IS\" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
-# limitations under the License." >> $INTF;
+# limitations under the License." >> ${INTM};
         find_ddc;
-        echo -e "\n# Inherit ${ROMNIS} common stuff\n\$(call inherit-product, ${CNF}/${VNF}.mk)" >> $INTF;
+        echo -e "\n# Inherit ${ROMNIS} common stuff\n\$(call inherit-product, ${CNF}/${VNF}.mk)" >> ${INTM};
         # Inherit Vendor specific files
         if [[ $(grep -c 'nfc_enhanced' $DDC) == "1" ]] && [ -f ${CALL_ME_ROOT}/${CNF}/nfc_enhanced.mk ]; then
-            echo -e "\n# Enhanced NFC\n\$(call inherit-product, ${CNF}/nfc_enhanced.mk)" >> $INTF;
+            echo -e "\n# Enhanced NFC\n\$(call inherit-product, ${CNF}/nfc_enhanced.mk)" >> ${INTM};
         fi
-        echo -e "\n# Calling Default Device Configuration File" >> $INTF;
-        echo -e "\$(call inherit-product, device/${DMCM}/${DMDEV}/${DDC})" >> $INTF;
+        echo -e "\n# Calling Default Device Configuration File" >> ${INTM};
+        echo -e "\$(call inherit-product, device/${DMCM}/${DMDEV}/${DDC})" >> ${INTM};
         # To prevent Missing Vendor Calls
         sed -i -e 's/inherit-product, vendor\//inherit-product-if-exists, vendor\//g' $DDC;
         # Add User-desired Makefile Calls -- vv
         echo -e "Missed some Makefile calls? Enter number of Desired Makefile calls... [0 if none]";
-        ST="No of Makefile Calls"; shut_my_mouth "$ST" NMK;
+        ST="No of Makefile Calls"; shut_my_mouth NMK "$ST";
         for (( CNT=1; CNT<="$DMNMK"; CNT++ ))
         do
-            if [ ! -f ${CALL_ME_ROOT}/PREF.rc ]; then
-                echo -e "\nEnter Makefile location from Root of BuildSystem";
-                ST="Makefile"; shut_my_mouth "$ST" LOC[$CNT];
-            fi
+            echo -e "\nEnter Makefile location from Root of BuildSystem";
+            ST="Makefile"; shut_my_mouth LOC[$CNT] "$ST" array;
             if [ -f ${CALL_ME_ROOT}/${DMLOC[$CNT]} ]; then
                 echo -e "\n${CL_LGN}Adding Makefile $CNT ...${NONE}";
-                echo -e "\n\$(call inherit-product, ${LOC[$CNT]})" >> $INTF;
+                echo -e "\n\$(call inherit-product, ${LOC[$CNT]})" >> ${INTM};
             else
                 echo -e "${CL_LRD}Makefile ${LOC[$CNT]} not Found. Aborting...${NONE}";
             fi
         done
-        echo -e "\n# ROM Specific Identifier\nPRODUCT_NAME := ${ROMNIS}_${DMDEV}" >> $INTF;
+        echo -e "\n# ROM Specific Identifier\nPRODUCT_NAME := ${ROMNIS}_${DMDEV}" >> ${INTM};
         # Make it Identifiable
-        if [ -f ${CALL_ME_ROOT}/vendor/${ROMNIS}/common.mk ]; then
-            mv $INTF ${ROMNIS}_${DMDEV}.mk;
-            echo -e "PRODUCT_MAKEFILES +=  \\ \n\t\$(LOCAL_DIR)/${ROMNIS}_${DMDEV}.mk" >> AndroidProducts.mk;
-        else
-            mv $INTF ${ROMNIS}.mk;
-        fi
+        mv ${INTM} ${INTF};
         echo -e "${CL_GRN}Renaming .dependencies file...${NONE}\n";
         if [ ! -f ${ROMNIS}.dependencies ]; then
             mv -f *.dependencies ${ROMNIS}.dependencies;
@@ -584,7 +576,7 @@ function pre_build
         echo -e "${CL_PNK}=========================================================${NONE}\n";
 
         function dtree_add
-        {   # AOSP-CAF - AOSP-RRO - OmniROM
+        {   # AOSP-CAF/RRO/OmniROM/Flayr/Zephyr
             croot;
             echo -e "Moving to D-Tree\n\n And adding Lunch Combo..";
             cd device/${DMCM}/${DMDEV};
@@ -627,7 +619,7 @@ function pre_build
         croot;
         cd vendor/${ROMNIS}/products;
         echo -e "About Device's Resolution...\n";
-        if [ ! -f ${CALL_ME_ROOT}/PREF.rc ]; then
+        if [ ! -z "$automate" ]; then
             echo -e "Among these Values - Select the one which is nearest or almost Equal to that of your Device\n";
             echo -e "Resolutions which are available for a ROM is shown by it's name. All Res are available for PAC-5.1";
             echo -e "
@@ -707,49 +699,65 @@ ${CL_PNK}2560${NONE}x1600\n";
     fi
     croot;
     echo -e "\n${CL_LBL}${ROMNIS}-fying Device Tree...${NONE}\n";
-    case "$ROMNO" in
-        4|5|12|14|27) # AOSP-CAF/RRO | Flayr | Zephyr
-            if [ ! -z "${ROMV}" ]; then export ROMNIS="${ROMV}"; fi; # Change ROMNIS
-            VNF="common";
+    NOINT=$(echo -e "${CL_LGN}Interactive Makefile Unneeded, continuing...${NONE}");
+
+    function need_for_int
+    {
+        if [ -f ${CALL_ME_ROOT}/device/${DMCM}/${DMDEV}/${INTF} ]; then
+            echo "$NOINT";
+        else
             interactive_mk "$ROMNO";
-            rom_names "$ROMNO"; # Restore ROMNIS
+        fi
+    } # need_for_int
+
+    case "$ROMNO" in
+        4|5|12|14|27) # AOSP-CAF/RRO | Flayr | OmniROM | Zephyr
+            VNF="common";
+            INTF="${ROMNIS}_${DMDEV}.mk";
+            need_for_int;
+            DEVDIR="device/${DMCM}/${DMDEV}";
+            rm -rf ${DEVDIR}/AndroidProducts.mk;
+            echo -e "PRODUCT_MAKEFILES :=  \\ \n\t\$(LOCAL_DIR)/${ROMNIS}_${DMDEV}.mk" >> AndroidProducts.mk;
         ;;
         3) # AOSiP-CAF
             if [ ! -f vendor/${ROMNIS}/products ]; then
                 VNF="common";
-                interactive_mk "$ROMNO";
+                need_for_int;
             else
-                echo -e "Interactive Makefile Unneeded, continuing...\n";
+                echo "$NOINT";
             fi
         ;;
         2|17) # AOKP-4.4 | PAC-5.1
             if [ ! -f vendor/${ROMNIS}/products ]; then
                 VNF="$DMDTP";
-                interactive_mk "$ROMNO";
+                need_for_int;
             else
-                echo -e "Interactive Makefile Unneeded, continuing...\n";
+                echo "$NOINT";
             fi
         ;;
-        1|13|18) # AICP | Krexus-CAF | PA
-            echo -e "Interactive Makefile Unneeded, continuing...\n";
+        1|13|18) # AICP | Krexus-CAF | AOSPA
+            echo "$NOINT";
         ;;
         *) # Rest of the ROMs
             VNF="$DMDTP";
-            interactive_mk "$ROMNO";
+            need_for_int;
         ;;
     esac
     sleep 2;
     export preblded="y";
     export inited="y";
-    if [ ! -f ${CALL_ME_ROOT}/PREF.rc ]; then quick_menu; fi;
+    if [ ! -z "$automate" ]; then quick_menu; fi;
 } # pre_build
 
 function build
 {
-    if [ ! -z "$automate" ]; then
-        teh_action 4;
-        if [[ "$preblded" != "y" ]]; then device_info; fi
-        if [[ "$inited" != "y" ]]; then rom_select; fi;
+    if [ -d .repo ]; then
+        if [ ! -z "$automate" ]; then teh_action 4; fi;
+        if [ -z "$preblded" ]; then device_info; fi
+        if [ -z "$inited" ]; then rom_select; fi;
+    else
+        echo -e "ROM Source Not Found (Synced)... \nPls perform an init and sync before doing this";
+        exitScriBt;
     fi
 
     function make_it # Part of make_module
@@ -876,7 +884,7 @@ function build
                 unset DMNJ;
                 ST="Use Ninja to build Android ? [y/n]"; shut_my_mouth NJ "$ST";
                 case "$DMNJ" in
-                    [yY]) export USE_NINJA=true; DMMK="./ninja.sh" ;;
+                    [yY]) export USE_NINJA=true ;;
                     [nN]) export USE_NINJA=false; unset BUILDING_WITH_NINJA ;;
                     *) echo -e "${CL_LRD}Invalid Selection${NONE}. RE-Answer this."; shut_my_mouth NJ "$ST" ;;
                 esac
