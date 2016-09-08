@@ -5,7 +5,7 @@
 
 Ready to use. Extensive Testing needed.
 
-(**Tip!** : **ROMNIS** - **ROM** **N**ame **I**n **S**ource - eg. cm, bliss, candy, crdroid etc.)
+**Tip!** : **ROMNIS** - **ROM** **N**ame **I**n **S**ource - eg. cm, bliss, candy, crdroid etc.
 
 ScriBt consists of five main Actions:
 
@@ -51,8 +51,6 @@ c. Setup **CCACHE**
 d. Give **comments** based on the Final Build Status
 
    * Build Success
-
-   * ```no rule to make target: /out/*****/{MODULE_NAME}_intermediates``` - Search for ```MODULE_NAME``` in Build, Else give Search Suggestions based on ```MODULE_NAME```
 
    * Arbitrary Error (Can't help because Entropy of Increase in Errors gets Incremented day by day :P)
 
@@ -120,9 +118,33 @@ bash ROM.sh automate
 
 * NOTE : IF you're building for a Phone and common_full_phone / common_mini_phone isn't in the list, then press Enter (Leave Blank) as the ROM will consider the Device as a Phone.
 
+# Building Android
+
+* **Jack** was introduced as a **Toolchain** from MarshMallow onwards for **Apps and Frameworks**.
+	- Uses a Java VM for compilation of Java Source Code (.java) to '.dex' (**D**alvik **Ex**ecutable) files
+	- Recommended for Systems having >8GB RAM.
+	- Systems with 4GB RAM can use it too, but it may cause heavy lags on compilation, so using Swap memory is Recommended for such users.
+
+* **Ninja** was introduced from Android Nougat (7.x.x) as an Alternative **Build System**.
+	- No Compatibility Requirements.
+
+* Companions for Ninja (iirc), which were introduced in Nougat are...
+	- **Kati** - https://android.googlesource.com/platform/build/kati/#kati
+	- **Soong** - https://android.googlesource.com/platform/build/soong#Soong
+	- **BluePrint** - https://android.googlesource.com/platform/build/blueprint/#Blueprint-Build-System
+
+So, the ways of Building Android are...
+
+* Using **Normal** Build System
+	- Using Jack Toolchain (MarshMallow onwards)
+	-  Not Using Jack Toolchain (Till Nougat)
+* Using **Ninja** Build System
+	- **with** Jack Toolchain (Nougat onwards)
+	- **without** Jack Toolchain (Nougat onwards)
+
 #CONTRIBUTORS
 
-* Arvind Raj "a7r3" (Myself)
+* Arvindraj "a7r3" (Myself)
 * Adrian DC "AdrianDC"
 * Akhil Narang "akhilnarang"
 * CubeDev
