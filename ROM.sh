@@ -493,7 +493,7 @@ function pre_build
     else
         CNF="vendor/${ROMNIS}";
     fi
-    rom_names "$ROMNO";
+    rom_names "$ROMNO"; # Restore ROMNIS
     device_info;
 
     function find_ddc # For Finding Default Device Configuration file
@@ -517,7 +517,7 @@ function pre_build
         echo -e "\n${CL_PRP}Creating Interactive Makefile for getting Identified by the ROM's BuildSystem...${NONE}\n";
         sleep 2;
         cd device/${DMCM}/${DMDEV};
-        INTM=interact.mk;
+        INTM="interact.mk";
         if [ -z "$INTF" ]; then INTF="${ROMNIS}.mk"; fi;
         echo "#                ##### Interactive Makefile #####
 #
@@ -540,9 +540,9 @@ function pre_build
         fi
         echo -e "\n# Calling Default Device Configuration File" >> ${INTM};
         echo -e "\$(call inherit-product, device/${DMCM}/${DMDEV}/${DDC})" >> ${INTM};
-        # To prevent Missing Vendor Calls
+        # To prevent Missing Vendor Calls in DDC-File
         sed -i -e 's/inherit-product, vendor\//inherit-product-if-exists, vendor\//g' $DDC;
-        # Add User-desired Makefile Calls -- vv
+        # Add User-desired Makefile Calls
         echo -e "Missed some Makefile calls? Enter number of Desired Makefile calls... [0 if none]";
         ST="No of Makefile Calls"; shut_my_mouth NMK "$ST";
         for (( CNT=1; CNT<="$DMNMK"; CNT++ ))
@@ -589,9 +589,9 @@ function pre_build
         } # dtree_add
 
         echo -e "${CL_LBL}Adding Device to ROM Vendor...${NONE}";
-        STRTS=( "${ROMNIS}.devices" "${ROMNIS}-device-targets" vendorsetup.sh )
+        STRTS=( "${ROMNIS}.devices" "${ROMNIS}-device-targets" vendorsetup.sh );
         for STRT in ${STRTS[*]}
-        do
+        do #     Found file   &&  Strat Not Performed
             if [ -f "$STRT" ] && [ -z "$STDN" ]; then
                 if [[ $(grep -c "${DMDEV}" $STRT) == "0" ]]; then
                     case "$STRT" in
@@ -608,7 +608,7 @@ function pre_build
                 export STDN="y"; # File Found, Strat Performed
             fi
         done
-        if [ -z "$STDN" ]; then dtree_add; fi; # If none of the Strategies Worked
+        if [ -z "$STDN" ]; then dtree_add; fi; # If none of the Strats Worked
         echo -e "${CL_LGN}Done.${NONE}\n";
         croot;
         echo -e "${CL_PNK}=========================================================${NONE}";
@@ -873,19 +873,20 @@ function build
                 echo -e "Use ${CL_LRD}Jack Toolchain${NONE} ? ${CL_LGN}[y/n]${NONE}\n";
                 ST="Use ${CL_LRD}Jacky${NONE}"; shut_my_mouth JK "$ST";
                 case "$DMJK" in
-                     [yY])
-                        export ANDROID_COMPILE_WITH_JACK=true;
-                        echo -e "\nBuilding Android with the Non-Ninja BuildSystem\n";
-                        export DMNJ=n ;;
+                     [yY]) export ANDROID_COMPILE_WITH_JACK=true ;;
                      [nN]) export ANDROID_COMPILE_WITH_JACK=false ;;
                 esac
             fi
-            if [[ $(tac ${CALL_ME_ROOT}/build/core/build_id.mk | grep -c 'BUILD_ID=N') == "1" ]] && [ -z "$DMNJ" ]; then
-                unset DMNJ;
-                ST="Use Ninja to build Android ? [y/n]"; shut_my_mouth NJ "$ST";
+            if [[ $(tac ${CALL_ME_ROOT}/build/core/build_id.mk | grep -c 'BUILD_ID=N') == "1" ]]; then
+                echo -e "Use Ninja to build Android ? [y/n]";
+                ST="Use Ninja"; shut_my_mouth NJ "$ST";
                 case "$DMNJ" in
-                    [yY]) export USE_NINJA=true ;;
-                    [nN]) export USE_NINJA=false; unset BUILDING_WITH_NINJA ;;
+                    [yY])
+                        echo -e "\nBuilding Android with Ninja BuildSystem";
+                        export USE_NINJA=true ;;
+                    [nN])
+                        echo -e "\nBuilding Android with the Non-Ninja BuildSystem\n";
+                        export USE_NINJA=false; unset BUILDING_WITH_NINJA ;;
                     *) echo -e "${CL_LRD}Invalid Selection${NONE}. RE-Answer this."; shut_my_mouth NJ "$ST" ;;
                 esac
             fi
@@ -896,13 +897,13 @@ function build
             esac
             hotel_menu;
             build_make "$DMSLT";
-    ;;
-    2) make_module ;;
-    3) set_ccvars ;;
-    *)
-        echo -e "${CL_LRD}Invalid Selection.${NONE} Going back.\n";
-        build;
-    ;;
+        ;;
+        2) make_module ;;
+        3) set_ccvars ;;
+        *)
+            echo -e "${CL_LRD}Invalid Selection.${NONE} Going back.\n";
+            build;
+        ;;
     esac
 } # build
 
