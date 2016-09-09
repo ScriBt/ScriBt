@@ -962,7 +962,7 @@ function the_start
     if [ -f ROM.rc ]; then
         . $(pwd)/ROM.rc;
     else
-        echo "${CL_LRD}ROM.rc isn't present in ${PWD}${NONE}, please make sure repo is cloned correctly";
+        echo "${CL_LRD}ROM.rc isn't present in ${NONE}, please make sure repo is cloned correctly";
         exit 1;
     fi
     #CHEAT CHEAT CHEAT!
