@@ -949,6 +949,11 @@ teh_action ()
 
 function the_start
 {
+    #   are we 64-bit ??
+    if [[ $(uname -m) == "i686" ]]; then
+        echo "${CL_LRD}you are on a 32-bit system${NONE}, only 64-bit is supported";
+        exit 1;
+    fi
     #   tempfile      repo sync log       rom build log
     TMP=temp.txt; RTMP=repo_log.txt; RMTMP=rom_compile.txt;
     rm -rf ${TMP} ${RTMP} ${RMTMP};
