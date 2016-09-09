@@ -949,6 +949,11 @@ teh_action ()
 
 function the_start
 {
+    #   are we 64-bit ??
+    if ! [[ $(uname -m) =~ (x86_64|amd64) ]]; then
+        echo -e "\n\e[0;31myour processor is not supported\e[0m\n";
+        exit 1;
+    fi
     #   tempfile      repo sync log       rom build log
     TMP=temp.txt; RTMP=repo_log.txt; RMTMP=rom_compile.txt;
     rm -rf ${TMP} ${RTMP} ${RMTMP};
