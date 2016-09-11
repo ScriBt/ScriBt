@@ -12,15 +12,15 @@ rom_names ()
             MAN="platform_manifest.git";
         ;;
         2)
-            ROM_NAME="AOSIP";
-            ROM_FN="AOSiP";
-            ROMNIS="aosip";
-            MAN="platform_manifest.git";
-        ;;
-        3)
             ROM_NAME="AOKP";
             ROM_FN="AOKP";
             ROMNIS="aokp";
+            MAN="platform_manifest.git";
+        ;;
+        3)
+            ROM_NAME="AOSIP";
+            ROM_FN="AOSiP";
+            ROMNIS="aosip";
             MAN="platform_manifest.git";
         ;;
         4)
