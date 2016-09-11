@@ -193,7 +193,13 @@ function tools
         echo -e "${CL_PNK}==============================================${NONE}\n";
         read TOOL;
         case "$TOOL" in
-            1) installdeps ;;
+            1) case "${PKGMGR}" in
+                   "apt")
+                       installdeps ;;
+                   "pacman")
+                       installdeps_arch ;;
+               esac
+            ;;
             2) java_menu ;;
             3) set_ccvars ;;
             4) udev_rules ;;
@@ -251,6 +257,47 @@ function tools
         # Install 'em all
         sudo apt-get install -y ${COMMON_PKGS[*]} ${DISTRO_PKGS[*]};
     } #installdeps
+
+    installdeps_arch ()
+    {
+        #common packages
+        PKGS="git gnupg flex bison gperf sdl wxgtk squashfs-tools curl ncurses zlib schedtool perl-switch zip unzip libxslt python2-virtualenv bc rsync maven";
+        PKGS64="$( pacman -Sgq multilib-devel ) lib32-zlib lib32-ncurses lib32-readline";
+        PKGSJAVA="jdk6 jdk7-openjdk";
+        PKGS_CONFLICT="gcc gcc-libs";
+        #sort out already installed pkgs
+        for item in ${PKGS} ${PKGS64} ${PKGSJAVA}; do
+            if ! pacman -Qq ${item} &> /dev/null; then
+                PKGSREQ="${item} ${PKGSREQ}";
+            fi
+        done
+        #if there are required packages, run the installer
+        if test ${#PKGSREQ} -ge 4 ; then
+            #choose an AUR package manager instead of pacman
+            for item in yaourt pacaur packer; do
+                if which ${item} &> /dev/null; then
+                    AURMGR="${item}";
+                fi
+            done
+            if test -z ${AURMGR} ; then
+                echo -e "\n${CL_RED}no AUR manager found${NONE}\n";
+                exit 1;
+            fi
+            #look for conflicting packages and uninstall them
+            for item in ${PKGS_CONFLICT}; do
+                if pacman -Qq ${item} &> /dev/null; then
+                    sudo pacman -Rddns --noconfirm ${item};
+                    sleep 3;
+                fi
+            done
+            #install required packages
+            for item in ${PKGSREQ}; do
+                ${AURMGR} -S --noconfirm $item;
+            done
+        else
+            echo -e "\n${CL_LGN}you already have all required packages${NONE}\n";
+        fi
+    } #installdeps_arch
 
     function java_menu
     {
