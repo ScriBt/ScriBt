@@ -401,7 +401,10 @@ function init
     rom_select;
     echo -e "\nYou have chosen ${CL_LCN}->${NONE} $ROM_FN\n";
     sleep 1;
-    echo -e "Since Branches may live or die at any moment, ${CL_LRD}Specify the Branch${NONE} you're going to sync\n";
+    echo -e "${CL_WYT}Detecting Available Branches in ${ROM_FN} Repository...${NONE}\n";
+    git ls-remote -h https://github.com/${ROM_NAME}/${MAN} |\
+        awk '{print $2}' | awk -F "/" '{if (length($4) != 0) {print $3"/"$4} else {print $3}}';
+    echo -e "\nThese Branches are available at the moment\n${CL_LRD}Specify the Branch${NONE} you're going to sync\n";
     ST="${CL_LRD}Branch${NONE}"; shut_my_mouth BR "$ST";
     echo -e "Any ${CL_LRD}Source you have already synced?${NONE} ${CL_LGN}[Y/N]${NONE}\n"; gimme_info "refer";
     ST="Use Reference Source"; shut_my_mouth RF "$ST";
