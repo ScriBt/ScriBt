@@ -26,17 +26,24 @@
 # Adrian DC                                                            #
 # Akhil Narang                                                         #
 # CubeDev                                                              #
+# nosedive                                                             #
 #======================================================================#
 
-function apt_check
+function pkgmgr_check
 {
     if [ -d "/etc/apt" ]; then
         echo -e "\n${CL_LRD}Alright, apt detected.${NONE}\n";
+        PKGMGR="apt";
+    elif [ -d "/etc/pacman.d" ]; then
+        echo -e "\n${CL_LRD}Alright, pacman detected.${NONE}\n";
+        PKGMGR="pacman";
     else
-        echo -e "\nApt configuration has not been found. A Debian/Ubuntu based Distribution is required to run ScriBt.\n";
+        echo -e "\nNeither apt nor pacman configuration has been found.";
+        echo -e "\nA Debian/Ubuntu based Distribution or Archlinux is";
+        echo -e "\nrequired to run ScriBt.\n";
         exit 1;
     fi
-} # apt_check
+} # pkgmgr_check
 
 function exitScriBt
 {
@@ -954,6 +961,8 @@ function the_start
         echo -e "\n\e[0;31myour processor is not supported\e[0m\n";
         exit 1;
     fi
+    # is the distro supported ??
+    pkgmgr_check;
     #   tempfile      repo sync log       rom build log
     TMP=temp.txt; RTMP=repo_log.txt; RMTMP=rom_compile.txt;
     rm -rf ${TMP} ${RTMP} ${RMTMP};
@@ -979,7 +988,6 @@ function the_start
     color_my_life $DMCOL;
     echo -e "\n${CL_LBL}Prompting for Root Access...${NONE}\n";
     sudo echo -e "\n${CL_LGN}Root access OK. You won't be asked again${NONE}";
-    apt_check;
     export CALL_ME_ROOT="$(pwd)";
     sleep 3;
     clear;
