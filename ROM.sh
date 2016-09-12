@@ -135,9 +135,16 @@ function tools
         echo -e "If you have Installed Multiple Versions of Java or Installed Java from Different Providers (OpenJDK / Oracle)";
         echo -e "You may now select the Version of Java which is to be used BY-DEFAULT\n";
         echo -e "${CL_BLU}================================================================${NONE}\n";
-        sudo update-alternatives --config java;
-        echo -e "\n${CL_BLU}================================================================${NONE}\n";
-        sudo update-alternatives --config javac;
+        case "${PKGMGR}" in
+            "apt")
+                sudo update-alternatives --config java;
+                echo -e "\n${CL_BLU}================================================================${NONE}\n";
+                sudo update-alternatives --config javac ;;
+            "pacman")
+                archlinux-java status;
+                read -p "please enter desired version (ie. \"java-7-openjdk\"): " ARCHJA;
+                sudo archlinux-java set ${ARCHJA} ;;
+        esac
         echo -e "\n${CL_BLU}================================================================${NONE}";
     } # java_select
 
@@ -150,7 +157,10 @@ function tools
         echo;
         case "$REMOJA" in
             [yY])
-               sudo apt-get purge openjdk-* icedtea-* icedtea6-*;
+                case "${PKGMGR}" in
+                    "apt") sudo apt-get purge openjdk-* icedtea-* icedtea6-* ;;
+                    "pacman") sudo pacman -Rddns $( pacman -Qqs ^jdk ) ;;
+                esac
                 echo -e "\nRemoved Other Versions successfully" ;;
             [nN])
                 echo -e "Keeping them Intact" ;;
@@ -160,9 +170,15 @@ function tools
             ;;
         esac
         echo -e "${CL_RED}==========================================================${NONE}\n";
-        sudo apt-get update -y;
+        case "${PKGMGR}" in
+            "apt") sudo apt-get update -y ;;
+            "pacman") sudo pacman -Sy ;;
+        esac
         echo -e "\n${CL_RED}==========================================================${NONE}\n";
-        sudo apt-get install openjdk-$1-jdk -y;
+        case "${PKGMGR}" in
+            "apt") sudo apt-get install openjdk-$1-jdk -y ;;
+            "pacman") sudo pacman -S jdk$1-openjdk ;;
+        esac
         echo -e "\n${CL_RED}==========================================================${NONE}";
         if [[ $( java -version > $TMP && grep -c "java version \"1\.$1" $TMP ) == "1" ]]; then
             echo -e "OpenJDK-$1 or Java 1.$1.0 has been successfully installed";
@@ -315,7 +331,9 @@ function tools
                 echo -e "1. Java 1.6.0 (4.4 Kitkat)";
                 echo -e "2. Java 1.7.0 (5.x.x Lollipop && 6.x.x Marshmallow)";
                 echo -e "3. Java 1.8.0 (7.x.x Nougat)\n";
-                echo -e "4. Ubuntu 16.04 & Want to install Java 7";
+                case "${PKGMGR}" in
+                    "apt") echo -e "4. Ubuntu 16.04 & Want to install Java 7" ;;
+                esac
                 read JAVER;
                 case "$JAVER" in
                     1) java 6 ;;
