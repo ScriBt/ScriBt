@@ -26,17 +26,24 @@
 # Adrian DC                                                            #
 # Akhil Narang                                                         #
 # CubeDev                                                              #
+# nosedive                                                             #
 #======================================================================#
 
-function apt_check
+function pkgmgr_check
 {
     if [ -d "/etc/apt" ]; then
         echo -e "\n${CL_LRD}Alright, apt detected.${NONE}\n";
+        PKGMGR="apt";
+    elif [ -d "/etc/pacman.d" ]; then
+        echo -e "\n${CL_LRD}Alright, pacman detected.${NONE}\n";
+        PKGMGR="pacman";
     else
-        echo -e "\nApt configuration has not been found. A Debian/Ubuntu based Distribution is required to run ScriBt.\n";
+        echo -e "\nNeither apt nor pacman configuration has been found.";
+        echo -e "\nA Debian/Ubuntu based Distribution or Archlinux is";
+        echo -e "\nrequired to run ScriBt.\n";
         exit 1;
     fi
-} # apt_check
+} # pkgmgr_check
 
 function exitScriBt
 {
@@ -128,9 +135,16 @@ function tools
         echo -e "If you have Installed Multiple Versions of Java or Installed Java from Different Providers (OpenJDK / Oracle)";
         echo -e "You may now select the Version of Java which is to be used BY-DEFAULT\n";
         echo -e "${CL_BLU}================================================================${NONE}\n";
-        sudo update-alternatives --config java;
-        echo -e "\n${CL_BLU}================================================================${NONE}\n";
-        sudo update-alternatives --config javac;
+        case "${PKGMGR}" in
+            "apt")
+                sudo update-alternatives --config java;
+                echo -e "\n${CL_BLU}================================================================${NONE}\n";
+                sudo update-alternatives --config javac ;;
+            "pacman")
+                archlinux-java status;
+                read -p "please enter desired version (ie. \"java-7-openjdk\"): " ARCHJA;
+                sudo archlinux-java set ${ARCHJA} ;;
+        esac
         echo -e "\n${CL_BLU}================================================================${NONE}";
     } # java_select
 
@@ -143,7 +157,10 @@ function tools
         echo;
         case "$REMOJA" in
             [yY])
-               sudo apt-get purge openjdk-* icedtea-* icedtea6-*;
+                case "${PKGMGR}" in
+                    "apt") sudo apt-get purge openjdk-* icedtea-* icedtea6-* ;;
+                    "pacman") sudo pacman -Rddns $( pacman -Qqs ^jdk ) ;;
+                esac
                 echo -e "\nRemoved Other Versions successfully" ;;
             [nN])
                 echo -e "Keeping them Intact" ;;
@@ -153,9 +170,15 @@ function tools
             ;;
         esac
         echo -e "${CL_RED}==========================================================${NONE}\n";
-        sudo apt-get update -y;
+        case "${PKGMGR}" in
+            "apt") sudo apt-get update -y ;;
+            "pacman") sudo pacman -Sy ;;
+        esac
         echo -e "\n${CL_RED}==========================================================${NONE}\n";
-        sudo apt-get install openjdk-$1-jdk -y;
+        case "${PKGMGR}" in
+            "apt") sudo apt-get install openjdk-$1-jdk -y ;;
+            "pacman") sudo pacman -S jdk$1-openjdk ;;
+        esac
         echo -e "\n${CL_RED}==========================================================${NONE}";
         if [[ $( java -version > $TMP && grep -c "java version \"1\.$1" $TMP ) == "1" ]]; then
             echo -e "OpenJDK-$1 or Java 1.$1.0 has been successfully installed";
@@ -186,7 +209,13 @@ function tools
         echo -e "${CL_PNK}==============================================${NONE}\n";
         read TOOL;
         case "$TOOL" in
-            1) installdeps ;;
+            1) case "${PKGMGR}" in
+                   "apt")
+                       installdeps ;;
+                   "pacman")
+                       installdeps_arch ;;
+               esac
+            ;;
             2) java_menu ;;
             3) set_ccvars ;;
             4) udev_rules ;;
@@ -245,6 +274,47 @@ function tools
         sudo apt-get install -y ${COMMON_PKGS[*]} ${DISTRO_PKGS[*]};
     } #installdeps
 
+    installdeps_arch ()
+    {
+        #common packages
+        PKGS="git gnupg flex bison gperf sdl wxgtk squashfs-tools curl ncurses zlib schedtool perl-switch zip unzip libxslt python2-virtualenv bc rsync maven";
+        PKGS64="$( pacman -Sgq multilib-devel ) lib32-zlib lib32-ncurses lib32-readline";
+        PKGSJAVA="jdk6 jdk7-openjdk";
+        PKGS_CONFLICT="gcc gcc-libs";
+        #sort out already installed pkgs
+        for item in ${PKGS} ${PKGS64} ${PKGSJAVA}; do
+            if ! pacman -Qq ${item} &> /dev/null; then
+                PKGSREQ="${item} ${PKGSREQ}";
+            fi
+        done
+        #if there are required packages, run the installer
+        if test ${#PKGSREQ} -ge 4 ; then
+            #choose an AUR package manager instead of pacman
+            for item in yaourt pacaur packer; do
+                if which ${item} &> /dev/null; then
+                    AURMGR="${item}";
+                fi
+            done
+            if test -z ${AURMGR} ; then
+                echo -e "\n${CL_RED}no AUR manager found${NONE}\n";
+                exit 1;
+            fi
+            #look for conflicting packages and uninstall them
+            for item in ${PKGS_CONFLICT}; do
+                if pacman -Qq ${item} &> /dev/null; then
+                    sudo pacman -Rddns --noconfirm ${item};
+                    sleep 3;
+                fi
+            done
+            #install required packages
+            for item in ${PKGSREQ}; do
+                ${AURMGR} -S --noconfirm $item;
+            done
+        else
+            echo -e "\n${CL_LGN}you already have all required packages${NONE}\n";
+        fi
+    } #installdeps_arch
+
     function java_menu
     {
         echo -e "${CL_LGN}=====================${NONE} ${CL_PNK}JAVA Installation${NONE} ${CL_LGN}====================${NONE}\n";
@@ -261,7 +331,9 @@ function tools
                 echo -e "1. Java 1.6.0 (4.4 Kitkat)";
                 echo -e "2. Java 1.7.0 (5.x.x Lollipop && 6.x.x Marshmallow)";
                 echo -e "3. Java 1.8.0 (7.x.x Nougat)\n";
-                echo -e "4. Ubuntu 16.04 & Want to install Java 7";
+                case "${PKGMGR}" in
+                    "apt") echo -e "4. Ubuntu 16.04 & Want to install Java 7" ;;
+                esac
                 read JAVER;
                 case "$JAVER" in
                     1) java 6 ;;
@@ -952,6 +1024,13 @@ teh_action ()
 
 function the_start
 {
+    #   are we 64-bit ??
+    if ! [[ $(uname -m) =~ (x86_64|amd64) ]]; then
+        echo -e "\n\e[0;31myour processor is not supported\e[0m\n";
+        exit 1;
+    fi
+    # is the distro supported ??
+    pkgmgr_check;
     #   tempfile      repo sync log       rom build log
     TMP=temp.txt; RTMP=repo_log.txt; RMTMP=rom_compile.txt;
     rm -rf ${TMP} ${RTMP} ${RMTMP};
@@ -977,7 +1056,6 @@ function the_start
     color_my_life $DMCOL;
     echo -e "\n${CL_LBL}Prompting for Root Access...${NONE}\n";
     sudo echo -e "\n${CL_LGN}Root access OK. You won't be asked again${NONE}";
-    apt_check;
     export CALL_ME_ROOT="$(pwd)";
     sleep 3;
     clear;
