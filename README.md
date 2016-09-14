@@ -5,6 +5,8 @@
 
 Ready to use. Extensive Testing needed.
 
+**Supports Ubuntu & Debian based Distros, and ArchLinux**
+
 **Tip!** : **ROMNIS** - **ROM** **N**ame **I**n **S**ource - eg. cm, bliss, candy, crdroid etc.
 
 ScriBt consists of five main Actions:
@@ -136,8 +138,8 @@ bash ROM.sh automate
 So, the ways of Building Android are...
 
 * Using **Normal** Build System
-	- Using Jack Toolchain (MarshMallow onwards)
-	-  Not Using Jack Toolchain (Till Nougat)
+	- **with** Jack Toolchain (MarshMallow onwards)
+	- **without** Jack Toolchain (Till Nougat)
 * Using **Ninja** Build System
 	- **with** Jack Toolchain (Nougat onwards)
 	- **without** Jack Toolchain (Nougat onwards)
@@ -148,6 +150,7 @@ So, the ways of Building Android are...
 * Adrian DC "AdrianDC"
 * Akhil Narang "akhilnarang"
 * CubeDev
+* nosedive
 * Many more as this goes public
 
 #Supported ROMs
@@ -176,7 +179,7 @@ So, the ways of Building Android are...
 22. GZR Tesla
 23. TipsyOs
 24. GZR Validus
-25. XenonHD by Team Horizon
+25. XenonHD
 26. XOSP
 27. Zephyr-OS
 
