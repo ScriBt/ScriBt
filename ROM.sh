@@ -210,10 +210,8 @@ function tools
         read TOOL;
         case "$TOOL" in
             1) case "${PKGMGR}" in
-                   "apt")
-                       installdeps ;;
-                   "pacman")
-                       installdeps_arch ;;
+                   "apt") installdeps ;;
+                   "pacman") installdeps_arch ;;
                esac
             ;;
             2) java_menu ;;
@@ -223,7 +221,8 @@ function tools
             5) make_me_old "do_it"; make_me_old "chk_it" ;;
             *) echo -e "Invalid Selection. Going Back."; tool_menu ;;
         esac
-    }
+        if [ -z "$automate" ]; then quick_menu; fi;
+    } # tool_menu
 
     installdeps ()
     {
@@ -272,24 +271,24 @@ function tools
         esac
         # Install 'em all
         sudo apt-get install -y ${COMMON_PKGS[*]} ${DISTRO_PKGS[*]};
-    } #installdeps
+    } # installdeps
 
     installdeps_arch ()
     {
-        #common packages
+        # common packages
         PKGS="git gnupg flex bison gperf sdl wxgtk squashfs-tools curl ncurses zlib schedtool perl-switch zip unzip libxslt python2-virtualenv bc rsync maven";
         PKGS64="$( pacman -Sgq multilib-devel ) lib32-zlib lib32-ncurses lib32-readline";
         PKGSJAVA="jdk6 jdk7-openjdk";
         PKGS_CONFLICT="gcc gcc-libs";
-        #sort out already installed pkgs
+        # sort out already installed pkgs
         for item in ${PKGS} ${PKGS64} ${PKGSJAVA}; do
             if ! pacman -Qq ${item} &> /dev/null; then
                 PKGSREQ="${item} ${PKGSREQ}";
             fi
         done
-        #if there are required packages, run the installer
+        # if there are required packages, run the installer
         if test ${#PKGSREQ} -ge 4 ; then
-            #choose an AUR package manager instead of pacman
+            # choose an AUR package manager instead of pacman
             for item in yaourt pacaur packer; do
                 if which ${item} &> /dev/null; then
                     AURMGR="${item}";
@@ -299,21 +298,21 @@ function tools
                 echo -e "\n${CL_RED}no AUR manager found${NONE}\n";
                 exit 1;
             fi
-            #look for conflicting packages and uninstall them
+            # look for conflicting packages and uninstall them
             for item in ${PKGS_CONFLICT}; do
                 if pacman -Qq ${item} &> /dev/null; then
                     sudo pacman -Rddns --noconfirm ${item};
                     sleep 3;
                 fi
             done
-            #install required packages
+            # install required packages
             for item in ${PKGSREQ}; do
                 ${AURMGR} -S --noconfirm $item;
             done
         else
             echo -e "\n${CL_LGN}you already have all required packages${NONE}\n";
         fi
-    } #installdeps_arch
+    } # installdeps_arch
 
     function java_menu
     {
@@ -1024,7 +1023,7 @@ teh_action ()
 
 function the_start
 {
-    #   are we 64-bit ??
+    # are we 64-bit ??
     if ! [[ $(uname -m) =~ (x86_64|amd64) ]]; then
         echo -e "\n\e[0;31myour processor is not supported\e[0m\n";
         exit 1;
@@ -1042,7 +1041,7 @@ function the_start
         echo "${CL_LRD}ROM.rc isn't present in ${PWD}${NONE}, please make sure repo is cloned correctly";
         exit 1;
     fi
-    #CHEAT CHEAT CHEAT!
+    # CHEAT CHEAT CHEAT!
     if [ -f PREF.rc ]; then
         . $(pwd)/PREF.rc;
         echo -e "\n${CL_RED}*${NONE}${CL_PNK}AutoBot${NONE}${CL_RED}*${NONE} Cheat Code shut_my_mouth applied. I won't ask questions anymore\n";
