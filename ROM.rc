@@ -6,168 +6,186 @@ rom_names ()
 {
     case "$1" in
         1)
-            ROM_NAME="AICP";
+            ROM_NAME=( AICP );
+            MAN=( platform_manifest.git );
             ROM_FN="AICP";
             ROMNIS="aicp";
-            MAN="platform_manifest.git";
         ;;
         2)
-            ROM_NAME="AOKP";
+            ROM_NAME=( AOKP );
+            MAN=( platform_manifest.git );
             ROM_FN="AOKP";
             ROMNIS="aokp";
-            MAN="platform_manifest.git";
         ;;
         3)
-            ROM_NAME="AOSIP";
+            ROM_NAME=( AOSIP );
+            MAN=( platform_manifest.git );
             ROM_FN="AOSiP";
             ROMNIS="aosip";
-            MAN="platform_manifest.git";
         ;;
         4)
-            ROM_NAME="AOSP-CAF";
+            ROM_NAME=( AOSP-CAF );
+            MAN=( platform_manifest.git );
             ROM_FN="AOSP-CAF";
             ROMNIS="aosp";
-            MAN="platform_manifest.git";
         ;;
         5)
-            ROM_NAME="AOSP-RRO";
+            ROM_NAME=( AOSP-RRO );
+            MAN=( manifest.git );
             ROM_FN="AOSP-RRO";
             ROMNIS="aosp";
-            MAN="manifest.git";
         ;;
         6)
-            ROM_NAME="BlissRoms";
+            ROM_NAME=( BlissRoms );
+            MAN=( platform_manifest.git );
             ROM_FN="BlissRoms";
             ROMNIS="bliss";
-            MAN="platform_manifest.git";
         ;;
         7)
-            ROM_NAME="CandyRoms";
+            ROM_NAME=( CandyKat CandyRoms );
+            MAN=( candykat.git candy.git );
             ROM_FN="CandyRoms";
             ROMNIS="candy";
-            MAN="candy.git";
         ;;
         8)
-            ROM_NAME="crdroidandroid";
+            ROM_NAME=( CarbonROM CarbonDev );
+            MAN=( android.git android.git );
+            ROM_FN="CarbonROM";
+            ROMNIS="carbon";
+            ;;
+        9)
+            ROM_NAME=( crdroidandroid );
+            MAN=( manifest.git );
             ROM_FN="crDroid";
             ROMNIS="crdroid";
-            MAN="android.git";
-        ;;
-        9)
-            ROM_NAME="CyanideL";
-            ROM_FN="Cyanide";
-            ROMNIS="cyanide";
-            MAN="cyanide_manifest.git";
         ;;
         10)
-            ROM_NAME="CyanogenMod";
-            ROM_FN="CyanogenMod";
-            ROMNIS="cm";
-            MAN="android.git";
+            ROM_NAME=( CyanideL );
+            MAN=( cyanide_manifest.git );
+            ROM_FN="Cyanide";
+            ROMNIS="cyanide";
         ;;
         11)
-            ROM_NAME="DirtyUnicorns";
-            ROM_FN="Dirty Unicorns";
-            ROMNIS="du";
-            MAN="android_manifest.git";
+            ROM_NAME=( CyanogenMod );
+            MAN=( android.git );
+            ROM_FN="CyanogenMod";
+            ROMNIS="cm";
         ;;
         12)
-            ROM_NAME="FlayrOS";
+            ROM_NAME=( DirtyUnicorns );
+            MAN=( android_manifest.git );
+            ROM_FN="Dirty Unicorns";
+            ROMNIS="du";
+        ;;
+        13)
+            ROM_NAME=( FlayrOS );
+            MAN=( manifest.git );
             ROM_FN="Flayr OS";
             ROMNIS="full";
             ROMV="flayr";
-            MAN="manifest.git";
-        ;;
-        13)
-            ROM_NAME="Krexus-CAF";
-            ROM_FN="Krexus CAF";
-            ROMNIS="krexus";
-            MAN="manifest.git";
         ;;
         14)
-            ROM_NAME="OmniROM";
-            ROM_FN="OmniROM";
-            ROMNIS="omni";
-            MAN="android.git";
+            ROM_NAME=( Krexus-CAF );
+            MAN=( manifest.git );
+            ROM_FN="Krexus CAF";
+            ROMNIS="krexus";
         ;;
         15)
-            ROM_NAME="TeamOrion";
-            ROM_FN="Orion OS";
-            ROMNIS="orion";
-            MAN="platform_manifest.git";
+            ROM_NAME=( Team-OctOS );
+            MAN=( platform_manifest.git );
+            ROM_FN="OctOs";
+            ROMNIS="to";
         ;;
         16)
-            ROM_NAME="OwnROM";
-            ROM_FN="OwnROM";
-            ROMNIS="ownrom";
-            MAN="android.git";
+            ROM_NAME=( OmniROM );
+            MAN=( manifest.git );
+            ROM_FN="OmniROM";
+            ROMNIS="omni";
         ;;
         17)
-           ROM_NAME="PAC-ROM";
-           ROM_FN="PAC ROM";
-           ROMNIS="pac";
-           MAN="pac-rom.git";
+            ROM_NAME=( TeamOrion );
+            MAN=( platform_manifest.git );
+            ROM_FN="Orion OS";
+            ROMNIS="orion";
         ;;
         18)
-            ROM_NAME="AOSPA";
-            ROM_FN="Paranoid Android";
-            ROMNIS="pa";
-            MAN="manifest.git";
+            ROM_NAME=( OwnROM );
+            MAN=( manifest.git );
+            ROM_FN="OwnROM";
+            ROMNIS="ownrom";
         ;;
         19)
-            ROM_NAME="ResurrectionRemix";
-            ROM_FN="Resurrection Remix";
-            ROMNIS="cm";
-            MAN="platform_manifest.git";
+            ROM_NAME=( PAC-ROM );
+            MAN=( pac-rom.git );
+            ROM_FN="PAC ROM";
+            ROMNIS="pac";
         ;;
         20)
-            ROM_NAME="SlimRoms";
-            ROM_FN="SlimRoms";
-            ROMNIS="slim";
-            MAN="platform_manifest.git";
+            ROM_NAME=( AOSPA );
+            MAN=( manifest.git );
+            ROM_FN="Paranoid Android";
+            ROMNIS="pa";
         ;;
         21)
-            ROM_NAME="temasek";
-            ROM_FN="Temasek";
+            ROM_NAME=( ResurrectionRemix );
+            MAN=( platform_manifest.git );
+            ROM_FN="Resurrection Remix";
             ROMNIS="cm";
-            MAN="android.git";
         ;;
         22)
-            ROM_NAME="Tesla-M";
-            ROM_FN="GZR Tesla";
-            ROMNIS="tesla";
-            MAN="manifest.git";
+            ROM_NAME=( SlimRoms );
+            MAN=( platform_manifest.git );
+            ROM_FN="SlimRoms";
+            ROMNIS="slim";
         ;;
         23)
-            ROM_NAME="TipsyOs";
-            ROM_FN="TipsyOs";
-            ROMNIS="tipsy";
-            MAN="platform_manifest.git";
+            ROM_NAME=( temasek );
+            MAN=( android.git );
+            ROM_FN="Temasek";
+            ROMNIS="cm";
         ;;
         24)
-            ROM_NAME="ValidusOs-M";
-            ROM_FN="GZR Validus";
-            ROMNIS="validus";
-            MAN="manifest.git";
+            ROM_NAME=( Tesla-M TeslaRom-N );
+            MAN=( manifest.git manifest.git );
+            ROM_FN="GZR Tesla";
+            ROMNIS="tesla";
         ;;
         25)
-            ROM_NAME="TeamHorizon";
-            ROM_FN="XenonHD";
-            ROMNIS="xenonhd";
-            MAN="platform_manifest.git";
+            ROM_NAME=( TipsyOs );
+            MAN=( platform_manifest.git );
+            ROM_FN="TipsyOs";
+            ROMNIS="tipsy";
         ;;
         26)
-            ROM_NAME="XOSP-Project";
-            ROM_FN="XOSP";
-            ROMNIS="xosp";
-            MAN="platform_manifest.git";
+            ROM_NAME=( TV-LP51 ValidusOs-M ValidusOs-N );
+            MAN=( manifest.git manifest.git manifest.git );
+            ROM_FN="GZR Validus";
+            ROMNIS="validus";
         ;;
         27)
-            ROM_NAME="Zephyr-OS";
+            ROM_NAME=( VanirAOSP );
+            MAN=( platform_manifest.git );
+            ROM_FN="VanirAOSP";
+            ROMNIS="vanir";
+        ;;
+        28)
+            ROM_NAME=( TeamHorizon );
+            MAN=( platform_manifest.git );
+            ROM_FN="XenonHD";
+            ROMNIS="xenonhd";
+        ;;
+        29)
+            ROM_NAME=( XOSP-Project );
+            MAN=( platform_manifest.git );
+            ROM_FN="XOSP";
+            ROMNIS="xosp";
+        ;;
+        30)
+            ROM_NAME=( Zephyr-Os );
+            MAN=( manifest.git );
             ROM_FN="Zephyr-OS";
             ROMNIS="aosp";
             ROMV="zos";
-            MAN="manifest.git";
         ;;
         *)
             if [ -z "$automate" ]; then

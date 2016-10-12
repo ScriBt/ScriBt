@@ -4,39 +4,6 @@
 #                  Place a Semi-colon ';' after entering a Value               #
 #==============================================================================#
 
-# Colors!
-DMCOL=                                  # Like Colors? [y/n]
-# Sync
-DMJOBS=                                 # No of Threads for Sync [Integral Values Plz]
-DMF=                                    # Force Sync ? [y/n]
-DMS=                                    # Silent sync ? [y/n]
-DMC=                                    # Sync Current Branch ? [y/n]
-DMB=                                    # Use clone-bundle ? [y/n]
-# ROM-Init
-ROMNO=                                  # ROM Selection Number [Refer ROM.sh / README.md]
-DMBR=                                   # Branch of the ROM
-DMRF=                                   # Have a Reference ? [YES/NO]
-DMRFL=                                  # Reference Source's Location from /
-DMCD=                                   # Set a Clone-Depth ? [y/n]
-DMDEP=1;                                # Depth Value (Default 1)
-# Device Info
-DMDEV=                                  # Device codename (Lowercases)
-DMBT=                                   # userdebug / user / eng
-DMCM=                                   # Device Company / Vendor
-# Build
-DMDTP=                                  # Device Type
-DMBO=1;                                 # DMBO=1 for Start Build with Zip Generation at the End - Better not to change
-DMSLT=                                  # lunch / brunch / breakfast
-DMMK=                                   # make / mka
-DMCL=                                   # Clean Before Build? [ 1 for installclean & 2 for total clean ]
-DMJK=                                   # Use Jack Toolchain [y/n] ?
-DMNJ=                                   # Use Ninja Toolchain [y/n] ?
-# Pre-Build
-BOOTRES=                                # Boot Anim Resolution Value (as instructed in main ScriBt)
-DMNMK=                                  # No of Makefile calls you want to add
-DMLOC=(    );                           # Enter Location of each Makefile, seperated by spaces...
-                                        # ...Example -> LOC=( vendor/ex1/exmp.mk vendor/ex2/exmp.mk some/file/here.mk)
-
 function the_cherries                   # Since this is Automated - Use Proper Cherry-picks - conflicts won't be solved
 {
     builddir=$(pwd);                    # TO get back to Build Dir
@@ -49,7 +16,7 @@ function the_cherries                   # Since this is Automated - Use Proper C
 #   cherrypick [ENTER_COMMIT_ID];       # Commit ID in place of -> '[ENTER_COMMIT_ID]'
 #   cd $builddir;
 #   #==============================#
-# 
+#
 #   #===========PICK 2=============#
 #   cd ${builddir}/[ENTER_DIRECTORY];   # The Directory in which you need to Pick a Commit
 #   REPOPK=[ENTER_ORGANIZATION_NAME];   # Repo Provider who has that Repo
@@ -64,6 +31,8 @@ function the_cherries                   # Since this is Automated - Use Proper C
 
 function automate
 {
+    # Go Get some stuffs...
+    stuffs;
     # You may Enter your Desired Build Sequence here
     # Default Sequence - You may change this
     # You may enter your own build/device-specific commands, normally between any of these calls below, works.
@@ -71,4 +40,4 @@ function automate
     the_cherries;
     build;
     exitScriBt;
-}
+} #automate
