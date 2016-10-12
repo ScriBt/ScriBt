@@ -70,6 +70,9 @@ e. CCACHE Setup
 
 #6. Automated Cherry Picking
 
+After work's done, ScriBt saves the Configurations for that work, so that it could be automated next time...
+This is done on User's wish.
+
 as said before,
 #Extensive Testing is needed.
 
@@ -106,6 +109,12 @@ bash ROM.sh automate
 
 **^** - The Device Tree must be Compatible with the ROM you're building (Extra Toolchain Configs, Overlays etc. **ROMNIS-fying is taken care of in Point 3b** ) Else, Issues :) :P
 
+**Variables necessary for Automation**
+
+Since Vars have been removed from PREF.rc, those info will be seperately provided by me in the paste below...
+
+https://gist.github.com/a7r3/9fdbf9cca66c339cc87858960149ac09
+
 # Device Types
 
 * ```full``` - This indicates that the Device has **Adequate Storage Space** for building Entire Android System for it
@@ -123,26 +132,26 @@ bash ROM.sh automate
 # Building Android
 
 * **Jack** was introduced as a **Toolchain** from MarshMallow onwards for **Apps and Frameworks**.
-	- Uses a Java VM for compilation of Java Source Code (.java) to '.dex' (**D**alvik **Ex**ecutable) files
-	- Recommended for Systems having >8GB RAM.
-	- Systems with 4GB RAM can use it too, but it may cause heavy lags on compilation, so using Swap memory is Recommended for such users.
+    - Uses a Java VM for compilation of Java Source Code (.java) to '.dex' (**D**alvik **Ex**ecutable) files
+    - Recommended for Systems having >8GB RAM.
+    - Systems with 4GB RAM can use it too, but it may cause heavy lags on compilation, so using Swap memory is Recommended for such users.
 
 * **Ninja** was introduced from Android Nougat (7.x.x) as an Alternative **Build System**.
-	- No Compatibility Requirements.
+    - No Compatibility Requirements.
 
 * Companions for Ninja (iirc), which were introduced in Nougat are...
-	- **Kati** - https://android.googlesource.com/platform/build/kati/#kati
-	- **Soong** - https://android.googlesource.com/platform/build/soong#Soong
-	- **BluePrint** - https://android.googlesource.com/platform/build/blueprint/#Blueprint-Build-System
+    - **Kati** - https://android.googlesource.com/platform/build/kati/#kati
+    - **Soong** - https://android.googlesource.com/platform/build/soong#Soong
+    - **BluePrint** - https://android.googlesource.com/platform/build/blueprint/#Blueprint-Build-System
 
 So, the ways of Building Android are...
 
 * Using **Normal** Build System
-	- **with** Jack Toolchain (MarshMallow onwards)
-	- **without** Jack Toolchain (Till Nougat)
+    - **with** Jack Toolchain (MarshMallow onwards)
+    - **without** Jack Toolchain (Till Nougat)
 * Using **Ninja** Build System
-	- **with** Jack Toolchain (Nougat onwards)
-	- **without** Jack Toolchain (Nougat onwards)
+    - **with** Jack Toolchain (Nougat onwards)
+    - **without** Jack Toolchain (Nougat onwards)
 
 #CONTRIBUTORS
 
@@ -162,26 +171,29 @@ So, the ways of Building Android are...
 5. AOSP-RRO
 6. BlissRoms
 7. CandyRoms
-8. crDroid
-9. Cyanide-L
-10. CyanogenMod
-11. Dirty Unicorns
-12. FlayrOS
-13. Krexus - CAF
-14. OmniROM
-15. OrionOS
-16. OwnROM
-17. PAC-ROMs
-18. Paranoid Android / AOSPA
-19. Resurrection Remix
-20. SlimRoms
-21. Temasek
-22. GZR Tesla
-23. TipsyOs
-24. GZR Validus
-25. XenonHD
-26. XOSP
-27. Zephyr-OS
+8. CarbonROM
+9. crDroid
+10. Cyanide-L
+11. CyanogenMod
+12. DirtyUnicorns
+13. Flayr OS
+14. Krexus-CAF
+15. OctOs
+16. OmniROM
+17. Orion OS
+18. OwnROM
+19. PAC-ROM
+20. AOSPA
+21. Resurrection Remix
+22. SlimRoms
+23. Temasek
+24. GZR Tesla
+25. Tipsy OS
+26. GZR Validus
+27. VanirAOSP
+28. XenonHD
+29. XOSP
+30. Zephyr-Os
 
 More ROMs will be added, if missed 'em
 

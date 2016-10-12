@@ -32,32 +32,44 @@
 function pkgmgr_check
 {
     if [ -d "/etc/apt" ]; then
-        echo -e "\n${CL_LRD}Alright, apt detected.${NONE}\n";
+        echo -e "\n\033[0;31mAlright, apt detected.\033[0m\n";
         PKGMGR="apt";
     elif [ -d "/etc/pacman.d" ]; then
-        echo -e "\n${CL_LRD}Alright, pacman detected.${NONE}\n";
+        echo -e "\n$\033[0;31mAlright, pacman detected.\033[0m\n";
         PKGMGR="pacman";
     else
         echo -e "\nNeither apt nor pacman configuration has been found.";
         echo -e "\nA Debian/Ubuntu based Distribution or Archlinux is";
         echo -e "\nrequired to run ScriBt.\n";
-        exit 1;
+        exitScriBt 1;
     fi
 } # pkgmgr_check
 
-function exitScriBt
+exitScriBt ()
 {
-    echo -e "\n\nThanks for using ${CL_LRD}S${NONE}cri${CL_GRN}B${NONE}t. Have a Nice Day\n\n";
-    sleep 1;
-    echo -e "${CL_LRD}Bye!${NONE}";
-    exit 0;
+    prefGen ()
+    {
+        echo -e "\n\nDeleting old ${CL_LRD}stuffs${NONE}, the weird way";
+        sed -e '/SB.*/d' -e '/stuffs ()/d' -e '/{ #start/d' -e '/} #stuffs/d' -i PREF.rc;
+        echo -e "\nSaving Current Configuration to PREF.rc...";
+        set -o posix; set > ${TV2};
+        echo -e "stuffs ()\n{ #start" >> PREF.rc
+        diff ${TV1} ${TV2} | grep SB | sed -e 's/[<>] /    /g' >> PREF.rc;
+        echo -e "} #stuffs" >> PREF.rc;
+        echo -e "\nPREF.rc for the current Configuration created successfully\nYou may automate ScriBt next time...";
+    } #prefGen
+
+    if [[ "$RQ_PGN" == [Yy] ]]; then prefGen; fi;
+    echo -e "\n\nThanks for using ${CL_LRD}S${NONE}cri${CL_GRN}B${NONE}t.\n\n";
+    [[ "$1" == "0" ]] && echo -e "${CL_LGN}Peace! :)${NONE}" || echo -e "${CL_LRD}Failed somewhere :(";
+    exit $1;
 } # exitScriBt
 
 the_response ()
 {
     case "$1" in
-    "COOL") echo -e "${CL_RED}*${NONE}${CL_PNK}AutoBot${NONE}${CL_RED}*${NONE} Automated $2 ${CL_LGN}Successful! :)${NONE}" ;;
-    "FAIL") echo -e "${CL_RED}*${NONE}${CL_PNK}AutoBot${NONE}${CL_RED}*${NONE} Automated $2 ${CL_LRD}Failed :(${NONE}" ;;
+    "COOL") echo -e "${ATBT} Automated $2 ${CL_LGN}Successful! :)${NONE}" ;;
+    "FAIL") echo -e "${ATBT} Automated $2 ${CL_LRD}Failed :(${NONE}" ;;
     esac
 } # the_response
 
@@ -95,7 +107,7 @@ cherrypick ()
 {
     echo -ne '\033]0;ScriBt : Picking Cherries\007';
     echo -e "${CL_GRN}======================= ${NONE}Pick those ${CL_LRD}Cherries${NONE} ${CL_GRN}======================${NONE}\n";
-    echo -e "     ${CL_RED}*${NONE}${CL_PNK}AutoBot${NONE}${CL_RED}*${NONE} Attempting to Cherry-Pick Provided Commits\n";
+    echo -e "     ${ATBT} Attempting to Cherry-Pick Provided Commits\n";
     git fetch https://github.com/${REPOPK}/${REPONAME} ${CP_BRNC};
     git cherry-pick $1;
     echo -e "\nIT's possible that you may face conflicts while merging a C-Pick. Solve those and then Continue.";
@@ -116,12 +128,11 @@ function set_ccvars
     read CCSIZE;
     echo -e "Create a New Folder for CCACHE and Specify it's location from ${CL_LRD}/${NONE} : \c";
     read CCDIR;
-    for RC in bashrc profile
-    do
-    if [ -f ${HOME}/.${RC} ]; then
-        sudo echo -e "export USE_CCACHE=1\nexport CCACHE_DIR=${CCDIR}" >> ${HOME}/.${RC};
-        . ${HOME}/.${RC};
-    fi
+    for RC in bashrc profile; do
+        if [ -f ${HOME}/.${RC} ]; then
+            sudo echo -e "export USE_CCACHE=1\nexport CCACHE_DIR=${CCDIR}" >> ${HOME}/.${RC};
+            . ${HOME}/.${RC};
+        fi
     done
     set_ccache;
 } # set_ccvars
@@ -229,8 +240,7 @@ function tools
         echo -e "${CL_PNK}Analyzing Distro...${NONE}";
         PACK="/etc/apt/sources.list.d/official-package-repositories.list";
         DISTROS=( precise quantal raring saucy trusty utopic vivid wily xenial );
-        for DIST in ${DISTROS[*]}
-        do
+        for DIST in ${DISTROS[*]}; do
             if [[ $(grep -c "${DIST}" "${PACK}") != "0" ]]; then
                 export DISTRO="${DIST}";
             fi
@@ -287,16 +297,16 @@ function tools
             fi
         done
         # if there are required packages, run the installer
-        if test ${#PKGSREQ} -ge 4 ; then
+        if [ ${#PKGSREQ} -ge 4 ]; then
             # choose an AUR package manager instead of pacman
             for item in yaourt pacaur packer; do
                 if which ${item} &> /dev/null; then
                     AURMGR="${item}";
                 fi
             done
-            if test -z ${AURMGR} ; then
+            if [ -z ${AURMGR} ]; then
                 echo -e "\n${CL_RED}no AUR manager found${NONE}\n";
-                exit 1;
+                exitScriBt 1;
             fi
             # look for conflicting packages and uninstall them
             for item in ${PKGS_CONFLICT}; do
@@ -319,20 +329,17 @@ function tools
         echo -e "${CL_LGN}=====================${NONE} ${CL_PNK}JAVA Installation${NONE} ${CL_LGN}====================${NONE}\n";
         echo -e "1. Install Java";
         echo -e "2. Switch Between Java Versions / Providers\n";
-        echo -e "\nNote: ScriBt installs Java by OpenJDK";
+        echo -e "Note: ScriBt installs Java by OpenJDK";
         echo -e "\n${CL_LGN}==========================================================${NONE}\n";
         read JAVAS;
-        echo;
         case "$JAVAS" in
             1)
                 echo -ne '\033]0;ScriBt : Java\007';
-                echo -e "Android Version of the ROM you're building ? ";
+                echo -e "\nAndroid Version of the ROM you're building ? ";
                 echo -e "1. Java 1.6.0 (4.4 Kitkat)";
                 echo -e "2. Java 1.7.0 (5.x.x Lollipop && 6.x.x Marshmallow)";
                 echo -e "3. Java 1.8.0 (7.x.x Nougat)\n";
-                case "${PKGMGR}" in
-                    "apt") echo -e "4. Ubuntu 16.04 & Want to install Java 7" ;;
-                esac
+                if [[ "${PKGMGR}" == "apt" ]]; then echo -e "4. Ubuntu 16.04 & Want to install Java 7"; fi;
                 read JAVER;
                 case "$JAVER" in
                     1) java 6 ;;
@@ -388,11 +395,11 @@ function tools
 shut_my_mouth ()
 {
     if [ ! -z "$automate" ]; then
-        RST="DM$1";
-        echo -e "${CL_RED}*${NONE}${CL_PNK}AutoBot${NONE}${CL_RED}*${NONE} $2 : ${!RST}";
+        RST="SB$1";
+        echo -e "${ATBT} $2 : ${!RST}";
     else
-        read DM2;
-        if [ -z "$3" ]; then export DM$1="${DM2}"; else eval DM$1=${DM2}; fi;
+        read SB2;
+        if [ -z "$3" ]; then export SB$1="${SB2}"; else eval SB$1=${SB2}; fi;
     fi
     echo;
 } # shut_my_mouth
@@ -414,12 +421,12 @@ function sync
     ST="Use ${CL_LRD}clone-bundle${NONE}"; shut_my_mouth B "$ST";
     echo -e "${CL_LRD}=====================================================================${NONE}\n";
     #Sync-Options
-    if [[ "$DMS" == "y" ]]; then SILENT=-q; else SILENT=" " ; fi;
-    if [[ "$DMF" == "y" ]]; then FORCE=--force-sync; else FORCE=" " ; fi;
-    if [[ "$DMC" == "y" ]]; then SYNC_CRNT=-c; else SYNC_CRNT=" "; fi;
-    if [[ "$DMB" == "y" ]]; then CLN_BUN=" "; else CLN_BUN=--no-clone-bundle; fi;
+    if [[ "$SBS" == "y" ]]; then SILENT=-q; else SILENT=" " ; fi;
+    if [[ "$SBF" == "y" ]]; then FORCE=--force-sync; else FORCE=" " ; fi;
+    if [[ "$SBC" == "y" ]]; then SYNC_CRNT=-c; else SYNC_CRNT=" "; fi;
+    if [[ "$SBB" == "y" ]]; then CLN_BUN=" "; else CLN_BUN=--no-clone-bundle; fi;
     echo -e "${CL_LGN}Let's Sync!${NONE}\n";
-    repo sync -j${DMJOBS} ${SILENT} ${FORCE} ${SYNC_CRNT} ${CLN_BUN}  #2>&1 | tee $RTMP;
+    repo sync -j${SBJOBS} ${SILENT} ${FORCE} ${SYNC_CRNT} ${CLN_BUN}  #2>&1 | tee $STMP;
     echo;
     the_response COOL Sync;
     echo -e "\n${CL_PNK}Done.${NONE}!\n";
@@ -440,30 +447,33 @@ Choose among these (Number Selection)
 5.${CL_DGR} AOSP-RRO ${NONE}
 6.${CL_LBL} BlissRoms${NONE}
 7.${CL_LGN} CandyRoms ${NONE}
-8.${CL_YEL} crDroid ${NONE}
-9.${CL_LBL} Cyanide-L${NONE}
-10.${CL_LCN} CyanogenMod ${NONE}
-11.${CL_LRD} DirtyUnicorns ${NONE}
-12.${CL_YEL} Flayr OS ${NONE}
-13.${CL_LBL} Krexus${NONE}-${CL_GRN}CAF${NONE}
-14.${CL_LGN} OmniROM ${NONE}
-15.${CL_PNK} Orion OS ${NONE}
-16.${CL_YEL} OwnROM ${NONE}
-17.${CL_LBL} PAC-ROM ${NONE}
-18.${CL_LGN} AOSPA ${NONE}
-19.${CL_LRD} Resurrection Remix ${NONE}
-20.${CL_LBL} SlimRoms ${NONE}
-21.${CL_LRD} Temasek ${NONE}
-22.${CL_LBL} GZR Tesla ${NONE}
-23.${CL_YEL} Tipsy OS ${NONE}
-24.${CL_PNK} GZR Validus ${NONE}
-25.${CL_LCN} XenonHD ${NONE}
-26.${CL_LBL} XOSP ${NONE}
-27.${CL_LGN} Zephyr-Os ${NONE}
+8.${CL_LCN} CarbonROM ${NONE}
+9.${CL_YEL} crDroid ${NONE}
+10.${CL_LBL} Cyanide-L${NONE}
+11.${CL_LCN} CyanogenMod ${NONE}
+12.${CL_LRD} DirtyUnicorns ${NONE}
+13.${CL_YEL} Flayr OS ${NONE}
+14.${CL_LBL} Krexus${NONE}-${CL_GRN}CAF${NONE}
+15.${CL_WYT} OctOs ${NONE}
+16.${CL_LGN} OmniROM ${NONE}
+17.${CL_PNK} Orion OS ${NONE}
+18.${CL_YEL} OwnROM ${NONE}
+19.${CL_LBL} PAC-ROM ${NONE}
+20.${CL_LGN} AOSPA ${NONE}
+21.${CL_LRD} Resurrection Remix ${NONE}
+22.${CL_LBL} SlimRoms ${NONE}
+23.${CL_LRD} Temasek ${NONE}
+24.${CL_LBL} GZR Tesla ${NONE}
+25.${CL_YEL} Tipsy OS ${NONE}
+26.${CL_PNK} GZR Validus ${NONE}
+27.${CL_WYT} VanirAOSP ${NONE}
+28.${CL_LCN} XenonHD ${NONE}
+29.${CL_LBL} XOSP ${NONE}
+30.${CL_LGN} Zephyr-Os ${NONE}
 
 ${CL_PNK}=======================================================${NONE}\n";
-    if [ -z "$automate" ]; then read ROMNO; fi;
-    rom_names "$ROMNO";
+    if [ -z "$automate" ]; then read SBRN; fi;
+    rom_names "$SBRN";
 } # rom_select
 
 function init
@@ -472,25 +482,34 @@ function init
     rom_select;
     echo -e "\nYou have chosen ${CL_LCN}->${NONE} $ROM_FN\n";
     sleep 1;
-    echo -e "${CL_WYT}Detecting Available Branches in ${ROM_FN} Repository...${NONE}\n";
-    git ls-remote -h https://github.com/${ROM_NAME}/${MAN} |\
-        awk '{print $2}' | awk -F "/" '{if (length($4) != 0) {print $3"/"$4} else {print $3}}';
-    echo -e "\nThese Branches are available at the moment\n${CL_LRD}Specify the Branch${NONE} you're going to sync\n";
-    ST="${CL_LRD}Branch${NONE}"; shut_my_mouth BR "$ST";
+    echo -e "${CL_WYT}Detecting Available Branches in ${ROM_FN} Repository...${NONE}";
+    RCT=$[ ${#ROM_NAME[*]} - 1 ];
+    for RC in `eval echo "{0..$RCT}"`; do
+        echo -e "\n${CL_WYT}On ${ROM_NAME[$RC]} (ID->$RC)...${NONE}\n";
+        git ls-remote -h https://github.com/${ROM_NAME[$RC]}/${MAN[$RC]} |\
+            awk '{print $2}' | awk -F "/" '{if (length($4) != 0) {print $3"/"$4} else {print $3}}';
+    done
+    echo -e "\nThese Branches are available at the moment\n${CL_LRD}Specify the ID and Branch${NONE} you're going to sync\n${CL_LBL}Format : [ID] [BRANCH]${NONE}\n";
+    ST="${CL_LRD}Branch${NONE}"; shut_my_mouth NBR "$ST";
+    RC=`echo "$SBNBR" | awk '{print $1}'`; SBBR=`echo "$SBNBR" | awk '{print $2}'`;
+    MNF=`echo "${MAN[$RC]}"`;
+    RNM=`echo "${ROM_NAME[$RC]}"`
     echo -e "Any ${CL_LRD}Source you have already synced?${NONE} ${CL_LGN}[Y/N]${NONE}\n"; gimme_info "refer";
     ST="Use Reference Source"; shut_my_mouth RF "$ST";
-    if [[ "$DMRF" == [Yy] ]]; then
+    if [[ "$SBRF" == [Yy] ]]; then
         echo -e "\nProvide me the ${CL_LRD}Synced Source's Location${NONE} from ${CL_LRD}/${NONE}\n";
         ST="Reference ${CL_LRD}Location${NONE}"; shut_my_mouth RFL "$ST";
-        REF=--reference\=\"${DMRFL}\";
+        REF=--reference\=\"${SBRFL}\";
     else
         REF=" ";
     fi
     echo -e "Set ${CL_LRD}clone-depth${NONE} ? ${CL_LGN}[y/n]${NONE}\n"; gimme_info "cldp";
     ST="Use ${CL_LRD}clone-depth${NONE}"; shut_my_mouth CD "$ST";
-    echo -e "Depth ${CL_LRD}Value${NONE}? (Default ${CL_LRD}1${NONE})\n";
-    ST="clone-depth ${CL_LRD}Value${NONE}"; shut_my_mouth DEP "$ST";
-    if [ -z "$DMDEP" ]; then DMDEP=1; fi
+    if [ ! -z "$SBCD" ]; then
+        echo -e "Depth ${CL_LRD}Value${NONE}? (Default ${CL_LRD}1${NONE})\n";
+        ST="clone-depth ${CL_LRD}Value${NONE}"; shut_my_mouth DEP "$ST";
+        if [ -z "$SBDEP" ]; then SBDEP=1; fi
+    fi
     #Check for Presence of Repo Binary
     if [[ ! $(which repo) ]]; then
         echo -e "Looks like the Repo binary isn't installed. Let's Install it.\n";
@@ -507,8 +526,8 @@ function init
     fi
     echo -e "${CL_LBL}=========================================================${NONE}\n";
     echo -e "Let's Initialize the ROM Repo\n";
-    repo init ${REF} -u https://github.com/${ROM_NAME}/${MAN} -b ${DMBR} ;
-    echo -e "\n${ROM_NAME} Repo Initialized\n";
+    repo init ${REF} -u https://github.com/${RNM}/${MNF} -b ${SBBR} ;
+    echo -e "\n${ROM_NAME[$RC]} Repo Initialized\n";
     echo -e "${CL_LBL}=========================================================${NONE}\n";
     mkdir .repo/local_manifests;
     if [ -z "$automate" ]; then
@@ -530,18 +549,17 @@ function device_info
     ST="Device's ${CL_LRD}Vendor${NONE}"; shut_my_mouth CM "$ST";
     echo -e "The ${CL_LRD}Build type${NONE}? ${CL_LGN}[userdebug/user/eng]${NONE}\n";
     ST="Build ${CL_LRD}type${NONE}"; shut_my_mouth BT "$ST";
-    echo -e "Choose your ${CL_LRD}Device type${NONE} among these. Explainations of each file given in README.md"; gimme_info "device-type";
+    echo -e "Choose your ${CL_LRD}Device type${NONE} among these. Explainations of each file given in REASBE.md"; gimme_info "device-type";
     TYPES=( common_full_phone common_mini_phone common_full_hybrid_wifionly \
     common_full_tablet_lte common_full_tablet_wifionly common_mini_tablet_wifionly common_tablet \
     common_full_tv common_mini_tv );
     CNT=0;
-    for TYP in ${TYPES[*]}
-    do
+    for TYP in ${TYPES[*]}; do
         if [ -f ${CNF}/${TYP}.mk ]; then echo -e "${CL_PNK}${CNT}. $TYP${NONE}"; ((CNT++)); fi;
     done
     echo;
     ST="Device Type"; shut_my_mouth DTP "$ST";
-    if [ -z $DMDTP ]; then DMDTP=common; else DMDTP="${TYPES[${DMDTP}]}"; fi
+    if [ -z $SBDTP ]; then SBDTP=common; else SBDTP="${TYPES[${SBDTP}]}"; fi
     echo -e "${CL_LCN}=========================================================${NONE}\n\n";
 } # device_info
 
@@ -567,19 +585,17 @@ function pre_build
     else
         CNF="vendor/${ROMNIS}";
     fi
-    rom_names "$ROMNO"; # Restore ROMNIS
+    rom_names "$SBRN"; # Restore ROMNIS
     device_info;
 
     function find_ddc # For Finding Default Device Configuration file
     {
         ROMS=( aicp aokp aosp bliss candy crdroid cyanide cm du orion ownrom slim tesla tipsy validus xenonhd xosp );
-        for ROM in ${ROMS[*]}
-        do
+        for ROM in ${ROMS[*]}; do
             # Possible Default Device Configuration (DDC) Files
-            DDCS=( ${ROM}_${DMDEV}.mk aosp_${DMDEV}.mk full_${DMDEV}.mk ${ROM}.mk );
+            DDCS=( ${ROM}_${SBDEV}.mk aosp_${SBDEV}.mk full_${SBDEV}.mk ${ROM}.mk );
             # Inherit DDC
-            for ACTUAL_DDC in ${DDCS[*]}
-            do
+            for ACTUAL_DDC in ${DDCS[*]}; do
                 if [ -f $ACTUAL_DDC ]; then export DDC="$ACTUAL_DDC"; fi;
             done
         done
@@ -590,7 +606,7 @@ function pre_build
         init_bld;
         echo -e "\n${CL_PRP}Creating Interactive Makefile for getting Identified by the ROM's BuildSystem...${NONE}\n";
         sleep 2;
-        cd device/${DMCM}/${DMDEV};
+        cd device/${SBCM}/${SBDEV};
         INTM="interact.mk";
         if [ -z "$INTF" ]; then INTF="${ROMNIS}.mk"; fi;
         echo "#                ##### Interactive Makefile #####
@@ -613,24 +629,23 @@ function pre_build
             echo -e "\n# Enhanced NFC\n\$(call inherit-product, ${CNF}/nfc_enhanced.mk)" >> ${INTM};
         fi
         echo -e "\n# Calling Default Device Configuration File" >> ${INTM};
-        echo -e "\$(call inherit-product, device/${DMCM}/${DMDEV}/${DDC})" >> ${INTM};
+        echo -e "\$(call inherit-product, device/${SBCM}/${SBDEV}/${DDC})" >> ${INTM};
         # To prevent Missing Vendor Calls in DDC-File
         sed -i -e 's/inherit-product, vendor\//inherit-product-if-exists, vendor\//g' $DDC;
         # Add User-desired Makefile Calls
         echo -e "Missed some Makefile calls? Enter number of Desired Makefile calls... [0 if none]";
         ST="No of Makefile Calls"; shut_my_mouth NMK "$ST";
-        for (( CNT=1; CNT<="$DMNMK"; CNT++ ))
-        do
+        for (( CNT=1; CNT<="$SBNMK"; CNT++ )); do
             echo -e "\nEnter Makefile location from Root of BuildSystem";
             ST="Makefile"; shut_my_mouth LOC[$CNT] "$ST" array;
-            if [ -f ${CALL_ME_ROOT}/${DMLOC[$CNT]} ]; then
+            if [ -f ${CALL_ME_ROOT}/${SBLOC[$CNT]} ]; then
                 echo -e "\n${CL_LGN}Adding Makefile $CNT ...${NONE}";
                 echo -e "\n\$(call inherit-product, ${LOC[$CNT]})" >> ${INTM};
             else
                 echo -e "${CL_LRD}Makefile ${LOC[$CNT]} not Found. Aborting...${NONE}";
             fi
         done
-        echo -e "\n# ROM Specific Identifier\nPRODUCT_NAME := ${ROMNIS}_${DMDEV}" >> ${INTM};
+        echo -e "\n# ROM Specific Identifier\nPRODUCT_NAME := ${ROMNIS}_${SBDEV}" >> ${INTM};
         # Make it Identifiable
         mv ${INTM} ${INTF};
         echo -e "${CL_GRN}Renaming .dependencies file...${NONE}\n";
@@ -643,7 +658,7 @@ function pre_build
 
     function vendor_strat_all
     {
-        case "$ROMNO" in
+        case "$SBRN" in
             12|27) cd vendor/${ROMV} ;;
             *) cd vendor/${ROMNIS} ;;
         esac
@@ -653,10 +668,10 @@ function pre_build
         {   # AOSP-CAF/RRO/OmniROM/Flayr/Zephyr
             croot;
             echo -e "Moving to D-Tree\n\n And adding Lunch Combo..";
-            cd device/${DMCM}/${DMDEV};
+            cd device/${SBCM}/${SBDEV};
             if [ ! -f vendorsetup.sh ]; then touch vendorsetup.sh; fi;
-            if [[ $(grep -c "${ROMNIS}_${DMDEV}" vendorsetup.sh ) == "0" ]]; then
-                echo -e "add_lunch_combo ${ROMNIS}_${DMDEV}-${DMBT}" >> vendorsetup.sh;
+            if [[ $(grep -c "${ROMNIS}_${SBDEV}" vendorsetup.sh ) == "0" ]]; then
+                echo -e "add_lunch_combo ${ROMNIS}_${SBDEV}-${SBBT}" >> vendorsetup.sh;
             else
                 echo -e "Lunch combo already added to vendorsetup.sh\n";
             fi
@@ -664,17 +679,17 @@ function pre_build
 
         echo -e "${CL_LBL}Adding Device to ROM Vendor...${NONE}";
         STRTS=( "${ROMNIS}.devices" "${ROMNIS}-device-targets" vendorsetup.sh );
-        for STRT in ${STRTS[*]}
-        do #     Found file   &&  Strat Not Performed
+        for STRT in ${STRTS[*]}; do
+            #    Found file   &&  Strat Not Performed
             if [ -f "$STRT" ] && [ -z "$STDN" ]; then
-                if [[ $(grep -c "${DMDEV}" $STRT) == "0" ]]; then
+                if [[ $(grep -c "${SBDEV}" $STRT) == "0" ]]; then
                     case "$STRT" in
                         ${ROMNIS}.devices)
-                            echo -e "${DMDEV}" >> $STRT ;;
+                            echo -e "${SBDEV}" >> $STRT ;;
                         ${ROMNIS}-device-targets)
-                            echo -e "${ROMNIS}_${DMDEV}-${DMBT}" >> $STRT;;
+                            echo -e "${ROMNIS}_${SBDEV}-${SBBT}" >> $STRT;;
                         vendorsetup.sh)
-                            echo -e "add_lunch_combo ${ROMNIS}_${DMDEV}-${DMBT}" >> $STRT ;;
+                            echo -e "add_lunch_combo ${ROMNIS}_${SBDEV}-${SBBT}" >> $STRT ;;
                     esac
                 else
                     echo -e "Device already added to $STRT";
@@ -715,58 +730,58 @@ ${CL_PNK}1600${NONE}x2560
 ${CL_PNK}1920${NONE}x1200
 ${CL_PNK}2560${NONE}x1600\n";
             echo -e "Enter the Desired Highlighted Number...\n";
-            read BOOTRES;
+            read SBBTR;
         else
-            echo -e "${CL_RED}*${NONE}${CL_PNK}AutoBot${NONE}${CL_RED}*${NONE} Resolution Choosed : ${BOOTRES}";
+            echo -e "${ATBT} Resolution Choosed : ${SBBTR}";
         fi
         #Vendor-Calls
         case "$ROMNIS" in
             "aicp")
-                VENF="${DMDEV}.mk";
-                echo -e "\t\$(LOCAL_DIR)/${DMDEV}.mk" >> AndroidProducts.mk;
+                VENF="${SBDEV}.mk";
+                echo -e "\t\$(LOCAL_DIR)/${VENF}" >> AndroidProducts.mk;
                 echo -e "\n# Inherit telephony stuff\n\$(call inherit-product, vendor/${ROMNIS}/configs/telephony.mk)" >> $VENF;
                 echo -e "\$(call inherit-product, vendor/${ROMNIS}/configs/common.mk)" >> $VENF;
             ;;
             "aokp")
-                VENF="${DMDEV}.mk";
-                echo -e "\t\$(LOCAL_DIR)/${DMDEV}.mk" >> AndroidProducts.mk;
+                VENF="${SBDEV}.mk";
+                echo -e "\t\$(LOCAL_DIR)/${VENF}" >> AndroidProducts.mk;
                 echo -e "\$(call inherit-product, vendor/${ROMNIS}/configs/common.mk)" >> $VENF;
                 echo -e "\nPRODUCT_COPY_FILES += \ " >> $VENF;
-                echo -e "\tvendor/aokp/prebuilt/bootanimation/bootanimation_${BOOTRES}.zip:system/media/bootanimation.zip" >> $VENF;
+                echo -e "\tvendor/aokp/prebuilt/bootanimation/bootanimation_${SBBTR}.zip:system/media/bootanimation.zip" >> $VENF;
             ;;
             "krexus")
-                VENF="krexus_${DMDEV}.mk";
+                VENF="krexus_${SBDEV}.mk";
                 echo -e "\$( call inherit-product, vendor/${ROMNIS}/products/common.mk)" >> $VENF;
                 echo -e "\n\$( call inherit-product, vendor/${ROMNIS}/products/vendorless.mk)" >> $VENF;
             ;;
             "pa")
-                VENF="${DMDEV}/pa_${DMDEV}.mk";
-                echo -e "# ${DMCM} ${DMDEV}" >> AndroidProducts.mk
-                echo -e "\nifeq (pa_${DMDEV},\$(TARGET_PRODUCT))" >> AndroidProducts.mk;
-                echo -e "\tPRODUCT_MAKEFILES += \$(LOCAL_DIR)/${DMDEV}/pa_${DMDEV}.mk\nendif" >> AndroidProducts.mk;
+                VENF="${SBDEV}/pa_${SBDEV}.mk";
+                echo -e "# ${SBCM} ${SBDEV}" >> AndroidProducts.mk
+                echo -e "\nifeq (pa_${SBDEV},\$(TARGET_PRODUCT))" >> AndroidProducts.mk;
+                echo -e "\tPRODUCT_MAKEFILES += \$(LOCAL_DIR)/${VENF}\nendif" >> AndroidProducts.mk;
                 echo -e "\ninclude vendor/${ROMNIS}/main.mk" >> $VENF;
-                mv ${CALL_ME_ROOT}/device/${DMCM}/${DMDEV}/*.dependencies ${DMDEV}/pa.dependencies;
+                mv ${CALL_ME_ROOT}/device/${SBCM}/${SBDEV}/*.dependencies ${SBDEV}/pa.dependencies;
             ;;
             "pac")
-                VENF="pac_${DMDEV}.mk";
+                VENF="pac_${SBDEV}.mk";
                 echo -e "\$( call inherit-product, vendor/${ROMNIS}/products/pac_common.mk)" >> $VENF;
-                echo "PAC_BOOTANIMATION_NAME := ${BOOTRES};" >> $VENF;
+                echo -e "\nPAC_BOOTANIMATION_NAME := ${SBBTR};" >> $VENF;
             ;;
         esac
         find_ddc;
         echo -e "\n# Calling Default Device Configuration File" >> $VENF;
-        echo -e "\$(call inherit-product, device/${DMCM}/${DMDEV}/${DDC})" >> $VENF;
+        echo -e "\$(call inherit-product, device/${SBCM}/${SBDEV}/${DDC})" >> $VENF;
         # PRODUCT_NAME is the only ROM-specific Identifier, setting it here is better.
-        echo -e "\n#ROM Specific Identifier\nPRODUCT_NAME := ${ROMNIS}_${DMDEV}" >> $VENF;
+        echo -e "\n#ROM Specific Identifier\nPRODUCT_NAME := ${ROMNIS}_${SBDEV}" >> $VENF;
     } # vendor_strat_kpa
 
     if [ -d vendor/${ROMNIS}/products ] && [ ! -d vendor/aosip ]; then
-        if [ ! -f vendor/${ROMNIS}/products/${ROMNIS}_${DMDEV}.mk ||
-             ! -f vendor/${ROMNIS}/products/${DMDEV}.mk ||
-             ! -f vendor/${ROMNIS}/products/${DMDEV}/${ROMNIS}_${DMDEV}.mk ]; then
+        if [ ! -f vendor/${ROMNIS}/products/${ROMNIS}_${SBDEV}.mk ||
+             ! -f vendor/${ROMNIS}/products/${SBDEV}.mk ||
+             ! -f vendor/${ROMNIS}/products/${SBDEV}/${ROMNIS}_${SBDEV}.mk ]; then
             vendor_strat_kpa; #if found products folder
         else
-            echo -e "Looks like ${DMDEV} has been already added to ${ROM_FN} vendor. Good to go\n";
+            echo -e "\nLooks like ${SBDEV} has been already added to ${ROM_FN} vendor. Good to go\n";
         fi
     else
         vendor_strat_all; #if not found
@@ -777,21 +792,21 @@ ${CL_PNK}2560${NONE}x1600\n";
 
     function need_for_int
     {
-        if [ -f ${CALL_ME_ROOT}/device/${DMCM}/${DMDEV}/${INTF} ]; then
+        if [ -f ${CALL_ME_ROOT}/device/${SBCM}/${SBDEV}/${INTF} ]; then
             echo "$NOINT";
         else
-            interactive_mk "$ROMNO";
+            interactive_mk "$SBRN";
         fi
     } # need_for_int
 
-    case "$ROMNO" in
-        4|5|12|14|27) # AOSP-CAF/RRO | Flayr | OmniROM | Zephyr
+    case "$SBRN" in
+        4|5|13|16|30) # AOSP-CAF/RRO | Flayr | OmniROM | Zephyr
             VNF="common";
-            INTF="${ROMNIS}_${DMDEV}.mk";
+            INTF="${ROMNIS}_${SBDEV}.mk";
             need_for_int;
-            DEVDIR="device/${DMCM}/${DMDEV}";
+            DEVDIR="device/${SBCM}/${SBDEV}";
             rm -rf ${DEVDIR}/AndroidProducts.mk;
-            echo -e "PRODUCT_MAKEFILES :=  \\ \n\t\$(LOCAL_DIR)/${ROMNIS}_${DMDEV}.mk" >> AndroidProducts.mk;
+            echo -e "PRODUCT_MAKEFILES :=  \\ \n\t\$(LOCAL_DIR)/${ROMNIS}_${SBDEV}.mk" >> AndroidProducts.mk;
         ;;
         3) # AOSiP-CAF
             if [ ! -f vendor/${ROMNIS}/products ]; then
@@ -801,19 +816,19 @@ ${CL_PNK}2560${NONE}x1600\n";
                 echo "$NOINT";
             fi
         ;;
-        2|17) # AOKP-4.4 | PAC-5.1
+        2|19) # AOKP-4.4 | PAC-5.1
             if [ ! -f vendor/${ROMNIS}/products ]; then
-                VNF="$DMDTP";
+                VNF="$SBDTP";
                 need_for_int;
             else
                 echo "$NOINT";
             fi
         ;;
-        1|13|18) # AICP | Krexus-CAF | AOSPA
+        1|14|20) # AICP | Krexus-CAF | AOSPA
             echo "$NOINT";
         ;;
         *) # Rest of the ROMs
-            VNF="$DMDTP";
+            VNF="$SBDTP";
             need_for_int;
         ;;
     esac
@@ -831,7 +846,7 @@ function build
         if [ -z "$inited" ]; then rom_select; fi;
     else
         echo -e "ROM Source Not Found (Synced)... \nPls perform an init and sync before doing this";
-        exitScriBt;
+        exitScriBt 1;
     fi
 
     function make_it # Part of make_module
@@ -882,16 +897,16 @@ function build
     {
         if [[ "$1" != "brunch" ]]; then
             start=$(date +"%s");
-            case "$DMMK" in
+            case "$SBMK" in
                 "make") BCORES=$(grep -c ^processor /proc/cpuinfo) ;;
                 *) BCORES="" ;;
             esac
             if [ $(grep -q "^${ROMNIS}:" "${CALL_ME_ROOT}/build/core/Makefile") ]; then
-                $DMMK $ROMNIS $BCORES 2>&1 | tee $RMTMP;
+                $SBMK $ROMNIS $BCORES 2>&1 | tee $RMTMP;
             elif [ $(grep -q "^bacon:" "${CALL_ME_ROOT}/build/core/Makefile") ]; then
-                $DMMK bacon $BCORES 2>&1 | tee $RMTMP;
+                $SBMK bacon $BCORES 2>&1 | tee $RMTMP;
             else
-                $DMMK otapackage $BCORES 2>&1 | tee $RMTMP;
+                $SBMK otapackage $BCORES 2>&1 | tee $RMTMP;
             fi
             echo;
             post_build;
@@ -905,19 +920,19 @@ function build
     {
         echo -e "${CL_LBL}======================${NONE}${CL_RED}[*]${NONE} ${CL_GRN}HOTEL MENU${NONE} ${CL_RED}[*]${NONE}${CL_LBL}=======================${NONE}";
         echo -e "${CL_LRD} Menu is only for your Device, not for you. No Complaints pls.${NONE}\n";
-        echo -e "[*] ${CL_RED}lunch${NONE} - Setup Build Environment for the Device [*]";
-        echo -e "[*] ${CL_YEL}breakfast${NONE} - Download Device Dependencies and ${CL_RED}lunch${NONE} [*]";
-        echo -e "[*] ${CL_GRN}brunch${NONE} - ${CL_YEL}breakfast${NONE} + ${CL_RED}lunch${NONE} then ${CL_GRN}Start Build${NONE} [*]\n";
+        echo -e "[*] ${CL_RED}lunch${NONE} - Setup Build Environment for the Device";
+        echo -e "[*] ${CL_YEL}breakfast${NONE} - Download Device Dependencies and ${CL_RED}lunch${NONE}";
+        echo -e "[*] ${CL_GRN}brunch${NONE} - ${CL_YEL}breakfast${NONE} + ${CL_RED}lunch${NONE} then ${CL_GRN}Start Build${NONE}\n";
         echo -e "Type in the Option you want to select\n";
         echo -e "${CL_YEL}Tip!${NONE} - Building for the first time ? select ${CL_RED}lunch${NONE}";
         echo -e "${CL_LBL}===============================================================${NONE}\n";
         ST="Selected Option"; shut_my_mouth SLT "$ST";
-        case "$DMSLT" in
-            "lunch") ${DMSLT} ${ROMNIS}_${DMDEV}-${DMBT} ;;
-            "breakfast") ${DMSLT} ${DMDEV} ${DMBT} ;;
+        case "$SBSLT" in
+            "lunch") ${SBSLT} ${ROMNIS}_${SBDEV}-${SBBT} ;;
+            "breakfast") ${SBSLT} ${SBDEV} ${SBBT} ;;
             "brunch")
-                echo -e "\n${CL_LGN}Starting Compilation - ${ROM_FN} for ${DMDEV}${NONE}\n";
-                ${DMSLT} ${DMDEV};
+                echo -e "\n${CL_LGN}Starting Compilation - ${ROM_FN} for ${SBDEV}${NONE}\n";
+                ${SBSLT} ${SBDEV};
             ;;
             *)  echo -e "${CL_LRD}Invalid Selection.${NONE} Going Back."; hotel_menu ;;
         esac
@@ -928,7 +943,7 @@ function build
     {
         init_bld;
         echo -e "${CL_PNK}=========================================================${NONE}\n";
-        echo -e "Select the Build Option:\n";
+        echo -e "Select a Build Option:\n";
         echo -e "${CL_LCN}1. Start Building ROM (ZIP output) (Clean Options Available)${NONE}";
         echo -e "${CL_LGN}2. Make a Particular Module${NONE}";
         echo -e "${CL_LBL}3. Setup CCACHE for Faster Builds ${NONE}\n";
@@ -937,24 +952,24 @@ function build
     }
 
     build_menu;
-    case "$DMBO" in
+    case "$SBBO" in
         1)
             echo -e "\nShould i use '${CL_YEL}make${NONE}' or '${CL_RED}mka${NONE}' ?\n";
             ST="Selected Method"; shut_my_mouth MK "$ST";
             echo -e "Wanna Clean the ${CL_PNK}/out${NONE} before Building? ${CL_LGN}[1 - Remove Staging Dirs / 2 - Full Clean]${NONE}\n";
             ST="Option Selected"; shut_my_mouth CL "$ST";
-            if [[ $(tac ${CALL_ME_ROOT}/build/core/build_id.mk | grep -c 'BUILD_ID=M\|BUILD_ID=N') == "1" ]]; then
+            if [[ $(grep -c 'BUILD_ID=M\|BUILD_ID=N' ${CALL_ME_ROOT}/build/core/build_id.mk) == "1" ]]; then
                 echo -e "Use ${CL_LRD}Jack Toolchain${NONE} ? ${CL_LGN}[y/n]${NONE}\n";
                 ST="Use ${CL_LRD}Jacky${NONE}"; shut_my_mouth JK "$ST";
-                case "$DMJK" in
+                case "$SBJK" in
                      [yY]) export ANDROID_COMPILE_WITH_JACK=true ;;
                      [nN]) export ANDROID_COMPILE_WITH_JACK=false ;;
                 esac
             fi
-            if [[ $(tac ${CALL_ME_ROOT}/build/core/build_id.mk | grep -c 'BUILD_ID=N') == "1" ]]; then
+            if [[ $(grep -c 'BUILD_ID=N' ${CALL_ME_ROOT}/build/core/build_id.mk) == "1" ]]; then
                 echo -e "Use Ninja to build Android ? [y/n]";
                 ST="Use Ninja"; shut_my_mouth NJ "$ST";
-                case "$DMNJ" in
+                case "$SBNJ" in
                     [yY])
                         echo -e "\nBuilding Android with Ninja BuildSystem";
                         export USE_NINJA=true ;;
@@ -964,13 +979,13 @@ function build
                     *) echo -e "${CL_LRD}Invalid Selection${NONE}. RE-Answer this."; shut_my_mouth NJ "$ST" ;;
                 esac
             fi
-            case "$DMCL" in
-                1) lunch ${ROMNIS}_${DMDEV}-${DMBT}; $DMMK installclean ;;
-                2) lunch ${ROMNIS}_${DMDEV}-${DMBT}; $DMMK clean ;;
+            case "$SBCL" in
+                1) lunch ${ROMNIS}_${SBDEV}-${SBBT}; $SBMK installclean ;;
+                2) lunch ${ROMNIS}_${SBDEV}-${SBBT}; $SBMK clean ;;
                 *) echo -e "${CL_LRD}Invalid Selection.${NONE} Going Back."; shut_my_mouth CL "$ST";;
             esac
             hotel_menu;
-            build_make "$DMSLT";
+            build_make "$SBSLT";
         ;;
         2) make_module ;;
         3) set_ccvars ;;
@@ -998,17 +1013,17 @@ teh_action ()
     ;;
     4)
         if [ -z "$automate" ]; then build; fi;
-        echo -ne "\033]0;${ROMNIS}_${DMDEV} : In Progress\007";
+        echo -ne "\033]0;${ROMNIS}_${SBDEV} : In Progress\007";
     ;;
     5)
         if [ -z "$automate" ]; then tools; fi;
         echo -ne '\033]0;ScriBt : Installing Dependencies\007';
     ;;
     6)
-        if [ -z "$automate" ]; then exitScriBt; fi;
+        if [ -z "$automate" ]; then exitScriBt 0; fi;
         case "$2" in
-            "COOL") echo -ne "\033]0;${ROMNIS}_${DMDEV} : Success\007" ;;
-            "FAIL") echo -ne "\033]0;${ROMNIS}_${DMDEV} : Fail\007" ;;
+            "COOL") echo -ne "\033]0;${ROMNIS}_${SBDEV} : Success\007" ;;
+            "FAIL") echo -ne "\033]0;${ROMNIS}_${SBDEV} : Fail\007" ;;
         esac
     ;;
     *)
@@ -1025,34 +1040,38 @@ function the_start
 {
     # are we 64-bit ??
     if ! [[ $(uname -m) =~ (x86_64|amd64) ]]; then
-        echo -e "\n\e[0;31myour processor is not supported\e[0m\n";
-        exit 1;
+        echo -e "\n\e[0;31mYour Processor is not supported...\e[0m\n";
+        exitScriBt 1;
     fi
     # is the distro supported ??
     pkgmgr_check;
-    #   tempfile      repo sync log       rom build log
-    TMP=temp.txt; RTMP=repo_log.txt; RMTMP=rom_compile.txt;
-    rm -rf ${TMP} ${RTMP} ${RMTMP};
-    touch ${TMP} ${RTMP} ${RMTMP};
+    #   tempfile      repo sync log       rom build log        vars b4 exe     vars after exe
+    TMP=temp.txt; STMP=temp_sync.txt; RMTMP=temp_compile.txt; TV1=temp_v1.txt; TV2=temp_v2.txt;
+    rm -rf temp{,_sync,_compile,_v{1,2}}.txt;
+    touch temp{,_sync,_compile,_v{1,2}}.txt;
     # Load the ROM Database and Color Codes
     if [ -f ROM.rc ]; then
         . $(pwd)/ROM.rc;
     else
         echo "${CL_LRD}ROM.rc isn't present in ${PWD}${NONE}, please make sure repo is cloned correctly";
-        exit 1;
+        exitScriBt 1;
     fi
+    ATBT="${CL_RED}*${NONE}${CL_PNK}AutoBot${NONE}${CL_RED}*${NONE}";
     # CHEAT CHEAT CHEAT!
-    if [ -f PREF.rc ]; then
+    if [ ! -z "$automate" ]; then
         . $(pwd)/PREF.rc;
-        echo -e "\n${CL_RED}*${NONE}${CL_PNK}AutoBot${NONE}${CL_RED}*${NONE} Cheat Code shut_my_mouth applied. I won't ask questions anymore\n";
+        echo -e "\n${ATBT} Cheat Code shut_my_mouth applied. I won't ask questions anymore";
     else
-        echo -e "Using this for first time?\nTake a look on PREF.rc and shut_my_mouth";
+        echo -e "\nUsing this for first time?\nTake a look on PREF.rc and shut_my_mouth";
     fi
-    echo -e "\n=======================================================";
-    echo -e "Before I can start, do you like a \033[1;31mC\033[0m\033[0;32mo\033[0m\033[0;33ml\033[0m\033[0;34mo\033[0m\033[0;36mr\033[0m\033[1;33mf\033[0m\033[1;32mu\033[0m\033[0;31ml\033[0m life? [y/n]";
-    echo -e "=======================================================\n";
+    echo -e "\nBefore Starting off, shall I remember the responses you'll enter from now ?\n${CL_LBL}So that it can be Automated next time${NONE}\n";
+    read RQ_PGN;
+    set -o posix; set > ${TV1};
+    echo -e "\n====================================";
+    echo -e "Do you like a \033[1;31mC\033[0m\033[0;32mo\033[0m\033[0;33ml\033[0m\033[0;34mo\033[0m\033[0;36mr\033[0m\033[1;33mf\033[0m\033[1;32mu\033[0m\033[0;31ml\033[0m life? [y/n]";
+    echo -e "====================================\n";
     ST="Colored ScriBt"; shut_my_mouth COL "$ST";
-    color_my_life $DMCOL;
+    color_my_life $SBCOL;
     echo -e "\n${CL_LBL}Prompting for Root Access...${NONE}\n";
     sudo echo -e "\n${CL_LGN}Root access OK. You won't be asked again${NONE}";
     export CALL_ME_ROOT="$(pwd)";
@@ -1076,7 +1095,7 @@ function the_start
 # VROOM!
 if [[ "$1" == "automate" ]]; then
     the_start; # Pre-Initial Stage
-    echo -e "${CL_RED}*${NONE}${CL_PNK}AutoBot${NONE}${CL_RED}*${NONE} Thanks for Selecting Me. Lem'me do your work";
+    echo -e "${ATBT} Thanks for Selecting Me. Lem'me do your work";
     export automate="yus_do_eet";
     automate; # Initiate the Build Sequence - Actual "VROOM!"
 elif [ -z $1 ]; then
@@ -1085,5 +1104,5 @@ elif [ -z $1 ]; then
 else
     echo -e "Incorrect Parameter: \"$1\"";
     echo -e "Usage:\nbash ROM.sh (Interactive Usage)\nbash ROM.sh automate (For Automated Builds)";
-    exit 1;
+    exitScriBt 1;
 fi
