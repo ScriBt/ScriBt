@@ -4,7 +4,7 @@
 #                  Place a Semi-colon ';' after entering a Value               #
 #==============================================================================#
 
-function the_cherries                   # Since this is Automated - Use Proper Cherry-picks - conflicts won't be solved
+function the_cherries()                 # Since this is Automated - Use Proper Cherry-picks - conflicts won't be solved
 {
     builddir=$(pwd);                    # TO get back to Build Dir
 
@@ -27,12 +27,12 @@ function the_cherries                   # Since this is Automated - Use Proper C
 #   #==============================#
 
 #   You may add many more picks like this.
-}
+} # the_cherries
 
-function automate
+function automate()
 {
-    # Go Get some stuffs...
-    stuffs;
+    # Load Configs...
+    configs;
     # You may Enter your Desired Build Sequence here
     # Default Sequence - You may change this
     # You may enter your own build/device-specific commands, normally between any of these calls below, works.
@@ -40,4 +40,7 @@ function automate
     the_cherries;
     build;
     exitScriBt;
-} #automate
+} # automate
+function configs()
+{ # as on 23/10/16 05:27:07 PM IST
+} # configs
