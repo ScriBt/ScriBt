@@ -60,7 +60,7 @@ d. Give **comments** based on the Final Build Status
 
 a. Install Build Dependencies based on Distro Version
 
-b. Install / Configure **JAVA**
+b. Install / Configure **Java**
 
 c. Setup **android-51** rules (For proper usage of ADB)
 
@@ -85,6 +85,26 @@ bash ROM.sh
 ##### Why not ./ROM.sh
 ```exit``` command will close the terminal when script is called in that
 way, bash ROM.sh won't :D
+
+#What do the colors mean ?
+
+[!] in..
+
+    RED - The Particular Task has Failed / User has Entered an Incorrect Value
+
+    BLUE - Information
+
+    GREEN - Task Completed
+
+    YELLOW - Task under Execution
+
+    PURPLE - AutoBot speaks
+
+[?] in..
+
+    RED - A Question is asked
+
+This method of coloring is **Relevant_Coloring** and is inspired from [a scene in Person of Interest](https://goo.gl/photos/s8YpQL1eBxSYwCWS7) and ADB Logs on a phone (Log types like E for Error, F for Fatal etc.)
 
 #Automation Notes
 
