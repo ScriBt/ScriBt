@@ -92,11 +92,11 @@ function main_menu()
 function quick_menu()
 {
     echo -ne '\033]0;ScriBt : Quick Menu\007';
-    echo -e "${CL_WYT}============================${NONE} ${CL_PNK}Quick-Menu${NONE} ${CL_WYT}=============================${NONE}";
+    echo -e "${CL_WYT}\n====================${NONE} ${CL_PNK}Quick-Menu${NONE} ${CL_WYT}======================${NONE}";
     echo -e "1. Init | 2. Sync | 3. Pre-Build | 4. Build | 5. Tools";
-    echo -e "                               6. Exit";
-    echo -e "${CL_WYT}=====================================================================${NONE}\n";
-    read ACTION;
+    echo -e "                      6. Exit";
+    echo -e "${CL_WYT}======================================================${NONE}\n";
+    read -p $'\033[1;36m[>]\033[0m ' ACTION;
     teh_action $ACTION "qm";
 } # quick_menu
 
@@ -121,10 +121,10 @@ function set_ccache()
 
 function set_ccvars()
 {
-    echo -e "${CL_LBL}[!]${NONE} \nCCACHE Size must be >50 GB.\n Specify the Size (Number) for Reservation of CCACHE (in GB) : \c";
-    read CCSIZE;
-    echo -e "${CL_LBL}[!]${NONE} Create a New Folder for CCACHE and Specify it's location from / : \c";
-    read CCDIR;
+    echo -e "${CL_LBL}[!]${NONE} \nCCACHE Size must be >50 GB.\n Specify the Size (Number) for Reservation of CCACHE (in GB) : \n";
+    read -p $'\033[1;36m[>]\033[0m ' CCSIZE;
+    echo -e "${CL_LBL}[!]${NONE} Create a New Folder for CCACHE and Specify it's location from / : \n";
+    read -p $'\033[1;36m[>]\033[0m ' CCDIR;
     for RC in bashrc profile; do
         if [ -f ${HOME}/.${RC} ]; then
             sudo echo -e "export USE_CCACHE=1\nexport CCACHE_DIR=${CCDIR}" >> ${HOME}/.${RC};
@@ -160,8 +160,8 @@ function tools()
     {
         echo -ne "\033]0;ScriBt : Java $1\007";
         echo -e "\n${CL_YEL}[!]${NONE} Installing OpenJDK-$1 (Java 1.$1.0)";
-        echo -e "\n${CL_LBL}[!]${NONE} Remove other Versions of Java [y/n]? : \c";
-        read REMOJA;
+        echo -e "\n${CL_LBL}[!]${NONE} Remove other Versions of Java [y/n]? : \n";
+        read -p $'\033[1;36m[>]\033[0m ' REMOJA;
         echo;
         case "$REMOJA" in
             [yY])
@@ -207,16 +207,18 @@ function tools()
 
     function tool_menu()
     {
-        echo -e "${CL_WYT}===================${NONE} ${CL_LBL}TOOLS${NONE} ${CL_WYT}====================${NONE}\n";
+        echo -e "\n${CL_WYT}===================${NONE} ${CL_LBL}TOOLS${NONE} ${CL_WYT}====================${NONE}\n";
         echo -e "     1. Install Build Dependencies\n";
         echo -e "     2. Install Java (OpenJDK 6/7/8)";
         echo -e "     3. Install and/or Set-up CCACHE";
         echo -e "     4. Install/Update ADB udev rules";
 # TODO: echo -e "     6. Find an Android Module's Directory";
         echo -e "     5. Install / Revert to make 3.81";
+        echo -e "\n     0. Quick Menu"
         echo -e "${CL_WYT}==============================================${NONE}\n";
-        read TOOL;
+        read -p $'\033[1;36m[>]\033[0m ' TOOL;
         case "$TOOL" in
+            0) quick_menu ;;
             1) case "${PKGMGR}" in
                    "apt") installdeps ;;
                    "pacman") installdeps_arch ;;
@@ -328,7 +330,7 @@ function tools()
         echo -e "2. Switch Between Java Versions / Providers\n";
         echo -e "${CL_LBL}[!]${NONE} ScriBt installs Java by OpenJDK";
         echo -e "\n${CL_WYT}==========================================================\n${NONE}";
-        read JAVAS;
+        read -p $'\033[1;36m[>]\033[0m ' JAVAS;
         case "$JAVAS" in
             1)
                 echo -ne '\033]0;ScriBt : Java\007';
@@ -337,7 +339,7 @@ function tools()
                 echo -e "2. Java 1.7.0 (5.x.x Lollipop && 6.x.x Marshmallow)";
                 echo -e "3. Java 1.8.0 (7.x.x Nougat)\n";
                 [[ "${PKGMGR}" == "apt" ]] && echo -e "4. Ubuntu 16.04 & Want to install Java 7";
-                read JAVER;
+                read -p $'\033[1;36m[>]\033[0m ' JAVER;
                 case "$JAVER" in
                     1) java 6 ;;
                     2) java 7 ;;
@@ -394,7 +396,7 @@ function shut_my_mouth()
         RST="SB$1";
         echo -e "${CL_PRP}[!]${NONE} ${ATBT} $2 : ${!RST}";
     else
-        read SB2;
+        read -p $'\033[1;36m[>]\033[0m ' SB2;
         [ -z "$3" ] && export SB$1="${SB2}" || eval SB$1=${SB2};
     fi
     echo;
@@ -468,7 +470,7 @@ Choose among these (Number Selection)
 30. Zephyr-Os
 
 =======================================================${NONE}\n";
-    [ -z "$automate" ] && read SBRN;
+    [ -z "$automate" ] && read -p $'\033[1;36m[>]\033[0m ' SBRN;
     rom_names "$SBRN";
 } # rom_select
 
@@ -490,7 +492,7 @@ function init()
     RC=`echo "$SBNBR" | awk '{print $1}'`; SBBR=`echo "$SBNBR" | awk '{print $2}'`;
     MNF=`echo "${MAN[$RC]}"`;
     RNM=`echo "${ROM_NAME[$RC]}"`
-    echo -e "${CL_LRD}[?]${NONE} Any Source you have already synced? [y/n]\n"; gimme_info "refer";
+    echo -e "${CL_LRD}[?]${NONE} Any Source you have already synced [y/n]\n"; gimme_info "refer";
     ST="Use Reference Source"; shut_my_mouth RF "$ST";
     if [[ "$SBRF" == [Yy] ]]; then
         echo -e "\n${CL_LRD}[?]${NONE} Provide me the Synced Source's Location from /\n";
@@ -528,7 +530,7 @@ function init()
     mkdir .repo/local_manifests;
     if [ -z "$automate" ]; then
         echo -e "${CL_LBL}[!]${NONE} A folder \"local_manifests\" has been created for you.";
-        echo -e "${CL_LBL}[!]${NONE} Create a Device Specific manifest and Press ENTER to start sync\c";
+        echo -e "${CL_LBL}[!]${NONE} Create a Device Specific manifest and Press ENTER to start sync\n";
         read ENTER;
         echo;
     fi
@@ -629,7 +631,7 @@ function pre_build()
         # To prevent Missing Vendor Calls in DDC-File
         sed -i -e 's/inherit-product, vendor\//inherit-product-if-exists, vendor\//g' $DDC;
         # Add User-desired Makefile Calls
-        echo -e "${CL_LRD}[?]${NONE} Missed some Makefile calls?\n${CL_LBL}[!]${NONE} Enter number of Desired Makefile calls [0 if none]";
+        echo -e "${CL_LRD}[?]${NONE} Missed some Makefile calls\n${CL_LBL}[!]${NONE} Enter number of Desired Makefile calls [0 if none]";
         ST="No of Makefile Calls"; shut_my_mouth NMK "$ST";
         for (( CNT=1; CNT<="$SBNMK"; CNT++ )); do
             echo -e "\n${CL_LRD}[?]${NONE} Enter Makefile location from Root of BuildSystem";
@@ -724,7 +726,7 @@ ${CL_PNK}1600${NONE}x2560
 ${CL_PNK}1920${NONE}x1200
 ${CL_PNK}2560${NONE}x1600\n";
             echo -e "${CL_LRD}[?]${NONE} Enter the Desired Highlighted Number\n";
-            read SBBTR;
+            read -p $'\033[1;36m[>]\033[0m ' SBBTR;
         else
             echo -e "${CL_LBL}[!]${NONE} ${ATBT} Resolution Choosed : ${SBBTR}";
         fi
@@ -844,10 +846,10 @@ function build()
 
     function make_it() # Part of make_module
     {
-        echo -e "${CL_LRD}[?]${NONE} ENTER the Directory where the Module is made from : \c";
-        read MODDIR;
-        echo -e "\n${CL_LRD}[?]${NONE} Do you want to push the Module to the Device (Running the Same ROM) [y/n] : \c";
-        read PMOD;
+        echo -e "${CL_LRD}[?]${NONE} ENTER the Directory where the Module is made from : \n";
+        read -p $'\033[1;36m[>]\033[0m ' MODDIR;
+        echo -e "\n${CL_LRD}[?]${NONE} Do you want to push the Module to the Device (Running the Same ROM) [y/n] : \n";
+        read -p $'\033[1;36m[>]\033[0m ' PMOD;
         echo;
         case "$PMOD" in
             [yY]) mmmp -B $MODDIR ;;
@@ -859,8 +861,8 @@ function build()
     function make_module()
     {
         if [ -z "$1" ]; then
-            echo -e "\n${CL_LRD}[?]${NONE} Know the Location of the Module? : \c";
-            read KNWLOC;
+            echo -e "\n${CL_LRD}[?]${NONE} Know the Location of the Module : \n";
+            read -p $'\033[1;36m[>]\033[0m ' KNWLOC;
         fi
         if [[ "$KNWLOC" == "y" || "$1" == "y" ]]; then
             make_it;
@@ -964,10 +966,10 @@ function build()
                 ST="Use Ninja"; shut_my_mouth NJ "$ST";
                 case "$SBNJ" in
                     [yY])
-                        echo -e "\n${CL_YEL}[!]${NONE} Building Android with Ninja BuildSystem";
+                        echo -e "\n${CL_LBL}[!]${NONE} Building Android with Ninja BuildSystem";
                         export USE_NINJA=true ;;
                     [nN])
-                        echo -e "\n${CL_YEL}[!]${NONE} Building Android with the Non-Ninja BuildSystem\n";
+                        echo -e "\n${CL_LBL}[!]${NONE} Building Android with the Non-Ninja BuildSystem\n";
                         export USE_NINJA=false; unset BUILDING_WITH_NINJA ;;
                     *) echo -e "${CL_LRD}[!]${NONE} Invalid Selection.\n" ;;
                 esac
@@ -1021,7 +1023,7 @@ function teh_action()
         esac
     ;;
     *)
-        echo -e "\nInvalid Selection. Going back.\n";
+        echo -e "\n${CL_LRD}[!]${NONE} Invalid Selection.\n";
         case "$2" in
             "qm") quick_menu ;;
             "mm") main_menu ;;
@@ -1043,14 +1045,6 @@ function the_start()
     TMP=temp.txt; STMP=temp_sync.txt; RMTMP=temp_compile.txt; TV1=temp_v1.txt; TV2=temp_v2.txt;
     rm -rf temp{,_sync,_compile,_v{1,2}}.txt;
     touch temp{,_sync,_compile,_v{1,2}}.txt;
-    # Load the ROM Database and Color Codes
-    if [ -f ROM.rc ]; then
-        . $(pwd)/ROM.rc;
-        color_my_life; #$SBCOL;
-    else
-        echo "[!] ROM.rc isn't present in ${PWD}, please make sure repo is cloned correctly";
-        exitScriBt 1;
-    fi
     ATBT="${CL_WYT}*${NONE}${CL_LRD}AutoBot${NONE}${CL_WYT}*${NONE}";
     # CHEAT CHEAT CHEAT!
     if [ ! -z "$automate" ]; then
@@ -1060,7 +1054,7 @@ function the_start()
         echo -e "\n${CL_LBL}[!]${NONE} Using this for first time?\nTake a look on PREF.rc and shut_my_mouth";
     fi
     echo -e "\n${CL_LRD}[?]${NONE} Before Starting off, shall I remember the responses you'll enter from now \n${CL_LBL}[!]${NONE} So that it can be Automated next time\n";
-    read RQ_PGN;
+    read -p $'\033[1;36m[>]\033[0m ' RQ_PGN;
     (set -o posix; set) > ${TV1};
 #    echo -e "\n${CL_WYT}====================================${NONE}";
 #    echo -e "Do you like a \033[1;31mC\033[0m\033[0;32mo\033[0m\033[0;33ml\033[0m\033[0;34mo\033[0m\033[0;36mr\033[0m\033[1;33mf\033[0m\033[1;32mu\033[0m\033[0;31ml\033[0m life? [y/n]";
@@ -1086,6 +1080,14 @@ function the_start()
 
 # VROOM!
 DNT=`date +'%d/%m/%y %r'`;
+# Load RIDb and Colors
+if [ -f ROM.rc ]; then
+    . $(pwd)/ROM.rc;
+    color_my_life; #$SBCOL;
+else
+    echo "[Error] ROM.rc isn't present in ${PWD}, please make sure repo is cloned correctly";
+    exitScriBt 1;
+fi
 if [[ "$1" == "automate" ]]; then
     the_start; # Pre-Initial Stage
     echo -e "${CL_LBL}[!]${NONE} ${ATBT} Thanks for Selecting Me. Lem'me do your work";
