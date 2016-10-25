@@ -41,6 +41,3 @@ function automate()
     build;
     exitScriBt;
 } # automate
-function configs()
-{ # as on 23/10/16 05:27:07 PM IST
-} # configs

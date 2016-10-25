@@ -104,6 +104,10 @@ way, bash ROM.sh won't :D
 
     RED - A Question is asked
 
+[>] in..
+
+    CYAN - An Answer is Expected :P
+
 This method of coloring is **Relevant_Coloring** and is inspired from [a scene in Person of Interest](https://goo.gl/photos/s8YpQL1eBxSYwCWS7) and ADB Logs on a phone (Log types like E for Error, F for Fatal etc.)
 
 #Automation Notes
