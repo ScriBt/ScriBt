@@ -1,7 +1,7 @@
 
 ![ScriBt in Action](http://i.imgur.com/5p97f9i.png?2)
 
-#####ROM Sync && Build Script for Learning Developers
+**ROM Sync && Build Script for Learning Developers**
 
 Ready to use. Extensive Testing needed.
 
@@ -25,6 +25,8 @@ c. **Add** a local_manifest for Device Specfic Additions / Changes
 
 #3. Pre Build
 
+**The Biggest Part/Function of ScriBt**
+
 a. **Add Device** to ROM Vendor
 
 b. Make an **Interactive Makefile** under Device Tree (Identifiable by ROM's BuildSystem)
@@ -36,7 +38,7 @@ b. Make an **Interactive Makefile** under Device Tree (Identifiable by ROM's Bui
   ```# A ROMNIS build needs only the ROMNIS product makefiles.```
 
   ```ifneq ($(ROMNIS_BUILD),)
-    all_product_configs := $(shell ls device/*/$(ROMNIS_BUILD)/ROMNIS.mk)```
+     all_product_configs := $(shell ls device/*/$(ROMNIS_BUILD)/ROMNIS.mk)```
 
 #4. Build
 
@@ -70,10 +72,14 @@ e. CCACHE Setup
 
 #6. Automated Cherry Picking
 
-After work's done, ScriBt saves the Configurations for that work, so that it could be automated next time...
-This is done on User's wish.
+# prefGen
 
-as said before,
+** aka Config Generator **
+* After work's done, ScriBt saves the Configurations for that session, so that it could be automated next time...
+This is done on User's wish.
+* User should enter the function sequence though (under function automate), Information Gathering is done by ```prefGen```
+
+As said before,
 #Extensive Testing is needed.
 
 
@@ -82,9 +88,8 @@ as said before,
 bash ROM.sh
 ```
 
-##### Why not ./ROM.sh
-```exit``` command will close the terminal when script is called in that
-way, bash ROM.sh won't :D
+##### Why not . /ROM.sh ?
+```exit``` command will close the terminal when script is called in that way, bash ROM.sh runs the script in a seperate bash shell, so if the exit command is used, it will terminate that shell and not the terminal in which it was executed.
 
 #What do the colors mean ?
 
@@ -96,7 +101,7 @@ way, bash ROM.sh won't :D
 
     GREEN - Task Completed
 
-    YELLOW - Task under Execution
+    YELLOW - Task to be under Execution
 
     PURPLE - AutoBot speaks
 
@@ -133,13 +138,13 @@ bash ROM.sh automate
 
 **^** - The Device Tree must be Compatible with the ROM you're building (Extra Toolchain Configs, Overlays etc. **ROMNIS-fying is taken care of in Point 3b** ) Else, Issues :) :P
 
-**Variables necessary for Automation**
+#Variables necessary for Automation
 
-Since Vars have been removed from PREF.rc, those info will be seperately provided by me in the paste below...
+Since Vars have been removed from PREF.rc, those info will be seperately provided by me in the snippet below...
 
 https://gist.github.com/a7r3/9fdbf9cca66c339cc87858960149ac09
 
-# Device Types
+#Device Types
 
 * ```full``` - This indicates that the Device has **Adequate Storage Space** for building Entire Android System for it
 * ```mini``` - This indicates that the Device has a **Low Storage Space**, so only Android Essentials are built ( Lesser Apps and Stuff )
@@ -153,7 +158,7 @@ https://gist.github.com/a7r3/9fdbf9cca66c339cc87858960149ac09
 
 * NOTE : IF you're building for a Phone and common_full_phone / common_mini_phone isn't in the list, then press Enter (Leave Blank) as the ROM will consider the Device as a Phone.
 
-# Building Android
+#Building Android
 
 * **Jack** was introduced as a **Toolchain** from MarshMallow onwards for **Apps and Frameworks**.
     - Uses a Java VM for compilation of Java Source Code (.java) to '.dex' (**D**alvik **Ex**ecutable) files
@@ -162,6 +167,7 @@ https://gist.github.com/a7r3/9fdbf9cca66c339cc87858960149ac09
 
 * **Ninja** was introduced from Android Nougat (7.x.x) as an Alternative **Build System**.
     - No Compatibility Requirements.
+    - Some Features of it are Quicker Incremental Builds, and showing Progress of Build on compilation
 
 * Companions for Ninja (iirc), which were introduced in Nougat are...
     - **Kati** - https://android.googlesource.com/platform/build/kati/#kati
@@ -219,6 +225,6 @@ So, the ways of Building Android are...
 29. XOSP
 30. Zephyr-Os
 
-More ROMs will be added, if missed 'em
+**More ROMs will be added, if missed 'em**
 
 #Happy ScriBting!
