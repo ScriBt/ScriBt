@@ -1,5 +1,5 @@
 #========================= a7r3 - 2016 ==============================#
-#                    ROM Information Database                        #
+#                ROM Information Database aka RIDb                   #
 #====================================================================#
 
 function rom_names()
@@ -196,22 +196,18 @@ function rom_names()
 
 } # rom_names
 
-CLR_0=( BLK RED GRN ORG BLU PRP CYN LGR );
-CLR_1=( DGR LRD LGN YEL LBL PNK LCN WYT );
 
 function color_my_life()
 {
-    for NO in 0 1
-    do
-        CT=0;
-        CLR="CLR_${NO}[*]";
-        for COLOR in ${!CLR}
-        do
-            export CCD="\033[${NO};3${CT}m"; NONE="\033[0m";
-            export CL_${COLOR}="${CCD}";
-            ((CT++));
+    CLR_0=( BLK RED GRN ORG BLU PRP CYN LGR );
+    CLR_1=( DGR LRD LGN YEL LBL PNK LCN WYT );
+    for NO in 0 1; do
+        CT=0; CLR="CLR_${NO}[*]";
+        for COLOR in ${!CLR}; do
+            export CL_${COLOR}="\033[${NO};3${CT}m"; ((CT++));
         done
     done
+    NONE="\033[0m";
 } # color_my_life
 
 function gimme_info()
