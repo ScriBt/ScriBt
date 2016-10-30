@@ -32,10 +32,10 @@
 function pkgmgr_check()
 {
     if [ -d "/etc/apt" ]; then
-        echo -e "\n\033[0;31m${CL_LBL}[!]${NONE} Alright, apt detected.\033[0m\n";
+        echo -e "\n\033[0;31m${CL_LGN}[!]${NONE} Alright, apt detected.\033[0m\n";
         PKGMGR="apt";
     elif [ -d "/etc/pacman.d" ]; then
-        echo -e "\n$\033[0;31m${CL_LBL}[!]${NONE} Alright, pacman detected.\033[0m\n";
+        echo -e "\n$\033[0;31m${CL_LGN}[!]${NONE} Alright, pacman detected.\033[0m\n";
         PKGMGR="pacman";
     else
         echo -e "\n${CL_LRD}[!]${NONE} Neither apt nor pacman configuration has been found.";
@@ -124,10 +124,10 @@ function set_ccvars()
     read -p $'\033[1;36m[>]\033[0m ' CCSIZE;
     echo -e "${CL_LBL}[!]${NONE} Create a New Folder for CCACHE and Specify it's location from / : \n";
     read -p $'\033[1;36m[>]\033[0m ' CCDIR;
-    for RC in bashrc profile; do
-        if [ -f ${HOME}/.${RC} ] && [[ $(grep -c 'USE_CCACHE\|CCACHE_DIR') != "1" ]]; then
-            sudo echo -e "export USE_CCACHE=1\nexport CCACHE_DIR=${CCDIR}" >> ${HOME}/.${RC};
-            . ${HOME}/.${RC};
+    for RC in .bashrc .profile; do
+        if [ -f ${HOME}/${RC} ] && [[ $(grep -c 'USE_CCACHE\|CCACHE_DIR') != "1" ]]; then
+            echo -e "export USE_CCACHE=1\nexport CCACHE_DIR=${CCDIR}" >> ${HOME}/${RC};
+            . ${HOME}/${RC};
         fi
     done
     set_ccache;
@@ -146,11 +146,13 @@ function tools()
             "apt")
                 sudo update-alternatives --config java;
                 echo -e "\n${CL_WYT}================================================================${NONE}\n";
-                sudo update-alternatives --config javac ;;
+                sudo update-alternatives --config javac;
+                ;;
             "pacman")
                 archlinux-java status;
                 read -p "${CL_LBL}[!]${NONE} Please enter desired version (ie. \"java-7-openjdk\"): " ARCHJA;
-                sudo archlinux-java set ${ARCHJA} ;;
+                sudo archlinux-java set ${ARCHJA};
+                ;;
         esac
         echo -e "\n${CL_WYT}================================================================${NONE}";
     } # java_select
@@ -168,13 +170,13 @@ function tools()
                     "apt") sudo apt-get purge openjdk-* icedtea-* icedtea6-* ;;
                     "pacman") sudo pacman -Rddns $( pacman -Qqs ^jdk ) ;;
                 esac
-                echo -e "\n${CL_LGN}[!]${NONE} Removed Other Versions successfully" ;;
-            [nN])
-                echo -e "${CL_YEL}[!]${NONE} Keeping them Intact" ;;
+                echo -e "\n${CL_LGN}[!]${NONE} Removed Other Versions successfully"
+                ;;
+            [nN]) echo -e "${CL_YEL}[!]${NONE} Keeping them Intact" ;;
             *)
                 echo -e "${CL_LRD}[!]${NONE} Invalid Selection.\n";
                 java $1;
-            ;;
+                ;;
         esac
         echo -e "${CL_WYT}==========================================================${NONE}\n";
         case "${PKGMGR}" in
@@ -222,7 +224,7 @@ function tools()
                    "apt") installdeps ;;
                    "pacman") installdeps_arch ;;
                esac
-            ;;
+               ;;
             2) java_menu ;;
             3) set_ccvars ;;
             4) udev_rules ;;
@@ -348,13 +350,15 @@ function tools()
                     4) java_ppa ;;
                     *)
                         echo -e "\n${CL_LRD}[!]${NONE} Invalid Selection.\n";
-                        java_menu ;;
+                        java_menu;
+                        ;;
                 esac # JAVER
-            ;;
+                ;;
             2) java_select ;;
             *)
-                echo -e "\n${CL_LRD}[!]${NONE} Invalid Selection.\n"
-                java_menu ;;
+                echo -e "\n${CL_LRD}[!]${NONE} Invalid Selection.\n";
+                java_menu;
+                ;;
         esac # JAVAS
     } # java_menu
 
@@ -380,12 +384,12 @@ function tools()
                     *)
                         echo "\n${CL_YEL}[!]${NONE} Installing make 3.81...";
                         sudo install utils/make /usr/bin/;
-                    ;;
+                        ;;
                 esac
             ;;
             "chk_it")
                 [[ "$MKVR" == "3.81" ]] && echo -e "\n${CL_LGN}[!]${NONE} make 3.81 present";
-            ;;
+                ;;
         esac
     } # make_me_old
 
@@ -585,6 +589,7 @@ function pre_build()
     else
         CNF="vendor/${ROMNIS}";
     fi
+    DEVDIR="device/${SBCM}/${SBDEV}";
     rom_names "$SBRN"; # Restore ROMNIS
     device_info;
 
@@ -606,7 +611,7 @@ function pre_build()
         init_bld;
         echo -e "\n${CL_YEL}[!]${NONE} Creating Interactive Makefile for getting Identified by the ROM's BuildSystem...\n";
         sleep 2;
-        cd device/${SBCM}/${SBDEV};
+        cd ${DEVDIR};
         INTM="interact.mk";
         [ -z "$INTF" ] && INTF="${ROMNIS}.mk";
         echo "#                ##### Interactive Makefile #####
@@ -629,7 +634,7 @@ function pre_build()
             echo -e "\n# Enhanced NFC\n\$(call inherit-product, ${CNF}/nfc_enhanced.mk)" >> ${INTM};
         fi
         echo -e "\n# Calling Default Device Configuration File" >> ${INTM};
-        echo -e "\$(call inherit-product, device/${SBCM}/${SBDEV}/${DDC})" >> ${INTM};
+        echo -e "\$(call inherit-product, ${DEVDIR}/${DDC})" >> ${INTM};
         # To prevent Missing Vendor Calls in DDC-File
         sed -i -e 's/inherit-product, vendor\//inherit-product-if-exists, vendor\//g' $DDC;
         # Add User-desired Makefile Calls
@@ -665,9 +670,8 @@ function pre_build()
         function dtree_add()
         {   # AOSP-CAF|RRO|OmniROM|Flayr|Zephyr
             echo -e "${CL_YEL}[!]${NONE} Adding Lunch Combo in Device Tree";
-            DTREE_DIR="device/${SBCM}/${SBDEV}";
             [ ! -f vendorsetup.sh ] && touch vendorsetup.sh;
-            if [[ $(grep -c "${ROMNIS}_${SBDEV}" ${DTREE_DIR}/vendorsetup.sh ) == "0" ]]; then
+            if [[ $(grep -c "${ROMNIS}_${SBDEV}" ${DEVDIR}/vendorsetup.sh ) == "0" ]]; then
                 echo -e "add_lunch_combo ${ROMNIS}_${SBDEV}-${SBBT}" >> vendorsetup.sh;
             else
                 echo -e "${CL_LGN}[!]${NONE} Lunch combo already added to vendorsetup.sh\n";
@@ -684,7 +688,7 @@ function pre_build()
                         ${ROMNIS}.devices)
                             echo -e "${SBDEV}" >> $STRT ;;
                         ${ROMNIS}-device-targets)
-                            echo -e "${ROMNIS}_${SBDEV}-${SBBT}" >> $STRT;;
+                            echo -e "${ROMNIS}_${SBDEV}-${SBBT}" >> $STRT ;;
                         vendorsetup.sh)
                             echo -e "add_lunch_combo ${ROMNIS}_${SBDEV}-${SBBT}" >> $STRT ;;
                     esac
@@ -737,36 +741,36 @@ ${CL_PNK}2560${NONE}x1600\n";
                 echo -e "\t\$(LOCAL_DIR)/${VENF}" >> AndroidProducts.mk;
                 echo -e "\n# Inherit telephony stuff\n\$(call inherit-product, vendor/${ROMNIS}/configs/telephony.mk)" >> $VENF;
                 echo -e "\$(call inherit-product, vendor/${ROMNIS}/configs/common.mk)" >> $VENF;
-            ;;
+                ;;
             "aokp")
                 VENF="${SBDEV}.mk";
                 echo -e "\t\$(LOCAL_DIR)/${VENF}" >> AndroidProducts.mk;
                 echo -e "\$(call inherit-product, vendor/${ROMNIS}/configs/common.mk)" >> $VENF;
                 echo -e "\nPRODUCT_COPY_FILES += \ " >> $VENF;
                 echo -e "\tvendor/${ROMNIS}/prebuilt/bootanimation/bootanimation_${SBBTR}.zip:system/media/bootanimation.zip" >> $VENF;
-            ;;
+                ;;
             "krexus")
                 VENF="${ROMNIS}_${SBDEV}.mk";
                 echo -e "\$( call inherit-product, vendor/${ROMNIS}/products/common.mk)" >> $VENF;
                 echo -e "\n\$( call inherit-product, vendor/${ROMNIS}/products/vendorless.mk)" >> $VENF;
-            ;;
+                ;;
             "pa")
                 VENF="${SBDEV}/${ROMNIS}_${SBDEV}.mk";
                 echo -e "# ${SBCM} ${SBDEV}" >> AndroidProducts.mk
                 echo -e "\nifeq (${ROMNIS}_${SBDEV},\$(TARGET_PRODUCT))" >> AndroidProducts.mk;
                 echo -e "\tPRODUCT_MAKEFILES += \$(LOCAL_DIR)/${VENF}\nendif" >> AndroidProducts.mk;
                 echo -e "\ninclude vendor/${ROMNIS}/main.mk" >> $VENF;
-                mv ${CALL_ME_ROOT}/device/${SBCM}/${SBDEV}/*.dependencies ${SBDEV}/pa.dependencies;
-            ;;
+                mv ${CALL_ME_ROOT}/${DEVDIR}/*.dependencies ${SBDEV}/pa.dependencies;
+                ;;
             "pac")
                 VENF="${ROMNIS}_${SBDEV}.mk";
                 echo -e "\$( call inherit-product, vendor/${ROMNIS}/products/pac_common.mk)" >> $VENF;
                 echo -e "\nPAC_BOOTANIMATION_NAME := ${SBBTR};" >> $VENF;
-            ;;
+                ;;
         esac
         find_ddc;
         echo -e "\n# Inherit from ${DDC}" >> $VENF;
-        echo -e "\$(call inherit-product, device/${SBCM}/${SBDEV}/${DDC})" >> $VENF;
+        echo -e "\$(call inherit-product, ${DEVDIR}/${DDC})" >> $VENF;
         # PRODUCT_NAME is the only ROM-specific Identifier, setting it here is better.
         echo -e "\n#ROM Specific Identifier\nPRODUCT_NAME := ${ROMNIS}_${SBDEV}" >> $VENF;
     } # vendor_strat_kpa
@@ -788,7 +792,7 @@ ${CL_PNK}2560${NONE}x1600\n";
 
     function need_for_int()
     {
-        if [ -f ${CALL_ME_ROOT}/device/${SBCM}/${SBDEV}/${INTF} ]; then
+        if [ -f ${CALL_ME_ROOT}/${DEVDIR}/${INTF} ]; then
             echo "$NOINT";
         else
             interactive_mk "$SBRN";
@@ -800,10 +804,9 @@ ${CL_PNK}2560${NONE}x1600\n";
             VNF="common";
             INTF="${ROMNIS}_${SBDEV}.mk";
             need_for_int;
-            DEVDIR="device/${SBCM}/${SBDEV}";
             rm -rf ${DEVDIR}/AndroidProducts.mk;
             echo -e "PRODUCT_MAKEFILES :=  \\ \n\t\$(LOCAL_DIR)/${ROMNIS}_${SBDEV}.mk" >> AndroidProducts.mk;
-        ;;
+            ;;
         3) # AOSiP-CAF
             if [ ! -f vendor/${ROMNIS}/products ]; then
                 VNF="common";
@@ -811,7 +814,7 @@ ${CL_PNK}2560${NONE}x1600\n";
             else
                 echo "$NOINT";
             fi
-        ;;
+            ;;
         2|19) # AOKP-4.4 | PAC-5.1
             if [ ! -f vendor/${ROMNIS}/products ]; then
                 VNF="$SBDTP";
@@ -819,14 +822,14 @@ ${CL_PNK}2560${NONE}x1600\n";
             else
                 echo "$NOINT";
             fi
-        ;;
+            ;;
         1|14|20) # AICP | Krexus-CAF | AOSPA
             echo "$NOINT";
-        ;;
+            ;;
         *) # Rest of the ROMs
             VNF="$SBDTP";
             need_for_int;
-        ;;
+            ;;
     esac
     sleep 2;
     export action_1="init" action_2="pre_build";
@@ -928,8 +931,8 @@ function build()
             "brunch")
                 echo -e "\n${CL_YEL}[!]${NONE} Starting Compilation - ${ROM_FN} for ${SBDEV}\n";
                 ${SBSLT} ${SBDEV};
-            ;;
-            *)  echo -e "${CL_LRD}[!]${NONE} Invalid Selection.\n"; hotel_menu ;;
+                ;;
+            *) echo -e "${CL_LRD}[!]${NONE} Invalid Selection.\n"; hotel_menu ;;
         esac
         echo;
     } # hotel_menu
@@ -967,10 +970,13 @@ function build()
                 case "$SBNJ" in
                     [yY])
                         echo -e "\n${CL_LBL}[!]${NONE} Building Android with Ninja BuildSystem";
-                        export USE_NINJA=true ;;
+                        export USE_NINJA=true;
+                        ;;
                     [nN])
                         echo -e "\n${CL_LBL}[!]${NONE} Building Android with the Non-Ninja BuildSystem\n";
-                        export USE_NINJA=false; unset BUILDING_WITH_NINJA ;;
+                        export USE_NINJA=false;
+                        unset BUILDING_WITH_NINJA;
+                        ;;
                     *) echo -e "${CL_LRD}[!]${NONE} Invalid Selection.\n" ;;
                 esac
             fi
@@ -981,13 +987,13 @@ function build()
             esac
             hotel_menu;
             build_make "$SBSLT";
-        ;;
+            ;;
         2) make_module ;;
         3) set_ccvars ;;
         *)
             echo -e "${CL_LRD}[!]${NONE} Invalid Selection.\n";
             build;
-        ;;
+            ;;
     esac
     export action_3="build";
 } # build
@@ -998,37 +1004,37 @@ function teh_action()
     1)
         [ -z "$automate" ] && init;
         echo -ne '\033]0;ScriBt : Init\007';
-    ;;
+        ;;
     2)
         [ -z "$automate" ] & sync;
         echo -ne "\033]0;ScriBt : Syncing ${ROM_FN}\007";
-    ;;
+        ;;
     3)
         [ -z "$automate" ] && pre_build;
         echo -ne '\033]0;ScriBt : Pre-Build\007';
-    ;;
+        ;;
     4)
         [ -z "$automate" ] && build;
         echo -ne "\033]0;${ROMNIS}_${SBDEV} : In Progress\007";
-    ;;
+        ;;
     5)
         [ -z "$automate" ] && tools;
         echo -ne '\033]0;ScriBt : Installing Dependencies\007';
-    ;;
+        ;;
     6)
         [ -z "$automate" ] && exitScriBt 0;
         case "$2" in
             "COOL") echo -ne "\033]0;${ROMNIS}_${SBDEV} : Success\007" ;;
             "FAIL") echo -ne "\033]0;${ROMNIS}_${SBDEV} : Fail\007" ;;
         esac
-    ;;
+        ;;
     *)
         echo -e "\n${CL_LRD}[!]${NONE} Invalid Selection.\n";
         case "$2" in
             "qm") quick_menu ;;
             "mm") main_menu ;;
         esac
-    ;;
+        ;;
     esac
 } # teh_action
 
