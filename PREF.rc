@@ -1,12 +1,13 @@
-#===================================a7r3, 2016=================================#
-#                           FILE MADE TO SHUT_MY_MOUTH                         #
-#                                                                              #
+#================================== a7r3, 2016 ================================#
+#                           File made to shut_my_mouth                         #
 #                  Place a Semi-colon ';' after entering a Value               #
 #==============================================================================#
 
 function the_cherries()                 # Since this is Automated - Use Proper Cherry-picks - conflicts won't be solved
 {
     builddir=$(pwd);                    # TO get back to Build Dir
+
+# Remove the Hashes '#' (at the start of each line below this) after adding the cherries, so that it's brought to life
 
 #   #===========PICK 1=============#
 #   cd ${builddir}/[ENTER_DIRECTORY];   # The Directory in which you need to Pick a Commit
