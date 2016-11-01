@@ -144,6 +144,20 @@ Since Vars have been removed from PREF.rc, those info will be seperately provide
 
 https://gist.github.com/a7r3/9fdbf9cca66c339cc87858960149ac09
 
+#Transferability
+
+```bash ROM.sh cd <directory>```
+
+1st Parameter - Indicates that you want to transfer it - alias is 'cd' to make it similiar with the 'cd' command
+
+2nd Parameter - The directory to which you need to transfer ScriBt
+
+Make sure you enter a proper directory, which has **read/write permissions**. This action will **transfer** ScriBt to the directory mentioned by the user as well as **execute** it from that directory.
+
+If you want to automate the ScriBt after changing directory, then 3rd Parameter should be 'automate'. It'd look like this...
+
+```bash ROM.sh cd <directory> automate```
+
 #Device Types
 
 * ```full``` - This indicates that the Device has **Adequate Storage Space** for building Entire Android System for it

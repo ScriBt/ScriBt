@@ -64,6 +64,41 @@ function exitScriBt()
     exit $1;
 } # exitScriBt
 
+function tranScriBt()
+{
+    function transIt()
+    {
+        echo -e "${CL_YEL}[!]${NONE} Transferring ScriBt to the Specified Directory\n";
+        for FILE in `ls`; do
+            cp -rf ${FILE} $1/${FILE};
+        done
+        echo -e "${CL_LGN}[!]${NONE} Successfully Transferred\n";
+        sleep 2;
+        echo -e "${CL_YEL}[!]${NONE} Starting ScriBt in $1\n";
+        sleep 0.5;
+        echo -e "${CL_WYT}===============================================${NONE}\n";
+        cd $1;
+        exec bash ROM.sh $2;
+    } # transIt
+
+    echo -e "${CL_YEL}[!]${NONE} Checking Directory Existence\n";
+    if [ ! -f $1 ]; then
+        echo -e "${CL_LRD}[!]${NONE} Directory does not exist\n";
+        echo -e "${CL_YEL}[!]${NONE} Trying to create directory\n";
+        TDIR=`mkdir $1 | echo "$?"`;
+        if [[ "$TDIR" == 0 ]]; then
+            echo -e "${CL_LGN}[!]${NONE} Directory created\n";
+            transIt $1 $2;
+        else
+            echo -e "${CL_LRD}[!]${NONE} Invalid Directory specified\n";
+            exitScriBt 1;
+        fi
+    else
+        echo -e "${CL_LGN}[!]${NONE} Directory Exists\n";
+        transIt $1 $2;
+    fi
+} # tranScriBt
+
 function the_response()
 {
     case "$1" in
@@ -379,17 +414,14 @@ function tools()
         case "$1" in
             "do_it")
                 case "${MKVR}" in
-                    "3.81")
-                        echo -e "\n${CL_LGN}[!]${NONE} make 3.81 has already been installed" ;;
+                    "3.81") echo -e "\n${CL_LGN}[!]${NONE} make 3.81 has already been installed" ;;
                     *)
                         echo "\n${CL_YEL}[!]${NONE} Installing make 3.81...";
                         sudo install utils/make /usr/bin/;
                         ;;
                 esac
-            ;;
-            "chk_it")
-                [[ "$MKVR" == "3.81" ]] && echo -e "\n${CL_LGN}[!]${NONE} make 3.81 present";
                 ;;
+            "chk_it") [[ "$MKVR" == "3.81" ]] && echo -e "\n${CL_LGN}[!]${NONE} make 3.81 present" ;;
         esac
     } # make_me_old
 
@@ -1090,6 +1122,11 @@ else
     echo "[Error] ROM.rc isn't present in ${PWD}, please make sure repo is cloned correctly";
     exitScriBt 1;
 fi
+
+# Where am I ?
+echo -e "\n${CL_LBL}[!]${NONE} ${CL_WYT}I'm in $(pwd)${NONE}\n";
+
+# Point of Execution
 if [[ "$1" == "automate" ]]; then
     the_start; # Pre-Initial Stage
     echo -e "${CL_LBL}[!]${NONE} ${ATBT} Thanks for Selecting Me. Lem'me do your work";
@@ -1098,6 +1135,8 @@ if [[ "$1" == "automate" ]]; then
 elif [ -z $1 ]; then
     the_start; # Pre-Initial Stage
     main_menu;
+elif [[ "$1" == "cd" ]] && [ ! -z $2 ]; then
+    tranScriBt $2 $3;
 else
     echo -e "${CL_LRD}[!]${NONE} Incorrect Parameter: \"$1\"";
     echo -e "${CL_LBL}[!]${NONE} Usage:\n\tbash ROM.sh (Interactive Usage)\n\tbash ROM.sh automate (For Automated Builds)";
