@@ -29,22 +29,18 @@
 # nosedive                                                             #
 #======================================================================#
 
-function pkgmgr_check()
+function cherrypick() # Automated Use only
 {
-    if [ -d "/etc/apt" ]; then
-        echo -e "\n\033[0;31m${SCS} Alright, apt detected.\033[0m\n";
-        PKGMGR="apt";
-    elif [ -d "/etc/pacman.d" ]; then
-        echo -e "\n$\033[0;31m${SCS} Alright, pacman detected.\033[0m\n";
-        PKGMGR="pacman";
-    else
-        echo -e "\n${FLD} Neither apt nor pacman configuration has been found.";
-        echo -e "\n${INF} A Debian/Ubuntu based Distribution or Archlinux is required to run ScriBt.";
-        exitScriBt 1;
-    fi
-} # pkgmgr_check
+    echo -ne '\033]0;ScriBt : Picking Cherries\007';
+    echo -e "${CL_WYT}=======================${NONE} ${CL_LRD}Pick those Cherries${NONE} ${CL_WYT}======================${NONE}\n";
+    echo -e "${EXE} ${ATBT} Attempting to Cherry-Pick Provided Commits\n";
+    git fetch https://github.com/${REPOPK}/${REPONAME} ${CP_BRNC};
+    git cherry-pick $1;
+    echo -e "\n${INF} IT's possible that you may face conflicts while merging a C-Pick. Solve those and then Continue.";
+    echo -e "${CL_WYT}==================================================================${NONE}";
+} # cherrypick
 
-function exitScriBt()
+function exitScriBt() # ID
 {
     function prefGen()
     {
@@ -64,49 +60,6 @@ function exitScriBt()
     exit $1;
 } # exitScriBt
 
-function tranScriBt()
-{
-    function transIt()
-    {
-        echo -e "${EXE} Transferring ScriBt to the Specified Directory\n";
-        for FILE in `ls`; do
-            cp -rf ${FILE} $1/${FILE};
-        done
-        echo -e "${SCS} Successfully Transferred\n";
-        sleep 2;
-        echo -e "${EXE} Starting ScriBt in $1\n";
-        sleep 0.5;
-        echo -e "${CL_WYT}===============================================${NONE}\n";
-        cd $1;
-        exec bash ROM.sh $2;
-    } # transIt
-
-    echo -e "${EXE} Checking Directory Existence\n";
-    if [ ! -f $1 ]; then
-        echo -e "${FLD} Directory does not exist\n";
-        echo -e "${EXE} Trying to create directory\n";
-        TDIR=`mkdir $1 | echo "$?"`;
-        if [[ "$TDIR" == 0 ]]; then
-            echo -e "${SCS} Directory created\n";
-            transIt $1 $2;
-        else
-            echo -e "${FLD} Invalid Directory specified\n";
-            exitScriBt 1;
-        fi
-    else
-        echo -e "${SCS} Directory Exists\n";
-        transIt $1 $2;
-    fi
-} # tranScriBt
-
-function the_response()
-{
-    case "$1" in
-        "COOL") echo -e "${SCS} ${ATBT} Automated $2 Successful! :)" ;;
-        "FAIL") echo -e "${FLD} ${ATBT} Automated $2 Failed :(" ;;
-    esac
-} # the_response
-
 function main_menu()
 {
     echo -ne '\033]0;ScriBt : Main Menu\007';
@@ -124,6 +77,21 @@ function main_menu()
     teh_action $ACTION "mm";
 } # main_menu
 
+function pkgmgr_check() # ID
+{
+    if [ -d "/etc/apt" ]; then
+        echo -e "\n\033[0;31m${SCS} Alright, apt detected.\033[0m\n";
+        PKGMGR="apt";
+    elif [ -d "/etc/pacman.d" ]; then
+        echo -e "\n$\033[0;31m${SCS} Alright, pacman detected.\033[0m\n";
+        PKGMGR="pacman";
+    else
+        echo -e "\n${FLD} Neither apt nor pacman configuration has been found.";
+        echo -e "\n${INF} A Debian/Ubuntu based Distribution or Archlinux is required to run ScriBt.";
+        exitScriBt 1;
+    fi
+} # pkgmgr_check
+
 function quick_menu()
 {
     echo -ne '\033]0;ScriBt : Quick Menu\007';
@@ -135,338 +103,7 @@ function quick_menu()
     teh_action $ACTION "qm";
 } # quick_menu
 
-function cherrypick()
-{
-    echo -ne '\033]0;ScriBt : Picking Cherries\007';
-    echo -e "${CL_WYT}=======================${NONE} ${CL_LRD}Pick those Cherries${NONE} ${CL_WYT}======================${NONE}\n";
-    echo -e "${EXE} ${ATBT} Attempting to Cherry-Pick Provided Commits\n";
-    git fetch https://github.com/${REPOPK}/${REPONAME} ${CP_BRNC};
-    git cherry-pick $1;
-    echo -e "\n${INF} IT's possible that you may face conflicts while merging a C-Pick. Solve those and then Continue.";
-    echo -e "${CL_WYT}==================================================================${NONE}";
-} # cherrypick
-
-function set_ccache()
-{
-    echo -e "\n${EXE} Setting up CCACHE\n";
-    ccache -M ${CCSIZE}G;
-    echo -e "\n${SCS} CCACHE Setup Successful.\n";
-} # set_ccache
-
-function set_ccvars()
-{
-    echo -e "${INF} \nCCACHE Size must be >50 GB.\n Specify the Size (Number) for Reservation of CCACHE (in GB) : \n";
-    read -p $'\033[1;36m[>]\033[0m ' CCSIZE;
-    echo -e "${INF} Create a New Folder for CCACHE and Specify it's location from / : \n";
-    read -p $'\033[1;36m[>]\033[0m ' CCDIR;
-    for RC in .bashrc .profile; do
-        if [ -f ${HOME}/${RC} ] && [[ $(grep -c 'USE_CCACHE\|CCACHE_DIR') != "1" ]]; then
-            echo -e "export USE_CCACHE=1\nexport CCACHE_DIR=${CCDIR}" >> ${HOME}/${RC};
-            . ${HOME}/${RC};
-        fi
-    done
-    set_ccache;
-} # set_ccvars
-
-function tools()
-{
-    [ ! -z "$automate" ] && teh_action 5;
-
-    function java_select()
-    {
-        echo -e "${INF} If you have Installed Multiple Versions of Java or Installed Java from Different Providers (OpenJDK / Oracle)";
-        echo -e "${INF} You may now select the Version of Java which is to be used BY-DEFAULT\n";
-        echo -e "${CL_WYT}================================================================${NONE}\n";
-        case "${PKGMGR}" in
-            "apt")
-                sudo update-alternatives --config java;
-                echo -e "\n${CL_WYT}================================================================${NONE}\n";
-                sudo update-alternatives --config javac;
-                ;;
-            "pacman")
-                archlinux-java status;
-                read -p "${INF} Please enter desired version (ie. \"java-7-openjdk\"): " ARCHJA;
-                sudo archlinux-java set ${ARCHJA};
-                ;;
-        esac
-        echo -e "\n${CL_WYT}================================================================${NONE}";
-    } # java_select
-
-    function java()
-    {
-        echo -ne "\033]0;ScriBt : Java $1\007";
-        echo -e "\n${EXE} Installing OpenJDK-$1 (Java 1.$1.0)";
-        echo -e "\n${INF} Remove other Versions of Java ${CL_WYT}[y/n]${NONE}? : \n";
-        read -p $'\033[1;36m[>]\033[0m ' REMOJA;
-        echo;
-        case "$REMOJA" in
-            [yY])
-                case "${PKGMGR}" in
-                    "apt") sudo apt-get purge openjdk-* icedtea-* icedtea6-* ;;
-                    "pacman") sudo pacman -Rddns $( pacman -Qqs ^jdk ) ;;
-                esac
-                echo -e "\n${SCS} Removed Other Versions successfully"
-                ;;
-            [nN]) echo -e "${EXE} Keeping them Intact" ;;
-            *)
-                echo -e "${FLD} Invalid Selection.\n";
-                java $1;
-                ;;
-        esac
-        echo -e "${CL_WYT}==========================================================${NONE}\n";
-        case "${PKGMGR}" in
-            "apt") sudo apt-get update -y ;;
-            "pacman") sudo pacman -Sy ;;
-        esac
-        echo -e "\n${CL_WYT}==========================================================${NONE}\n";
-        case "${PKGMGR}" in
-            "apt") sudo apt-get install openjdk-$1-jdk -y ;;
-            "pacman") sudo pacman -S jdk$1-openjdk ;;
-        esac
-        echo -e "\n${CL_WYT}==========================================================${NONE}";
-        if [[ $( java -version > $TMP && grep -c "java version \"1\.$1" $TMP ) == "1" ]]; then
-            echo -e "${SCS} OpenJDK-$1 or Java 1.$1.0 has been successfully installed";
-            echo -e "${CL_WYT}==========================================================${NONE}";
-        fi
-    } # java
-
-    function java_ppa()
-    {
-        if [[ ! $(which add-apt-repository) ]]; then
-            echo -e "${EXE} add-apt-repository not present. Installing it...";
-            sudo apt-get install software-properties-common;
-        fi
-        sudo add-apt-repository ppa:openjdk-r/ppa -y;
-        sudo apt-get update -y;
-        sudo apt-get install openjdk-7-jdk -y;
-    } # java_ppa
-
-    function tool_menu()
-    {
-        echo -e "\n${CL_WYT}===================${NONE} ${CL_LBL}Tools${NONE} ${CL_WYT}====================${NONE}\n";
-        echo -e "     1. Install Build Dependencies\n";
-        echo -e "     2. Install Java (OpenJDK 6/7/8)";
-        echo -e "     3. Install and/or Set-up CCACHE";
-        echo -e "     4. Install/Update ADB udev rules";
-# TODO: echo -e "     6. Find an Android Module's Directory";
-        echo -e "     5. Install/Revert to make 3.81";
-        echo -e "\n     0. Quick Menu"
-        echo -e "${CL_WYT}==============================================${NONE}\n";
-        read -p $'\033[1;36m[>]\033[0m ' TOOL;
-        case "$TOOL" in
-            0) quick_menu ;;
-            1) case "${PKGMGR}" in
-                   "apt") installdeps ;;
-                   "pacman") installdeps_arch ;;
-               esac
-               ;;
-            2) java_menu ;;
-            3) set_ccvars ;;
-            4) udev_rules ;;
-# TODO:     6) find_mod ;;
-            5) make_me_old ;;
-            *) echo -e "${FLD} Invalid Selection.\n"; tool_menu ;;
-        esac
-        [ -z "$automate" ] && quick_menu;
-    } # tool_menu
-
-    function installdeps()
-    {
-        echo -e "${EXE} Analyzing Distro";
-        PACK="/etc/apt/sources.list.d/official-package-repositories.list";
-        DISTROS=( precise quantal raring saucy trusty utopic vivid wily xenial );
-        for DIST in ${DISTROS[*]}; do
-            if [[ $(grep -c "${DIST}" "${PACK}") != "0" ]]; then
-                export DISTRO="${DIST}";
-            fi
-        done
-        echo -e "\n${EXE} Installing Build Dependencies\n";
-        # Common Packages
-        COMMON_PKGS=( git-core git gnupg flex bison gperf build-essential zip curl \
-        ccache libxml2-utils xsltproc g++-multilib squashfs-tools zlib1g-dev \
-        pngcrush schedtool libwxgtk2.8-dev python lib32z1-dev lib32z-dev lib32z1 \
-        libxml2 optipng python-networkx python-markdown make unzip );
-        case "$DISTRO" in # Distro-Specific Pkgs
-            "precise"|"quantal")
-                DISTRO_PKGS=( libc6-dev libncurses5-dev:i386 x11proto-core-dev \
-                libx11-dev:i386 libreadline6-dev:i386 libgl1-mesa-glx:i386 \
-                libgl1-mesa-dev mingw32 tofrodos zlib1g-dev:i386 ) ;;
-            "raring"|"saucy")
-                DISTRO_PKGS=( zlib1g-dev:i386 libc6-dev lib32ncurses5 \
-                lib32bz2-1.0 lib32ncurses5-dev x11proto-core-dev \
-                libx11-dev:i386 libreadline6-dev:i386 \
-                libgl1-mesa-glx:i386 libgl1-mesa-dev \
-                mingw32 tofrodos readline-common libreadline6-dev libreadline6 \
-                lib32readline-gplv2-dev libncurses5-dev lib32readline5 \
-                lib32readline6 libreadline-dev libreadline6-dev:i386 \
-                libreadline6:i386 bzip2 libbz2-dev libbz2-1.0 libghc-bzlib-dev \
-                lib32bz2-dev libsdl1.2-dev libesd0-dev ) ;;
-            "trusty"|"utopic")
-                DISTRO_PKGS=( libc6-dev-i386 lib32ncurses5-dev liblz4-tool \
-                x11proto-core-dev libx11-dev libgl1-mesa-dev maven maven2 ) ;;
-            "vivid"|"wily")
-                DISTRO_PKGS=( libesd0-dev liblz4-tool libncurses5-dev \
-                libsdl1.2-dev libwxgtk2.8-dev lzop maven maven2 \
-                lib32ncurses5-dev lib32readline6-dev liblz4-tool ) ;;
-            "xenial")
-                DISTRO_PKGS=( automake lzop libesd0-dev maven \
-                liblz4-tool libncurses5-dev libsdl1.2-dev libwxgtk3.0-dev \
-                lzop lib32ncurses5-dev lib32readline6-dev lib32z1-dev \
-                zlib1g-dev:i386 libbz2-dev libbz2-1.0 libghc-bzlib-dev ) ;;
-        esac
-        # Install 'em all
-        sudo apt-get install -y ${COMMON_PKGS[*]} ${DISTRO_PKGS[*]};
-    } # installdeps
-
-    function installdeps_arch()
-    {
-        # common packages
-        PKGS="git gnupg flex bison gperf sdl wxgtk squashfs-tools curl ncurses zlib schedtool perl-switch zip unzip libxslt python2-virtualenv bc rsync maven";
-        PKGS64="$( pacman -Sgq multilib-devel ) lib32-zlib lib32-ncurses lib32-readline";
-        PKGSJAVA="jdk6 jdk7-openjdk";
-        PKGS_CONFLICT="gcc gcc-libs";
-        # sort out already installed pkgs
-        for item in ${PKGS} ${PKGS64} ${PKGSJAVA}; do
-            if ! pacman -Qq ${item} &> /dev/null; then
-                PKGSREQ="${item} ${PKGSREQ}";
-            fi
-        done
-        # if there are required packages, run the installer
-        if [ ${#PKGSREQ} -ge 4 ]; then
-            # choose an AUR package manager instead of pacman
-            for item in yaourt pacaur packer; do
-                if which ${item} &> /dev/null; then
-                    AURMGR="${item}";
-                fi
-            done
-            if [ -z ${AURMGR} ]; then
-                echo -e "\n${FLD} no AUR manager found\n";
-                exitScriBt 1;
-            fi
-            # look for conflicting packages and uninstall them
-            for item in ${PKGS_CONFLICT}; do
-                if pacman -Qq ${item} &> /dev/null; then
-                    sudo pacman -Rddns --noconfirm ${item};
-                    sleep 3;
-                fi
-            done
-            # install required packages
-            for item in ${PKGSREQ}; do
-                ${AURMGR} -S --noconfirm $item;
-            done
-        else
-            echo -e "\n${SCS} You already have all required packages\n";
-        fi
-    } # installdeps_arch
-
-    function java_menu()
-    {
-        echo -e "${CL_WYT}=============${NONE} ${CL_YEL}JAVA${NONE} Installation ${CL_WYT}============${NONE}\n";
-        echo -e "1. Install Java";
-        echo -e "2. Switch Between Java Versions / Providers\n";
-        echo -e "0. Quick Menu\n";
-        echo -e "${INF} ScriBt installs Java by OpenJDK";
-        echo -e "\n${CL_WYT}============================================\n${NONE}";
-        read -p $'\033[1;36m[>]\033[0m ' JAVAS;
-        case "$JAVAS" in
-            0)  quick_menu ;;
-            1)
-                echo -ne '\033]0;ScriBt : Java\007';
-                echo -e "\n${QN} Android Version of the ROM you're building";
-                echo -e "1. Java 1.6.0 (4.4.x Kitkat)";
-                echo -e "2. Java 1.7.0 (5.x.x Lollipop && 6.x.x Marshmallow)";
-                echo -e "3. Java 1.8.0 (7.x.x Nougat)\n";
-                [[ "${PKGMGR}" == "apt" ]] && echo -e "4. Ubuntu 16.04 & Want to install Java 7";
-                read -p $'\033[1;36m[>]\033[0m ' JAVER;
-                case "$JAVER" in
-                    1) java 6 ;;
-                    2) java 7 ;;
-                    3) java 8 ;;
-                    4) java_ppa ;;
-                    *)
-                        echo -e "\n${FLD} Invalid Selection.\n";
-                        java_menu;
-                        ;;
-                esac # JAVER
-                ;;
-            2) java_select ;;
-            *)
-                echo -e "\n${FLD} Invalid Selection.\n";
-                java_menu;
-                ;;
-        esac # JAVAS
-    } # java_menu
-
-    function udev_rules()
-    {
-        echo -e "\n${CL_WYT}==========================================================${NONE}\n";
-        echo -e "${EXE} Updating / Creating Android USB udev rules (51-android)\n";
-        sudo curl --create-dirs -L -o /etc/udev/rules.d/51-android.rules -O -L https://raw.githubusercontent.com/snowdream/51-android/master/51-android.rules;
-        sudo chmod a+r /etc/udev/rules.d/51-android.rules;
-        sudo service udev restart;
-        echo -e "\n${SCS} Done";
-        echo -e "\n${CL_WYT}==========================================================${NONE}\n";
-    } # udev_rules
-
-    function make_me_old()
-    {
-        MKVR=$(make -v | head -1 | awk '{print $3}');
-        case "${MKVR}" in
-            "3.81") echo -e "\n${SCS} make 3.81 has already been installed" ;;
-            *)
-                echo "\n${EXE} Installing make 3.81...";
-                sudo install utils/make /usr/bin/;
-                ;;
-        esac
-        [[ "$MKVR" == "3.81" ]] && echo -e "\n${SCS} make 3.81 present";
-    } # make_me_old
-
-    tool_menu;
-} # tools
-
-function shut_my_mouth()
-{
-    if [ ! -z "$automate" ]; then
-        RST="SB$1";
-        echo -e "${CL_PRP}[!]${NONE} ${ATBT} $2 : ${!RST}";
-    else
-        read -p $'\033[1;36m[>]\033[0m ' SB2;
-        [ -z "$3" ] && export SB$1="${SB2}" || eval SB$1=${SB2};
-    fi
-    echo;
-} # shut_my_mouth
-
-function sync()
-{
-    [ ! -z "$automate" ] && teh_action 2;
-    if [ ! -f .repo/manifest.xml ]; then init; elif [ -z "$action_1" ]; then rom_select; fi;
-    echo -e "\n${EXE} Preparing for Sync\n";
-    echo -e "${QN} Number of Threads for Sync \n"; gimme_info "jobs";
-    ST="Number of Threads"; shut_my_mouth JOBS "$ST";
-    echo -e "${QN} Force Sync needed ${CL_WYT}[y/n]${NONE}\n"; gimme_info "fsync";
-    ST="Force Sync"; shut_my_mouth F "$ST";
-    echo -e "${QN} Need some Silence in the Terminal ${CL_WYT}[y/n]${NONE}\n"; gimme_info "ssync";
-    ST="Silent Sync"; shut_my_mouth S "$ST";
-    echo -e "${QN} Sync only Current Branch ${CL_WYT}[y/n]${NONE}\n"; gimme_info "syncrt";
-    ST="Sync Current Branch"; shut_my_mouth C "$ST";
-    echo -e "${QN} Sync with clone-bundle ${CL_WYT}[y/n]${NONE}\n"; gimme_info "clnbun";
-    ST="Use clone-bundle"; shut_my_mouth B "$ST";
-    echo -e "${CL_WYT}=====================================================================${NONE}\n";
-    #Sync-Options
-    [[ "$SBS" == "y" ]] && SILENT=-q || SILENT=" ";
-    [[ "$SBF" == "y" ]] && FORCE=--force-sync || FORCE=" ";
-    [[ "$SBC" == "y" ]] && SYNC_CRNT=-c || SYNC_CRNT=" ";
-    [[ "$SBB" == "y" ]] && CLN_BUN=" " || CLN_BUN=--no-clone-bundle;
-    echo -e "${EXE} Let's Sync!\n";
-    repo sync -j${SBJOBS} ${SILENT} ${FORCE} ${SYNC_CRNT} ${CLN_BUN}  #2>&1 | tee $STMP;
-    echo;
-    the_response COOL Sync;
-    echo -e "\n${SCS} Done.\n";
-    echo -e "${CL_WYT}=====================================================================${NONE}\n";
-    [ -z "$automate" ] && quick_menu;
-} # sync
-
-function rom_select()
+function rom_select() # D 1,2
 {
     echo -e "${CL_WYT}=======================================================${NONE}\n";
     echo -e "${CL_YEL}[?]${NONE} ${CL_WYT}Which ROM are you trying to build
@@ -508,7 +145,84 @@ Choose among these (Number Selection)
     rom_names "$SBRN";
 } # rom_select
 
-function init()
+function shut_my_mouth() # ID
+{
+    if [ ! -z "$automate" ]; then
+        RST="SB$1";
+        echo -e "${CL_PRP}[!]${NONE} ${ATBT} $2 : ${!RST}";
+    else
+        read -p $'\033[1;36m[>]\033[0m ' SB2;
+        [ -z "$3" ] && export SB$1="${SB2}" || eval SB$1=${SB2};
+    fi
+    echo;
+} # shut_my_mouth
+
+function set_ccache() # D set_ccvars
+{
+    echo -e "\n${EXE} Setting up CCACHE\n";
+    ccache -M ${CCSIZE}G;
+    echo -e "\n${SCS} CCACHE Setup Successful.\n";
+} # set_ccache
+
+function set_ccvars() # D 4,5
+{
+    echo -e "${INF} \nCCACHE Size must be >50 GB.\n Specify the Size (Number) for Reservation of CCACHE (in GB) : \n";
+    read -p $'\033[1;36m[>]\033[0m ' CCSIZE;
+    echo -e "${INF} Create a New Folder for CCACHE and Specify it's location from / : \n";
+    read -p $'\033[1;36m[>]\033[0m ' CCDIR;
+    for RC in .bashrc .profile; do
+        if [ -f ${HOME}/${RC} ] && [[ $(grep -c 'USE_CCACHE\|CCACHE_DIR') != "1" ]]; then
+            echo -e "export USE_CCACHE=1\nexport CCACHE_DIR=${CCDIR}" >> ${HOME}/${RC};
+            . ${HOME}/${RC};
+        fi
+    done
+    set_ccache;
+} # set_ccvars
+
+function tranScriBt() # ID
+{
+    function transIt()
+    {
+        echo -e "${EXE} Transferring ScriBt to the Specified Directory\n";
+        for FILE in `ls`; do
+            cp -rf ${FILE} $1/${FILE};
+        done
+        echo -e "${SCS} Successfully Transferred\n";
+        sleep 2;
+        echo -e "${EXE} Starting ScriBt in $1\n";
+        sleep 0.5;
+        echo -e "${CL_WYT}===============================================${NONE}\n";
+        cd $1;
+        exec bash ROM.sh $2;
+    } # transIt
+
+    echo -e "${EXE} Checking Directory Existence\n";
+    if [ ! -f $1 ]; then
+        echo -e "${FLD} Directory does not exist\n";
+        echo -e "${EXE} Trying to create directory\n";
+        TDIR=`mkdir $1 | echo "$?"`;
+        if [[ "$TDIR" == 0 ]]; then
+            echo -e "${SCS} Directory created\n";
+            transIt $1 $2;
+        else
+            echo -e "${FLD} Invalid Directory specified\n";
+            exitScriBt 1;
+        fi
+    else
+        echo -e "${SCS} Directory Exists\n";
+        transIt $1 $2;
+    fi
+} # tranScriBt
+
+function the_response() # D ALL
+{
+    case "$1" in
+        "COOL") echo -e "${SCS} ${ATBT} Automated $2 Successful! :)" ;;
+        "FAIL") echo -e "${FLD} ${ATBT} Automated $2 Failed :(" ;;
+    esac
+} # the_response
+
+function init() # 1
 {
     [ ! -z "$automate" ] && teh_action 1;
     rom_select;
@@ -572,7 +286,37 @@ function init()
     sync;
 } # init
 
-function device_info()
+function sync() # 2
+{
+    [ ! -z "$automate" ] && teh_action 2;
+    if [ ! -f .repo/manifest.xml ]; then init; elif [ -z "$action_1" ]; then rom_select; fi;
+    echo -e "\n${EXE} Preparing for Sync\n";
+    echo -e "${QN} Number of Threads for Sync \n"; gimme_info "jobs";
+    ST="Number of Threads"; shut_my_mouth JOBS "$ST";
+    echo -e "${QN} Force Sync needed ${CL_WYT}[y/n]${NONE}\n"; gimme_info "fsync";
+    ST="Force Sync"; shut_my_mouth F "$ST";
+    echo -e "${QN} Need some Silence in the Terminal ${CL_WYT}[y/n]${NONE}\n"; gimme_info "ssync";
+    ST="Silent Sync"; shut_my_mouth S "$ST";
+    echo -e "${QN} Sync only Current Branch ${CL_WYT}[y/n]${NONE}\n"; gimme_info "syncrt";
+    ST="Sync Current Branch"; shut_my_mouth C "$ST";
+    echo -e "${QN} Sync with clone-bundle ${CL_WYT}[y/n]${NONE}\n"; gimme_info "clnbun";
+    ST="Use clone-bundle"; shut_my_mouth B "$ST";
+    echo -e "${CL_WYT}=====================================================================${NONE}\n";
+    #Sync-Options
+    [[ "$SBS" == "y" ]] && SILENT=-q || SILENT=" ";
+    [[ "$SBF" == "y" ]] && FORCE=--force-sync || FORCE=" ";
+    [[ "$SBC" == "y" ]] && SYNC_CRNT=-c || SYNC_CRNT=" ";
+    [[ "$SBB" == "y" ]] && CLN_BUN=" " || CLN_BUN=--no-clone-bundle;
+    echo -e "${EXE} Let's Sync!\n";
+    repo sync -j${SBJOBS} ${SILENT} ${FORCE} ${SYNC_CRNT} ${CLN_BUN}  #2>&1 | tee $STMP;
+    echo;
+    the_response COOL Sync;
+    echo -e "\n${SCS} Done.\n";
+    echo -e "${CL_WYT}=====================================================================${NONE}\n";
+    [ -z "$automate" ] && quick_menu;
+} # sync
+
+function device_info() # D 3
 {
     echo -e "${CL_WYT}======================${NONE} ${CL_PRP}Device Info${NONE} ${CL_WYT}======================${NONE}\n";
     echo -e "${QN} What's your Device's CodeName \n${INF} Refer Device Tree - All Lowercases\n";
@@ -595,7 +339,7 @@ function device_info()
     echo -e "${CL_WYT}=========================================================${NONE}\n";
 } # device_info
 
-function init_bld()
+function init_bld() # D 3,4
 {
     echo -e "\n${CL_WYT}===========================================${NONE}";
     echo -e "${EXE} Initializing Build Environment\n";
@@ -604,7 +348,7 @@ function init_bld()
     echo -e "${SCS} Done\n";
 } # init_bld
 
-function pre_build()
+function pre_build() # 3
 {
     [ ! -z "$automate" ] && teh_action 3;
     [ -z "$action_1" ] && rom_select;
@@ -621,73 +365,7 @@ function pre_build()
     rom_names "$SBRN"; # Restore ROMNIS
     device_info;
 
-    function find_ddc() # For Finding Default Device Configuration file
-    {
-        ROMS=( aicp aokp aosp bliss candy carbon crdroid cyanide cm du orion \
-                ownrom slim tesla tipsy to validus vanir xenonhd xosp );
-        for ROM in ${ROMS[*]}; do
-            # Possible Default Device Configuration (DDC) Files
-            DDCS=( ${ROM}_${SBDEV}.mk aosp_${SBDEV}.mk full_${SBDEV}.mk ${ROM}.mk );
-            # Inherit DDC
-            for ACTUAL_DDC in ${DDCS[*]}; do
-                [ -f $ACTUAL_DDC ] && export DDC="$ACTUAL_DDC";
-            done
-        done
-    } # find_ddc
-
-    function interactive_mk()
-    {
-        init_bld;
-        echo -e "\n${EXE} Creating Interactive Makefile for getting Identified by the ROM's BuildSystem...\n";
-        sleep 2;
-        cd ${DEVDIR};
-        INTM="interact.mk";
-        [ -z "$INTF" ] && INTF="${ROMNIS}.mk";
-        echo "#                ##### Interactive Makefile #####
-#
-# Licensed under the Apache License, Version 2.0 (the \"License\");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#      http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an \"AS IS\" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License." >> ${INTM};
-        find_ddc;
-        echo -e "\n# Inherit ${ROMNIS} common stuff\n\$(call inherit-product, ${CNF}/${VNF}.mk)" >> ${INTM};
-        # Inherit Vendor specific files
-        if [[ $(grep -c 'nfc_enhanced' $DDC) == "1" ]] && [ -f ${CALL_ME_ROOT}/${CNF}/nfc_enhanced.mk ]; then
-            echo -e "\n# Enhanced NFC\n\$(call inherit-product, ${CNF}/nfc_enhanced.mk)" >> ${INTM};
-        fi
-        echo -e "\n# Calling Default Device Configuration File" >> ${INTM};
-        echo -e "\$(call inherit-product, ${DEVDIR}/${DDC})" >> ${INTM};
-        # To prevent Missing Vendor Calls in DDC-File
-        sed -i -e 's/inherit-product, vendor\//inherit-product-if-exists, vendor\//g' $DDC;
-        # Add User-desired Makefile Calls
-        echo -e "${QN} Missed some Makefile calls\n${INF} Enter number of Desired Makefile calls [0 if none]";
-        ST="No of Makefile Calls"; shut_my_mouth NMK "$ST";
-        for CNT in `eval echo "{1..${SBNMK}}"`; do
-            echo -e "\n${QN} Enter Makefile location from Root of BuildSystem";
-            ST="Makefile"; shut_my_mouth LOC[$CN${FLD}T] "$ST" array;
-            if [ -f ${CALL_ME_ROOT}/${SBLOC[$CNT]} ]; then
-                echo -e "\n${EXE} Adding Makefile $CNT ...";
-                echo -e "\n\$(call inherit-product, ${LOC[$CNT]})" >> ${INTM};
-            else
-                echo -e "${FLD} Makefile ${LOC[$CNT]} not Found. Aborting...";
-            fi
-        done
-        echo -e "\n# ROM Specific Identifier\nPRODUCT_NAME := ${ROMNIS}_${SBDEV}" >> ${INTM};
-        # Make it Identifiable
-        mv ${INTM} ${INTF};
-        echo -e "${EXE} Renaming .dependencies file...\n";
-        [ ! -f ${ROMNIS}.dependencies ] && mv -f *.dependencies ${ROMNIS}.dependencies;
-        echo -e "${SCS} Done.";
-        croot;
-    } # interactive_mk
-
+    
     function vendor_strat_all()
     {
         case "$SBRN" in
@@ -804,6 +482,82 @@ ${CL_PNK}2560${NONE}x1600\n";
         echo -e "\n#ROM Specific Identifier\nPRODUCT_NAME := ${ROMNIS}_${SBDEV}" >> $VENF;
     } # vendor_strat_kpa
 
+    function find_ddc() # For Finding Default Device Configuration file
+    {
+        ROMS=( aicp aokp aosp bliss candy carbon crdroid cyanide cm du orion \
+                ownrom slim tesla tipsy to validus vanir xenonhd xosp );
+        for ROM in ${ROMS[*]}; do
+            # Possible Default Device Configuration (DDC) Files
+            DDCS=( ${ROM}_${SBDEV}.mk aosp_${SBDEV}.mk full_${SBDEV}.mk ${ROM}.mk );
+            # Inherit DDC
+            for ACTUAL_DDC in ${DDCS[*]}; do
+                [ -f $ACTUAL_DDC ] && export DDC="$ACTUAL_DDC";
+            done
+        done
+    } # find_ddc
+    
+    function interactive_mk()
+    {
+        init_bld;
+        echo -e "\n${EXE} Creating Interactive Makefile for getting Identified by the ROM's BuildSystem...\n";
+        sleep 2;
+        cd ${DEVDIR};
+        INTM="interact.mk";
+        [ -z "$INTF" ] && INTF="${ROMNIS}.mk";
+        echo "#                ##### Interactive Makefile #####
+#
+# Licensed under the Apache License, Version 2.0 (the \"License\");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an \"AS IS\" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License." >> ${INTM};
+        find_ddc;
+        echo -e "\n# Inherit ${ROMNIS} common stuff\n\$(call inherit-product, ${CNF}/${VNF}.mk)" >> ${INTM};
+        # Inherit Vendor specific files
+        if [[ $(grep -c 'nfc_enhanced' $DDC) == "1" ]] && [ -f ${CALL_ME_ROOT}/${CNF}/nfc_enhanced.mk ]; then
+            echo -e "\n# Enhanced NFC\n\$(call inherit-product, ${CNF}/nfc_enhanced.mk)" >> ${INTM};
+        fi
+        echo -e "\n# Calling Default Device Configuration File" >> ${INTM};
+        echo -e "\$(call inherit-product, ${DEVDIR}/${DDC})" >> ${INTM};
+        # To prevent Missing Vendor Calls in DDC-File
+        sed -i -e 's/inherit-product, vendor\//inherit-product-if-exists, vendor\//g' $DDC;
+        # Add User-desired Makefile Calls
+        echo -e "${QN} Missed some Makefile calls\n${INF} Enter number of Desired Makefile calls [0 if none]";
+        ST="No of Makefile Calls"; shut_my_mouth NMK "$ST";
+        for CNT in `eval echo "{1..${SBNMK}}"`; do
+            echo -e "\n${QN} Enter Makefile location from Root of BuildSystem";
+            ST="Makefile"; shut_my_mouth LOC[$CN${FLD}T] "$ST" array;
+            if [ -f ${CALL_ME_ROOT}/${SBLOC[$CNT]} ]; then
+                echo -e "\n${EXE} Adding Makefile $CNT ...";
+                echo -e "\n\$(call inherit-product, ${LOC[$CNT]})" >> ${INTM};
+            else
+                echo -e "${FLD} Makefile ${LOC[$CNT]} not Found. Aborting...";
+            fi
+        done
+        echo -e "\n# ROM Specific Identifier\nPRODUCT_NAME := ${ROMNIS}_${SBDEV}" >> ${INTM};
+        # Make it Identifiable
+        mv ${INTM} ${INTF};
+        echo -e "${EXE} Renaming .dependencies file...\n";
+        [ ! -f ${ROMNIS}.dependencies ] && mv -f *.dependencies ${ROMNIS}.dependencies;
+        echo -e "${SCS} Done.";
+        croot;
+    } # interactive_mk
+
+    function need_for_int()
+    {
+        if [ -f ${CALL_ME_ROOT}/${DEVDIR}/${INTF} ]; then
+            echo "$NOINT";
+        else
+            interactive_mk "$SBRN";
+        fi
+    } # need_for_int
+    
     if [ -d vendor/${ROMNIS}/products ] && [ ! -d vendor/aosip ]; then
         if [ ! -f vendor/${ROMNIS}/products/${ROMNIS}_${SBDEV}.mk ||
              ! -f vendor/${ROMNIS}/products/${SBDEV}.mk ||
@@ -818,15 +572,6 @@ ${CL_PNK}2560${NONE}x1600\n";
     croot;
     echo -e "\n${EXE} ${ROMNIS}-fying Device Tree...\n";
     NOINT=$(echo -e "${SCS} Interactive Makefile Unneeded, continuing...");
-
-    function need_for_int()
-    {
-        if [ -f ${CALL_ME_ROOT}/${DEVDIR}/${INTF} ]; then
-            echo "$NOINT";
-        else
-            interactive_mk "$SBRN";
-        fi
-    } # need_for_int
 
     case "$SBRN" in
         4|5|13|16|30) # AOSP-CAF/RRO | Flayr | OmniROM | Zephyr
@@ -865,7 +610,7 @@ ${CL_PNK}2560${NONE}x1600\n";
     [ ! -z "$automate" ] && quick_menu;
 } # pre_build
 
-function build()
+function build() # 4
 {
     if [ -d .repo ]; then
         [ ! -z "$automate" ] && teh_action 4;
@@ -875,6 +620,67 @@ function build()
         echo -e "${FLD} ROM Source Not Found (Synced)\n${FLD} Please perform an init and sync before doing this";
         exitScriBt 1;
     fi
+    
+    function hotel_menu()
+    {
+        echo -e "${CL_WYT}=========================${NONE} ${CL_LBL}Hotel Menu${NONE} ${CL_WYT}==========================${NONE}";
+        echo -e " Menu is only for your Device, not for you. No Complaints pls.\n";
+        echo -e "[*] lunch - Setup Build Environment for the Device";
+        echo -e "[*] breakfast - Download Device Dependencies and lunch";
+        echo -e "[*] brunch - breakfast + lunch then Start Build\n";
+        echo -e "${QN} Type in the Option you want to select\n";
+        echo -e "${INF} Building for the first time ? select lunch";
+        echo -e "${CL_WYT}===============================================================${NONE}\n";
+        ST="Selected Option"; shut_my_mouth SLT "$ST";
+        case "$SBSLT" in
+            "lunch") ${SBSLT} ${ROMNIS}_${SBDEV}-${SBBT} ;;
+            "breakfast") ${SBSLT} ${SBDEV} ${SBBT} ;;
+            "brunch")
+                echo -e "\n${EXE} Starting Compilation - ${ROM_FN} for ${SBDEV}\n";
+                ${SBSLT} ${SBDEV};
+                ;;
+            *) echo -e "${FLD} Invalid Selection.\n"; hotel_menu ;;
+        esac
+        echo;
+    } # hotel_menu
+    
+    function post_build()
+    {
+        if [[ $(tac $RMTMP | grep -c -m 1 '#### make completed successfully') == "1" ]]; then
+            echo -e "\n${SCS} Build Completed Successfully! Cool. Now make it Boot!\n";
+            the_response COOL Build;
+            teh_action 6 COOL;
+        elif [[ $(tac $RMTMP | grep -c -m 1 'No rule to make target') == "1" ]]; then
+#           WiP
+            if [ ! -z "$automate" ]; then
+                teh_action 6 FAIL;
+                the_response FAIL Build;
+            fi
+        fi
+    } # post_build
+    
+    function build_make()
+    {
+        if [[ "$1" != "brunch" ]]; then
+            start=$(date +"%s");
+            case "$SBMK" in
+                "make") BCORES=$(grep -c ^processor /proc/cpuinfo) ;;
+                *) BCORES="" ;;
+            esac
+            if [ $(grep -q "^${ROMNIS}:" "${CALL_ME_ROOT}/build/core/Makefile") ]; then
+                $SBMK $ROMNIS $BCORES 2>&1 | tee $RMTMP;
+            elif [ $(grep -q "^bacon:" "${CALL_ME_ROOT}/build/core/Makefile") ]; then
+                $SBMK bacon $BCORES 2>&1 | tee $RMTMP;
+            else
+                $SBMK otapackage $BCORES 2>&1 | tee $RMTMP;
+            fi
+            echo;
+            post_build;
+            end=$(date +"%s");
+            sec=$(($end - $start));
+            echo -e "${INF} Build took $(($sec / 3600)) hour(s), $(($sec / 60 % 60)) minute(s) and $(($sec % 60)) second(s)." | tee -a rom_compile.txt;
+        fi
+    } # build_make
 
     function make_it() # Part of make_module
     {
@@ -904,68 +710,7 @@ function build()
             make_it;
         fi
     } # make_module
-
-    function post_build()
-    {
-        if [[ $(tac $RMTMP | grep -c -m 1 '#### make completed successfully') == "1" ]]; then
-            echo -e "\n${SCS} Build Completed Successfully! Cool. Now make it Boot!\n";
-            the_response COOL Build;
-            teh_action 6 COOL;
-        elif [[ $(tac $RMTMP | grep -c -m 1 'No rule to make target') == "1" ]]; then
-#           WiP
-            if [ ! -z "$automate" ]; then
-                teh_action 6 FAIL;
-                the_response FAIL Build;
-            fi
-        fi
-    } # post_build
-
-    function build_make()
-    {
-        if [[ "$1" != "brunch" ]]; then
-            start=$(date +"%s");
-            case "$SBMK" in
-                "make") BCORES=$(grep -c ^processor /proc/cpuinfo) ;;
-                *) BCORES="" ;;
-            esac
-            if [ $(grep -q "^${ROMNIS}:" "${CALL_ME_ROOT}/build/core/Makefile") ]; then
-                $SBMK $ROMNIS $BCORES 2>&1 | tee $RMTMP;
-            elif [ $(grep -q "^bacon:" "${CALL_ME_ROOT}/build/core/Makefile") ]; then
-                $SBMK bacon $BCORES 2>&1 | tee $RMTMP;
-            else
-                $SBMK otapackage $BCORES 2>&1 | tee $RMTMP;
-            fi
-            echo;
-            post_build;
-            end=$(date +"%s");
-            sec=$(($end - $start));
-            echo -e "${INF} Build took $(($sec / 3600)) hour(s), $(($sec / 60 % 60)) minute(s) and $(($sec % 60)) second(s)." | tee -a rom_compile.txt;
-        fi
-    } # build_make
-
-    function hotel_menu()
-    {
-        echo -e "${CL_WYT}=========================${NONE} ${CL_LBL}Hotel Menu${NONE} ${CL_WYT}==========================${NONE}";
-        echo -e " Menu is only for your Device, not for you. No Complaints pls.\n";
-        echo -e "[*] lunch - Setup Build Environment for the Device";
-        echo -e "[*] breakfast - Download Device Dependencies and lunch";
-        echo -e "[*] brunch - breakfast + lunch then Start Build\n";
-        echo -e "${QN} Type in the Option you want to select\n";
-        echo -e "${INF} Building for the first time ? select lunch";
-        echo -e "${CL_WYT}===============================================================${NONE}\n";
-        ST="Selected Option"; shut_my_mouth SLT "$ST";
-        case "$SBSLT" in
-            "lunch") ${SBSLT} ${ROMNIS}_${SBDEV}-${SBBT} ;;
-            "breakfast") ${SBSLT} ${SBDEV} ${SBBT} ;;
-            "brunch")
-                echo -e "\n${EXE} Starting Compilation - ${ROM_FN} for ${SBDEV}\n";
-                ${SBSLT} ${SBDEV};
-                ;;
-            *) echo -e "${FLD} Invalid Selection.\n"; hotel_menu ;;
-        esac
-        echo;
-    } # hotel_menu
-
+    
     function build_menu()
     {
         init_bld;
@@ -1027,7 +772,263 @@ function build()
     export action_3="build";
 } # build
 
-function teh_action()
+function tools() # 5
+{
+    [ ! -z "$automate" ] && teh_action 5;
+
+    function installdeps()
+    {
+        echo -e "${EXE} Analyzing Distro";
+        PACK="/etc/apt/sources.list.d/official-package-repositories.list";
+        DISTROS=( precise quantal raring saucy trusty utopic vivid wily xenial );
+        for DIST in ${DISTROS[*]}; do
+            if [[ $(grep -c "${DIST}" "${PACK}") != "0" ]]; then
+                export DISTRO="${DIST}";
+            fi
+        done
+        echo -e "\n${EXE} Installing Build Dependencies\n";
+        # Common Packages
+        COMMON_PKGS=( git-core git gnupg flex bison gperf build-essential zip curl \
+        ccache libxml2-utils xsltproc g++-multilib squashfs-tools zlib1g-dev \
+        pngcrush schedtool libwxgtk2.8-dev python lib32z1-dev lib32z-dev lib32z1 \
+        libxml2 optipng python-networkx python-markdown make unzip );
+        case "$DISTRO" in # Distro-Specific Pkgs
+            "precise"|"quantal")
+                DISTRO_PKGS=( libc6-dev libncurses5-dev:i386 x11proto-core-dev \
+                libx11-dev:i386 libreadline6-dev:i386 libgl1-mesa-glx:i386 \
+                libgl1-mesa-dev mingw32 tofrodos zlib1g-dev:i386 ) ;;
+            "raring"|"saucy")
+                DISTRO_PKGS=( zlib1g-dev:i386 libc6-dev lib32ncurses5 \
+                lib32bz2-1.0 lib32ncurses5-dev x11proto-core-dev \
+                libx11-dev:i386 libreadline6-dev:i386 \
+                libgl1-mesa-glx:i386 libgl1-mesa-dev \
+                mingw32 tofrodos readline-common libreadline6-dev libreadline6 \
+                lib32readline-gplv2-dev libncurses5-dev lib32readline5 \
+                lib32readline6 libreadline-dev libreadline6-dev:i386 \
+                libreadline6:i386 bzip2 libbz2-dev libbz2-1.0 libghc-bzlib-dev \
+                lib32bz2-dev libsdl1.2-dev libesd0-dev ) ;;
+            "trusty"|"utopic")
+                DISTRO_PKGS=( libc6-dev-i386 lib32ncurses5-dev liblz4-tool \
+                x11proto-core-dev libx11-dev libgl1-mesa-dev maven maven2 ) ;;
+            "vivid"|"wily")
+                DISTRO_PKGS=( libesd0-dev liblz4-tool libncurses5-dev \
+                libsdl1.2-dev libwxgtk2.8-dev lzop maven maven2 \
+                lib32ncurses5-dev lib32readline6-dev liblz4-tool ) ;;
+            "xenial")
+                DISTRO_PKGS=( automake lzop libesd0-dev maven \
+                liblz4-tool libncurses5-dev libsdl1.2-dev libwxgtk3.0-dev \
+                lzop lib32ncurses5-dev lib32readline6-dev lib32z1-dev \
+                zlib1g-dev:i386 libbz2-dev libbz2-1.0 libghc-bzlib-dev ) ;;
+        esac
+        # Install 'em all
+        sudo apt-get install -y ${COMMON_PKGS[*]} ${DISTRO_PKGS[*]};
+    } # installdeps
+
+    function installdeps_arch()
+    {
+        # common packages
+        PKGS="git gnupg flex bison gperf sdl wxgtk squashfs-tools curl ncurses zlib schedtool perl-switch zip unzip libxslt python2-virtualenv bc rsync maven";
+        PKGS64="$( pacman -Sgq multilib-devel ) lib32-zlib lib32-ncurses lib32-readline";
+        PKGSJAVA="jdk6 jdk7-openjdk";
+        PKGS_CONFLICT="gcc gcc-libs";
+        # sort out already installed pkgs
+        for item in ${PKGS} ${PKGS64} ${PKGSJAVA}; do
+            if ! pacman -Qq ${item} &> /dev/null; then
+                PKGSREQ="${item} ${PKGSREQ}";
+            fi
+        done
+        # if there are required packages, run the installer
+        if [ ${#PKGSREQ} -ge 4 ]; then
+            # choose an AUR package manager instead of pacman
+            for item in yaourt pacaur packer; do
+                if which ${item} &> /dev/null; then
+                    AURMGR="${item}";
+                fi
+            done
+            if [ -z ${AURMGR} ]; then
+                echo -e "\n${FLD} no AUR manager found\n";
+                exitScriBt 1;
+            fi
+            # look for conflicting packages and uninstall them
+            for item in ${PKGS_CONFLICT}; do
+                if pacman -Qq ${item} &> /dev/null; then
+                    sudo pacman -Rddns --noconfirm ${item};
+                    sleep 3;
+                fi
+            done
+            # install required packages
+            for item in ${PKGSREQ}; do
+                ${AURMGR} -S --noconfirm $item;
+            done
+        else
+            echo -e "\n${SCS} You already have all required packages\n";
+        fi
+    } # installdeps_arch
+
+    function java_select()
+    {
+        echo -e "${INF} If you have Installed Multiple Versions of Java or Installed Java from Different Providers (OpenJDK / Oracle)";
+        echo -e "${INF} You may now select the Version of Java which is to be used BY-DEFAULT\n";
+        echo -e "${CL_WYT}================================================================${NONE}\n";
+        case "${PKGMGR}" in
+            "apt")
+                sudo update-alternatives --config java;
+                echo -e "\n${CL_WYT}================================================================${NONE}\n";
+                sudo update-alternatives --config javac;
+                ;;
+            "pacman")
+                archlinux-java status;
+                read -p "${INF} Please enter desired version (ie. \"java-7-openjdk\"): " ARCHJA;
+                sudo archlinux-java set ${ARCHJA};
+                ;;
+        esac
+        echo -e "\n${CL_WYT}================================================================${NONE}";
+    } # java_select
+
+    function java()
+    {
+        echo -ne "\033]0;ScriBt : Java $1\007";
+        echo -e "\n${EXE} Installing OpenJDK-$1 (Java 1.$1.0)";
+        echo -e "\n${INF} Remove other Versions of Java ${CL_WYT}[y/n]${NONE}? : \n";
+        read -p $'\033[1;36m[>]\033[0m ' REMOJA;
+        echo;
+        case "$REMOJA" in
+            [yY])
+                case "${PKGMGR}" in
+                    "apt") sudo apt-get purge openjdk-* icedtea-* icedtea6-* ;;
+                    "pacman") sudo pacman -Rddns $( pacman -Qqs ^jdk ) ;;
+                esac
+                echo -e "\n${SCS} Removed Other Versions successfully"
+                ;;
+            [nN]) echo -e "${EXE} Keeping them Intact" ;;
+            *)
+                echo -e "${FLD} Invalid Selection.\n";
+                java $1;
+                ;;
+        esac
+        echo -e "${CL_WYT}==========================================================${NONE}\n";
+        case "${PKGMGR}" in
+            "apt") sudo apt-get update -y ;;
+            "pacman") sudo pacman -Sy ;;
+        esac
+        echo -e "\n${CL_WYT}==========================================================${NONE}\n";
+        case "${PKGMGR}" in
+            "apt") sudo apt-get install openjdk-$1-jdk -y ;;
+            "pacman") sudo pacman -S jdk$1-openjdk ;;
+        esac
+        echo -e "\n${CL_WYT}==========================================================${NONE}";
+        if [[ $( java -version > $TMP && grep -c "java version \"1\.$1" $TMP ) == "1" ]]; then
+            echo -e "${SCS} OpenJDK-$1 or Java 1.$1.0 has been successfully installed";
+            echo -e "${CL_WYT}==========================================================${NONE}";
+        fi
+    } # java
+
+    function java_ppa()
+    {
+        if [[ ! $(which add-apt-repository) ]]; then
+            echo -e "${EXE} add-apt-repository not present. Installing it...";
+            sudo apt-get install software-properties-common;
+        fi
+        sudo add-apt-repository ppa:openjdk-r/ppa -y;
+        sudo apt-get update -y;
+        sudo apt-get install openjdk-7-jdk -y;
+    } # java_ppa
+
+    function java_menu()
+    {
+        echo -e "${CL_WYT}=============${NONE} ${CL_YEL}JAVA${NONE} Installation ${CL_WYT}============${NONE}\n";
+        echo -e "1. Install Java";
+        echo -e "2. Switch Between Java Versions / Providers\n";
+        echo -e "0. Quick Menu\n";
+        echo -e "${INF} ScriBt installs Java by OpenJDK";
+        echo -e "\n${CL_WYT}============================================\n${NONE}";
+        read -p $'\033[1;36m[>]\033[0m ' JAVAS;
+        case "$JAVAS" in
+            0)  quick_menu ;;
+            1)
+                echo -ne '\033]0;ScriBt : Java\007';
+                echo -e "\n${QN} Android Version of the ROM you're building";
+                echo -e "1. Java 1.6.0 (4.4.x Kitkat)";
+                echo -e "2. Java 1.7.0 (5.x.x Lollipop && 6.x.x Marshmallow)";
+                echo -e "3. Java 1.8.0 (7.x.x Nougat)\n";
+                [[ "${PKGMGR}" == "apt" ]] && echo -e "4. Ubuntu 16.04 & Want to install Java 7";
+                read -p $'\033[1;36m[>]\033[0m ' JAVER;
+                case "$JAVER" in
+                    1) java 6 ;;
+                    2) java 7 ;;
+                    3) java 8 ;;
+                    4) java_ppa ;;
+                    *)
+                        echo -e "\n${FLD} Invalid Selection.\n";
+                        java_menu;
+                        ;;
+                esac # JAVER
+                ;;
+            2) java_select ;;
+            *)
+                echo -e "\n${FLD} Invalid Selection.\n";
+                java_menu;
+                ;;
+        esac # JAVAS
+    } # java_menu
+
+    function udev_rules()
+    {
+        echo -e "\n${CL_WYT}==========================================================${NONE}\n";
+        echo -e "${EXE} Updating / Creating Android USB udev rules (51-android)\n";
+        sudo curl --create-dirs -L -o /etc/udev/rules.d/51-android.rules -O -L https://raw.githubusercontent.com/snowdream/51-android/master/51-android.rules;
+        sudo chmod a+r /etc/udev/rules.d/51-android.rules;
+        sudo service udev restart;
+        echo -e "\n${SCS} Done";
+        echo -e "\n${CL_WYT}==========================================================${NONE}\n";
+    } # udev_rules
+
+    function make_me_old()
+    {
+        MKVR=$(make -v | head -1 | awk '{print $3}');
+        case "${MKVR}" in
+            "3.81") echo -e "\n${SCS} make 3.81 has already been installed" ;;
+            *)
+                echo "\n${EXE} Installing make 3.81...";
+                sudo install utils/make /usr/bin/;
+                ;;
+        esac
+        [[ "$MKVR" == "3.81" ]] && echo -e "\n${SCS} make 3.81 present";
+    } # make_me_old
+
+    function tool_menu()
+    {
+        echo -e "\n${CL_WYT}===================${NONE} ${CL_LBL}Tools${NONE} ${CL_WYT}====================${NONE}\n";
+        echo -e "     1. Install Build Dependencies\n";
+        echo -e "     2. Install Java (OpenJDK 6/7/8)";
+        echo -e "     3. Install and/or Set-up CCACHE";
+        echo -e "     4. Install/Update ADB udev rules";
+# TODO: echo -e "     6. Find an Android Module's Directory";
+        echo -e "     5. Install/Revert to make 3.81";
+        echo -e "\n     0. Quick Menu"
+        echo -e "${CL_WYT}==============================================${NONE}\n";
+        read -p $'\033[1;36m[>]\033[0m ' TOOL;
+        case "$TOOL" in
+            0) quick_menu ;;
+            1) case "${PKGMGR}" in
+                   "apt") installdeps ;;
+                   "pacman") installdeps_arch ;;
+               esac
+               ;;
+            2) java_menu ;;
+            3) set_ccvars ;;
+            4) udev_rules ;;
+# TODO:     6) find_mod ;;
+            5) make_me_old ;;
+            *) echo -e "${FLD} Invalid Selection.\n"; tool_menu ;;
+        esac
+        [ -z "$automate" ] && quick_menu;
+    } # tool_menu
+
+    tool_menu;
+} # tools
+
+function teh_action() # Takes ya Everywhere within ScriBt
 {
     case "$1" in
     1)
@@ -1067,7 +1068,7 @@ function teh_action()
     esac
 } # teh_action
 
-function the_start()
+function the_start() # 0
 {
     # are we 64-bit ??
     if ! [[ $(uname -m) =~ (x86_64|amd64) ]]; then
