@@ -55,7 +55,7 @@ function rom_names()
             ;;
         9)
             ROM_NAME=( crdroidandroid );
-            MAN=( manifest.git );
+            MAN=( android.git );
             ROM_FN="crDroid";
             ROMNIS="crdroid";
             ;;
