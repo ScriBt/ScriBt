@@ -14,7 +14,7 @@
 #                                                                      #
 #======================================================================#
 #                                                                      #
-# https://github.com/a7r3/ScriBt - Original Repo of ScriBt             #
+# https://github.com/a7r3/ScriBt - I live here                         #
 #                                                                      #
 # Usage: bash ROM.sh (Manual) | bash ROM.sh automate (Automated)       #
 #                                                                      #
@@ -316,8 +316,17 @@ function sync() # 2
     [ -z "$automate" ] && quick_menu;
 } # sync
 
-function device_info() # D 3
+function device_info() # D 3,4
 {
+    [ ! -z "${ROMV}" ] && export ROMNIS="${ROMV}"; # Change ROMNIS
+    if [ -d ${CALL_ME_ROOT}/vendor/${ROMNIS}/config ]; then
+        CNF="vendor/${ROMNIS}/config";
+    elif [ -d ${CALL_ME_ROOT}/vendor/${ROMNIS}/configs ]; then
+        CNF="vendor/${ROMNIS}/configs";
+    else
+        CNF="vendor/${ROMNIS}";
+    fi
+    rom_names "$SBRN"; # Restore ROMNIS
     echo -e "${CL_WYT}======================${NONE} ${CL_PRP}Device Info${NONE} ${CL_WYT}======================${NONE}\n";
     echo -e "${QN} What's your Device's CodeName \n${INF} Refer Device Tree - All Lowercases\n";
     ST="Your Device Name is"; shut_my_mouth DEV "$ST";
@@ -331,7 +340,7 @@ function device_info() # D 3
     common_full_tv common_mini_tv );
     CNT=0;
     for TYP in ${TYPES[*]}; do
-        [ -f ${CNF}/${TYP}.mk ] && ( echo -e "${CNT}. $TYP"; ((CNT++)) );
+        if [ -f ${CNF}/${TYP}.mk ]; then echo -e "${CNT}. $TYP"; ((CNT++)); fi;
     done
     echo;
     ST="Device Type"; shut_my_mouth DTP "$ST";
@@ -353,19 +362,9 @@ function pre_build() # 3
     [ ! -z "$automate" ] && teh_action 3;
     [ -z "$action_1" ] && rom_select;
     init_bld;
-    [ ! -z "${ROMV}" ] && export ROMNIS="${ROMV}"; # Change ROMNIS
-    if [ -d ${CALL_ME_ROOT}/vendor/${ROMNIS}/config ]; then
-        CNF="vendor/${ROMNIS}/config";
-    elif [ -d ${CALL_ME_ROOT}/vendor/${ROMNIS}/configs ]; then
-        CNF="vendor/${ROMNIS}/configs";
-    else
-        CNF="vendor/${ROMNIS}";
-    fi
-    DEVDIR="device/${SBCM}/${SBDEV}";
-    rom_names "$SBRN"; # Restore ROMNIS
     device_info;
+    DEVDIR="device/${SBCM}/${SBDEV}";
 
-    
     function vendor_strat_all()
     {
         case "$SBRN" in
@@ -475,7 +474,7 @@ ${CL_PNK}2560${NONE}x1600\n";
                 echo -e "\nPAC_BOOTANIMATION_NAME := ${SBBTR};" >> $VENF;
                 ;;
         esac
-        find_ddc;
+        find_ddc "pb";
         echo -e "\n# Inherit from ${DDC}" >> $VENF;
         echo -e "\$(call inherit-product, ${DEVDIR}/${DDC})" >> $VENF;
         # PRODUCT_NAME is the only ROM-specific Identifier, setting it here is better.
@@ -491,20 +490,38 @@ ${CL_PNK}2560${NONE}x1600\n";
             DDCS=( ${ROM}_${SBDEV}.mk aosp_${SBDEV}.mk full_${SBDEV}.mk ${ROM}.mk );
             # Inherit DDC
             for ACTUAL_DDC in ${DDCS[*]}; do
-                [ -f $ACTUAL_DDC ] && export DDC="$ACTUAL_DDC";
+                if [ -f ${DEVDIR}/${ACTUAL_DDC} ]; then
+                    case "$1" in
+                        "pb") export DDC="$ACTUAL_DDC" ;;
+                        "intm")
+                            if [[ $(grep -c '##### Interactive' ${DEVDIR}/${ACTUAL_DDC}) == "0" ]] \
+                            && [[ "$ACTUAL_DDC" != "${ROMNIS}.mk" ]]; then
+                                export DDC="$ACTUAL_DDC";
+                                continue;
+                            else
+                                export DDC="NULL";
+                                break;
+                            fi
+                            ;;
+                    esac
+                fi
             done
+            [[ "$DDC" == "NULL" ]] && break;
         done
     } # find_ddc
-    
+
     function interactive_mk()
     {
         init_bld;
         echo -e "\n${EXE} Creating Interactive Makefile for getting Identified by the ROM's BuildSystem...\n";
         sleep 2;
-        cd ${DEVDIR};
-        INTM="interact.mk";
-        [ -z "$INTF" ] && INTF="${ROMNIS}.mk";
-        echo "#                ##### Interactive Makefile #####
+
+        function create_imk()
+        {
+            cd ${DEVDIR};
+            INTM="interact.mk";
+            [ -z "$INTF" ] && INTF="${ROMNIS}.mk";
+            echo "#                ##### Interactive Makefile #####
 #
 # Licensed under the Apache License, Version 2.0 (the \"License\");
 # you may not use this file except in compliance with the License.
@@ -517,36 +534,39 @@ ${CL_PNK}2560${NONE}x1600\n";
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License." >> ${INTM};
-        find_ddc;
-        echo -e "\n# Inherit ${ROMNIS} common stuff\n\$(call inherit-product, ${CNF}/${VNF}.mk)" >> ${INTM};
-        # Inherit Vendor specific files
-        if [[ $(grep -c 'nfc_enhanced' $DDC) == "1" ]] && [ -f ${CALL_ME_ROOT}/${CNF}/nfc_enhanced.mk ]; then
-            echo -e "\n# Enhanced NFC\n\$(call inherit-product, ${CNF}/nfc_enhanced.mk)" >> ${INTM};
-        fi
-        echo -e "\n# Calling Default Device Configuration File" >> ${INTM};
-        echo -e "\$(call inherit-product, ${DEVDIR}/${DDC})" >> ${INTM};
-        # To prevent Missing Vendor Calls in DDC-File
-        sed -i -e 's/inherit-product, vendor\//inherit-product-if-exists, vendor\//g' $DDC;
-        # Add User-desired Makefile Calls
-        echo -e "${QN} Missed some Makefile calls\n${INF} Enter number of Desired Makefile calls [0 if none]";
-        ST="No of Makefile Calls"; shut_my_mouth NMK "$ST";
-        for CNT in `eval echo "{1..${SBNMK}}"`; do
-            echo -e "\n${QN} Enter Makefile location from Root of BuildSystem";
-            ST="Makefile"; shut_my_mouth LOC[$CN${FLD}T] "$ST" array;
-            if [ -f ${CALL_ME_ROOT}/${SBLOC[$CNT]} ]; then
-                echo -e "\n${EXE} Adding Makefile $CNT ...";
-                echo -e "\n\$(call inherit-product, ${LOC[$CNT]})" >> ${INTM};
-            else
-                echo -e "${FLD} Makefile ${LOC[$CNT]} not Found. Aborting...";
+            echo -e "\n# Inherit ${ROMNIS} common stuff\n\$(call inherit-product, ${CNF}/${VNF}.mk)" >> ${INTM};
+            # Inherit Vendor specific files
+            if [[ $(grep -c 'nfc_enhanced' $DDC) == "1" ]] && [ -f ${CALL_ME_ROOT}/${CNF}/nfc_enhanced.mk ]; then
+                echo -e "\n# Enhanced NFC\n\$(call inherit-product, ${CNF}/nfc_enhanced.mk)" >> ${INTM};
             fi
-        done
-        echo -e "\n# ROM Specific Identifier\nPRODUCT_NAME := ${ROMNIS}_${SBDEV}" >> ${INTM};
-        # Make it Identifiable
-        mv ${INTM} ${INTF};
-        echo -e "${EXE} Renaming .dependencies file...\n";
-        [ ! -f ${ROMNIS}.dependencies ] && mv -f *.dependencies ${ROMNIS}.dependencies;
-        echo -e "${SCS} Done.";
-        croot;
+            echo -e "\n# Calling Default Device Configuration File" >> ${INTM};
+            echo -e "\$(call inherit-product, ${DEVDIR}/${DDC})" >> ${INTM};
+            # To prevent Missing Vendor Calls in DDC-File
+            sed -i -e 's/inherit-product, vendor\//inherit-product-if-exists, vendor\//g' $DDC;
+            # Add User-desired Makefile Calls
+            echo -e "${QN} Missed some Makefile calls\n${INF} Enter number of Desired Makefile calls\n${INF} Enter 0 if none";
+            ST="No of Makefile Calls"; shut_my_mouth NMK "$ST";
+            for (( CNT=0; CNT<"${SBNMK}"; CNT++ )); do
+                echo -e "\n${QN} Enter Makefile location from Root of BuildSystem";
+                ST="Makefile"; shut_my_mouth LOC[$CNT] "$ST" array;
+                if [ -f ${CALL_ME_ROOT}/${SBLOC[$CNT]} ]; then
+                    echo -e "\n${EXE} Adding Makefile `$[ $CNT + 1 ]` ...";
+                    echo -e "\n\$(call inherit-product, ${SBLOC[$CNT]})" >> ${INTM};
+                else
+                    echo -e "${FLD} Makefile ${SBLOC[$CNT]} not Found. Aborting...";
+                fi
+            done
+            echo -e "\n# ROM Specific Identifier\nPRODUCT_NAME := ${ROMNIS}_${SBDEV}" >> ${INTM};
+            # Make it Identifiable
+            mv ${INTM} ${INTF};
+            echo -e "${EXE} Renaming .dependencies file...\n";
+            [ ! -f ${ROMNIS}.dependencies ] && mv -f *.dependencies ${ROMNIS}.dependencies;
+            echo -e "${SCS} Done.";
+            croot;
+        } # create_imk
+
+    find_ddc "intm";
+    if [[ "$DDC" != "NULL" ]]; then create_imk; else echo "$NOINT"; fi;
     } # interactive_mk
 
     function need_for_int()
@@ -557,19 +577,7 @@ ${CL_PNK}2560${NONE}x1600\n";
             interactive_mk "$SBRN";
         fi
     } # need_for_int
-    
-    if [ -d vendor/${ROMNIS}/products ] && [ ! -d vendor/aosip ]; then
-        if [ ! -f vendor/${ROMNIS}/products/${ROMNIS}_${SBDEV}.mk ||
-             ! -f vendor/${ROMNIS}/products/${SBDEV}.mk ||
-             ! -f vendor/${ROMNIS}/products/${SBDEV}/${ROMNIS}_${SBDEV}.mk ]; then
-            vendor_strat_kpa; #if found products folder
-        else
-            echo -e "\n${SCS} Looks like ${SBDEV} has been already added to ${ROM_FN} vendor. Good to go\n";
-        fi
-    else
-        vendor_strat_all; #if not found
-    fi
-    croot;
+
     echo -e "\n${EXE} ${ROMNIS}-fying Device Tree...\n";
     NOINT=$(echo -e "${SCS} Interactive Makefile Unneeded, continuing...");
 
@@ -605,22 +613,35 @@ ${CL_PNK}2560${NONE}x1600\n";
             need_for_int;
             ;;
     esac
+
+    if [ -d vendor/${ROMNIS}/products ] && [ ! -d vendor/aosip ]; then
+        if [ ! -f vendor/${ROMNIS}/products/${ROMNIS}_${SBDEV}.mk ||
+             ! -f vendor/${ROMNIS}/products/${SBDEV}.mk ||
+             ! -f vendor/${ROMNIS}/products/${SBDEV}/${ROMNIS}_${SBDEV}.mk ]; then
+            vendor_strat_kpa; #if found products folder
+        else
+            echo -e "\n${SCS} Looks like ${SBDEV} has been already added to ${ROM_FN} vendor. Good to go\n";
+        fi
+    else
+        vendor_strat_all; #if not found
+    fi
+    croot;
     sleep 2;
     export action_1="init" action_2="pre_build";
-    [ ! -z "$automate" ] && quick_menu;
+    [ -z "$automate" ] && quick_menu;
 } # pre_build
 
 function build() # 4
 {
     if [ -d .repo ]; then
         [ ! -z "$automate" ] && teh_action 4;
-        [ -z "$action_2" ] && device_info;
         [ -z "$action_1" ] && rom_select;
+        [ -z "$action_2" ] && device_info;
     else
         echo -e "${FLD} ROM Source Not Found (Synced)\n${FLD} Please perform an init and sync before doing this";
         exitScriBt 1;
     fi
-    
+
     function hotel_menu()
     {
         echo -e "${CL_WYT}=========================${NONE} ${CL_LBL}Hotel Menu${NONE} ${CL_WYT}==========================${NONE}";
@@ -643,7 +664,7 @@ function build() # 4
         esac
         echo;
     } # hotel_menu
-    
+
     function post_build()
     {
         if [[ $(tac $RMTMP | grep -c -m 1 '#### make completed successfully') == "1" ]]; then
@@ -658,7 +679,7 @@ function build() # 4
             fi
         fi
     } # post_build
-    
+
     function build_make()
     {
         if [[ "$1" != "brunch" ]]; then
@@ -710,7 +731,7 @@ function build() # 4
             make_it;
         fi
     } # make_module
-    
+
     function build_menu()
     {
         init_bld;
@@ -756,8 +777,8 @@ function build() # 4
             fi
             case "$SBCL" in
                 1) lunch ${ROMNIS}_${SBDEV}-${SBBT}; $SBMK installclean ;;
-                2) lunch ${ROMNIS}_${SBDfiEV}-${SBBT}; $SBMK clean ;;
-                *) echo -e "${FLD} Invalid Selection.\n" ;;
+                2) lunch ${ROMNIS}_${SBDEV}-${SBBT}; $SBMK clean ;;
+                *) echo -e "${INF} No Clean Option Selected.\n" ;;
             esac
             hotel_menu;
             build_make "$SBSLT";
@@ -931,7 +952,7 @@ function tools() # 5
         fi
         sudo add-apt-repository ppa:openjdk-r/ppa -y;
         sudo apt-get update -y;
-        sudo apt-get install openjdk-7-jdk -y;
+        sudo apt-get install openjdk-$1-jdk -y;
     } # java_ppa
 
     function java_menu()
@@ -951,13 +972,14 @@ function tools() # 5
                 echo -e "1. Java 1.6.0 (4.4.x Kitkat)";
                 echo -e "2. Java 1.7.0 (5.x.x Lollipop && 6.x.x Marshmallow)";
                 echo -e "3. Java 1.8.0 (7.x.x Nougat)\n";
-                [[ "${PKGMGR}" == "apt" ]] && echo -e "4. Ubuntu 16.04 & Want to install Java 7";
+                [[ "${PKGMGR}" == "apt" ]] && echo -e "4. Ubuntu 16.04 & Want to install Java 7\n5. Ubuntu 14.04 & Want to install Java 8";
                 read -p $'\033[1;36m[>]\033[0m ' JAVER;
                 case "$JAVER" in
                     1) java 6 ;;
                     2) java 7 ;;
                     3) java 8 ;;
-                    4) java_ppa ;;
+                    4) java_ppa 7 ;;
+                    5) java_ppa 8 ;;
                     *)
                         echo -e "\n${FLD} Invalid Selection.\n";
                         java_menu;
