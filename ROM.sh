@@ -239,7 +239,7 @@ function init() # 1
     ST="Branch"; shut_my_mouth NBR "$ST";
     RC=`echo "$SBNBR" | awk '{print $1}'`; SBBR=`echo "$SBNBR" | awk '{print $2}'`;
     MNF=`echo "${MAN[$RC]}"`;
-    RNM=`echo "${ROM_NAME[$RC]}"`
+    RNM=`echo "${ROM_NAME[$RC]}"`;
     echo -e "${QN} Any Source you have already synced ${CL_WYT}[y/n]${NONE}\n"; gimme_info "refer";
     ST="Use Reference Source"; shut_my_mouth RF "$ST";
     if [[ "$SBRF" == [Yy] ]]; then
@@ -334,7 +334,7 @@ function device_info() # D 3,4
     ST="Device's Vendor"; shut_my_mouth CM "$ST";
     echo -e "${QN} Build type \n${INF} [userdebug/user/eng]\n";
     ST="Build type"; shut_my_mouth BT "$ST";
-    echo -e "${QN} Choose your Device type among these. Explainations of each file given in README.md"; gimme_info "device-type";
+    echo -e "${QN} Choose your Device type among these. Explainations of each file given in README.md\n"; gimme_info "device-type";
     TYPES=( common_full_phone common_mini_phone common_full_hybrid_wifionly \
     common_full_tablet_lte common_full_tablet_wifionly common_mini_tablet_wifionly common_tablet \
     common_full_tv common_mini_tv );
@@ -488,25 +488,26 @@ ${CL_PNK}2560${NONE}x1600\n";
         for ROM in ${ROMS[*]}; do
             # Possible Default Device Configuration (DDC) Files
             DDCS=( ${ROM}_${SBDEV}.mk aosp_${SBDEV}.mk full_${SBDEV}.mk ${ROM}.mk );
+            # Makefiles are arranged according to their priority of Usage. ROM.mk is the most used, ROM_DEVICE.mk is the least used.
             # Inherit DDC
             for ACTUAL_DDC in ${DDCS[*]}; do
                 if [ -f ${DEVDIR}/${ACTUAL_DDC} ]; then
                     case "$1" in
                         "pb") export DDC="$ACTUAL_DDC" ;;
-                        "intm")
+                        "intm") # Interactive Makefile not found -vv
                             if [[ $(grep -c '##### Interactive' ${DEVDIR}/${ACTUAL_DDC}) == "0" ]] \
-                            && [[ "$ACTUAL_DDC" != "${ROMNIS}.mk" ]]; then
-                                export DDC="$ACTUAL_DDC";
-                                continue;
+                            && [[ "$ACTUAL_DDC" != "${ROMNIS}.mk" ]]; then # ROM Specific Makefile not Present
+                                export DDC="$ACTUAL_DDC"; # Interactive makefile not present for that particular ROMNIS
+                                continue; # searching for more relevant makefile
                             else
-                                export DDC="NULL";
-                                break;
+                                export DDC="NULL"; # Interactive Makefile already created, under ROMNIS name
+                                break; # What now ? Get out!
                             fi
                             ;;
                     esac
                 fi
             done
-            [[ "$DDC" == "NULL" ]] && break;
+            [[ "$DDC" == "NULL" ]] && break; # It's Done, Get out!
         done
     } # find_ddc
 
@@ -683,7 +684,7 @@ function build() # 4
     function build_make()
     {
         if [[ "$1" != "brunch" ]]; then
-            start=$(date +"%s");
+            START=$(date +"%s");
             case "$SBMK" in
                 "make") BCORES=$(grep -c ^processor /proc/cpuinfo) ;;
                 *) BCORES="" ;;
@@ -697,9 +698,9 @@ function build() # 4
             fi
             echo;
             post_build;
-            end=$(date +"%s");
-            sec=$(($end - $start));
-            echo -e "${INF} Build took $(($sec / 3600)) hour(s), $(($sec / 60 % 60)) minute(s) and $(($sec % 60)) second(s)." | tee -a rom_compile.txt;
+            END=$(date +"%s");
+            SEC=$(($END - $START));
+            echo -e "${INF} Build took $(($SEC / 3600)) hour(s), $(($SEC / 60 % 60)) minute(s) and $(($SEC % 60)) second(s)." | tee -a rom_compile.txt;
         fi
     } # build_make
 
@@ -1054,31 +1055,31 @@ function teh_action() # Takes ya Everywhere within ScriBt
 {
     case "$1" in
     1)
-        [ -z "$automate" ] && init;
         echo -ne '\033]0;ScriBt : Init\007';
+        [ -z "$automate" ] && init;
         ;;
     2)
-        [ -z "$automate" ] & sync;
         echo -ne "\033]0;ScriBt : Syncing ${ROM_FN}\007";
+        [ -z "$automate" ] & sync;
         ;;
     3)
-        [ -z "$automate" ] && pre_build;
         echo -ne '\033]0;ScriBt : Pre-Build\007';
+        [ -z "$automate" ] && pre_build;
         ;;
     4)
-        [ -z "$automate" ] && build;
         echo -ne "\033]0;${ROMNIS}_${SBDEV} : In Progress\007";
+        [ -z "$automate" ] && build;
         ;;
     5)
-        [ -z "$automate" ] && tools;
         echo -ne '\033]0;ScriBt : Installing Dependencies\007';
+        [ -z "$automate" ] && tools;
         ;;
     6)
-        [ -z "$automate" ] && exitScriBt 0;
         case "$2" in
             "COOL") echo -ne "\033]0;${ROMNIS}_${SBDEV} : Success\007" ;;
             "FAIL") echo -ne "\033]0;${ROMNIS}_${SBDEV} : Fail\007" ;;
         esac
+        [ -z "$automate" ] && exitScriBt 0;
         ;;
     *)
         echo -e "\n${FLD} Invalid Selection.\n";
