@@ -9,23 +9,25 @@ function the_cherries()                 # Since this is Automated - Use Proper C
 
 # Remove the Hashes '#' (at the start of each line below this) after adding the cherries, so that it's brought to life
 
-#   #===========PICK 1=============#
-#   cd ${builddir}/[ENTER_DIRECTORY];   # The Directory in which you need to Pick a Commit
-#   REPOPK=[ENTER_ORGANIZATION_NAME];   # Repo Provider who has that Repo
-#   REPONAME=[ENTER_REPO_NAME];         # Name of the Repo
-#   CP_BRNC=[ENTER_BRANCH_NAME];        # Branch of the Repo
-#   cherrypick [ENTER_COMMIT_ID];       # Commit ID in place of -> '[ENTER_COMMIT_ID]'
+#   #======================= PICK 1 =======================#
+#   URL_1="https://github.com/[foo1]/[bar1]/tree/[branch1]";    # Enter the Repository GitHub link, with the chosen branch
+#   cd ${builddir}/[ENTER_DIRECTORY];                           # The Directory in which you need to Pick a Commit
+#   REPOPK=`echo "$URL_1" | awk -F "/" '{print $4}'`;
+#   REPONAME=`echo "$URL_1" | awk -F "/" '{print $5}'`;
+#   CP_BRNC=`echo "$URL_1" | awk -F "/" '{print $7}'`;
+#   cherrypick [ENTER_COMMIT_ID];                               # Commit ID in place of -> '[ENTER_COMMIT_ID]'
 #   cd $builddir;
-#   #==============================#
+#   #======================================================#
 #
-#   #===========PICK 2=============#
-#   cd ${builddir}/[ENTER_DIRECTORY];   # The Directory in which you need to Pick a Commit
-#   REPOPK=[ENTER_ORGANIZATION_NAME];   # Repo Provider who has that Repo
-#   REPONAME=[ENTER_REPO_NAME];         # Name of the Repo
-#   CP_BRNC=[ENTER_BRANCH_NAME];        # Branch of the Repo
-#   cherrypick [ENTER_COMMIT_ID];       # Commit ID in place of -> '[ENTER_COMMIT_ID]'
+#   #======================= PICK 2 =======================#
+#   URL_2="https://github.com/[foo2]/[bar2]/tree/[branch2]";    # Enter the Repository GitHub link, with the chosen branch
+#   cd ${builddir}/[ENTER_DIRECTORY];                           # The Directory in which you need to Pick a Commit
+#   REPOPK=`echo "$URL_2" | awk -F "/" '{print $4}'`;
+#   REPONAME=`echo "$URL_2" | awk -F "/" '{print $5}'`;
+#   CP_BRNC=`echo "$URL_2" | awk -F "/" '{print $7}'`;
+#   cherrypick [ENTER_COMMIT_ID];                               # Commit ID in place of -> '[ENTER_COMMIT_ID]'
 #   cd $builddir;
-#   #==============================#
+#   #======================================================#
 
 #   You may add many more picks like this.
 } # the_cherries
@@ -35,10 +37,12 @@ function automate()
     # Load Configs...
     configs;
     # You may Enter your Desired Build Sequence here
-    # Default Sequence - You may change this
+    # Default Sequence - Automatable Functions - You may change this
     # You may enter your own build/device-specific commands, normally between any of these calls below, works.
+    init;
     sync;
     the_cherries;
+    pre_build;
     build;
     exitScriBt;
 } # automate
