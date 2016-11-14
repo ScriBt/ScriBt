@@ -16,8 +16,6 @@
 #                                                                      #
 # https://github.com/a7r3/ScriBt - I live here                         #
 #                                                                      #
-# Usage: bash ROM.sh (Manual) | bash ROM.sh automate (Automated)       #
-#                                                                      #
 # Feel free to enter your modifications and submit it to me with       #
 # a Pull Request, such Contributions are WELCOME                       #
 #                                                                      #
@@ -34,7 +32,7 @@ function cherrypick() # Automated Use only
     echo -ne '\033]0;ScriBt : Picking Cherries\007';
     echo -e "${CL_WYT}=======================${NONE} ${CL_LRD}Pick those Cherries${NONE} ${CL_WYT}======================${NONE}\n";
     echo -e "${EXE} ${ATBT} Attempting to Cherry-Pick Provided Commits\n";
-    git fetch https://github.com/${REPOPK}/${REPONAME} ${CP_BRNC};
+    git fetch ${URL/\/tree\// };
     git cherry-pick $1;
     echo -e "\n${INF} IT's possible that you may face conflicts while merging a C-Pick. Solve those and then Continue.";
     echo -e "${CL_WYT}==================================================================${NONE}";
@@ -80,10 +78,10 @@ function main_menu()
 function pkgmgr_check() # ID
 {
     if [ -d "/etc/apt" ]; then
-        echo -e "\n\033[0;31m${SCS} Alright, apt detected.\033[0m\n";
+        echo -e "\n${SCS} Alright, apt detected.\033[0m\n";
         PKGMGR="apt";
     elif [ -d "/etc/pacman.d" ]; then
-        echo -e "\n$\033[0;31m${SCS} Alright, pacman detected.\033[0m\n";
+        echo -e "\n${SCS} Alright, pacman detected.\033[0m\n";
         PKGMGR="pacman";
     else
         echo -e "\n${FLD} Neither apt nor pacman configuration has been found.";
@@ -255,8 +253,9 @@ function init() # 1
         echo -e "${QN} Depth Value [1]\n";
         ST="clone-depth Value"; shut_my_mouth DEP "$ST";
         [ -z "$SBDEP" ] && SBDEP=1;
+        CDP=--depth\=\"${SBDEP}\";
     fi
-    #Check for Presence of Repo Binary
+    # Check for Presence of Repo Binary
     if [[ ! $(which repo) ]]; then
         echo -e "${EXE} Looks like the Repo binary isn't installed. Let's Install it.\n";
         [ ! -d "${HOME}/bin" ] && mkdir -p ${HOME}/bin;
@@ -272,7 +271,7 @@ function init() # 1
     fi
     echo -e "${CL_WYT}=========================================================${NONE}\n";
     echo -e "${EXE} Initializing the ROM Repo\n";
-    repo init ${REF} -u https://github.com/${RNM}/${MNF} -b ${SBBR} ;
+    repo init ${REF} ${CDP} -u https://github.com/${RNM}/${MNF} -b ${SBBR};
     echo -e "\n${SCS} ${ROM_NAME[$RC]} Repo Initialized\n";
     echo -e "${CL_WYT}=========================================================${NONE}\n";
     mkdir .repo/local_manifests;
@@ -308,7 +307,7 @@ function sync() # 2
     [[ "$SBC" == "y" ]] && SYNC_CRNT=-c || SYNC_CRNT=" ";
     [[ "$SBB" == "y" ]] && CLN_BUN=" " || CLN_BUN=--no-clone-bundle;
     echo -e "${EXE} Let's Sync!\n";
-    repo sync -j${SBJOBS} ${SILENT} ${FORCE} ${SYNC_CRNT} ${CLN_BUN}  #2>&1 | tee $STMP;
+    repo sync -j${SBJOBS:-1} ${SILENT:--q} ${FORCE} ${SYNC_CRNT:--c} ${CLN_BUN}  #2>&1 | tee $STMP;
     echo;
     the_response COOL Sync;
     echo -e "\n${SCS} Done.\n";
@@ -344,7 +343,7 @@ function device_info() # D 3,4
     done
     echo;
     ST="Device Type"; shut_my_mouth DTP "$ST";
-    [ -z $SBDTP ] && SBDTP=common || SBDTP="${TYPES[${SBDTP}]}";
+    [ -z $SBDTP ] && SBDTP="common" || SBDTP="${TYPES[${SBDTP}]}";
     echo -e "${CL_WYT}=========================================================${NONE}\n";
 } # device_info
 
@@ -416,25 +415,7 @@ function pre_build() # 3
         cd vendor/${ROMNIS}/products;
         echo -e "${INF} About Device's Resolution...\n";
         if [ ! -z "$automate" ]; then
-            echo -e "${INF} Among these Values - Select the one which is nearest or almost Equal to that of your Device\n";
-            echo -e "${INF} Resolutions which are available for a ROM is shown by it's name. All Res are available for PAC-5.1";
-            echo -e "${CL_PNK}240${NONE}x400
-${CL_PNK}320${NONE}x480 (AOKP)
-${CL_PNK}480${NONE}x800 and ${CL_PNK}480${NONE}x854 (AOKP & PA)
-${CL_PNK}540${NONE}x960 (AOKP)
-${CL_PNK}600${NONE}x1024
-${CL_PNK}720${NONE}x1280 (AOKP & PA)
-${CL_PNK}768${NONE}x1024 and ${CL_PNK}768${NONE}x1280 (AOKP)
-${CL_PNK}800${NONE}x1280 (AOKP)
-${CL_PNK}960${NONE}x540
-${CL_PNK}1080${NONE}x1920 (AOKP & PA)
-${CL_PNK}1200${NONE}x1920
-${CL_PNK}1280${NONE}x800
-${CL_PNK}1440${NONE}x2560 (PA)
-${CL_PNK}1536${NONE}x2048
-${CL_PNK}1600${NONE}x2560
-${CL_PNK}1920${NONE}x1200
-${CL_PNK}2560${NONE}x1600\n";
+            gimme_info "bootres";
             echo -e "${QN} Enter the Desired Highlighted Number\n";
             read -p $'\033[1;36m[>]\033[0m ' SBBTR;
         else
@@ -668,12 +649,19 @@ function build() # 4
 
     function post_build()
     {
+        NRT_0=`tac $RMTMP | grep -m 1 'No rule to make target\|no known rule to make it'`;
         if [[ $(tac $RMTMP | grep -c -m 1 '#### make completed successfully') == "1" ]]; then
-            echo -e "\n${SCS} Build Completed Successfully! Cool. Now make it Boot!\n";
+            echo -e "\n${SCS} Build completed successfully! Cool. Now make it Boot!\n";
             the_response COOL Build;
             teh_action 6 COOL;
-        elif [[ $(tac $RMTMP | grep -c -m 1 'No rule to make target') == "1" ]]; then
-#           WiP
+        elif [[ ! -z "$NRT_0" ]]; then
+#           if [[ ! -z "$DMNJ" ]]; then
+#               # ninja: error: 'A', needed by 'B', missing and no known rule to make it
+# W             NRT_1=(`echo "$NRT_0" | awk '{print $3 $6}' | awk -F "'" '{print $2" "$4}'`);
+# i         else
+# P             # make[X]: *** No rule to make target 'A', needed by 'B'.
+#               NRT_1=(`echo "$NRT_0" | awk -F "No rule to make target" '{print $2}' | awk -F "'" '{print $2" "$4}'`);
+#           fi
             if [ ! -z "$automate" ]; then
                 teh_action 6 FAIL;
                 the_response FAIL Build;
@@ -741,7 +729,7 @@ function build() # 4
         echo -e "1. Start Building ROM (ZIP output) (Clean Options Available)";
         echo -e "2. Make a Particular Module";
         echo -e "3. Setup CCACHE for Faster Builds \n";
-        echo -e "${CL_WYT}=========================================================\n"
+        echo -e "${CL_WYT}=========================================================\n";
         ST="Option Selected"; shut_my_mouth BO "$ST";
     }
 

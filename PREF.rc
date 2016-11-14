@@ -10,22 +10,16 @@ function the_cherries()                 # Since this is Automated - Use Proper C
 # Remove the Hashes '#' (at the start of each line below this) after adding the cherries, so that it's brought to life
 
 #   #======================= PICK 1 =======================#
-#   URL_1="https://github.com/[foo1]/[bar1]/tree/[branch1]";    # Enter the Repository GitHub link, with the chosen branch
-#   cd ${builddir}/[ENTER_DIRECTORY];                           # The Directory in which you need to Pick a Commit
-#   REPOPK=`echo "$URL_1" | awk -F "/" '{print $4}'`;
-#   REPONAME=`echo "$URL_1" | awk -F "/" '{print $5}'`;
-#   CP_BRNC=`echo "$URL_1" | awk -F "/" '{print $7}'`;
-#   cherrypick [ENTER_COMMIT_ID];                               # Commit ID in place of -> '[ENTER_COMMIT_ID]'
+#   URL="https://github.com/[foo1]/[bar1]/tree/[branch1]";    # Enter the Commit link
+#   cd ${builddir}/[ENTER_DIRECTORY];                         # The Directory in which you need to Pick a Commit
+#   cherrypick [ENTER_COMMIT_ID] 1;                           # Commit ID in place of -> '[ENTER_COMMIT_ID]'
 #   cd $builddir;
 #   #======================================================#
 #
 #   #======================= PICK 2 =======================#
-#   URL_2="https://github.com/[foo2]/[bar2]/tree/[branch2]";    # Enter the Repository GitHub link, with the chosen branch
-#   cd ${builddir}/[ENTER_DIRECTORY];                           # The Directory in which you need to Pick a Commit
-#   REPOPK=`echo "$URL_2" | awk -F "/" '{print $4}'`;
-#   REPONAME=`echo "$URL_2" | awk -F "/" '{print $5}'`;
-#   CP_BRNC=`echo "$URL_2" | awk -F "/" '{print $7}'`;
-#   cherrypick [ENTER_COMMIT_ID];                               # Commit ID in place of -> '[ENTER_COMMIT_ID]'
+#   URL="https://github.com/[foo2]/[bar2]/tree/[branch2]";    # Enter the Repository GitHub link, with the chosen branch
+#   cd ${builddir}/[ENTER_DIRECTORY];                         # The Directory in which you need to Pick a Commit
+#   cherrypick [ENTER_COMMIT_ID];                             # Commit ID in place of -> '[ENTER_COMMIT_ID]'
 #   cd $builddir;
 #   #======================================================#
 
