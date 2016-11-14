@@ -222,6 +222,28 @@ function gimme_info()
             "refer") echo -e "${INF} If you have any ROM's source completely synced, giving this source a reference source, will avoid redownloading common projects, thus saving a lot of time\n" ;;
             "cldp") echo -e "${INF} If unset, Syncs the Entire commit history of any repo which is better for future syncs \n Unless you know what you're doing,${NONE} ${CL_LRD}Answer n${NONE}\n" ;;
             "device-type") echo -e "${INF} For Phones : If you don't find common_full_phone / common_mini_phone then leave this field blank\nBuildSystem would consider the Device as a Phone.\n" ;;
+            "bootres")
+                echo -e "
+${INF} Among these Values - Select the one which is nearest or almost Equal to that of your Device
+${INF} Resolutions which are available for a ROM is shown by it's name. All Res are available for PAC-5.1
+${CL_PNK}240${NONE}x400
+${CL_PNK}320${NONE}x480 (AOKP)
+${CL_PNK}480${NONE}x800 and ${CL_PNK}480${NONE}x854 (AOKP & PA)
+${CL_PNK}540${NONE}x960 (AOKP)
+${CL_PNK}600${NONE}x1024
+${CL_PNK}720${NONE}x1280 (AOKP & PA)
+${CL_PNK}768${NONE}x1024 and ${CL_PNK}768${NONE}x1280 (AOKP)
+${CL_PNK}800${NONE}x1280 (AOKP)
+${CL_PNK}960${NONE}x540
+${CL_PNK}1080${NONE}x1920 (AOKP & PA)
+${CL_PNK}1200${NONE}x1920
+${CL_PNK}1280${NONE}x800
+${CL_PNK}1440${NONE}x2560 (PA)
+${CL_PNK}1536${NONE}x2048
+${CL_PNK}1600${NONE}x2560
+${CL_PNK}1920${NONE}x1200
+${CL_PNK}2560${NONE}x1600\n"
+            ;;
         esac
     fi
 } # gimme_info
