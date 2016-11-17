@@ -34,7 +34,7 @@ function cherrypick() # Automated Use only
     echo -e "${EXE} ${ATBT} Attempting to Cherry-Pick Provided Commits\n";
     git fetch ${URL/\/tree\// };
     git cherry-pick $1;
-    echo -e "\n${INF} IT's possible that you may face conflicts while merging a C-Pick. Solve those and then Continue.";
+    echo -e "\n${INF} It's possible that the pick may have conflicts. Solve those and then continue.";
     echo -e "${CL_WYT}==================================================================${NONE}";
 } # cherrypick
 
@@ -141,6 +141,7 @@ Choose among these (Number Selection)
 =======================================================${NONE}\n";
     [ -z "$automate" ] && read -p $'\033[1;36m[>]\033[0m ' SBRN;
     rom_names "$SBRN";
+    echo -e "\n${INF} You have chosen -> $ROM_FN\n";
 } # rom_select
 
 function shut_my_mouth() # ID
@@ -215,8 +216,8 @@ function tranScriBt() # ID
 function the_response() # D ALL
 {
     case "$1" in
-        "COOL") echo -e "${SCS} ${ATBT} Automated $2 Successful! :)" ;;
-        "FAIL") echo -e "${FLD} ${ATBT} Automated $2 Failed :(" ;;
+        "COOL") echo -e "\n${SCS} ${ATBT} Automated $2 Successful! :)" ;;
+        "FAIL") echo -e "\n${FLD} ${ATBT} Automated $2 Failed :(" ;;
     esac
 } # the_response
 
@@ -224,7 +225,6 @@ function init() # 1
 {
     [ ! -z "$automate" ] && teh_action 1;
     rom_select;
-    echo -e "\n${INF} You have chosen -> $ROM_FN\n";
     sleep 1;
     echo -e "${EXE} Detecting Available Branches in ${ROM_FN} Repository...";
     RCT=$[ ${#ROM_NAME[*]} - 1 ];
@@ -308,7 +308,6 @@ function sync() # 2
     [[ "$SBB" == "y" ]] && CLN_BUN=" " || CLN_BUN=--no-clone-bundle;
     echo -e "${EXE} Let's Sync!\n";
     repo sync -j${SBJOBS:-1} ${SILENT:--q} ${FORCE} ${SYNC_CRNT:--c} ${CLN_BUN}  #2>&1 | tee $STMP;
-    echo;
     the_response COOL Sync;
     echo -e "\n${SCS} Done.\n";
     echo -e "${CL_WYT}=====================================================================${NONE}\n";
@@ -468,7 +467,7 @@ function pre_build() # 3
                 ownrom slim tesla tipsy to validus vanir xenonhd xosp );
         for ROM in ${ROMS[*]}; do
             # Possible Default Device Configuration (DDC) Files
-            DDCS=( ${ROM}_${SBDEV}.mk aosp_${SBDEV}.mk full_${SBDEV}.mk ${ROM}.mk );
+            DDCS=( ${ROM}_${SBDEV}.mk full_${SBDEV}.mk aosp_${SBDEV}.mk ${ROM}.mk );
             # Makefiles are arranged according to their priority of Usage. ROM.mk is the most used, ROM_DEVICE.mk is the least used.
             # Inherit DDC
             for ACTUAL_DDC in ${DDCS[*]}; do
@@ -547,8 +546,8 @@ function pre_build() # 3
             croot;
         } # create_imk
 
-    find_ddc "intm";
-    if [[ "$DDC" != "NULL" ]]; then create_imk; else echo "$NOINT"; fi;
+        find_ddc "intm";
+        if [[ "$DDC" != "NULL" ]]; then create_imk; else echo "$NOINT"; fi;
     } # interactive_mk
 
     function need_for_int()
@@ -574,6 +573,7 @@ function pre_build() # 3
         3) # AOSiP-CAF
             if [ ! -f vendor/${ROMNIS}/products ]; then
                 VNF="common";
+                INTF="${ROMNIS}.mk";
                 need_for_int;
             else
                 echo "$NOINT";
@@ -582,6 +582,7 @@ function pre_build() # 3
         2|19) # AOKP-4.4 | PAC-5.1
             if [ ! -f vendor/${ROMNIS}/products ]; then
                 VNF="$SBDTP";
+                INTF="${ROMNIS}.mk"
                 need_for_int;
             else
                 echo "$NOINT";
@@ -592,6 +593,7 @@ function pre_build() # 3
             ;;
         *) # Rest of the ROMs
             VNF="$SBDTP";
+            INTF="${ROMNIS}.mk"
             need_for_int;
             ;;
     esac
@@ -651,7 +653,7 @@ function build() # 4
     {
         NRT_0=`tac $RMTMP | grep -m 1 'No rule to make target\|no known rule to make it'`;
         if [[ $(tac $RMTMP | grep -c -m 1 '#### make completed successfully') == "1" ]]; then
-            echo -e "\n${SCS} Build completed successfully! Cool. Now make it Boot!\n";
+            echo -e "\n${SCS} Build completed successfully! Cool. Now make it Boot!";
             the_response COOL Build;
             teh_action 6 COOL;
         elif [[ ! -z "$NRT_0" ]]; then
