@@ -185,8 +185,10 @@ If you want to automate the ScriBt after changing directory, then 3rd Parameter 
 
 * Companions for Ninja (iirc), which were introduced in Nougat are...
     - **Kati** - https://android.googlesource.com/platform/build/kati/#kati
+    (AFAIK, It Generates a .ninja file, in BluePrint Language, which guides through the Build process...)
     - **Soong** - https://android.googlesource.com/platform/build/soong#Soong
     - **BluePrint** - https://android.googlesource.com/platform/build/blueprint/#Blueprint-Build-System
+    (A Language...)
 
 So, the ways of Building Android are...
 
@@ -197,7 +199,7 @@ So, the ways of Building Android are...
     - **with** Jack Toolchain (Nougat onwards)
     - **without** Jack Toolchain (Nougat onwards)
 
-#CONTRIBUTORS
+#Contributors
 
 * Arvindraj "a7r3" (Myself)
 * Adrian DC "AdrianDC"

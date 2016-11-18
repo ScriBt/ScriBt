@@ -32,7 +32,7 @@ function rom_names()
         5)
             ROM_NAME=( AOSP-RRO );
             MAN=( manifest.git );
-            ROM_FN="AOSP-RRO";
+            ROM_FN="AOSP-OMS";
             ROMNIS="aosp";
             ;;
         6)
@@ -193,7 +193,6 @@ function rom_names()
             fi
             ;;
     esac
-
 } # rom_names
 
 

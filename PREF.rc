@@ -12,7 +12,7 @@ function the_cherries()                 # Since this is Automated - Use Proper C
 #   #======================= PICK 1 =======================#
 #   URL="https://github.com/[foo1]/[bar1]/tree/[branch1]";    # Enter the Commit link
 #   cd ${builddir}/[ENTER_DIRECTORY];                         # The Directory in which you need to Pick a Commit
-#   cherrypick [ENTER_COMMIT_ID] 1;                           # Commit ID in place of -> '[ENTER_COMMIT_ID]'
+#   cherrypick [ENTER_COMMIT_ID];                             # Commit ID in place of -> '[ENTER_COMMIT_ID]'
 #   cd $builddir;
 #   #======================================================#
 #
