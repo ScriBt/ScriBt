@@ -1,6 +1,6 @@
 #!/bin/bash
 #========================< Projekt ScriBt >============================#
-#===========< Copyright 2016, Arvind Raj Thangaraj - "a7r3" >==========#
+#===========< Copyright 2016, Arvindraj Thangaraj - "a7r3" >===========#
 #======================================================================#
 #                                                                      #
 # This software is licensed under the terms of the GNU General Public  #
@@ -19,8 +19,8 @@
 # Feel free to enter your modifications and submit it to me with       #
 # a Pull Request, such Contributions are WELCOME                       #
 #                                                                      #
-# CONTRIBUTORS FOR THIS PROJECT:                                       #
-# Arvind Raj (Myself)                                                  #
+# Contributors:                                                        #
+# Arvindraj (Myself)                                                   #
 # Adrian DC                                                            #
 # Akhil Narang                                                         #
 # CubeDev                                                              #
@@ -104,44 +104,15 @@ function quick_menu()
 function rom_select() # D 1,2
 {
     echo -e "${CL_WYT}=======================================================${NONE}\n";
-    echo -e "${CL_YEL}[?]${NONE} ${CL_WYT}Which ROM are you trying to build
-Choose among these (Number Selection)
-
-1. AICP
-2. AOKP
-3. AOSiP
-4. AOSP-CAF
-5. AOSP-RRO
-6. BlissRoms
-7. CandyRoms
-8. CarbonROM
-9. crDroid
-10. Cyanide-L
-11. CyanogenMod
-12. DirtyUnicorns
-13. Flayr OS
-14. Krexus-CAF
-15. OctOs
-16. OmniROM
-17. Orion OS
-18. OwnROM
-19. PAC-ROM
-20. AOSPA
-21. Resurrection Remix
-22. SlimRoms
-23. Temasek
-24. GZR Tesla
-25. Tipsy OS
-26. GZR Validus
-27. VanirAOSP
-28. XenonHD
-29. XOSP
-30. Zephyr-Os
-
-=======================================================${NONE}\n";
+    echo -e "${CL_YEL}[?]${NONE} ${CL_WYT}Which ROM are you trying to build\nChoose among these (Number Selection)\n";
+    for RNO in {1..30}; do
+        rom_names $RNO;
+        echo -e "$RNO. $ROM_FN";
+    done
+    echo -e "\n=======================================================${NONE}\n";
     [ -z "$automate" ] && read -p $'\033[1;36m[>]\033[0m ' SBRN;
     rom_names "$SBRN";
-    echo -e "\n${INF} You have chosen -> $ROM_FN\n";
+    echo -e "\n${INF} You have chosen -> ${ROM_FN}\n";
 } # rom_select
 
 function shut_my_mouth() # ID
