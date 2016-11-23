@@ -278,8 +278,8 @@ function sync() # 2
     [[ "$SBC" == "y" ]] && SYNC_CRNT=-c || SYNC_CRNT=" ";
     [[ "$SBB" == "y" ]] && CLN_BUN=" " || CLN_BUN=--no-clone-bundle;
     echo -e "${EXE} Let's Sync!\n";
-    repo sync -j${SBJOBS:-1} ${SILENT:--q} ${FORCE} ${SYNC_CRNT:--c} ${CLN_BUN}  #2>&1 | tee $STMP;
-    the_response COOL Sync;
+    repo sync -j${SBJOBS:-1} ${SILENT:--q} ${FORCE} ${SYNC_CRNT:--c} ${CLN_BUN};  #2>&1 | tee $STMP;
+    [[ $(echo "$?") == "0" ]] && the_response COOL Sync || the_response FAIL Sync;
     echo -e "\n${SCS} Done.\n";
     echo -e "${CL_WYT}=====================================================================${NONE}\n";
     [ -z "$automate" ] && quick_menu;
@@ -347,7 +347,7 @@ function pre_build() # 3
             echo -e "${EXE} Adding Lunch Combo in Device Tree";
             [ ! -f vendorsetup.sh ] && touch vendorsetup.sh;
             if [[ $(grep -c "${ROMNIS}_${SBDEV}" ${DEVDIR}/vendorsetup.sh ) == "0" ]]; then
-                echo -e "add_lunch_combo ${ROMNIS}_${SBDEV}-${SBBT}" >> vendorsetup.sh;
+                echo -e "add_lunch_combo ${ROMNIS}_${SBDEV}-${SBBT:-userdebug}" >> vendorsetup.sh;
             else
                 echo -e "${SCS} Lunch combo already added to vendorsetup.sh\n";
             fi
@@ -363,9 +363,9 @@ function pre_build() # 3
                         ${ROMNIS}.devices)
                             echo -e "${SBDEV}" >> $STRT ;;
                         ${ROMNIS}-device-targets)
-                            echo -e "${ROMNIS}_${SBDEV}-${SBBT}" >> $STRT ;;
+                            echo -e "${ROMNIS}_${SBDEV}-${SBBT:-userdebug}" >> $STRT ;;
                         vendorsetup.sh)
-                            echo -e "add_lunch_combo ${ROMNIS}_${SBDEV}-${SBBT}" >> $STRT ;;
+                            echo -e "add_lunch_combo ${ROMNIS}_${SBDEV}-${SBBT:-userdebug}" >> $STRT ;;
                     esac
                 else
                     echo -e "${INF} Device already added to $STRT";
@@ -609,8 +609,8 @@ function build() # 4
         echo -e "${CL_WYT}===============================================================${NONE}\n";
         ST="Selected Option"; shut_my_mouth SLT "$ST";
         case "$SBSLT" in
-            "lunch") ${SBSLT} ${ROMNIS}_${SBDEV}-${SBBT} ;;
-            "breakfast") ${SBSLT} ${SBDEV} ${SBBT} ;;
+            "lunch") ${SBSLT} ${ROMNIS}_${SBDEV}-${SBBT:-userdebug} ;;
+            "breakfast") ${SBSLT} ${SBDEV} ${SBBT:-userdebug} ;;
             "brunch")
                 echo -e "\n${EXE} Starting Compilation - ${ROM_FN} for ${SBDEV}\n";
                 ${SBSLT} ${SBDEV};
@@ -738,8 +738,8 @@ function build() # 4
                 esac
             fi
             case "$SBCL" in
-                1) lunch ${ROMNIS}_${SBDEV}-${SBBT}; $SBMK installclean ;;
-                2) lunch ${ROMNIS}_${SBDEV}-${SBBT}; $SBMK clean ;;
+                1) lunch ${ROMNIS}_${SBDEV}-${SBBT:-userdebug}; $SBMK installclean ;;
+                2) lunch ${ROMNIS}_${SBDEV}-${SBBT:-userdebug}; $SBMK clean ;;
                 *) echo -e "${INF} No Clean Option Selected.\n" ;;
             esac
             hotel_menu;
@@ -980,6 +980,21 @@ function tools() # 5
         [[ "$MKVR" == "3.81" ]] && echo -e "\n${SCS} make 3.81 present";
     } # make_me_old
 
+    function git_creds()
+    {
+        echo -e "\n${INF} Enter the Details with reference to your ${CL_WYT}GitHub account${NONE}\n\n";
+        sleep 2;
+        echo -e "${QN} Enter the Username";
+        echo -e "${INF} Username is the one which appears on the GitHub Account URL\n${INF} Ex. https://github.com/[ACCOUNT_NAME]\n";
+        read -p $'\033[1;36m[>]\033[0m ' GIT_U;
+        echo -e "\n${QN} Enter the E-mail ID\n";
+        read -p $'\033[1;36m[>]\033[0m ' GIT_E;
+        git config --global user.name "${GIT_U}";
+        git config --global user.email "${GIT_E}";
+        echo -e "\n${SCS} Done.\n"
+        quick_menu;
+    } # git_creds
+
     function tool_menu()
     {
         echo -e "\n${CL_WYT}===================${NONE} ${CL_LBL}Tools${NONE} ${CL_WYT}====================${NONE}\n";
@@ -987,9 +1002,11 @@ function tools() # 5
         echo -e "     2. Install Java (OpenJDK 6/7/8)";
         echo -e "     3. Install and/or Set-up CCACHE";
         echo -e "     4. Install/Update ADB udev rules";
-# TODO: echo -e "     6. Find an Android Module's Directory";
         echo -e "     5. Install/Revert to make 3.81";
+        echo -e "     6. Add/Update Git Credentials${CL_WYT}*${NONE}";
+# TODO: echo -e "     X. Find an Android Module's Directory";
         echo -e "\n     0. Quick Menu"
+        echo -e "\n${CL_WYT}*${NONE} Create a GitHub account before using this option";
         echo -e "${CL_WYT}==============================================${NONE}\n";
         read -p $'\033[1;36m[>]\033[0m ' TOOL;
         case "$TOOL" in
@@ -1002,8 +1019,9 @@ function tools() # 5
             2) java_menu ;;
             3) set_ccvars ;;
             4) udev_rules ;;
-# TODO:     6) find_mod ;;
             5) make_me_old ;;
+            6) git_creds ;;
+# TODO:     X) find_mod ;;
             *) echo -e "${FLD} Invalid Selection.\n"; tool_menu ;;
         esac
         [ -z "$automate" ] && quick_menu;

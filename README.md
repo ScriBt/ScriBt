@@ -5,6 +5,8 @@
 
 Ready to use. Extensive Testing needed.
 
+**Now at [XDA-Developers](http://forum.xda-developers.com/chef-central/android/guide-tool-projekt-scribt-v1-33-t3503018)**
+
 **Supports Ubuntu & Debian based Distros, and ArchLinux**
 
 **Tip!** : **ROMNIS** - **ROM** **N**ame **I**n **S**ource - eg. cm, bliss, candy, crdroid etc.
@@ -69,6 +71,8 @@ c. Setup **android-51** rules (For proper usage of ADB)
 d. Revert to make 3.81
 
 e. CCACHE Setup
+
+f. Add/Update Git Credentials
 
 #6. Automated Cherry Picking
 
