@@ -117,6 +117,10 @@ bash ROM.sh
 
     CYAN - An Answer is Expected :P
 
+[#] in..
+
+    PINK - Root Access Prompt
+
 This method of coloring is **Relevant_Coloring** and is inspired from [a scene in Person of Interest](https://goo.gl/photos/s8YpQL1eBxSYwCWS7) and ADB Logs on a phone (Log types like E for Error, F for Fatal etc.)
 
 #Automation Notes
@@ -161,6 +165,20 @@ Make sure you enter a proper directory, which has **read/write permissions**. Th
 If you want to automate the ScriBt after changing directory, then 3rd Parameter should be 'automate'. It'd look like this...
 
 ```bash ROM.sh cd <directory> automate```
+
+# Updates
+
+ScriBt is updated on the basis of the Version Number mentioned in a file named VERSION
+
+**Do not try to EDIT it**
+
+If the Version Number in GitHub is more than the Local Version number, then ScriBt would prompt the user to update.
+If there are modifications present in the old version, then ScriBt moves it to a folder named 'old'. You may see your old Scripts there.
+
+```upScriBt``` does the Updating work.
+
+**ROM.sh** first checks for a newer version of upScriBt.sh and **downloads it** if present.
+**upScriBt.sh then **checks updates** for the other files on the basis of above Procedure
 
 #Device Types
 

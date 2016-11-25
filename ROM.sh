@@ -287,7 +287,7 @@ function sync() # 2
 
 function device_info() # D 3,4
 {
-    [ ! -z "${ROMV}" ] && export ROMNIS="${ROMV}"; # Change ROMNIS
+    [[ "${SBRN}" =~ 13|30 ]] && export ROMNIS="${ROMV}"; # Change ROMNIS if Zephyr or Flayr
     if [ -d ${CALL_ME_ROOT}/vendor/${ROMNIS}/config ]; then
         CNF="vendor/${ROMNIS}/config";
     elif [ -d ${CALL_ME_ROOT}/vendor/${ROMNIS}/configs ]; then
@@ -337,7 +337,7 @@ function pre_build() # 3
     function vendor_strat_all()
     {
         case "$SBRN" in
-            12|27) cd vendor/${ROMV} ;;
+            13|30) cd vendor/${ROMV} ;;
             *) cd vendor/${ROMNIS} ;;
         esac
         echo -e "${CL_WYT}=========================================================${NONE}\n";
@@ -804,7 +804,7 @@ function tools() # 5
                 zlib1g-dev:i386 libbz2-dev libbz2-1.0 libghc-bzlib-dev ) ;;
         esac
         # Install 'em all
-        sudo apt-get install -y ${COMMON_PKGS[*]} ${DISTRO_PKGS[*]};
+        sudo -p $'\033[1;35m[#]\033[0m ' apt-get install -y ${COMMON_PKGS[*]} ${DISTRO_PKGS[*]};
     } # installdeps
 
     function installdeps_arch()
@@ -835,7 +835,7 @@ function tools() # 5
             # look for conflicting packages and uninstall them
             for item in ${PKGS_CONFLICT}; do
                 if pacman -Qq ${item} &> /dev/null; then
-                    sudo pacman -Rddns --noconfirm ${item};
+                    sudo -p $'\033[1;35m[#]\033[0m ' pacman -Rddns --noconfirm ${item};
                     sleep 3;
                 fi
             done
@@ -855,14 +855,14 @@ function tools() # 5
         echo -e "${CL_WYT}================================================================${NONE}\n";
         case "${PKGMGR}" in
             "apt")
-                sudo update-alternatives --config java;
+                sudo -p $'\033[1;35m[#]\033[0m ' update-alternatives --config java;
                 echo -e "\n${CL_WYT}================================================================${NONE}\n";
-                sudo update-alternatives --config javac;
+                sudo -p $'\033[1;35m[#]\033[0m ' update-alternatives --config javac;
                 ;;
             "pacman")
                 archlinux-java status;
                 read -p "${INF} Please enter desired version (ie. \"java-7-openjdk\"): " ARCHJA;
-                sudo archlinux-java set ${ARCHJA};
+                sudo -p $'\033[1;35m[#]\033[0m ' archlinux-java set ${ARCHJA};
                 ;;
         esac
         echo -e "\n${CL_WYT}================================================================${NONE}";
@@ -878,8 +878,8 @@ function tools() # 5
         case "$REMOJA" in
             [yY])
                 case "${PKGMGR}" in
-                    "apt") sudo apt-get purge openjdk-* icedtea-* icedtea6-* ;;
-                    "pacman") sudo pacman -Rddns $( pacman -Qqs ^jdk ) ;;
+                    "apt") sudo -p $'\033[1;35m[#]\033[0m ' apt-get purge openjdk-* icedtea-* icedtea6-* ;;
+                    "pacman") sudo -p $'\033[1;35m[#]\033[0m ' pacman -Rddns $( pacman -Qqs ^jdk ) ;;
                 esac
                 echo -e "\n${SCS} Removed Other Versions successfully"
                 ;;
@@ -891,13 +891,13 @@ function tools() # 5
         esac
         echo -e "${CL_WYT}==========================================================${NONE}\n";
         case "${PKGMGR}" in
-            "apt") sudo apt-get update -y ;;
-            "pacman") sudo pacman -Sy ;;
+            "apt") sudo -p $'\033[1;35m[#]\033[0m ' apt-get update -y ;;
+            "pacman") sudo -p $'\033[1;35m[#]\033[0m ' pacman -Sy ;;
         esac
         echo -e "\n${CL_WYT}==========================================================${NONE}\n";
         case "${PKGMGR}" in
-            "apt") sudo apt-get install openjdk-$1-jdk -y ;;
-            "pacman") sudo pacman -S jdk$1-openjdk ;;
+            "apt") sudo -p $'\033[1;35m[#]\033[0m ' apt-get install openjdk-$1-jdk -y ;;
+            "pacman") sudo -p $'\033[1;35m[#]\033[0m ' pacman -S jdk$1-openjdk ;;
         esac
         echo -e "\n${CL_WYT}==========================================================${NONE}";
         if [[ $( java -version > $TMP && grep -c "java version \"1\.$1" $TMP ) == "1" ]]; then
@@ -910,11 +910,11 @@ function tools() # 5
     {
         if [[ ! $(which add-apt-repository) ]]; then
             echo -e "${EXE} add-apt-repository not present. Installing it...";
-            sudo apt-get install software-properties-common;
+            sudo -p $'\033[1;35m[#]\033[0m ' apt-get install software-properties-common;
         fi
-        sudo add-apt-repository ppa:openjdk-r/ppa -y;
-        sudo apt-get update -y;
-        sudo apt-get install openjdk-$1-jdk -y;
+        sudo -p $'\033[1;35m[#]\033[0m ' add-apt-repository ppa:openjdk-r/ppa -y;
+        sudo -p $'\033[1;35m[#]\033[0m ' apt-get update -y;
+        sudo -p $'\033[1;35m[#]\033[0m ' apt-get install openjdk-$1-jdk -y;
     } # java_ppa
 
     function java_menu()
@@ -960,9 +960,9 @@ function tools() # 5
     {
         echo -e "\n${CL_WYT}==========================================================${NONE}\n";
         echo -e "${EXE} Updating / Creating Android USB udev rules (51-android)\n";
-        sudo curl --create-dirs -L -o /etc/udev/rules.d/51-android.rules -O -L https://raw.githubusercontent.com/snowdream/51-android/master/51-android.rules;
-        sudo chmod a+r /etc/udev/rules.d/51-android.rules;
-        sudo service udev restart;
+        sudo -p $'\033[1;35m[#]\033[0m ' curl --create-dirs -L -o /etc/udev/rules.d/51-android.rules -O -L https://raw.githubusercontent.com/snowdream/51-android/master/51-android.rules;
+        sudo -p $'\033[1;35m[#]\033[0m ' chmod a+r /etc/udev/rules.d/51-android.rules;
+        sudo -p $'\033[1;35m[#]\033[0m ' service udev restart;
         echo -e "\n${SCS} Done";
         echo -e "\n${CL_WYT}==========================================================${NONE}\n";
     } # udev_rules
@@ -974,7 +974,7 @@ function tools() # 5
             "3.81") echo -e "\n${SCS} make 3.81 has already been installed" ;;
             *)
                 echo "\n${EXE} Installing make 3.81...";
-                sudo install utils/make /usr/bin/;
+                sudo -p $'\033[1;35m[#]\033[0m ' install utils/make /usr/bin/;
                 ;;
         esac
         [[ "$MKVR" == "3.81" ]] && echo -e "\n${SCS} make 3.81 present";
@@ -1094,9 +1094,9 @@ function the_start() # 0
     echo -e "\n${QN} Before Starting off, shall I remember the responses you'll enter from now \n${INF} So that it can be Automated next time\n";
     read -p $'\033[1;36m[>]\033[0m ' RQ_PGN;
     (set -o posix; set) > ${TV1};
-    echo -e "\n${EXE} Prompting for Root Access\n";
-    sudo echo -e "\n${SCS} Root access OK. You won't be asked again";
-    export CALL_ME_ROOT="$(pwd)";
+#   echo -e "\n${EXE} Prompting for Root Access\n";
+#   sudo -p $'\033[1;35m[#]\033[0m ' echo -e "\n${SCS} Root access OK. You won't be asked again";
+    [[ "$(pwd)" != "/" ]] && export CALL_ME_ROOT="$(pwd)" || export CALL_ME_ROOT="";
     echo -e "\n${EXE} ./action${CL_LRD}.SHOW_LOGO${NONE}";
     sleep 2;
     clear;
@@ -1110,6 +1110,7 @@ function the_start() # 0
     echo -e "      ${CL_LRD}███████${NONE}${CL_RED}║╚${NONE}${CL_LRD}██████${NONE}${CL_RED}╗${NONE}${CL_LRD}██${NONE}${CL_RED}║${NONE}  ${CL_LRD}██${NONE}${CL_RED}║${NONE}${CL_LRD}██${NONE}${CL_RED}║${NONE}${CL_LRD}██████${NONE}${CL_RED}╔╝${NONE}   ${CL_LRD}██${NONE}${CL_RED}║${NONE}";
     echo -e "      ${CL_RED}╚══════╝ ╚═════╝╚═╝  ╚═╝╚═╝╚═════╝    ╚═╝${NONE}\n";
     sleep 1.5;
+    echo -e "                     ${CL_WYT}Version 1.34${NONE}\n";
 } # the_start
 
 # VROOM!
@@ -1129,6 +1130,19 @@ SCS="${CL_LGN}[!]${NONE}";
 FLD="${CL_LRD}[!]${NONE}";
 EXE="${CL_YEL}[!]${NONE}";
 QN="${CL_LRD}[?]${NONE}";
+
+# Update the Updater!
+LUSB_VER=`grep 'USB_VER' upScriBt.sh | awk '{print $3}'`;
+curl -o up.sh https://raw.githubusercontent.com/a7r3/ScriBt/master/upScriBt.sh;
+RUSB_VER=`grep 'USB_VER' up.sh | awk '{print $3}'`;
+if [[ "$RUSB_VER" > "$LUSB_VER" ]]; then
+    mv -f up.sh upScriBt.sh;
+else
+    rm -rf up.sh;
+fi
+
+# Update us now
+source upScriBt.sh $@;
 
 # Where am I ?
 echo -e "\n${INF} ${CL_WYT}I'm in $(pwd)${NONE}\n";
