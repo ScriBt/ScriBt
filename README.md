@@ -226,9 +226,8 @@ So, the ways of Building Android are...
 * Arvindraj "a7r3" (Myself)
 * Adrian DC "AdrianDC"
 * Akhil Narang "akhilnarang"
-* CubeDev
+* Tom Radtke "CubeDev"
 * nosedive
-* Many more as this goes public
 
 #Supported ROMs
 

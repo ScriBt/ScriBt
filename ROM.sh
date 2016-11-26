@@ -20,10 +20,10 @@
 # a Pull Request, such Contributions are WELCOME                       #
 #                                                                      #
 # Contributors:                                                        #
-# Arvindraj (Myself)                                                   #
-# Adrian DC                                                            #
-# Akhil Narang                                                         #
-# CubeDev                                                              #
+# Arvindraj "a7r3" (Myself)                                            #
+# Adrian DC "AdrianDC"                                                 #
+# Akhil Narang "akhilnarang"                                           #
+# Tom Radtke "CubeDev"                                                 #
 # nosedive                                                             #
 #======================================================================#
 
@@ -77,16 +77,16 @@ function main_menu()
 
 function pkgmgr_check() # ID
 {
-    if [ -d "/etc/apt" ]; then
-        echo -e "\n${SCS} Alright, apt detected.\033[0m\n";
+    if which apt &> /dev/null; then
+        echo -e "\n${SCS} Package manager apt detected.\033[0m\n";
         PKGMGR="apt";
-    elif [ -d "/etc/pacman.d" ]; then
-        echo -e "\n${SCS} Alright, pacman detected.\033[0m\n";
+    elif which pacman &> /dev/null; then
+        echo -e "\n${SCS} Package manager pacman detected.\033[0m\n";
         PKGMGR="pacman";
     else
-        echo -e "\n${FLD} Neither apt nor pacman configuration has been found.";
-        echo -e "\n${INF} A Debian/Ubuntu based Distribution or Archlinux is required to run ScriBt.";
-        exitScriBt 1;
+        echo -e "\n${FLD} No supported package manager has been found.";
+        echo -e "\n${INF} Arch Linux or a Debian/Ubuntu based Distribution is required to run ScriBt.";
+    exitScriBt 1;
     fi
 } # pkgmgr_check
 
