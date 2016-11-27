@@ -17,7 +17,7 @@ ScriBt consists of five main Actions:
 
 a. **Choose** a ROM
 
-b. **Initialize** it's Repo
+b. **Initialize** its Repo
 
 c. **Add** a local_manifest for Device Specfic Additions / Changes
 
@@ -31,9 +31,9 @@ c. **Add** a local_manifest for Device Specfic Additions / Changes
 
 a. **Add Device** to ROM Vendor
 
-b. Make an **Interactive Makefile** under Device Tree (Identifiable by ROM's BuildSystem)
+b. Make an **Interactive Makefile** under the Device Tree (Identifiable by ROMs BuildSystem)
 
-  * This was created in order to prevent unnecessary Modifications to already present files in the Device Tree and messing it up eventually...
+  * This was created in order to prevent unnecessary modifications to already present files in the Device Tree and messing it up
 
   * Idea came into existence, When I saw most of the ROMs (... not having ```products``` folder in ROM vendor && excluding AOSP-CAF/AOSP-RRO) having these lines in one of the BuildSystem's files...
 
@@ -58,7 +58,7 @@ d. Give **comments** based on the Final Build Status
 
    * Build Success
 
-   * Arbitrary Error (Can't help because Entropy of Increase in Errors gets Incremented day by day :P)
+   * Arbitrary Error (Can't be helped due to entropy of increase in errors which increases day by day :P)
 
 #5. Tools
 
@@ -93,7 +93,7 @@ bash ROM.sh
 ```
 
 ##### Why not . /ROM.sh ?
-```exit``` command will close the terminal when script is called in that way, bash ROM.sh runs the script in a seperate bash shell, so if the exit command is used, it will terminate that shell and not the terminal in which it was executed.
+The script terminates with ```exit``` after its run. Unless you run the script under a new shell, it will close your existing shell.
 
 #What do the colors mean ?
 
@@ -172,18 +172,18 @@ ScriBt is updated on the basis of the Version Number mentioned in a file named V
 
 **Do not try to EDIT it**
 
-If the Version Number in GitHub is more than the Local Version number, then ScriBt would prompt the user to update.
-If there are modifications present in the old version, then ScriBt moves it to a folder named 'old'. You may see your old Scripts there.
+If the Version Number in GitHub is more than the Local Version number, then ScriBt will prompt the user to update.
+If there are modifications present in the old version, then ScriBt moves it to a folder named 'old'. You will find your old Scripts there.
 
 ```upScriBt``` does the Updating work.
 
-**ROM.sh** first checks for a newer version of upScriBt.sh and **downloads it** if present.
-**upScriBt.sh then **checks updates** for the other files on the basis of above Procedure
+**ROM.sh** first checks for a newer version of upScriBt.sh and **downloads it** if available.
+**upScriBt.sh then **checks updates** for the other files on the basis of the above Procedure
 
 #Device Types
 
 * ```full``` - This indicates that the Device has **Adequate Storage Space** for building Entire Android System for it
-* ```mini``` - This indicates that the Device has a **Low Storage Space**, so only Android Essentials are built ( Lesser Apps and Stuff )
+* ```mini``` - This indicates that the Device has **Low Storage Space**, so only Android Essentials are built ( Fewer Apps and Stuff )
 
 * **common_full_phone, common_mini_phone** - An Android SmartPhone
 * **common_full_tablet, common_mini_tablet, common_tablet** - An Android Tablet
@@ -198,21 +198,21 @@ If there are modifications present in the old version, then ScriBt moves it to a
 
 * **Jack** was introduced as a **Toolchain** from MarshMallow onwards for **Apps and Frameworks**.
     - Uses a Java VM for compilation of Java Source Code (.java) to '.dex' (**D**alvik **Ex**ecutable) files
-    - Recommended for Systems having >8GB RAM.
-    - Systems with 4GB RAM can use it too, but it may cause heavy lags on compilation, so using Swap memory is Recommended for such users.
+    - Recommended for Systems with >8GB RAM.
+    - Systems with 4GB RAM can use it too, but it may cause lag during compilation, so using Swap is recommended for such users.
 
-* **Ninja** was introduced from Android Nougat (7.x.x) as an Alternative **Build System**.
-    - No Compatibility Requirements.
-    - Some Features of it are Quicker Incremental Builds, and showing Progress of Build on compilation
+* **Ninja** was introduced from Android Nougat (7.x.x) as an alternative **Build System**.
+    - No compatibility requirements.
+    - Some features of it are quicker incremental builds, and showing progress of the build on compilation
 
 * Companions for Ninja (iirc), which were introduced in Nougat are...
     - **Kati** - https://android.googlesource.com/platform/build/kati/#kati
-    (AFAIK, It Generates a .ninja file, in BluePrint Language, which guides through the Build process...)
+    (AFAIK, It Generates a .ninja file, in BluePrint Language, which guides through the build process...)
     - **Soong** - https://android.googlesource.com/platform/build/soong#Soong
     - **BluePrint** - https://android.googlesource.com/platform/build/blueprint/#Blueprint-Build-System
     (A Language...)
 
-So, the ways of Building Android are...
+So, the ways of building Android are...
 
 * Using **Normal** Build System
     - **with** Jack Toolchain (MarshMallow onwards)
@@ -263,6 +263,6 @@ So, the ways of Building Android are...
 29. XOSP
 30. Zephyr-Os
 
-**More ROMs will be added, if missed 'em**
+**More ROMs will be added**
 
 #Happy ScriBting!
