@@ -233,12 +233,14 @@ function init() # 1
         curl https://storage.googleapis.com/git-repo-downloads/repo > ~/bin/repo;
         chmod a+x ~/bin/repo;
         echo -e "${SCS} Repo Binary Installed\n${EXE} Adding ~/bin to PATH\n";
-        echo -e "# set PATH so it includes user's private bin if it exists" >> ~/.profile;
-        echo -e "if [ -d \"\$HOME/bin\" ] ; then" >> ~/.profile;
-        echo -e "\tPATH=\"\$HOME/bin:\$PATH\" "; >> ~/.profile;
-        echo -e "fi"; >> ~/.profile;
-        . ~/.profile;
-        echo -e "${SCS} Done. Ready to Init Repo.\n";
+        if [[ $(grep 'PATH=*' ~/.profile | grep -c '$HOME/bin') != "0" ]]; then
+            echo -e "${SCS} ~/bin is in PATH";
+        else
+            echo -e "\n# set PATH so it includes user's private bin if it exists" >> ~/.profile;
+            echo -e "if [ -d \"\$HOME/bin\" ]; then\n\tPATH=\"\$HOME/bin:\$PATH\"\nfi" >> ~/.profile;
+            . ~/.profile;
+            echo -e "${SCS} Done. Ready to Init Repo.\n";
+        fi
     fi
     echo -e "${CL_WYT}=========================================================${NONE}\n";
     echo -e "${EXE} Initializing the ROM Repo\n";
@@ -303,6 +305,7 @@ function device_info() # D 3,4
     ST="Device's Vendor"; shut_my_mouth CM "$ST";
     echo -e "${QN} Build type \n${INF} [userdebug/user/eng]\n";
     ST="Build type"; shut_my_mouth BT "$ST";
+    if [ -z "$SBBT" ]; then SBBT="userdebug"; fi;
     echo -e "${QN} Choose your Device type among these. Explainations of each file given in README.md\n"; gimme_info "device-type";
     TYPES=( common_full_phone common_mini_phone common_full_hybrid_wifionly \
     common_full_tablet_lte common_full_tablet_wifionly common_mini_tablet_wifionly common_tablet \
@@ -347,7 +350,7 @@ function pre_build() # 3
             echo -e "${EXE} Adding Lunch Combo in Device Tree";
             [ ! -f vendorsetup.sh ] && touch vendorsetup.sh;
             if [[ $(grep -c "${ROMNIS}_${SBDEV}" ${DEVDIR}/vendorsetup.sh ) == "0" ]]; then
-                echo -e "add_lunch_combo ${ROMNIS}_${SBDEV}-${SBBT:-userdebug}" >> vendorsetup.sh;
+                echo -e "add_lunch_combo ${ROMNIS}_${SBDEV}-${SBBT}" >> vendorsetup.sh;
             else
                 echo -e "${SCS} Lunch combo already added to vendorsetup.sh\n";
             fi
@@ -363,9 +366,9 @@ function pre_build() # 3
                         ${ROMNIS}.devices)
                             echo -e "${SBDEV}" >> $STRT ;;
                         ${ROMNIS}-device-targets)
-                            echo -e "${ROMNIS}_${SBDEV}-${SBBT:-userdebug}" >> $STRT ;;
+                            echo -e "${ROMNIS}_${SBDEV}-${SBBT}" >> $STRT ;;
                         vendorsetup.sh)
-                            echo -e "add_lunch_combo ${ROMNIS}_${SBDEV}-${SBBT:-userdebug}" >> $STRT ;;
+                            echo -e "add_lunch_combo ${ROMNIS}_${SBDEV}-${SBBT}" >> $STRT ;;
                     esac
                 else
                     echo -e "${INF} Device already added to $STRT";
@@ -609,8 +612,8 @@ function build() # 4
         echo -e "${CL_WYT}===============================================================${NONE}\n";
         ST="Selected Option"; shut_my_mouth SLT "$ST";
         case "$SBSLT" in
-            "lunch") ${SBSLT} ${ROMNIS}_${SBDEV}-${SBBT:-userdebug} ;;
-            "breakfast") ${SBSLT} ${SBDEV} ${SBBT:-userdebug} ;;
+            "lunch") ${SBSLT} ${ROMNIS}_${SBDEV}-${SBBT} ;;
+            "breakfast") ${SBSLT} ${SBDEV} ${SBBT} ;;
             "brunch")
                 echo -e "\n${EXE} Starting Compilation - ${ROM_FN} for ${SBDEV}\n";
                 ${SBSLT} ${SBDEV};
@@ -646,10 +649,6 @@ function build() # 4
     {
         if [[ "$1" != "brunch" ]]; then
             START=$(date +"%s");
-            case "$SBMK" in
-                "make") BCORES=$(grep -c ^processor /proc/cpuinfo) ;;
-                *) BCORES="" ;;
-            esac
             if [ $(grep -q "^${ROMNIS}:" "${CALL_ME_ROOT}/build/core/Makefile") ]; then
                 $SBMK $ROMNIS $BCORES 2>&1 | tee $RMTMP;
             elif [ $(grep -q "^bacon:" "${CALL_ME_ROOT}/build/core/Makefile") ]; then
@@ -657,11 +656,10 @@ function build() # 4
             else
                 $SBMK otapackage $BCORES 2>&1 | tee $RMTMP;
             fi
-            echo;
-            post_build;
             END=$(date +"%s");
+            echo -e "\n${INF} Build took $(($SEC / 3600)) hour(s), $(($SEC / 60 % 60)) minute(s) and $(($SEC % 60)) second(s)." | tee -a rom_compile.txt;
+            post_build;
             SEC=$(($END - $START));
-            echo -e "${INF} Build took $(($SEC / 3600)) hour(s), $(($SEC / 60 % 60)) minute(s) and $(($SEC % 60)) second(s)." | tee -a rom_compile.txt;
         fi
     } # build_make
 
@@ -711,6 +709,21 @@ function build() # 4
         1)
             echo -e "\n${QN} Should i use 'make' or 'mka'\n";
             ST="Selected Method"; shut_my_mouth MK "$ST";
+            case "$SBMK" in
+                "make")
+                    echo -e "${QN} Number of Jobs / Threads";
+                    BCORES=$(grep -c ^processor /proc/cpuinfo);
+                    echo -e "${INF} Maximum No. of Jobs -> ${CL_WYT}${BCORES}${NONE}";
+                    ST="Number of Jobs"; shut_my_mouth NT "$ST";
+                    if [[ "$SBNT" > "$BCORES" ]]; then
+                        echo -e "${FLD} Invalid Response\n";
+                        echo -e "${INF} Restart ScriBt from here\n"
+                        exitScriBt 1;
+                    fi
+                    ;;
+                "mka") BCORES="" ;;
+                *) echo -e "${FLD} Invalid Response\n${INF} Restart ScriBt from here";
+            esac
             echo -e "${QN} Wanna Clean the /out before Building\n${INF} 1 - Remove Staging Dirs | 2 - Full Clean\n";
             ST="Option Selected"; shut_my_mouth CL "$ST";
             if [[ $(grep -c 'BUILD_ID=M\|BUILD_ID=N' ${CALL_ME_ROOT}/build/core/build_id.mk) == "1" ]]; then
@@ -738,8 +751,8 @@ function build() # 4
                 esac
             fi
             case "$SBCL" in
-                1) lunch ${ROMNIS}_${SBDEV}-${SBBT:-userdebug}; $SBMK installclean ;;
-                2) lunch ${ROMNIS}_${SBDEV}-${SBBT:-userdebug}; $SBMK clean ;;
+                1) lunch ${ROMNIS}_${SBDEV}-${SBBT}; $SBMK installclean ;;
+                2) lunch ${ROMNIS}_${SBDEV}-${SBBT}; $SBMK clean ;;
                 *) echo -e "${INF} No Clean Option Selected.\n" ;;
             esac
             hotel_menu;
@@ -762,42 +775,48 @@ function tools() # 5
     function installdeps()
     {
         echo -e "${EXE} Analyzing Distro";
-        PACK="/etc/apt/sources.list.d/official-package-repositories.list";
-        DISTROS=( precise quantal raring saucy trusty utopic vivid wily xenial );
-        for DIST in ${DISTROS[*]}; do
-            if [[ $(grep -c "${DIST}" "${PACK}") != "0" ]]; then
-                export DISTRO="${DIST}";
+        for REL in os-release lsb-release debian-release; do
+            if [ -f "/etc/${REL}" ]; then
+                source /etc/${REL};
+                case "$REL" in
+                    "lsb-release") DID="${DISTRIB_ID}"; VER="${DISTRIB_RELEASE}" ;;
+                    "os-release") DID="${ID}"; VER="${VERSION_ID}" ;; # Most of the Newer Distros
+                    "debian-release") DID="Debian" VER=`cat /etc/debian-release` ;;
+#                   "other-release") DID="Distro Name (Single Worded)"; VER="Version (Single numbered)" ;;
+                esac
             fi
         done
+        dist_db "$DID" "$VER"; # Determination of Distro by a Database
+
         echo -e "\n${EXE} Installing Build Dependencies\n";
         # Common Packages
         COMMON_PKGS=( git-core git gnupg flex bison gperf build-essential zip curl \
         ccache libxml2-utils xsltproc g++-multilib squashfs-tools zlib1g-dev \
-        pngcrush schedtool libwxgtk2.8-dev python lib32z1-dev lib32z-dev lib32z1 \
+        pngcrush schedtool python lib32z1-dev lib32z-dev lib32z1 \
         libxml2 optipng python-networkx python-markdown make unzip );
-        case "$DISTRO" in # Distro-Specific Pkgs
-            "precise"|"quantal")
+        case "$DYR" in
+            D12)
                 DISTRO_PKGS=( libc6-dev libncurses5-dev:i386 x11proto-core-dev \
                 libx11-dev:i386 libreadline6-dev:i386 libgl1-mesa-glx:i386 \
-                libgl1-mesa-dev mingw32 tofrodos zlib1g-dev:i386 ) ;;
-            "raring"|"saucy")
+                libgl1-mesa-dev libwxgtk2.8-dev mingw32 tofrodos zlib1g-dev:i386 ) ;;
+            D13)
                 DISTRO_PKGS=( zlib1g-dev:i386 libc6-dev lib32ncurses5 \
                 lib32bz2-1.0 lib32ncurses5-dev x11proto-core-dev \
                 libx11-dev:i386 libreadline6-dev:i386 \
-                libgl1-mesa-glx:i386 libgl1-mesa-dev \
+                libgl1-mesa-glx:i386 libgl1-mesa-dev libwxgtk2.8-dev \
                 mingw32 tofrodos readline-common libreadline6-dev libreadline6 \
                 lib32readline-gplv2-dev libncurses5-dev lib32readline5 \
                 lib32readline6 libreadline-dev libreadline6-dev:i386 \
                 libreadline6:i386 bzip2 libbz2-dev libbz2-1.0 libghc-bzlib-dev \
                 lib32bz2-dev libsdl1.2-dev libesd0-dev ) ;;
-            "trusty"|"utopic")
+            D14)
                 DISTRO_PKGS=( libc6-dev-i386 lib32ncurses5-dev liblz4-tool \
-                x11proto-core-dev libx11-dev libgl1-mesa-dev maven maven2 ) ;;
-            "vivid"|"wily")
+                x11proto-core-dev libx11-dev libgl1-mesa-dev maven maven2 libwxgtk2.8-dev) ;;
+            D15)
                 DISTRO_PKGS=( libesd0-dev liblz4-tool libncurses5-dev \
                 libsdl1.2-dev libwxgtk2.8-dev lzop maven maven2 \
                 lib32ncurses5-dev lib32readline6-dev liblz4-tool ) ;;
-            "xenial")
+            D16)
                 DISTRO_PKGS=( automake lzop libesd0-dev maven \
                 liblz4-tool libncurses5-dev libsdl1.2-dev libwxgtk3.0-dev \
                 lzop lib32ncurses5-dev lib32readline6-dev lib32z1-dev \
@@ -1110,7 +1129,7 @@ function the_start() # 0
     echo -e "      ${CL_LRD}███████${NONE}${CL_RED}║╚${NONE}${CL_LRD}██████${NONE}${CL_RED}╗${NONE}${CL_LRD}██${NONE}${CL_RED}║${NONE}  ${CL_LRD}██${NONE}${CL_RED}║${NONE}${CL_LRD}██${NONE}${CL_RED}║${NONE}${CL_LRD}██████${NONE}${CL_RED}╔╝${NONE}   ${CL_LRD}██${NONE}${CL_RED}║${NONE}";
     echo -e "      ${CL_RED}╚══════╝ ╚═════╝╚═╝  ╚═╝╚═╝╚═════╝    ╚═╝${NONE}\n";
     sleep 1.5;
-    echo -e "                     ${CL_WYT}Version 1.34${NONE}\n";
+    echo -e "                     ${CL_WYT}Version `cat VERSION`${NONE}\n";
 } # the_start
 
 # VROOM!
@@ -1133,7 +1152,7 @@ QN="${CL_LRD}[?]${NONE}";
 
 # Update the Updater!
 LUSB_VER=`grep 'USB_VER' upScriBt.sh | awk '{print $3}'`;
-curl -o up.sh https://raw.githubusercontent.com/a7r3/ScriBt/master/upScriBt.sh;
+curl -s -o up.sh https://raw.githubusercontent.com/a7r3/ScriBt/master/upScriBt.sh;
 RUSB_VER=`grep 'USB_VER' up.sh | awk '{print $3}'`;
 if [[ "$RUSB_VER" > "$LUSB_VER" ]]; then
     mv -f up.sh upScriBt.sh;
