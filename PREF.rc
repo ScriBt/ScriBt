@@ -40,4 +40,8 @@ function automate()
     build;
     exitScriBt;
 } # automate
-#
+
+function configs () # Unless it is automated, this is a placeholder
+{
+
+} # configs

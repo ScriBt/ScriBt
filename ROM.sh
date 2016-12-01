@@ -43,7 +43,7 @@ function exitScriBt() # ID
     function prefGen()
     {
         echo -e "\n\n${EXE} Deleting old Configs...";
-        sed -e '/SB.*/d' -e '/function configs()/d' -e '/{ # as on.*/d' -e '/} # configs/d' -i PREF.rc;
+        sed -e '/SB.*/d' -e '/function configs().*/d' -e '/{ # as on.*/d' -e '/} # configs/d' -i PREF.rc;
         echo -e "\n${EXE} Saving Current Configuration to PREF.rc...";
         (set -o posix; set) > ${TV2};
         echo -e "function configs()\n{ # as on $DNT" >> PREF.rc
@@ -78,15 +78,15 @@ function main_menu()
 function pkgmgr_check() # ID
 {
     if which apt &> /dev/null; then
-        echo -e "\n${SCS} Package manager apt detected.\033[0m\n";
+        echo -e "${SCS} Package manager ${CL_WYT}apt${NONE} detected.\033[0m";
         PKGMGR="apt";
     elif which pacman &> /dev/null; then
-        echo -e "\n${SCS} Package manager pacman detected.\033[0m\n";
+        echo -e "${SCS} Package manager ${CL_WYT}pacman${NONE} detected.\033[0m";
         PKGMGR="pacman";
     else
-        echo -e "\n${FLD} No supported package manager has been found.";
+        echo -e "${FLD} No supported package manager has been found.";
         echo -e "\n${INF} Arch Linux or a Debian/Ubuntu based Distribution is required to run ScriBt.";
-    exitScriBt 1;
+        exitScriBt 1;
     fi
 } # pkgmgr_check
 
@@ -119,7 +119,7 @@ function shut_my_mouth() # ID
 {
     if [ ! -z "$automate" ]; then
         RST="SB$1";
-        echo -e "${CL_PRP}[!]${NONE} ${ATBT} $2 : ${!RST}";
+        echo -e "${CL_PNK}[!]${NONE} ${ATBT} $2 : ${!RST}";
     else
         read -p $'\033[1;36m[>]\033[0m ' SB2;
         [ -z "$3" ] && export SB$1="${SB2}" || eval SB$1=${SB2};
@@ -234,20 +234,21 @@ function init() # 1
         chmod a+x ~/bin/repo;
         echo -e "${SCS} Repo Binary Installed\n${EXE} Adding ~/bin to PATH\n";
         if [[ $(grep 'PATH=*' ~/.profile | grep -c '$HOME/bin') != "0" ]]; then
-            echo -e "${SCS} ~/bin is in PATH";
+            echo -e "${SCS} $HOME/bin is in PATH";
         else
             echo -e "\n# set PATH so it includes user's private bin if it exists" >> ~/.profile;
             echo -e "if [ -d \"\$HOME/bin\" ]; then\n\tPATH=\"\$HOME/bin:\$PATH\"\nfi" >> ~/.profile;
             . ~/.profile;
-            echo -e "${SCS} Done. Ready to Init Repo.\n";
+            echo -e "${SCS} $HOME/bin added to PATH"
         fi
+        echo -e "${SCS} Done. Ready to Init Repo.\n";
     fi
     echo -e "${CL_WYT}=========================================================${NONE}\n";
     echo -e "${EXE} Initializing the ROM Repo\n";
     repo init ${REF} ${CDP} -u https://github.com/${RNM}/${MNF} -b ${SBBR};
     echo -e "\n${SCS} ${ROM_NAME[$RC]} Repo Initialized\n";
     echo -e "${CL_WYT}=========================================================${NONE}\n";
-    mkdir .repo/local_manifests;
+    [ ! -f .repo/local_manifests ] && mkdir .repo/local_manifests;
     if [ -z "$automate" ]; then
         echo -e "${INF} A folder \"local_manifests\" has been created for you.";
         echo -e "${INF} Create a Device Specific manifest and Press ENTER to start sync\n";
@@ -280,8 +281,8 @@ function sync() # 2
     [[ "$SBC" == "y" ]] && SYNC_CRNT=-c || SYNC_CRNT=" ";
     [[ "$SBB" == "y" ]] && CLN_BUN=" " || CLN_BUN=--no-clone-bundle;
     echo -e "${EXE} Let's Sync!\n";
-    repo sync -j${SBJOBS:-1} ${SILENT:--q} ${FORCE} ${SYNC_CRNT:--c} ${CLN_BUN};  #2>&1 | tee $STMP;
-    [[ $(echo "$?") == "0" ]] && the_response COOL Sync || the_response FAIL Sync;
+    repo sync -j${SBJOBS:-1} ${SILENT:--q} ${FORCE} ${SYNC_CRNT:--c} ${CLN_BUN} \
+    && the_response COOL Sync || the_response FAIL Sync;
     echo -e "\n${SCS} Done.\n";
     echo -e "${CL_WYT}=====================================================================${NONE}\n";
     [ -z "$automate" ] && quick_menu;
@@ -887,7 +888,7 @@ function tools() # 5
         echo -e "\n${CL_WYT}================================================================${NONE}";
     } # java_select
 
-    function java()
+    function java_install()
     {
         echo -ne "\033]0;ScriBt : Java $1\007";
         echo -e "\n${EXE} Installing OpenJDK-$1 (Java 1.$1.0)";
@@ -918,12 +919,12 @@ function tools() # 5
             "apt") sudo -p $'\033[1;35m[#]\033[0m ' apt-get install openjdk-$1-jdk -y ;;
             "pacman") sudo -p $'\033[1;35m[#]\033[0m ' pacman -S jdk$1-openjdk ;;
         esac
-        echo -e "\n${CL_WYT}==========================================================${NONE}";
-        if [[ $( java -version > $TMP && grep -c "java version \"1\.$1" $TMP ) == "1" ]]; then
+        if [[ $( java -version &> $TMP; grep -c "java version \"1.$1" $TMP ) == "1" ]]; then
+            echo -e "\n${CL_WYT}===========================================================${NONE}";
             echo -e "${SCS} OpenJDK-$1 or Java 1.$1.0 has been successfully installed";
-            echo -e "${CL_WYT}==========================================================${NONE}";
+            echo -e "${CL_WYT}===========================================================${NONE}";
         fi
-    } # java
+    } # java_install
 
     function java_ppa()
     {
@@ -956,9 +957,9 @@ function tools() # 5
                 [[ "${PKGMGR}" == "apt" ]] && echo -e "4. Ubuntu 16.04 & Want to install Java 7\n5. Ubuntu 14.04 & Want to install Java 8";
                 read -p $'\033[1;36m[>]\033[0m ' JAVER;
                 case "$JAVER" in
-                    1) java 6 ;;
-                    2) java 7 ;;
-                    3) java 8 ;;
+                    1) java_install 6 ;;
+                    2) java_install 7 ;;
+                    3) java_install 8 ;;
                     4) java_ppa 7 ;;
                     5) java_ppa 8 ;;
                     *)

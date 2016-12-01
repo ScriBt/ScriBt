@@ -97,6 +97,8 @@ The script terminates with ```exit``` after its run. Unless you run the script u
 
 #What do the colors mean ?
 
+![Colors](https://cloud.githubusercontent.com/assets/14874906/20798870/6f6693e0-b806-11e6-81cc-9bde431a4e5a.png)
+
 [!] in..
 
     RED - The Particular Task has Failed / User has Entered an Incorrect Value
@@ -107,7 +109,7 @@ The script terminates with ```exit``` after its run. Unless you run the script u
 
     YELLOW - Task to be under Execution
 
-    PURPLE - AutoBot speaks
+    PINK - AutoBot speaks
 
 [?] in..
 
