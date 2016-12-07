@@ -264,6 +264,12 @@ So, the ways of building Android are...
 29. XOSP
 30. Zephyr-Os
 
+**Nexus Only ROMs**
+
+31. Krexus
+32. Nitrogen OS
+33. PureNexus
+
 **More ROMs will be added**
 
 #Happy ScriBting!

@@ -17,7 +17,7 @@
 # https://github.com/a7r3/ScriBt - I live here                         #
 #                                                                      #
 # Feel free to enter your modifications and submit it to me with       #
-# a Pull Request, such Contributions are WELCOME                       #
+# a Pull Request, Contributions are WELCOME                            #
 #                                                                      #
 # Contributors:                                                        #
 # Arvindraj "a7r3" (Myself)                                            #
@@ -42,14 +42,14 @@ function exitScriBt() # ID
 {
     function prefGen()
     {
-        echo -e "\n\n${EXE} Deleting old Configs...";
+        echo -e "\n\n${EXE} Deleting old Configs";
         sed -e '/SB.*/d' -e '/function configs().*/d' -e '/{ # as on.*/d' -e '/} # configs/d' -i PREF.rc;
-        echo -e "\n${EXE} Saving Current Configuration to PREF.rc...";
+        echo -e "\n${EXE} Saving Current Configuration to PREF.rc";
         (set -o posix; set) > ${TV2};
         echo -e "function configs()\n{ # as on $DNT" >> PREF.rc
         diff ${TV1} ${TV2} | grep SB | sed -e 's/[<>] /    /g' | awk '{print $0";"}' >> PREF.rc;
         echo -e "} # configs" >> PREF.rc;
-        echo -e "\n${SCS} PREF.rc for the current Configuration created successfully\nYou may automate ScriBt next time...";
+        echo -e "\n${SCS} PREF.rc for the current Configuration created successfully\nYou may automate ScriBt next time";
     } # prefGen
 
     [[ "$RQ_PGN" == [Yy] ]] && prefGen;
@@ -109,6 +109,13 @@ function rom_select() # D 1,2
         rom_names $RNO;
         echo -e "$RNO. $ROM_FN";
     done
+    echo -e "\n${INF} ${CL_WYT}Non-CAF / Nexus-Family ROMs${NONE}";
+    echo -e "${INF} ${CL_WYT}Choose among these ONLY if you're building for a Nexus Device\n"
+    for RNO in {31..33}; do
+        rom_names $RNO;
+        echo -e "$RNO. $ROM_FN";
+    done
+    unset ROMV; # Unset it
     echo -e "\n=======================================================${NONE}\n";
     [ -z "$automate" ] && read -p $'\033[1;36m[>]\033[0m ' SBRN;
     rom_names "$SBRN";
@@ -167,7 +174,7 @@ function tranScriBt() # ID
     } # transIt
 
     echo -e "${EXE} Checking Directory Existence\n";
-    if [ ! -f $1 ]; then
+    if [ ! -d $1 ]; then
         echo -e "${FLD} Directory does not exist\n";
         echo -e "${EXE} Trying to create directory\n";
         TDIR=`mkdir $1 | echo "$?"`;
@@ -197,10 +204,10 @@ function init() # 1
     [ ! -z "$automate" ] && teh_action 1;
     rom_select;
     sleep 1;
-    echo -e "${EXE} Detecting Available Branches in ${ROM_FN} Repository...";
+    echo -e "${EXE} Detecting Available Branches in ${ROM_FN} Repository";
     RCT=$[ ${#ROM_NAME[*]} - 1 ];
     for RC in `eval echo "{0..$RCT}"`; do
-        echo -e "\nOn ${ROM_NAME[$RC]} (ID->$RC)...\n";
+        echo -e "\nOn ${ROM_NAME[$RC]} (ID->$RC)\n";
         git ls-remote -h https://github.com/${ROM_NAME[$RC]}/${MAN[$RC]} |\
             awk '{print $2}' | awk -F "/" '{if (length($4) != 0) {print $3"/"$4} else {print $3}}';
     done
@@ -245,12 +252,12 @@ function init() # 1
     fi
     echo -e "${CL_WYT}=========================================================${NONE}\n";
     echo -e "${EXE} Initializing the ROM Repo\n";
-    repo init ${REF} ${CDP} -u https://github.com/${RNM}/${MNF} -b ${SBBR};
-    echo -e "\n${SCS} ${ROM_NAME[$RC]} Repo Initialized\n";
+    repo init ${REF} ${CDP} -u https://github.com/${RNM}/${MNF} -b ${SBBR} && \
+    echo -e "\n${SCS} ${ROM_NAME[$RC]} Repo Initialized\n" || \
+    echo -e "\n${FLD} Failed to Initialize Repo";
     echo -e "${CL_WYT}=========================================================${NONE}\n";
     [ ! -f .repo/local_manifests ] && mkdir .repo/local_manifests;
     if [ -z "$automate" ]; then
-        echo -e "${INF} A folder \"local_manifests\" has been created for you.";
         echo -e "${INF} Create a Device Specific manifest and Press ENTER to start sync\n";
         read ENTER;
         echo;
@@ -290,7 +297,7 @@ function sync() # 2
 
 function device_info() # D 3,4
 {
-    [[ "${SBRN}" =~ 13|30 ]] && export ROMNIS="${ROMV}"; # Change ROMNIS if Zephyr or Flayr
+    [[ ! -z ${ROMV} ]] && export ROMNIS="${ROMV}"; # Change ROMNIS if Zephyr or Flayr
     if [ -d ${CALL_ME_ROOT}/vendor/${ROMNIS}/config ]; then
         CNF="vendor/${ROMNIS}/config";
     elif [ -d ${CALL_ME_ROOT}/vendor/${ROMNIS}/configs ]; then
@@ -357,7 +364,7 @@ function pre_build() # 3
             fi
         } # dtree_add
 
-        echo -e "${EXE} Adding Device to ROM Vendor...";
+        echo -e "${EXE} Adding Device to ROM Vendor";
         STRTS=( "${ROMNIS}.devices" "${ROMNIS}-device-targets" vendorsetup.sh );
         for STRT in ${STRTS[*]}; do
             #    Found file   &&  Strat Not Performed
@@ -383,11 +390,11 @@ function pre_build() # 3
         echo -e "${CL_WYT}=========================================================${NONE}";
     } # vendor_strat
 
-    function vendor_strat_kpa() # AOKP-4.4|AICP|PAC-5.1|Krexus-CAF|AOSPA
+    function vendor_strat_kpa() # AOKP-4.4|AICP|PAC-5.1|Krexus-CAF|AOSPA|Non-CAFs
     {
         croot;
         cd vendor/${ROMNIS}/products;
-        echo -e "${INF} About Device's Resolution...\n";
+        echo -e "${INF} About Device's Resolution\n";
         if [ ! -z "$automate" ]; then
             gimme_info "bootres";
             echo -e "${QN} Enter the Desired Highlighted Number\n";
@@ -407,7 +414,7 @@ function pre_build() # 3
                 VENF="${SBDEV}.mk";
                 echo -e "\t\$(LOCAL_DIR)/${VENF}" >> AndroidProducts.mk;
                 echo -e "\$(call inherit-product, vendor/${ROMNIS}/configs/common.mk)" >> $VENF;
-                echo -e "\nPRODUCT_COPY_FILES += \ " >> $VENF;
+                echo -e "\nPRODUCT_COPY_FILES += \\ " >> $VENF;
                 echo -e "\tvendor/${ROMNIS}/prebuilt/bootanimation/bootanimation_${SBBTR}.zip:system/media/bootanimation.zip" >> $VENF;
                 ;;
             "krexus")
@@ -421,19 +428,23 @@ function pre_build() # 3
                 echo -e "\nifeq (${ROMNIS}_${SBDEV},\$(TARGET_PRODUCT))" >> AndroidProducts.mk;
                 echo -e "\tPRODUCT_MAKEFILES += \$(LOCAL_DIR)/${VENF}\nendif" >> AndroidProducts.mk;
                 echo -e "\ninclude vendor/${ROMNIS}/main.mk" >> $VENF;
-                mv ${CALL_ME_ROOT}/${DEVDIR}/*.dependencies ${SBDEV}/pa.dependencies;
+                mv -f ${CALL_ME_ROOT}/${DEVDIR}/*.dependencies ${SBDEV}/pa.dependencies;
                 ;;
             "pac")
                 VENF="${ROMNIS}_${SBDEV}.mk";
                 echo -e "\$( call inherit-product, vendor/${ROMNIS}/products/pac_common.mk)" >> $VENF;
                 echo -e "\nPAC_BOOTANIMATION_NAME := ${SBBTR};" >> $VENF;
                 ;;
+            "pure")
+                VENF="${SBDEV}.mk";
+                echo -e "# Include pure configuration\ninclude vendor/pure/configs/pure_phone.mk" >> $VENF;
+                ;;
         esac
         find_ddc "pb";
         echo -e "\n# Inherit from ${DDC}" >> $VENF;
         echo -e "\$(call inherit-product, ${DEVDIR}/${DDC})" >> $VENF;
         # PRODUCT_NAME is the only ROM-specific Identifier, setting it here is better.
-        echo -e "\n#ROM Specific Identifier\nPRODUCT_NAME := ${ROMNIS}_${SBDEV}" >> $VENF;
+        echo -e "\n# ROM Specific Identifier\nPRODUCT_NAME := ${ROMNIS}_${SBDEV}" >> $VENF;
     } # vendor_strat_kpa
 
     function find_ddc() # For Finding Default Device Configuration file
@@ -469,7 +480,7 @@ function pre_build() # 3
     function interactive_mk()
     {
         init_bld;
-        echo -e "\n${EXE} Creating Interactive Makefile for getting Identified by the ROM's BuildSystem...\n";
+        echo -e "\n${EXE} Creating Interactive Makefile for getting Identified by the ROM's BuildSystem\n";
         sleep 2;
 
         function create_imk()
@@ -506,16 +517,16 @@ function pre_build() # 3
                 echo -e "\n${QN} Enter Makefile location from Root of BuildSystem";
                 ST="Makefile"; shut_my_mouth LOC[$CNT] "$ST" array;
                 if [ -f ${CALL_ME_ROOT}/${SBLOC[$CNT]} ]; then
-                    echo -e "\n${EXE} Adding Makefile `$[ $CNT + 1 ]` ...";
+                    echo -e "\n${EXE} Adding Makefile `$[ $CNT + 1 ]` ";
                     echo -e "\n\$(call inherit-product, ${SBLOC[$CNT]})" >> ${INTM};
                 else
-                    echo -e "${FLD} Makefile ${SBLOC[$CNT]} not Found. Aborting...";
+                    echo -e "${FLD} Makefile ${SBLOC[$CNT]} not Found. Aborting";
                 fi
             done
             echo -e "\n# ROM Specific Identifier\nPRODUCT_NAME := ${ROMNIS}_${SBDEV}" >> ${INTM};
             # Make it Identifiable
             mv ${INTM} ${INTF};
-            echo -e "${EXE} Renaming .dependencies file...\n";
+            echo -e "${EXE} Renaming .dependencies file\n";
             [ ! -f ${ROMNIS}.dependencies ] && mv -f *.dependencies ${ROMNIS}.dependencies;
             echo -e "${SCS} Done.";
             croot;
@@ -534,8 +545,8 @@ function pre_build() # 3
         fi
     } # need_for_int
 
-    echo -e "\n${EXE} ${ROMNIS}-fying Device Tree...\n";
-    NOINT=$(echo -e "${SCS} Interactive Makefile Unneeded, continuing...");
+    echo -e "\n${EXE} ${ROMNIS}-fying Device Tree\n";
+    NOINT=$(echo -e "${SCS} Interactive Makefile Unneeded, continuing");
 
     case "$SBRN" in
         4|5|13|16|30) # AOSP-CAF/RRO | Flayr | OmniROM | Zephyr
@@ -563,7 +574,7 @@ function pre_build() # 3
                 echo "$NOINT";
             fi
             ;;
-        1|14|20) # AICP | Krexus-CAF | AOSPA
+        1|14|20|3[123]) # AICP | Krexus-CAF | AOSPA | Non-CAFs
             echo "$NOINT";
             ;;
         *) # Rest of the ROMs
@@ -613,7 +624,9 @@ function build() # 4
         echo -e "${CL_WYT}===============================================================${NONE}\n";
         ST="Selected Option"; shut_my_mouth SLT "$ST";
         case "$SBSLT" in
-            "lunch") ${SBSLT} ${ROMNIS}_${SBDEV}-${SBBT} ;;
+            "lunch") [[ "$ROMNIS" != "pure" ]] \
+                        && ${SBSLT} ${ROMNIS}_${SBDEV}-${SBBT} \
+                        || ${SBSLT} ${SBDEV}-${SBBT} ;; # PureNexus doesn't have ROMNIS
             "breakfast") ${SBSLT} ${SBDEV} ${SBBT} ;;
             "brunch")
                 echo -e "\n${EXE} Starting Compilation - ${ROM_FN} for ${SBDEV}\n";
@@ -640,9 +653,12 @@ function build() # 4
 #               NRT_1=(`echo "$NRT_0" | awk -F "No rule to make target" '{print $2}' | awk -F "'" '{print $2" "$4}'`);
 #           fi
             if [ ! -z "$automate" ]; then
-                teh_action 6 FAIL;
                 the_response FAIL Build;
+                teh_action 6 FAIL;
             fi
+        else
+            the_response FAIL Build;
+            teh_action 6 FAIL;
         fi
     } # post_build
 
@@ -658,9 +674,9 @@ function build() # 4
                 $SBMK otapackage $BCORES 2>&1 | tee $RMTMP;
             fi
             END=$(date +"%s");
+            SEC=$(($END - $START));
             echo -e "\n${INF} Build took $(($SEC / 3600)) hour(s), $(($SEC / 60 % 60)) minute(s) and $(($SEC % 60)) second(s)." | tee -a rom_compile.txt;
             post_build;
-            SEC=$(($END - $START));
         fi
     } # build_make
 
@@ -929,7 +945,7 @@ function tools() # 5
     function java_ppa()
     {
         if [[ ! $(which add-apt-repository) ]]; then
-            echo -e "${EXE} add-apt-repository not present. Installing it...";
+            echo -e "${EXE} add-apt-repository not present. Installing it";
             sudo -p $'\033[1;35m[#]\033[0m ' apt-get install software-properties-common;
         fi
         sudo -p $'\033[1;35m[#]\033[0m ' add-apt-repository ppa:openjdk-r/ppa -y;
@@ -993,7 +1009,7 @@ function tools() # 5
         case "${MKVR}" in
             "3.81") echo -e "\n${SCS} make 3.81 has already been installed" ;;
             *)
-                echo "\n${EXE} Installing make 3.81...";
+                echo "\n${EXE} Installing make 3.81";
                 sudo -p $'\033[1;35m[#]\033[0m ' install utils/make /usr/bin/;
                 ;;
         esac
@@ -1075,10 +1091,9 @@ function teh_action() # Takes ya Everywhere within ScriBt
         ;;
     6)
         case "$2" in
-            "COOL") echo -ne "\033]0;${ROMNIS}_${SBDEV} : Success\007" ;;
-            "FAIL") echo -ne "\033]0;${ROMNIS}_${SBDEV} : Fail\007" ;;
+            "COOL") echo -ne "\033]0;${ROMNIS}_${SBDEV} : Success\007"; [ -z "$automate" ] && exitScriBt 0 ;;
+            "FAIL") echo -ne "\033]0;${ROMNIS}_${SBDEV} : Fail\007"; [ -z "$automate" ] && exitScriBt 1 ;;
         esac
-        [ -z "$automate" ] && exitScriBt 0;
         ;;
     *)
         echo -e "\n${FLD} Invalid Selection.\n";
@@ -1152,13 +1167,13 @@ EXE="${CL_YEL}[!]${NONE}";
 QN="${CL_LRD}[?]${NONE}";
 
 # Update the Updater!
-LUSB_VER=`grep 'USB_VER' upScriBt.sh | awk '{print $3}'`;
-curl -s -o up.sh https://raw.githubusercontent.com/a7r3/ScriBt/master/upScriBt.sh;
-RUSB_VER=`grep 'USB_VER' up.sh | awk '{print $3}'`;
+LUSB_VER=`grep 'USB_VER' upScriBt.sh | awk '{print $3}'`; # Local Version of Updater
+curl -s -o up.sh https://raw.githubusercontent.com/a7r3/ScriBt/master/upScriBt.sh; # Download the Remote Version of Updater
+RUSB_VER=`grep 'USB_VER' up.sh | awk '{print $3}'`; # Remote Version of Updater
 if [[ "$RUSB_VER" > "$LUSB_VER" ]]; then
-    mv -f up.sh upScriBt.sh;
+    mv -f up.sh upScriBt.sh; # Update eet!
 else
-    rm -rf up.sh;
+    rm -rf up.sh; # Good to go!
 fi
 
 # Update us now

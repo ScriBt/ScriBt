@@ -85,7 +85,7 @@ function rom_names()
             ROMV="flayr";
             ;;
         14)
-            ROM_NAME=( Krexus-CAF );
+            ROM_NAME=( krexus-caf );
             MAN=( manifest.git );
             ROM_FN="Krexus CAF";
             ROMNIS="krexus";
@@ -186,6 +186,25 @@ function rom_names()
             ROM_FN="Zephyr-OS";
             ROMNIS="aosp";
             ROMV="zos";
+            ;;
+        # Nexus Only ROMs
+        31)
+            ROM_NAME=( krexus );
+            MAN=( manifest.git );
+            ROM_FN="Krexus";
+            ROMNIS="krexus";
+            ;;
+        32)
+            ROM_NAME=( nitrogen-project );
+            MAN=( android_manifest.git );
+            ROM_FN="Nitrogen OS";
+            ROMNIS="nitrogen";
+            ;;
+        33)
+            ROM_NAME=( PureNexusProject );
+            MAN=( manifest.git );
+            ROM_FN="PureNexus";
+            ROMNIS="pure";
             ;;
         *)
             if [ -z "$automate" ]; then
