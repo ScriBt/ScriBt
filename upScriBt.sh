@@ -2,7 +2,6 @@
 #===========================< upScriBt >===============================#
 #===========< Copyright 2016, Arvindraj Thangaraj - "a7r3" >===========#
 #====================< Part of Projekt ScriBt >========================#
-# USB_VER 1
 
 RVER=`curl https://raw.githubusercontent.com/a7r3/ScriBt/master/VERSION -s`;
 LVER="cat VERSION";

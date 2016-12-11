@@ -143,14 +143,20 @@ function set_ccache() # D set_ccvars
 
 function set_ccvars() # D 4,5
 {
-    echo -e "${INF} \nCCACHE Size must be >50 GB.\n Specify the Size (Number) for Reservation of CCACHE (in GB) : \n";
+    echo -e "\n${INF} Specify the Size (Number) for Reservation of CCACHE (in GB)\n${INF} CCACHE Size must be >15-20 GB for ONE ROM\n";
     read -p $'\033[1;36m[>]\033[0m ' CCSIZE;
-    echo -e "${INF} Create a New Folder for CCACHE and Specify it's location from / : \n";
+    echo -e "\n${INF} Create a New Folder for CCACHE and Specify it's location from /\n";
     read -p $'\033[1;36m[>]\033[0m ' CCDIR;
-    for RC in .bashrc .profile; do
-        if [ -f ${HOME}/${RC} ] && [[ $(grep -c 'USE_CCACHE\|CCACHE_DIR') != "1" ]]; then
-            echo -e "export USE_CCACHE=1\nexport CCACHE_DIR=${CCDIR}" >> ${HOME}/${RC};
-            . ${HOME}/${RC};
+    for RC in .profile .bashrc; do
+        if [ -f ${HOME}/${RC} ]; then
+            if [[ $(grep -c 'USE_CCACHE\|CCACHE_DIR' ${HOME}/${RC}) == 0 ]]; then
+                echo -e "export USE_CCACHE=1\nexport CCACHE_DIR=${CCDIR}" >> ${HOME}/${RC};
+                . ${HOME}/${RC} &> /dev/null;
+                echo -e "\n${SCS} CCACHE Specific exports added in ${CL_WYT}${RC}${NONE}";
+            else
+                echo -e "\n${SCS} CCACHE Specific exports already enabled in ${CL_WYT}${RC}${NONE}";
+            fi
+            break; # One file, and its done
         fi
     done
     set_ccache;
@@ -297,6 +303,7 @@ function sync() # 2
 
 function device_info() # D 3,4
 {
+    echo -ne "\033]0;ScriBt : Device Info\007";
     [[ ! -z ${ROMV} ]] && export ROMNIS="${ROMV}"; # Change ROMNIS if Zephyr or Flayr
     if [ -d ${CALL_ME_ROOT}/vendor/${ROMNIS}/config ]; then
         CNF="vendor/${ROMNIS}/config";
@@ -339,10 +346,10 @@ function init_bld() # D 3,4
 
 function pre_build() # 3
 {
-    [ ! -z "$automate" ] && teh_action 3;
     [ -z "$action_1" ] && rom_select;
     init_bld;
     device_info;
+    [ ! -z "$automate" ] && teh_action 3;
     DEVDIR="device/${SBCM}/${SBDEV}";
 
     function vendor_strat_all()
@@ -604,9 +611,9 @@ function pre_build() # 3
 function build() # 4
 {
     if [ -d .repo ]; then
-        [ ! -z "$automate" ] && teh_action 4;
         [ -z "$action_1" ] && rom_select;
         [ -z "$action_2" ] && device_info;
+        [ ! -z "$automate" ] && teh_action 4;
     else
         echo -e "${FLD} ROM Source Not Found (Synced)\n${FLD} Please perform an init and sync before doing this";
         exitScriBt 1;
@@ -728,20 +735,44 @@ function build() # 4
             ST="Selected Method"; shut_my_mouth MK "$ST";
             case "$SBMK" in
                 "make")
-                    echo -e "${QN} Number of Jobs / Threads";
+                    echo -e "\n${QN} Number of Jobs / Threads";
                     BCORES=$(grep -c ^processor /proc/cpuinfo);
                     echo -e "${INF} Maximum No. of Jobs -> ${CL_WYT}${BCORES}${NONE}";
                     ST="Number of Jobs"; shut_my_mouth NT "$ST";
                     if [[ "$SBNT" > "$BCORES" ]]; then
-                        echo -e "${FLD} Invalid Response\n";
+                        echo -e "\n${FLD} Invalid Response\n";
                         echo -e "${INF} Restart ScriBt from here\n"
                         exitScriBt 1;
                     fi
                     ;;
                 "mka") BCORES="" ;;
-                *) echo -e "${FLD} Invalid Response\n${INF} Restart ScriBt from here";
+                *)
+                    echo -e "\n${FLD} No response received\n";
+                    echo -e "${EXE} Using ${CL_WYT}mka${NONE}";
+                    SBMT="mka"; BCORES="";
+                    ;;
             esac
-            echo -e "${QN} Wanna Clean the /out before Building\n${INF} 1 - Remove Staging Dirs | 2 - Full Clean\n";
+            echo -e "${QN} Want to keep /out in another directory ${CL_WYT}[y/n]${NONE}";
+            echo -e "${INF} Keeping /out in another drive ensures faster builds. But it is ${CL_WYT}not a compulsion${NONE}\n";
+            ST="Another /out dir ?"; shut_my_mouth OD "$ST";
+            case "$SBOD" in
+                [Yy])
+                    echo -e "${INF} Enter the Directory location from /  -  an ${CL_WYT}out${NONE} folder will be created under that directory\n";
+                    ST="/out location"; shut_my_mouth OL "$ST";
+                    if [ -d "$SBOL" ]; then
+                        cd $SBOL;
+                        [ ! -d out ] && mkdir out;
+                        export OUT_DIR="${SBOL}/out";
+                        cd ${CALL_ME_ROOT};
+                    else
+                        echo -e "${INF} /out location is unchanged";
+                    fi
+                    ;;
+                [Nn])
+                    echo -e "${INF} /out location is unchanged";
+                    ;;
+            esac
+            echo -e "${QN} Want to Clean the /out before Building\n${INF} 1 - Remove Staging Dirs | 2 - Full Clean | Others - No cleaning\n";
             ST="Option Selected"; shut_my_mouth CL "$ST";
             if [[ $(grep -c 'BUILD_ID=M\|BUILD_ID=N' ${CALL_ME_ROOT}/build/core/build_id.mk) == "1" ]]; then
                 echo -e "${QN} Use Jack Toolchain ${CL_WYT}[y/n]${NONE}\n";
@@ -752,7 +783,7 @@ function build() # 4
                 esac
             fi
             if [[ $(grep -c 'BUILD_ID=N' ${CALL_ME_ROOT}/build/core/build_id.mk) == "1" ]]; then
-                echo -e "${QN} Use Ninja to build Android ${CL_WYT}[y/n]${NONE}";
+                echo -e "${QN} Use Ninja to build Android ${CL_WYT}[y/n]${NONE}\n";
                 ST="Use Ninja"; shut_my_mouth NJ "$ST";
                 case "$SBNJ" in
                     [yY])
@@ -1093,6 +1124,7 @@ function teh_action() # Takes ya Everywhere within ScriBt
         case "$2" in
             "COOL") echo -ne "\033]0;${ROMNIS}_${SBDEV} : Success\007"; [ -z "$automate" ] && exitScriBt 0 ;;
             "FAIL") echo -ne "\033]0;${ROMNIS}_${SBDEV} : Fail\007"; [ -z "$automate" ] && exitScriBt 1 ;;
+            [qm]m) exitScriBt 0 ;;
         esac
         ;;
     *)
@@ -1129,8 +1161,6 @@ function the_start() # 0
     echo -e "\n${QN} Before Starting off, shall I remember the responses you'll enter from now \n${INF} So that it can be Automated next time\n";
     read -p $'\033[1;36m[>]\033[0m ' RQ_PGN;
     (set -o posix; set) > ${TV1};
-#   echo -e "\n${EXE} Prompting for Root Access\n";
-#   sudo -p $'\033[1;35m[#]\033[0m ' echo -e "\n${SCS} Root access OK. You won't be asked again";
     [[ "$(pwd)" != "/" ]] && export CALL_ME_ROOT="$(pwd)" || export CALL_ME_ROOT="";
     echo -e "\n${EXE} ./action${CL_LRD}.SHOW_LOGO${NONE}";
     sleep 2;
@@ -1150,6 +1180,7 @@ function the_start() # 0
 
 # VROOM!
 DNT=`date +'%d/%m/%y %r'`;
+echo -ne "\033]0;ScriBt : The Beginning\007";
 # Load RIDb and Colors
 if [ -f ROM.rc ]; then
     . $(pwd)/ROM.rc;
@@ -1166,17 +1197,12 @@ FLD="${CL_LRD}[!]${NONE}";
 EXE="${CL_YEL}[!]${NONE}";
 QN="${CL_LRD}[?]${NONE}";
 
-# Update the Updater!
-LUSB_VER=`grep 'USB_VER' upScriBt.sh | awk '{print $3}'`; # Local Version of Updater
-curl -s -o up.sh https://raw.githubusercontent.com/a7r3/ScriBt/master/upScriBt.sh; # Download the Remote Version of Updater
-RUSB_VER=`grep 'USB_VER' up.sh | awk '{print $3}'`; # Remote Version of Updater
-if [[ "$RUSB_VER" > "$LUSB_VER" ]]; then
-    mv -f up.sh upScriBt.sh; # Update eet!
-else
-    rm -rf up.sh; # Good to go!
-fi
+# Download the Remote Version of Updater, determine the Internet Connectivity by working of this command
+curl -fs -o upScriBt.sh https://raw.githubusercontent.com/a7r3/ScriBt/master/upScriBt.sh  && \
+    echo -e "\n${SCS} Internet Connectivity : ONLINE"|| \
+    echo -e "\n${FLD} Internet Connectivity : OFFINE\n\n${INF} Please connect to the Internet for better functioning of ScriBt";
 
-# Update us now
+# Update ScriBt
 source upScriBt.sh $@;
 
 # Where am I ?
