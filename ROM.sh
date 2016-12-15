@@ -30,10 +30,13 @@
 function cherrypick() # Automated Use only
 {
     echo -ne '\033]0;ScriBt : Picking Cherries\007';
+    builddir=$(pwd);                    # TO get back to Build Dir
     echo -e "${CL_WYT}=======================${NONE} ${CL_LRD}Pick those Cherries${NONE} ${CL_WYT}======================${NONE}\n";
     echo -e "${EXE} ${ATBT} Attempting to Cherry-Pick Provided Commits\n";
-    git fetch ${URL/\/tree\// };
-    git cherry-pick $1;
+    cd ${builddir}/$1;
+    git fetch ${2/\/tree\// };
+    git cherry-pick $3;
+    cd $builddir;
     echo -e "\n${INF} It's possible that the pick may have conflicts. Solve those and then continue.";
     echo -e "${CL_WYT}==================================================================${NONE}";
 } # cherrypick
@@ -42,14 +45,27 @@ function exitScriBt() # ID
 {
     function prefGen()
     {
-        echo -e "\n\n${EXE} Deleting old Configs";
-        sed -e '/SB.*/d' -e '/function configs().*/d' -e '/{ # as on.*/d' -e '/} # configs/d' -i PREF.rc;
-        echo -e "\n${EXE} Saving Current Configuration to PREF.rc";
+        echo -e "\n${EXE} Saving Current Configuration";
+        echo -e "\n${QN} Name of the Config\n${INF} Default : ${ROMNIS}_${SBDEV}\n";
+        read -p $'\033[1;36m[>]\033[0m ' NOC;
+        [[ -z "$NOC" ]] && NOC="${ROMNIS}_${SBDEV}";
+        if [[ ! -f "${NOC}.rc" ]]; then
+            echo -e "${FLD} Configuration ${NOC} exists";
+            echo -e "${QN} Overwrite it ${CL_WYT}[y/n]${NONE}";
+            read -p $'\033[1;36m[>]\033[0m ' OVRT;
+            case "$OVRT" in
+                [Yy]) echo -e "${EXE} Deleting ${NOC}"; rm -rf ${NOC}.rc ;;
+                [Nn]) prefGen ;;
+            esac
+        fi
         (set -o posix; set) > ${TV2};
-        echo -e "function configs()\n{ # as on $DNT" >> PREF.rc
-        diff ${TV1} ${TV2} | grep SB | sed -e 's/[<>] /    /g' | awk '{print $0";"}' >> PREF.rc;
-        echo -e "} # configs" >> PREF.rc;
-        echo -e "\n${SCS} PREF.rc for the current Configuration created successfully\nYou may automate ScriBt next time";
+        echo -e "# ScriBt Automation Config File" >> ${NOC}.rc;
+        echo -e "# ${ROM_FN} for ${SBDEV}\nAUTOMATE=\"true\"\n" >> ${NOC}.rc;
+        echo -e "#################\n#  Information  #\n#################\n\n" >> ${NOC}.rc;
+        diff ${TV1} ${TV2} | grep SB | sed -e 's/[<>] /    /g' | awk '{print $0";"}' >> ${NOC}.rc;
+        echo -e "\n\n#################\n#  Sequencing  #\n##################\n" >> ${NOC}.rc;
+        echo -e "# Your Code goes here\n\ninit;\npre_build;\nbuild;\n\n# Some moar code eg. Uploading the ROM" >> ${NOC}.rc;
+        echo -e "\n${SCS} Configuration file ${NOC} created successfully\n${INF} You may modify the config, and automate ScriBt next time";
     } # prefGen
 
     [[ "$RQ_PGN" == [Yy] ]] && prefGen;
@@ -111,7 +127,7 @@ function rom_select() # D 1,2
     done
     echo -e "\n${INF} ${CL_WYT}Non-CAF / Nexus-Family ROMs${NONE}";
     echo -e "${INF} ${CL_WYT}Choose among these ONLY if you're building for a Nexus Device\n"
-    for RNO in {31..33}; do
+    for RNO in {31..36}; do
         rom_names $RNO;
         echo -e "$RNO. $ROM_FN";
     done
@@ -207,15 +223,18 @@ function the_response() # D ALL
 
 function init() # 1
 {
+    # change terminal title
     [ ! -z "$automate" ] && teh_action 1;
     rom_select;
     sleep 1;
     echo -e "${EXE} Detecting Available Branches in ${ROM_FN} Repository";
     RCT=$[ ${#ROM_NAME[*]} - 1 ];
+    [[ $SBRN < 31 ]] && CAF="y"; # If ROM is CAF-based
     for RC in `eval echo "{0..$RCT}"`; do
         echo -e "\nOn ${ROM_NAME[$RC]} (ID->$RC)\n";
-        git ls-remote -h https://github.com/${ROM_NAME[$RC]}/${MAN[$RC]} |\
-            awk '{print $2}' | awk -F "/" '{if (length($4) != 0) {print $3"/"$4} else {print $3}}';
+        BRANCHES=`git ls-remote -h https://github.com/${ROM_NAME[$RC]}/${MAN[$RC]} |\
+            awk '{print $2}' | awk -F "/" '{if (length($4) != 0) {print $3"/"$4} else {print $3}}'`;
+        [[ ! -z "$CAF" ]] && (echo "$BRANCHES" | grep 'caf') || echo "$BRANCHES"; # ROM is CAF based, filter out CAF branches
     done
     echo -e "\n${INF} These Branches are available at the moment\n${QN} Specify the ID and Branch you're going to sync\n${INF} Format : [ID] [BRANCH]\n";
     ST="Branch"; shut_my_mouth NBR "$ST";
@@ -274,7 +293,9 @@ function init() # 1
 
 function sync() # 2
 {
+    # Change terminal title
     [ ! -z "$automate" ] && teh_action 2;
+    # If   Repo not inited          then do it else                        get rom info
     if [ ! -f .repo/manifest.xml ]; then init; elif [ -z "$action_1" ]; then rom_select; fi;
     echo -e "\n${EXE} Preparing for Sync\n";
     echo -e "${QN} Number of Threads for Sync \n"; gimme_info "jobs";
@@ -346,9 +367,11 @@ function init_bld() # D 3,4
 
 function pre_build() # 3
 {
+    # To prevent missing information, if user starts directly from here
     [ -z "$action_1" ] && rom_select;
     init_bld;
     device_info;
+    # Change terminal title
     [ ! -z "$automate" ] && teh_action 3;
     DEVDIR="device/${SBCM}/${SBDEV}";
 
@@ -371,8 +394,9 @@ function pre_build() # 3
             fi
         } # dtree_add
 
+        [[ "$ROMNIS" == "du"  && "$CAF" == "y" ]] && VSTP="caf-vendorsetup.sh" | VSTP="vendorsetup.sh";
         echo -e "${EXE} Adding Device to ROM Vendor";
-        STRTS=( "${ROMNIS}.devices" "${ROMNIS}-device-targets" vendorsetup.sh );
+        STRTS=( "${ROMNIS}.devices" "${ROMNIS}-device-targets" $VSTP );
         for STRT in ${STRTS[*]}; do
             #    Found file   &&  Strat Not Performed
             if [ -f "$STRT" ] && [ -z "$STDN" ]; then
@@ -382,7 +406,7 @@ function pre_build() # 3
                             echo -e "${SBDEV}" >> $STRT ;;
                         ${ROMNIS}-device-targets)
                             echo -e "${ROMNIS}_${SBDEV}-${SBBT}" >> $STRT ;;
-                        vendorsetup.sh)
+                        ${VSTP})
                             echo -e "add_lunch_combo ${ROMNIS}_${SBDEV}-${SBBT}" >> $STRT ;;
                     esac
                 else
@@ -442,7 +466,7 @@ function pre_build() # 3
                 echo -e "\$( call inherit-product, vendor/${ROMNIS}/products/pac_common.mk)" >> $VENF;
                 echo -e "\nPAC_BOOTANIMATION_NAME := ${SBBTR};" >> $VENF;
                 ;;
-            "pure")
+            "pure") # PureNexus and ABC rom
                 VENF="${SBDEV}.mk";
                 echo -e "# Include pure configuration\ninclude vendor/pure/configs/pure_phone.mk" >> $VENF;
                 ;;
@@ -461,7 +485,8 @@ function pre_build() # 3
         for ROM in ${ROMS[*]}; do
             # Possible Default Device Configuration (DDC) Files
             DDCS=( ${ROM}_${SBDEV}.mk full_${SBDEV}.mk aosp_${SBDEV}.mk ${ROM}.mk );
-            # Makefiles are arranged according to their priority of Usage. ROM.mk is the most used, ROM_DEVICE.mk is the least used.
+            # Makefiles are arranged according to their priority of Usage
+            # ROM.mk is the most used, ROM_DEVICE.mk is the least used.
             # Inherit DDC
             for ACTUAL_DDC in ${DDCS[*]}; do
                 if [ -f ${DEVDIR}/${ACTUAL_DDC} ]; then
@@ -581,7 +606,7 @@ function pre_build() # 3
                 echo "$NOINT";
             fi
             ;;
-        1|14|20|3[123]) # AICP | Krexus-CAF | AOSPA | Non-CAFs
+        1|14|20|3[12456]) # AICP | Krexus-CAF | AOSPA | Non-CAFs except DU
             echo "$NOINT";
             ;;
         *) # Rest of the ROMs
@@ -591,16 +616,16 @@ function pre_build() # 3
             ;;
     esac
 
-    if [ -d vendor/${ROMNIS}/products ] && [ ! -d vendor/aosip ]; then
+    if [ -d vendor/${ROMNIS}/products ]; then # [ -d vendor/aosip ] <- Temporarily commented
         if [ ! -f vendor/${ROMNIS}/products/${ROMNIS}_${SBDEV}.mk ||
              ! -f vendor/${ROMNIS}/products/${SBDEV}.mk ||
              ! -f vendor/${ROMNIS}/products/${SBDEV}/${ROMNIS}_${SBDEV}.mk ]; then
-            vendor_strat_kpa; #if found products folder
+            vendor_strat_kpa; #if found products folder, go ahead
         else
             echo -e "\n${SCS} Looks like ${SBDEV} has been already added to ${ROM_FN} vendor. Good to go\n";
         fi
     else
-        vendor_strat_all; #if not found
+        vendor_strat_all; # if not found, normal strategies
     fi
     croot;
     sleep 2;
@@ -611,8 +636,10 @@ function pre_build() # 3
 function build() # 4
 {
     if [ -d .repo ]; then
+        # Get Missing Information
         [ -z "$action_1" ] && rom_select;
         [ -z "$action_2" ] && device_info;
+        # Change terminal title
         [ ! -z "$automate" ] && teh_action 4;
     else
         echo -e "${FLD} ROM Source Not Found (Synced)\n${FLD} Please perform an init and sync before doing this";
@@ -672,7 +699,8 @@ function build() # 4
     function build_make()
     {
         if [[ "$1" != "brunch" ]]; then
-            START=$(date +"%s");
+            START=$(date +"%s"); # Build start time
+            # Showtime!
             if [ $(grep -q "^${ROMNIS}:" "${CALL_ME_ROOT}/build/core/Makefile") ]; then
                 $SBMK $ROMNIS $BCORES 2>&1 | tee $RMTMP;
             elif [ $(grep -q "^bacon:" "${CALL_ME_ROOT}/build/core/Makefile") ]; then
@@ -680,10 +708,10 @@ function build() # 4
             else
                 $SBMK otapackage $BCORES 2>&1 | tee $RMTMP;
             fi
-            END=$(date +"%s");
-            SEC=$(($END - $START));
+            END=$(date +"%s"); # Build end time
+            SEC=$(($END - $START)); # Difference gives Build Time
             echo -e "\n${INF} Build took $(($SEC / 3600)) hour(s), $(($SEC / 60 % 60)) minute(s) and $(($SEC % 60)) second(s)." | tee -a rom_compile.txt;
-            post_build;
+            post_build; # comments please xD
         fi
     } # build_make
 
@@ -695,8 +723,8 @@ function build() # 4
         read -p $'\033[1;36m[>]\033[0m ' PMOD;
         echo;
         case "$PMOD" in
-            [yY]) mmmp -B $MODDIR ;;
-            [nN]) mmm -B $MODDIR ;;
+            [yY]) mmmp -B $MODDIR ;; # make module and push it to device
+            [nN]) mmm -B $MODDIR ;; # make module only
             *) echo -e "${FLD}Invalid Selection.\n"; make_it ;;
         esac
     } # make_it
@@ -736,16 +764,16 @@ function build() # 4
             case "$SBMK" in
                 "make")
                     echo -e "\n${QN} Number of Jobs / Threads";
-                    BCORES=$(grep -c ^processor /proc/cpuinfo);
+                    BCORES=$(grep -c ^processor /proc/cpuinfo); # CPU Threads/Cores
                     echo -e "${INF} Maximum No. of Jobs -> ${CL_WYT}${BCORES}${NONE}";
                     ST="Number of Jobs"; shut_my_mouth NT "$ST";
-                    if [[ "$SBNT" > "$BCORES" ]]; then
+                    if [[ "$SBNT" > "$BCORES" ]]; then # Y u do dis
                         echo -e "\n${FLD} Invalid Response\n";
                         echo -e "${INF} Restart ScriBt from here\n"
                         exitScriBt 1;
                     fi
                     ;;
-                "mka") BCORES="" ;;
+                "mka") BCORES="" ;; # mka utilizes max resources
                 *)
                     echo -e "\n${FLD} No response received\n";
                     echo -e "${EXE} Using ${CL_WYT}mka${NONE}";
@@ -818,6 +846,7 @@ function build() # 4
 
 function tools() # 5
 {
+    # change terminal title
     [ ! -z "$automate" ] && teh_action 5;
 
     function installdeps()
@@ -979,9 +1008,9 @@ function tools() # 5
             echo -e "${EXE} add-apt-repository not present. Installing it";
             sudo -p $'\033[1;35m[#]\033[0m ' apt-get install software-properties-common;
         fi
-        sudo -p $'\033[1;35m[#]\033[0m ' add-apt-repository ppa:openjdk-r/ppa -y;
-        sudo -p $'\033[1;35m[#]\033[0m ' apt-get update -y;
-        sudo -p $'\033[1;35m[#]\033[0m ' apt-get install openjdk-$1-jdk -y;
+        sudo -p $'\033[1;35m[#]\033[0m ' add-apt-repository ppa:openjdk-r/ppa -y; # Add Java PPA
+        sudo -p $'\033[1;35m[#]\033[0m ' apt-get update -y; # Update Sources
+        sudo -p $'\033[1;35m[#]\033[0m ' apt-get install openjdk-$1-jdk -y; # Install eet
     } # java_ppa
 
     function java_menu()
@@ -1158,9 +1187,11 @@ function the_start() # 0
     else
         echo -e "\n${INF} Using this for first time?\nTake a look on PREF.rc and shut_my_mouth";
     fi
-    echo -e "\n${QN} Before Starting off, shall I remember the responses you'll enter from now \n${INF} So that it can be Automated next time\n";
-    read -p $'\033[1;36m[>]\033[0m ' RQ_PGN;
-    (set -o posix; set) > ${TV1};
+    if [ -z "$automate" ]; then
+        echo -e "\n${QN} Before Starting off, shall I remember the responses you'll enter from now \n${INF} So that it can be Automated next time\n";
+        read -p $'\033[1;36m[>]\033[0m ' RQ_PGN;
+        (set -o posix; set) > ${TV1};
+    fi
     [[ "$(pwd)" != "/" ]] && export CALL_ME_ROOT="$(pwd)" || export CALL_ME_ROOT="";
     echo -e "\n${EXE} ./action${CL_LRD}.SHOW_LOGO${NONE}";
     sleep 2;
@@ -1176,7 +1207,35 @@ function the_start() # 0
     echo -e "      ${CL_RED}╚══════╝ ╚═════╝╚═╝  ╚═╝╚═╝╚═════╝    ╚═╝${NONE}\n";
     sleep 1.5;
     echo -e "                     ${CL_WYT}Version `cat VERSION`${NONE}\n";
-} # the_start
+} # the_start - but its at the end xD
+
+function automator()
+{
+    echo -e "\n${EXE} Searching for Automatable Configs\n";
+    for AF in `ls *.rc`; do
+        grep 'AUTOMATOR\=\"true_dat\"' --color=never $AF -l >> ${TMP};
+        sed -i -e 's/.rc//g' ${TMP}; # Remove the file format
+    done
+    if [[ $(echo "$?") ]]; then
+        NO=1;
+        # Adapted lunch selection menu
+        for i in `cat ${TMP}`; do
+            CMB[$NO]="$i";
+            ((NO++));
+        done
+        for j in `eval echo "{1..${#CMB[*]}}"`; do
+            echo -e " $j. ${CMB[*]} " | column;
+        done
+        echo -e "\n${QN} Which would you like\n";
+        read -p $'\033[1;36m[>]\033[0m ' ANO;
+        echo -e "\n${EXE} Running ScriBt on Automation Config ${CMB[$ANO]}\n";
+        sleep 2;
+        . ${CMB[${ANO}]}.rc;
+    else
+        echo -e "\n${FLD} No Automation Configs found\n";
+        exitScriBt 1;
+    fi
+} # automator
 
 # VROOM!
 DNT=`date +'%d/%m/%y %r'`;
@@ -1210,10 +1269,10 @@ echo -e "\n${INF} ${CL_WYT}I'm in $(pwd)${NONE}\n";
 
 # Point of Execution
 if [[ "$1" == "automate" ]]; then
+    export automate="yus_do_eet";
     the_start; # Pre-Initial Stage
     echo -e "${INF} ${ATBT} Thanks for Selecting Me. Lem'me do your work";
-    export automate="yus_do_eet";
-    automate; # Initiate the Build Sequence - Actual "VROOM!"
+    automator;
 elif [ -z $1 ]; then
     the_start; # Pre-Initial Stage
     main_menu;

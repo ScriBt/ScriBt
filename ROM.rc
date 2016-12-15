@@ -17,7 +17,7 @@ function rom_names()
             ROM_FN="AOKP";
             ROMNIS="aokp";
             ;;
-        3)
+        3|32)
             ROM_NAME=( AOSIP );
             MAN=( platform_manifest.git );
             ROM_FN="AOSiP";
@@ -71,7 +71,7 @@ function rom_names()
             ROM_FN="CyanogenMod";
             ROMNIS="cm";
             ;;
-        12)
+        12|33)
             ROM_NAME=( DirtyUnicorns );
             MAN=( android_manifest.git );
             ROM_FN="Dirty Unicorns";
@@ -189,18 +189,25 @@ function rom_names()
             ;;
         # Nexus Only ROMs
         31)
+            ROM_NAME=( ezio84 );
+            MAN=( abc-n_manifest.git );
+            ROM_FN="ABC ROM";
+            ROMNIS="pure";
+            ;;
+        # 32 - AOSIP; 33 - DU; See above
+        34)
             ROM_NAME=( krexus );
             MAN=( manifest.git );
             ROM_FN="Krexus";
             ROMNIS="krexus";
             ;;
-        32)
+        35)
             ROM_NAME=( nitrogen-project );
             MAN=( android_manifest.git );
             ROM_FN="Nitrogen OS";
             ROMNIS="nitrogen";
             ;;
-        33)
+        36)
             ROM_NAME=( PureNexusProject );
             MAN=( manifest.git );
             ROM_FN="PureNexus";
