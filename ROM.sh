@@ -131,7 +131,7 @@ function rom_select() # D 1,2
         rom_names $RNO;
         echo -e "$RNO. $ROM_FN";
     done
-    unset ROMV; # Unset it
+    unset ROMV CNS; # Unset these
     echo -e "\n=======================================================${NONE}\n";
     [ -z "$automate" ] && read -p $'\033[1;36m[>]\033[0m ' SBRN;
     rom_names "$SBRN";
@@ -229,12 +229,11 @@ function init() # 1
     sleep 1;
     echo -e "${EXE} Detecting Available Branches in ${ROM_FN} Repository";
     RCT=$[ ${#ROM_NAME[*]} - 1 ];
-    [[ $SBRN < 31 ]] && CAF="y"; # If ROM is CAF-based
     for RC in `eval echo "{0..$RCT}"`; do
         echo -e "\nOn ${ROM_NAME[$RC]} (ID->$RC)\n";
         BRANCHES=`git ls-remote -h https://github.com/${ROM_NAME[$RC]}/${MAN[$RC]} |\
             awk '{print $2}' | awk -F "/" '{if (length($4) != 0) {print $3"/"$4} else {print $3}}'`;
-        [[ ! -z "$CAF" ]] && (echo "$BRANCHES" | grep 'caf') || echo "$BRANCHES"; # ROM is CAF based, filter out CAF branches
+        [[ ! -z "$CNS" && "$SBRN" < "30" ]] && (echo "$BRANCHES" | grep --color=never 'caf') || echo "$BRANCHES"; # ROM is CAF based, filter out CAF branches
     done
     echo -e "\n${INF} These Branches are available at the moment\n${QN} Specify the ID and Branch you're going to sync\n${INF} Format : [ID] [BRANCH]\n";
     ST="Branch"; shut_my_mouth NBR "$ST";
