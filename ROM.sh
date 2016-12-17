@@ -1180,16 +1180,12 @@ function the_start() # 0
     touch temp{,_sync,_compile,_v{1,2}}.txt;
     ATBT="${CL_WYT}*${NONE}${CL_LRD}AutoBot${NONE}${CL_WYT}*${NONE}";
     # CHEAT CHEAT CHEAT!
-    if [ ! -z "$automate" ]; then
-        . $(pwd)/PREF.rc;
-        echo -e "\n${CL_LRD}[${NONE}${CL_YEL}!${NONE}${CL_LRD}]${NONE} ${ATBT} Cheat Code shut_my_mouth applied. I won't ask questions anymore";
-    else
-        echo -e "\n${INF} Using this for first time?\nTake a look on PREF.rc and shut_my_mouth";
-    fi
     if [ -z "$automate" ]; then
         echo -e "\n${QN} Before Starting off, shall I remember the responses you'll enter from now \n${INF} So that it can be Automated next time\n";
         read -p $'\033[1;36m[>]\033[0m ' RQ_PGN;
         (set -o posix; set) > ${TV1};
+    else
+        echo -e "\n${CL_LRD}[${NONE}${CL_YEL}!${NONE}${CL_LRD}]${NONE} ${ATBT} Cheat Code shut_my_mouth applied. I won't ask questions anymore";
     fi
     [[ "$(pwd)" != "/" ]] && export CALL_ME_ROOT="$(pwd)" || export CALL_ME_ROOT="";
     echo -e "\n${EXE} ./action${CL_LRD}.SHOW_LOGO${NONE}";
@@ -1223,8 +1219,8 @@ function automator()
             ((NO++));
         done
         for j in `eval echo "{1..${#CMB[*]}}"`; do
-            echo -e " $j. ${CMB[*]} " | column;
-        done
+            echo -e " $j. ${CMB[$j]} ";
+        done | column
         echo -e "\n${QN} Which would you like\n";
         read -p $'\033[1;36m[>]\033[0m ' ANO;
         echo -e "\n${EXE} Running ScriBt on Automation Config ${CMB[$ANO]}\n";
