@@ -1063,18 +1063,6 @@ function tools() # 5
         echo -e "\n${CL_WYT}==========================================================${NONE}\n";
     } # udev_rules
 
-    function make_me_old()
-    {
-        MKVR=$(make -v | head -1 | awk '{print $3}');
-        case "${MKVR}" in
-            "3.81") echo -e "\n${SCS} make 3.81 has already been installed" ;;
-            *)
-                echo "\n${EXE} Installing make 3.81";
-                sudo -p $'\033[1;35m[#]\033[0m ' install utils/make /usr/bin/;
-                ;;
-        esac
-        [[ "$MKVR" == "3.81" ]] && echo -e "\n${SCS} make 3.81 present";
-    } # make_me_old
 
     function git_creds()
     {
@@ -1091,19 +1079,73 @@ function tools() # 5
         quick_menu;
     } # git_creds
 
+    function check_utils_version()
+    {
+        # If util is repo then concatenate the file else execute it as a binary
+        [[ "$1" == "repo" ]] && CAT="cat " || unset CAT;
+        case "$2" in
+            "utils") BIN="${CAT}utils/$1" ;; # Util Version that ScriBt has under utils folder
+            "installed") BIN="${CAT}$(which $1)" ;; # Util Version that has been installed in the System
+        esac
+        case "$1" in # Installed Version
+            "ccache") VER=`${BIN} --version | head -1 | awk '{print $3}'` ;;
+            "make") VER=`${BIN} -v | head -1 | awk '{print $3}'` ;;
+            "ninja") VER=`${BIN} --version` ;;
+            # since repo is a python script and not a binary
+            "repo") VER=`${BIN} | grep -m 1 VERSION |\
+                        awk -F "= " '{print $2}' |\
+                        sed -e 's/[()]//g' |\
+                        awk -F ", " '{print $1"."$2}'`;
+                    ;;
+        esac
+    } # check_utils_version
+
+    function installer()
+    {
+        echo -e "\n${EXE}Checking presence of ~/bin folder\n";
+        if [ -d ${HOME}/bin ]; then
+            echo -e "${SCS} ${HOME}/bin present";
+        else
+            echo -e "${FLD} ${HOME}/bin absent\n${EXE} Creating folder ${HOME}/bin\n${EXE} `mkdir -v ${HOME}/bin`";
+        fi
+        check_utils_version "$1" "utils"; # Check Binary Version by ScriBt
+        echo -e "\n${EXE} Installing $1 $VER\n";
+        echo -e "${QN} Do you want $1 to be Installed for";
+        echo -e "\n1. This user only (${HOME}/bin)\n2. All users (/usr/bin)\n";
+        read -p $'\033[1;36m[>]\033[0m ' UIC; # utility installation choice
+        case "$UIC" in
+            1) IDIR="${HOME}/bin/" ;;
+            2) IDIR="/usr/bin/" ;;
+            *) echo -e "\n${FLD} Invalid Selection\n"; installer $@ ;;
+        esac
+        sudo -p $'\n\033[1;35m[#]\033[0m ' install utils/$1 ${IDIR};
+        check_utils_version "$1" "installed"; # Check Installed Version
+        echo -e "\n${INF} Installed Version of $1 : $VER";
+        if [[ "$1" == "ninja" ]]; then
+            echo -e "\n${INF} To make use of Host versions of Ninja, make sure the build repo contains the following change\n";
+            echo -e "https://github.com/CyanogenMod/android_build/commit/e572919037726eff75fddd68c5f18668c6d24b30";
+            echo -e "\n${INF} Cherry-Pick this commit under the ${CL_WYT}build${NONE} folder/repo of the ROM you're building";
+        fi
+        echo -e "\n${SCS} Done\n";
+    } # installer
+
     function tool_menu()
     {
-        echo -e "\n${CL_WYT}===================${NONE} ${CL_LBL}Tools${NONE} ${CL_WYT}====================${NONE}\n";
-        echo -e "     1. Install Build Dependencies\n";
-        echo -e "     2. Install Java (OpenJDK 6/7/8)";
-        echo -e "     3. Install and/or Set-up CCACHE";
-        echo -e "     4. Install/Update ADB udev rules";
-        echo -e "     5. Install/Revert to make 3.81";
-        echo -e "     6. Add/Update Git Credentials${CL_WYT}*${NONE}";
-# TODO: echo -e "     X. Find an Android Module's Directory";
-        echo -e "\n     0. Quick Menu"
+        echo -e "\n${CL_WYT}=======================${NONE} ${CL_LBL}Tools${NONE} ${CL_WYT}=========================${NONE}\n";
+        echo -e "         1. Install Build Dependencies\n";
+        echo -e "         2. Install Java (OpenJDK 6/7/8)";
+        echo -e "         3. Install and/or Set-up CCACHE";
+        echo -e "         4. Install/Update ADB udev rules";
+        echo -e "         5. Add/Update Git Credentials${CL_WYT}*${NONE}";
+        echo -e "         6. Install make (v3.81) ${CL_WYT}~${NONE}";
+        echo -e "         7. Install ninja (v1.7.2) ${CL_WYT}~${NONE}";
+        echo -e "         8. Install ccache (v3.3.3) ${CL_WYT}~${NONE}";
+        echo -e "         9. Install repo (v1.23) ${CL_WYT}~${NONE}";
+# TODO: echo -e "         X. Find an Android Module's Directory";
+        echo -e "\n         0. Quick Menu";
         echo -e "\n${CL_WYT}*${NONE} Create a GitHub account before using this option";
-        echo -e "${CL_WYT}==============================================${NONE}\n";
+        echo -e "${CL_WYT}~${NONE} These versions are recommended to use...\n...If you have any issue in higher versions";
+        echo -e "${CL_WYT}======================================================${NONE}\n";
         read -p $'\033[1;36m[>]\033[0m ' TOOL;
         case "$TOOL" in
             0) quick_menu ;;
@@ -1115,8 +1157,11 @@ function tools() # 5
             2) java_menu ;;
             3) set_ccvars ;;
             4) udev_rules ;;
-            5) make_me_old ;;
-            6) git_creds ;;
+            5) git_creds ;;
+            6) installer "make" ;;
+            7) installer "ninja" ;;
+            8) installer "ccache" ;;
+            9) installer "repo" ;;
 # TODO:     X) find_mod ;;
             *) echo -e "${FLD} Invalid Selection.\n"; tool_menu ;;
         esac
