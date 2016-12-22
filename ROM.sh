@@ -24,6 +24,7 @@
 # Arvindraj "a7r3" (Myself)                                            #
 # Adrian DC "AdrianDC"                                                 #
 # Akhil Narang "akhilnarang"                                           #
+# Łukasz "JustArchi" Domeradzki                                        #
 # Tom Radtke "CubeDev"                                                 #
 # nosedive                                                             #
 #======================================================================#
@@ -1148,7 +1149,7 @@ function tools() # 5
                 echo -e "${FLD} ScriBtofication cancelled";
                 ;;
         esac
-    }
+    } # scribtofy
 
     function tool_menu()
     {
@@ -1259,11 +1260,8 @@ function the_start() # 0
 
     # Download the Remote Version of Updater, determine the Internet Connectivity by working of this command
     curl -fs -o upScriBt.sh https://raw.githubusercontent.com/a7r3/ScriBt/master/upScriBt.sh  && \
-        echo -e "\n${SCS} Internet Connectivity : ONLINE"|| \
+        echo -e "\n${SCS} Internet Connectivity : ONLINE"; bash upScriBt.sh $@ || \
         echo -e "\n${FLD} Internet Connectivity : OFFINE\n\n${INF} Please connect to the Internet for better functioning of ScriBt";
-
-    # Update ScriBt
-    source upScriBt.sh $@;
 
     # Where am I ?
     echo -e "\n${INF} ${CL_WYT}I'm in $(pwd)${NONE}\n";
