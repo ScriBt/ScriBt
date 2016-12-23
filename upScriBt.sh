@@ -1,38 +1,47 @@
 #!/bin/bash
 #===========================< upScriBt >===============================#
 #===========< Copyright 2016, Arvindraj Thangaraj - "a7r3" >===========#
+#=============< Credits to Łukasz "JustArchi" Domeradzki >=============#
 #====================< Part of Projekt ScriBt >========================#
 
-RVER=`curl https://raw.githubusercontent.com/a7r3/ScriBt/master/VERSION -s`;
-LVER="cat VERSION";
-if [[ "${RVER}" > "${LVER}" ]]; then
-    echo -e "${SCS} Update Detected. Version ${RVER}\n";
-    echo -e "${QN} Do you want to Update";
-    read UDPR;
-    case "$UDPR" in
-        [Yy])
-            mkdir old;
-            echo -e "\n${EXE} Updating ScriBt to Version $RVER\n";
-            for file in ROM.sh ROM.rc PREF.rc README.md VERSION; do
-                mv ${file} old/${file};
-                echo -e "${file} `curl -# -s -o ${file} https://raw.githubusercontent.com/a7r3/ScriBt/master/${file}`-> Done.";
-            done
-            echo -e "${SCS} ScriBt updated Successfully\n";
-            echo -e "${INF} Old Version of ScriBt has been moved under ${CL_WYT}old${NONE} folder.\n";
-            echo -e "\n${EXE} Restarting ScriBt with the provided parameters";
-            if [[ "$1" == "automate" ]] || [[ "$3" == "automate" ]]; then
-                echo -e "\n${INF} PREF.rc has been brought back to default";
-                echo -e "\n${INF} Please make the changes you made in old PREF.rc which is located under the ${CL_WYT}old${NONE} folder";
-                read ENTER;
-                echo -e "${SCS} Done.";
-            fi
-            exec bash ROM.sh $@;
-            ;;
-        [Nn])
-            echo -e "\n${INF} Staying on v${LVER}\n${INF} But it is recommended to update ScriBt\n";
-            ;;
-    esac
+# Colors
+EXE="\033[1;33m[!]\033[0m";
+FLD="\033[1;31m[?]\033[0m";
+INF="\033[1;34m[!]\033[0m";
+SCS="\033[1;32m[!]\033[0m";
+QN="\033[1;31m[!]\033[0m";
+
+# Check Branch
+BRANCH="$(git rev-parse --abbrev-ref HEAD)";
+
+if [[ "$BRANCH" =~ (master|staging) ]]; then
+    RVER=`curl https://raw.githubusercontent.com/a7r3/ScriBt/${BRANCH}/VERSION -s`;
+    LHEAD="$(git rev-parse HEAD)";
+    git fetch -q origin ${BRANCH};
+    RHEAD="$(git rev-parse origin/${BRANCH})";
+    if [[ "$LHEAD" != "$RHEAD" ]]; then
+        echo -e "${SCS} Update Detected. Version ${RVER}\n";
+        echo -e "${QN} Do you want to Update";
+        read UDPR;
+        case "$UDPR" in
+            [Yy])
+                echo -e "\n${EXE} Updating ScriBt to Version $RVER\n";
+                git reset --hard FETCH_HEAD;
+                echo -e "\n${SCS} ScriBt updated Successfully\n";
+                echo -e "\n${EXE} Restarting ScriBt with the provided parameters";
+                exec bash ./ROM.sh $@;
+                ;;
+            [Nn])
+                echo -e "\n${INF} Staying on v${LVER}\n${INF} But it is recommended to update ScriBt\n";
+                ;;
+        esac
+    else
+        echo -e "\n${SCS} ScriBt is up-to-date";
+        echo -e "\n${EXE} Continuing";
+    fi
+    exit 0; # No Failing possibilites, so Peace
 else
-    echo -e "\n${SCS} ScriBt is up-to-date";
-    echo -e "\n${EXE} Continuing";
+    echo -e "\n${INF} Current Working Branch is neither 'master' nor 'staging'\n";
+    echo -e "${FLD} ScriBt Update Disabled\n\n${INF} No modifications have been done\n";
+    exit 1; # Failed here tho :(
 fi

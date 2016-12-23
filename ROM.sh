@@ -4,13 +4,14 @@
 #======================================================================#
 #                                                                      #
 # This software is licensed under the terms of the GNU General Public  #
-# License version 2, as published by the Free Software Foundation, and #
+# License version 3, as published by the Free Software Foundation, and #
 # may be copied, distributed, and modified under those terms.          #
 #                                                                      #
 # This program is distributed in the hope that it will be useful,      #
 # but WITHOUT ANY WARRANTY; without even the implied warranty of       #
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the        #
-# GNU General Public License for more details.                         #
+# GNU General Public License [LICENSE file in this repository] for     #
+# more details.                                                        #
 #                                                                      #
 #======================================================================#
 #                                                                      #
@@ -23,6 +24,7 @@
 # Arvindraj "a7r3" (Myself)                                            #
 # Adrian DC "AdrianDC"                                                 #
 # Akhil Narang "akhilnarang"                                           #
+# Łukasz "JustArchi" Domeradzki                                        #
 # Tom Radtke "CubeDev"                                                 #
 # nosedive                                                             #
 #======================================================================#
@@ -1062,18 +1064,6 @@ function tools() # 5
         echo -e "\n${CL_WYT}==========================================================${NONE}\n";
     } # udev_rules
 
-    function make_me_old()
-    {
-        MKVR=$(make -v | head -1 | awk '{print $3}');
-        case "${MKVR}" in
-            "3.81") echo -e "\n${SCS} make 3.81 has already been installed" ;;
-            *)
-                echo "\n${EXE} Installing make 3.81";
-                sudo -p $'\033[1;35m[#]\033[0m ' install utils/make /usr/bin/;
-                ;;
-        esac
-        [[ "$MKVR" == "3.81" ]] && echo -e "\n${SCS} make 3.81 present";
-    } # make_me_old
 
     function git_creds()
     {
@@ -1090,19 +1080,95 @@ function tools() # 5
         quick_menu;
     } # git_creds
 
+    function check_utils_version()
+    {
+        # If util is repo then concatenate the file else execute it as a binary
+        [[ "$1" == "repo" ]] && CAT="cat " || unset CAT;
+        case "$2" in
+            "utils") BIN="${CAT}utils/$1" ;; # Util Version that ScriBt has under utils folder
+            "installed") BIN="${CAT}$(which $1)" ;; # Util Version that has been installed in the System
+        esac
+        case "$1" in # Installed Version
+            "ccache") VER=`${BIN} --version | head -1 | awk '{print $3}'` ;;
+            "make") VER=`${BIN} -v | head -1 | awk '{print $3}'` ;;
+            "ninja") VER=`${BIN} --version` ;;
+            # since repo is a python script and not a binary
+            "repo") VER=`${BIN} | grep -m 1 VERSION |\
+                        awk -F "= " '{print $2}' |\
+                        sed -e 's/[()]//g' |\
+                        awk -F ", " '{print $1"."$2}'`;
+                    ;;
+        esac
+    } # check_utils_version
+
+    function installer()
+    {
+        echo -e "\n${EXE}Checking presence of ~/bin folder\n";
+        if [ -d ${HOME}/bin ]; then
+            echo -e "${SCS} ${HOME}/bin present";
+        else
+            echo -e "${FLD} ${HOME}/bin absent\n${EXE} Creating folder ${HOME}/bin\n${EXE} `mkdir -v ${HOME}/bin`";
+        fi
+        check_utils_version "$1" "utils"; # Check Binary Version by ScriBt
+        echo -e "\n${EXE} Installing $1 $VER\n";
+        echo -e "${QN} Do you want $1 to be Installed for";
+        echo -e "\n1. This user only (${HOME}/bin)\n2. All users (/usr/bin)\n";
+        read -p $'\033[1;36m[>]\033[0m ' UIC; # utility installation choice
+        case "$UIC" in
+            1) IDIR="${HOME}/bin/" ;;
+            2) IDIR="/usr/bin/" ;;
+            *) echo -e "\n${FLD} Invalid Selection\n"; installer $@ ;;
+        esac
+        sudo -p $'\n\033[1;35m[#]\033[0m ' install utils/$1 ${IDIR};
+        check_utils_version "$1" "installed"; # Check Installed Version
+        echo -e "\n${INF} Installed Version of $1 : $VER";
+        if [[ "$1" == "ninja" ]]; then
+            echo -e "\n${INF} To make use of Host versions of Ninja, make sure the build repo contains the following change\n";
+            echo -e "https://github.com/CyanogenMod/android_build/commit/e572919037726eff75fddd68c5f18668c6d24b30";
+            echo -e "\n${INF} Cherry-Pick this commit under the ${CL_WYT}build${NONE} folder/repo of the ROM you're building";
+        fi
+        echo -e "\n${SCS} Done\n";
+    } # installer
+
+    function scribtofy()
+    {
+        echo -e "\n${INF} This Function allows ScriBt to be executed under any directory";
+        echo -e "${INF} Temporary Files would be present at working directory itself";
+        echo -e "${INF} Older ScriBtofications, if present, would be overwritten";
+        echo -e "\n${QN} Shall I ScriBtofy ${CL_WYT}[y/n]${NONE}\n";
+        read -p $'\033[1;36m[>]\033[0m ' SBFY;
+        case "$SBFY" in
+            [Yy])
+                    echo -e "\n${EXE} Adding ScriBt to PATH";
+                    echo -e "# ScriBtofy\nexport PATH=\"${CALL_ME_ROOT}:\$PATH\";" > ${HOME}/.scribt;
+                    [[ $(grep 'source ${HOME}/.scribt' ${HOME}/.bashrc) ]] && echo -e "\n#ScriBtofy\nsource \${HOME}/.scribt;" >> ${HOME}/.bashrc;
+                    source ~/.bashrc &> /dev/null;
+                    echo -e "\n${SCS} Done\n\n${INF} Now you can ${CL_WYT}bash ROM.sh${NONE} under any directory";
+                ;;
+            [Nn])
+                echo -e "${FLD} ScriBtofication cancelled";
+                ;;
+        esac
+    } # scribtofy
+
     function tool_menu()
     {
-        echo -e "\n${CL_WYT}===================${NONE} ${CL_LBL}Tools${NONE} ${CL_WYT}====================${NONE}\n";
-        echo -e "     1. Install Build Dependencies\n";
-        echo -e "     2. Install Java (OpenJDK 6/7/8)";
-        echo -e "     3. Install and/or Set-up CCACHE";
-        echo -e "     4. Install/Update ADB udev rules";
-        echo -e "     5. Install/Revert to make 3.81";
-        echo -e "     6. Add/Update Git Credentials${CL_WYT}*${NONE}";
-# TODO: echo -e "     X. Find an Android Module's Directory";
-        echo -e "\n     0. Quick Menu"
+        echo -e "\n${CL_WYT}=======================${NONE} ${CL_LBL}Tools${NONE} ${CL_WYT}=========================${NONE}\n";
+        echo -e "         1. Install Build Dependencies\n";
+        echo -e "         2. Install Java (OpenJDK 6/7/8)";
+        echo -e "         3. Install and/or Set-up CCACHE";
+        echo -e "         4. Install/Update ADB udev rules";
+        echo -e "         5. Add/Update Git Credentials${CL_WYT}*${NONE}";
+        echo -e "         6. Install make (v3.81) ${CL_WYT}~${NONE}";
+        echo -e "         7. Install ninja (v1.7.2) ${CL_WYT}~${NONE}";
+        echo -e "         8. Install ccache (v3.3.3) ${CL_WYT}~${NONE}";
+        echo -e "         9. Install repo (v1.23) ${CL_WYT}~${NONE}";
+        echo -e "        10. Add ScriBt to PATH";
+# TODO: echo -e "         X. Find an Android Module's Directory";
+        echo -e "\n         0. Quick Menu";
         echo -e "\n${CL_WYT}*${NONE} Create a GitHub account before using this option";
-        echo -e "${CL_WYT}==============================================${NONE}\n";
+        echo -e "${CL_WYT}~${NONE} These versions are recommended to use...\n...If you have any issue in higher versions";
+        echo -e "${CL_WYT}======================================================${NONE}\n";
         read -p $'\033[1;36m[>]\033[0m ' TOOL;
         case "$TOOL" in
             0) quick_menu ;;
@@ -1114,8 +1180,12 @@ function tools() # 5
             2) java_menu ;;
             3) set_ccvars ;;
             4) udev_rules ;;
-            5) make_me_old ;;
-            6) git_creds ;;
+            5) git_creds ;;
+            6) installer "make" ;;
+            7) installer "ninja" ;;
+            8) installer "ccache" ;;
+            9) installer "repo" ;;
+            10) scribtofy ;;
 # TODO:     X) find_mod ;;
             *) echo -e "${FLD} Invalid Selection.\n"; tool_menu ;;
         esac
@@ -1167,6 +1237,35 @@ function teh_action() # Takes ya Everywhere within ScriBt
 
 function the_start() # 0
 {
+    # VROOM!
+    DNT=`date +'%d/%m/%y %r'`;
+    echo -ne "\033]0;ScriBt : The Beginning\007";
+    # Load RIDb and Colors
+    if [ -f ROM.rc ]; then
+        source ./ROM.rc; # Load Local ROM.rc
+    elif [[ $(type -p ROM.rc) ]]; then
+        source $(type -p ROM.rc); # Load ROM.rc under PATH
+    else
+        echo "[ERROR] ROM.rc isn't present in ${PWD} OR PATH please make sure repo is cloned correctly";
+        exitScriBt 1;
+    fi
+    color_my_life;
+
+    # Relevant_Coloring
+    INF="${CL_LBL}[!]${NONE}";
+    SCS="${CL_LGN}[!]${NONE}";
+    FLD="${CL_LRD}[!]${NONE}";
+    EXE="${CL_YEL}[!]${NONE}";
+    QN="${CL_LRD}[?]${NONE}";
+
+    # Download the Remote Version of Updater, determine the Internet Connectivity by working of this command
+    curl -fs -o upScriBt.sh https://raw.githubusercontent.com/a7r3/ScriBt/master/upScriBt.sh  && \
+        echo -e "\n${SCS} Internet Connectivity : ONLINE"; bash upScriBt.sh $@ || \
+        echo -e "\n${FLD} Internet Connectivity : OFFINE\n\n${INF} Please connect to the Internet for better functioning of ScriBt";
+
+    # Where am I ?
+    echo -e "\n${INF} ${CL_WYT}I'm in $(pwd)${NONE}\n";
+
     # are we 64-bit ??
     if ! [[ $(uname -m) =~ (x86_64|amd64) ]]; then
         echo -e "\n\033[0;31m[!]\033[0m Your Processor is not supported\n";
@@ -1202,7 +1301,7 @@ function the_start() # 0
     echo -e "      ${CL_RED}╚══════╝ ╚═════╝╚═╝  ╚═╝╚═╝╚═════╝    ╚═╝${NONE}\n";
     sleep 1.5;
     echo -e "                     ${CL_WYT}Version `cat VERSION`${NONE}\n";
-} # the_start - but its at the end xD
+} # the_start
 
 function automator()
 {
@@ -1232,36 +1331,6 @@ function automator()
     fi
 } # automator
 
-# VROOM!
-DNT=`date +'%d/%m/%y %r'`;
-echo -ne "\033]0;ScriBt : The Beginning\007";
-# Load RIDb and Colors
-if [ -f ROM.rc ]; then
-    . $(pwd)/ROM.rc;
-    color_my_life;
-else
-    echo "[ERROR] ROM.rc isn't present in ${PWD}, please make sure repo is cloned correctly";
-    exitScriBt 1;
-fi
-
-# Relevant_Coloring
-INF="${CL_LBL}[!]${NONE}";
-SCS="${CL_LGN}[!]${NONE}";
-FLD="${CL_LRD}[!]${NONE}";
-EXE="${CL_YEL}[!]${NONE}";
-QN="${CL_LRD}[?]${NONE}";
-
-# Download the Remote Version of Updater, determine the Internet Connectivity by working of this command
-curl -fs -o upScriBt.sh https://raw.githubusercontent.com/a7r3/ScriBt/master/upScriBt.sh  && \
-    echo -e "\n${SCS} Internet Connectivity : ONLINE"|| \
-    echo -e "\n${FLD} Internet Connectivity : OFFINE\n\n${INF} Please connect to the Internet for better functioning of ScriBt";
-
-# Update ScriBt
-source upScriBt.sh $@;
-
-# Where am I ?
-echo -e "\n${INF} ${CL_WYT}I'm in $(pwd)${NONE}\n";
-
 # Point of Execution
 if [[ "$1" == "automate" ]]; then
     export automate="yus_do_eet";
@@ -1271,8 +1340,8 @@ if [[ "$1" == "automate" ]]; then
 elif [ -z $1 ]; then
     the_start; # Pre-Initial Stage
     main_menu;
-elif [[ "$1" == "cd" ]] && [ ! -z $2 ]; then
-    tranScriBt $2 $3;
+elif [[ "$1" == "version" ]]; then
+    echo -e "\nProjekt ScriBt, version `cat VERSION`\n";
 else
     echo -e "${FLD} Incorrect Parameter: \"$1\"";
     echo -e "${INF} Usage:\n\tbash ROM.sh (Interactive Usage)\n\tbash ROM.sh automate (For Automated Builds)";
