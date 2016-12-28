@@ -123,13 +123,13 @@ function rom_select() # D 1,2
 {
     echo -e "${CL_WYT}=======================================================${NONE}\n";
     echo -e "${CL_YEL}[?]${NONE} ${CL_WYT}Which ROM are you trying to build\nChoose among these (Number Selection)\n";
-    for RNO in {1..30}; do
+    for RNO in {1..34}; do
         rom_names $RNO;
         echo -e "$RNO. $ROM_FN";
     done
     echo -e "\n${INF} ${CL_WYT}Non-CAF / Nexus-Family ROMs${NONE}";
     echo -e "${INF} ${CL_WYT}Choose among these ONLY if you're building for a Nexus Device\n"
-    for RNO in {31..36}; do
+    for RNO in {35..40}; do
         rom_names $RNO;
         echo -e "$RNO. $ROM_FN";
     done
@@ -235,7 +235,7 @@ function init() # 1
         echo -e "\nOn ${ROM_NAME[$RC]} (ID->$RC)\n";
         BRANCHES=`git ls-remote -h https://github.com/${ROM_NAME[$RC]}/${MAN[$RC]} |\
             awk '{print $2}' | awk -F "/" '{if (length($4) != 0) {print $3"/"$4} else {print $3}}'`;
-        [[ ! -z "$CNS" && "$SBRN" < "30" ]] && (echo "$BRANCHES" | grep --color=never 'caf') || echo "$BRANCHES"; # ROM is CAF based, filter out CAF branches
+        [[ ! -z "$CNS" && "$SBRN" < "35" ]] && (echo "$BRANCHES" | grep --color=never 'caf') || echo "$BRANCHES"; # ROM is CAF based, filter out CAF branches
     done
     echo -e "\n${INF} These Branches are available at the moment\n${QN} Specify the ID and Branch you're going to sync\n${INF} Format : [ID] [BRANCH]\n";
     ST="Branch"; shut_my_mouth NBR "$ST";
@@ -378,14 +378,11 @@ function pre_build() # 3
 
     function vendor_strat_all()
     {
-        case "$SBRN" in
-            13|30) cd vendor/${ROMV} ;;
-            *) cd vendor/${ROMNIS} ;;
-        esac
+        [[ ! -z "$ROMV" ]] && cd vendor/${ROMV} || cd vendor/${ROMNIS};
         echo -e "${CL_WYT}=========================================================${NONE}\n";
 
         function dtree_add()
-        {   # AOSP-CAF|RRO|OmniROM|Flayr|Zephyr
+        {   # AOSP-CAF|RRO|F-AOSP|Flayr|OmniROM|Zephyr
             echo -e "${EXE} Adding Lunch Combo in Device Tree";
             [ ! -f vendorsetup.sh ] && touch vendorsetup.sh;
             if [[ $(grep -c "${ROMNIS}_${SBDEV}" ${DEVDIR}/vendorsetup.sh ) == "0" ]]; then
@@ -395,6 +392,10 @@ function pre_build() # 3
             fi
         } # dtree_add
 
+        case "$ROMNIS" in
+            eos|pure) TARGET="${SBDEV}-${SBBT}" ;;
+            *) TARGET="${ROMNIS}_${SBDEV}-${SBBT}" ;;
+        esac
         [[ "$ROMNIS" == "du"  && "$CAF" == "y" ]] && VSTP="caf-vendorsetup.sh" | VSTP="vendorsetup.sh";
         echo -e "${EXE} Adding Device to ROM Vendor";
         STRTS=( "${ROMNIS}.devices" "${ROMNIS}-device-targets" $VSTP );
@@ -406,9 +407,9 @@ function pre_build() # 3
                         ${ROMNIS}.devices)
                             echo -e "${SBDEV}" >> $STRT ;;
                         ${ROMNIS}-device-targets)
-                            echo -e "${ROMNIS}_${SBDEV}-${SBBT}" >> $STRT ;;
+                            echo -e "${TARGET}" >> $STRT ;;
                         ${VSTP})
-                            echo -e "add_lunch_combo ${ROMNIS}_${SBDEV}-${SBBT}" >> $STRT ;;
+                            echo -e "add_lunch_combo ${TARGET}" >> $STRT ;;
                     esac
                 else
                     echo -e "${INF} Device already added to $STRT";
@@ -481,8 +482,8 @@ function pre_build() # 3
 
     function find_ddc() # For Finding Default Device Configuration file
     {
-        ROMS=( aicp aokp aosp bliss candy carbon crdroid cyanide cm du orion \
-                ownrom slim tesla tipsy to validus vanir xenonhd xosp );
+        ROMS=( aicp aokp aosp bliss candy carbon crdroid cyanide cm du eos orion \
+                ownrom radium slim tesla tipsy to validus vanir xenonhd xosp );
         for ROM in ${ROMS[*]}; do
             # Possible Default Device Configuration (DDC) Files
             DDCS=( ${ROM}_${SBDEV}.mk full_${SBDEV}.mk aosp_${SBDEV}.mk ${ROM}.mk );
@@ -582,12 +583,12 @@ function pre_build() # 3
     NOINT=$(echo -e "${SCS} Interactive Makefile Unneeded, continuing");
 
     case "$SBRN" in
-        4|5|13|16|30) # AOSP-CAF/RRO | Flayr | OmniROM | Zephyr
+        4|5|1[3458]|22|34) # AOSP-CAF/RRO|Euphoria|F-AOSP|Flayr|OmniROM|Parallax|Zephyr
             VNF="common";
-            INTF="${ROMNIS}_${SBDEV}.mk";
+            [[ "$SBRN" == "13" ]] && INTF="${ROMNIS}.mk" || INTF="${ROMNIS}_${SBDEV}.mk";
             need_for_int;
             rm -rf ${DEVDIR}/AndroidProducts.mk;
-            echo -e "PRODUCT_MAKEFILES :=  \\ \n\t\$(LOCAL_DIR)/${ROMNIS}_${SBDEV}.mk" >> AndroidProducts.mk;
+            echo -e "PRODUCT_MAKEFILES :=  \\ \n\t\$(LOCAL_DIR)/${INTF}" >> AndroidProducts.mk;
             ;;
         3) # AOSiP-CAF
             if [ ! -f vendor/${ROMNIS}/products ]; then
@@ -598,7 +599,7 @@ function pre_build() # 3
                 echo "$NOINT";
             fi
             ;;
-        2|19) # AOKP-4.4 | PAC-5.1
+        2|21) # AOKP-4.4|PAC-5.1
             if [ ! -f vendor/${ROMNIS}/products ]; then
                 VNF="$SBDTP";
                 INTF="${ROMNIS}.mk"
@@ -607,7 +608,7 @@ function pre_build() # 3
                 echo "$NOINT";
             fi
             ;;
-        1|14|20|3[12456]) # AICP | Krexus-CAF | AOSPA | Non-CAFs except DU
+        1|16|23|3[5689]|40) # AICP|Krexus-CAF|AOSPA|Non-CAFs except DU
             echo "$NOINT";
             ;;
         *) # Rest of the ROMs
@@ -617,6 +618,10 @@ function pre_build() # 3
             ;;
     esac
 
+    case "$ROMNIS" in
+        eos|pure) TARGET="${SBDEV}-${SBBT}" ;;
+        *) TARGET="${ROMNIS}_${SBDEV}-${SBBT}" ;;
+    esac
     if [ -d vendor/${ROMNIS}/products ]; then # [ -d vendor/aosip ] <- Temporarily commented
         if [ ! -f vendor/${ROMNIS}/products/${ROMNIS}_${SBDEV}.mk ||
              ! -f vendor/${ROMNIS}/products/${SBDEV}.mk ||
@@ -659,9 +664,7 @@ function build() # 4
         echo -e "${CL_WYT}===============================================================${NONE}\n";
         ST="Selected Option"; shut_my_mouth SLT "$ST";
         case "$SBSLT" in
-            "lunch") [[ "$ROMNIS" != "pure" ]] \
-                        && ${SBSLT} ${ROMNIS}_${SBDEV}-${SBBT} \
-                        || ${SBSLT} ${SBDEV}-${SBBT} ;; # PureNexus doesn't have ROMNIS
+            "lunch") ${SBSLT} ${TARGET} ;;
             "breakfast") ${SBSLT} ${SBDEV} ${SBBT} ;;
             "brunch")
                 echo -e "\n${EXE} Starting Compilation - ${ROM_FN} for ${SBDEV}\n";
@@ -757,6 +760,10 @@ function build() # 4
         ST="Option Selected"; shut_my_mouth BO "$ST";
     }
 
+    case "$ROMNIS" in
+        eos|pure) TARGET="${SBDEV}-${SBBT}" ;;
+        *) TARGET="${ROMNIS}_${SBDEV}-${SBBT}" ;;
+    esac
     build_menu;
     case "$SBBO" in
         1)
@@ -828,8 +835,8 @@ function build() # 4
                 esac
             fi
             case "$SBCL" in
-                1) lunch ${ROMNIS}_${SBDEV}-${SBBT}; $SBMK installclean ;;
-                2) lunch ${ROMNIS}_${SBDEV}-${SBBT}; $SBMK clean ;;
+                1) lunch ${TARGET}; $SBMK installclean ;;
+                2) lunch ${TARGET}; $SBMK clean ;;
                 *) echo -e "${INF} No Clean Option Selected.\n" ;;
             esac
             hotel_menu;
