@@ -1247,11 +1247,13 @@ function the_start() # 0
     # VROOM!
     DNT=`date +'%d/%m/%y %r'`;
     echo -ne "\033]0;ScriBt : The Beginning\007";
+
     # Load RIDb and Colors
-    if [ -f ROM.rc ]; then
+    if [[ "$0" == "./ROM.sh" ]] && [ -f ROM.rc ]; then
         source ./ROM.rc; # Load Local ROM.rc
-    elif [[ $(type -p ROM.rc) ]]; then
-        source $(type -p ROM.rc); # Load ROM.rc under PATH
+    elif [[ "$0" == "ROM.sh" ]] && [[ $(type -p ROM.rc) ]]; then
+        export PATHDIR="$(type -p ROM.sh | sed 's/ROM.sh//g')";
+        source ROM.rc; # Load ROM.rc under PATH
     else
         echo "[ERROR] ROM.rc isn't present in ${PWD} OR PATH please make sure repo is cloned correctly";
         exitScriBt 1;
@@ -1259,15 +1261,18 @@ function the_start() # 0
     color_my_life;
 
     # Relevant_Coloring
-    INF="${CL_LBL}[!]${NONE}";
-    SCS="${CL_LGN}[!]${NONE}";
-    FLD="${CL_LRD}[!]${NONE}";
-    EXE="${CL_YEL}[!]${NONE}";
-    QN="${CL_LRD}[?]${NONE}";
+    export INF="${CL_LBL}[!]${NONE}";
+    export SCS="${CL_LGN}[!]${NONE}";
+    export FLD="${CL_LRD}[!]${NONE}";
+    export EXE="${CL_YEL}[!]${NONE}";
+    export QN="${CL_LRD}[?]${NONE}";
+
+    # I ez Root
+    [[ "$(pwd)" != "/" ]] && export CALL_ME_ROOT="$(pwd)" || export CALL_ME_ROOT="";
 
     # Download the Remote Version of Updater, determine the Internet Connectivity by working of this command
     curl -fs -o upScriBt.sh https://raw.githubusercontent.com/a7r3/ScriBt/master/upScriBt.sh  && \
-        echo -e "\n${SCS} Internet Connectivity : ONLINE"; bash upScriBt.sh $@ || \
+        (echo -e "\n${SCS} Internet Connectivity : ONLINE"; bash ${PATHDIR}upScriBt.sh $0 $1) || \
         echo -e "\n${FLD} Internet Connectivity : OFFINE\n\n${INF} Please connect to the Internet for better functioning of ScriBt";
 
     # Where am I ?
@@ -1293,7 +1298,6 @@ function the_start() # 0
     else
         echo -e "\n${CL_LRD}[${NONE}${CL_YEL}!${NONE}${CL_LRD}]${NONE} ${ATBT} Cheat Code shut_my_mouth applied. I won't ask questions anymore";
     fi
-    [[ "$(pwd)" != "/" ]] && export CALL_ME_ROOT="$(pwd)" || export CALL_ME_ROOT="";
     echo -e "\n${EXE} ./action${CL_LRD}.SHOW_LOGO${NONE}";
     sleep 2;
     clear;
