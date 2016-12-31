@@ -1247,11 +1247,13 @@ function the_start() # 0
     # VROOM!
     DNT=`date +'%d/%m/%y %r'`;
     echo -ne "\033]0;ScriBt : The Beginning\007";
+
     # Load RIDb and Colors
-    if [ -f ROM.rc ]; then
+    if [[ "$0" == "./ROM.sh" ]] && [ -f ROM.rc ]; then
         source ./ROM.rc; # Load Local ROM.rc
-    elif [[ $(type -p ROM.rc) ]]; then
-        source $(type -p ROM.rc); # Load ROM.rc under PATH
+    elif [[ "$0" == "ROM.sh" ]] && [[ $(type -p ROM.rc) ]]; then
+        export PATHDIR="$(type -p ROM.sh | sed 's/ROM.sh//g')";
+        source ROM.rc; # Load ROM.rc under PATH
     else
         echo "[ERROR] ROM.rc isn't present in ${PWD} OR PATH please make sure repo is cloned correctly";
         exitScriBt 1;
@@ -1259,16 +1261,37 @@ function the_start() # 0
     color_my_life;
 
     # Relevant_Coloring
-    INF="${CL_LBL}[!]${NONE}";
-    SCS="${CL_LGN}[!]${NONE}";
-    FLD="${CL_LRD}[!]${NONE}";
-    EXE="${CL_YEL}[!]${NONE}";
-    QN="${CL_LRD}[?]${NONE}";
+    export INF="${CL_LBL}[!]${NONE}";
+    export SCS="${CL_LGN}[!]${NONE}";
+    export FLD="${CL_LRD}[!]${NONE}";
+    export EXE="${CL_YEL}[!]${NONE}";
+    export QN="${CL_LRD}[?]${NONE}";
 
-    # Download the Remote Version of Updater, determine the Internet Connectivity by working of this command
-    curl -fs -o upScriBt.sh https://raw.githubusercontent.com/a7r3/ScriBt/master/upScriBt.sh  && \
-        echo -e "\n${SCS} Internet Connectivity : ONLINE"; bash upScriBt.sh $@ || \
-        echo -e "\n${FLD} Internet Connectivity : OFFINE\n\n${INF} Please connect to the Internet for better functioning of ScriBt";
+    # I ez Root
+    [[ "$(pwd)" != "/" ]] && export CALL_ME_ROOT="$(pwd)" || export CALL_ME_ROOT="";
+
+    if [ ! -d ${PATHDIR}.git ]; then # tell the user to re-clone ScriBt
+        echo -e "${FLD} Folder ${CL_WYT}.git${NONE} not found";
+        echo -e "${INF} Probably the folder's been deleted OR You've ${CL_WYT}Downloaded it${NONE}";
+        echo -e "${INF} ${CL_WYT}Re-clone${NONE} ScriBt for upScriBt to work properly\n";
+        echo -e "${FLD} Update-Check Cancelled\n\n${INF} No modifications have been done\n";
+    fi
+
+    [ ! -z "${PATHDIR}" ] && cd ${PATHDIR};
+    # Check Branch
+    export BRANCH=`git rev-parse --abbrev-ref HEAD`;
+    cd ${CALL_ME_ROOT};
+
+    if [[ "$BRANCH" =~ (master|staging) ]]; then
+        # Download the Remote Version of Updater, determine the Internet Connectivity by working of this command
+        curl -fs -o upScriBt.sh https://raw.githubusercontent.com/a7r3/ScriBt/${BRANCH}/upScriBt.sh  && \
+            (echo -e "\n${SCS} Internet Connectivity : ONLINE"; bash ${PATHDIR}upScriBt.sh $0 $1) || \
+            echo -e "\n${FLD} Internet Connectivity : OFFINE\n\n${INF} Please connect to the Internet for complete functioning of ScriBt";
+    else
+        echo -e "\n${INF} Current Working Branch is neither 'master' nor 'staging'\n";
+        echo -e "${FLD} Update-Check Cancelled\n\n${INF} No modifications have been done\n";
+        cd ${CALL_ME_ROOT};
+    fi
 
     # Where am I ?
     echo -e "\n${INF} ${CL_WYT}I'm in $(pwd)${NONE}\n";
@@ -1293,7 +1316,6 @@ function the_start() # 0
     else
         echo -e "\n${CL_LRD}[${NONE}${CL_YEL}!${NONE}${CL_LRD}]${NONE} ${ATBT} Cheat Code shut_my_mouth applied. I won't ask questions anymore";
     fi
-    [[ "$(pwd)" != "/" ]] && export CALL_ME_ROOT="$(pwd)" || export CALL_ME_ROOT="";
     echo -e "\n${EXE} ./action${CL_LRD}.SHOW_LOGO${NONE}";
     sleep 2;
     clear;

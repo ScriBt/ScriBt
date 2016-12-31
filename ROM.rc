@@ -247,7 +247,6 @@ function rom_names()
     esac
 } # rom_names
 
-
 function color_my_life()
 {
     CLR_0=( BLK RED GRN ORG BLU PRP CYN LGR );
