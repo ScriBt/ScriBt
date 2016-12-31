@@ -1270,10 +1270,28 @@ function the_start() # 0
     # I ez Root
     [[ "$(pwd)" != "/" ]] && export CALL_ME_ROOT="$(pwd)" || export CALL_ME_ROOT="";
 
-    # Download the Remote Version of Updater, determine the Internet Connectivity by working of this command
-    curl -fs -o upScriBt.sh https://raw.githubusercontent.com/a7r3/ScriBt/master/upScriBt.sh  && \
-        (echo -e "\n${SCS} Internet Connectivity : ONLINE"; bash ${PATHDIR}upScriBt.sh $0 $1) || \
-        echo -e "\n${FLD} Internet Connectivity : OFFINE\n\n${INF} Please connect to the Internet for better functioning of ScriBt";
+    if [ ! -d ${PATHDIR}.git ]; then # tell the user to re-clone ScriBt
+        echo -e "${FLD} Folder ${CL_WYT}.git${NONE} not found";
+        echo -e "${INF} Probably the folder's been deleted OR You've ${CL_WYT}Downloaded it${NONE}";
+        echo -e "${INF} ${CL_WYT}Re-clone${NONE} ScriBt for upScriBt to work properly\n";
+        echo -e "${FLD} Update-Check Cancelled\n\n${INF} No modifications have been done\n";
+    fi
+
+    [ ! -z "${PATHDIR}" ] && cd ${PATHDIR};
+    # Check Branch
+    export BRANCH=`git rev-parse --abbrev-ref HEAD`;
+    cd ${CALL_ME_ROOT};
+
+    if [[ "$BRANCH" =~ (master|staging) ]]; then
+        # Download the Remote Version of Updater, determine the Internet Connectivity by working of this command
+        curl -fs -o upScriBt.sh https://raw.githubusercontent.com/a7r3/ScriBt/${BRANCH}/upScriBt.sh  && \
+            (echo -e "\n${SCS} Internet Connectivity : ONLINE"; bash ${PATHDIR}upScriBt.sh $0 $1) || \
+            echo -e "\n${FLD} Internet Connectivity : OFFINE\n\n${INF} Please connect to the Internet for complete functioning of ScriBt";
+    else
+        echo -e "\n${INF} Current Working Branch is neither 'master' nor 'staging'\n";
+        echo -e "${FLD} Update-Check Cancelled\n\n${INF} No modifications have been done\n";
+        cd ${CALL_ME_ROOT};
+    fi
 
     # Where am I ?
     echo -e "\n${INF} ${CL_WYT}I'm in $(pwd)${NONE}\n";
