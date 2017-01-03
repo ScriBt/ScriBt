@@ -1,8 +1,7 @@
 #!/bin/bash
-#===========================< upScriBt >===============================#
-#===========< Copyright 2016, Arvindraj Thangaraj - "a7r3" >===========#
+#================< upScriBt - Part of Projekt ScriBt >=================#
+#========< Copyright 2016-2017, Arvindraj Thangaraj - "a7r3" >=========#
 #=============< Credits to Łukasz "JustArchi" Domeradzki >=============#
-#====================< Part of Projekt ScriBt >========================#
 
 [ ! -z "${PATHDIR}" ] && cd ${PATHDIR};
 RVER=`curl https://raw.githubusercontent.com/a7r3/ScriBt/${BRANCH}/VERSION -s`; # Remote VERSION

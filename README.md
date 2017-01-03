@@ -9,6 +9,8 @@ Ready to use. Extensive Testing needed.
 
 **Supports Ubuntu & Debian based Distros, and ArchLinux**
 
+![ScriBt](https://cloud.githubusercontent.com/assets/14874906/21642379/b96e9882-d2a7-11e6-8fd5-fd6b294eaca4.png)
+
 To start with, read the ScriBt wiki, located here
 
 https://github.com/a7r3/ScriBt/wiki
