@@ -180,41 +180,6 @@ function set_ccvars() # D 4,5
     set_ccache;
 } # set_ccvars
 
-function tranScriBt() # ID
-{
-    function transIt()
-    {
-        echo -e "${EXE} Transferring ScriBt to the Specified Directory\n";
-        for FILE in `ls`; do
-            cp -rf ${FILE} $1/${FILE};
-        done
-        echo -e "${SCS} Successfully Transferred\n";
-        sleep 2;
-        echo -e "${EXE} Starting ScriBt in $1\n";
-        sleep 0.5;
-        echo -e "${CL_WYT}===============================================${NONE}\n";
-        cd $1;
-        exec bash ROM.sh $2;
-    } # transIt
-
-    echo -e "${EXE} Checking Directory Existence\n";
-    if [ ! -d $1 ]; then
-        echo -e "${FLD} Directory does not exist\n";
-        echo -e "${EXE} Trying to create directory\n";
-        TDIR=`mkdir -pv $1 | echo "$?"`;
-        if [[ "$TDIR" == 0 ]]; then
-            echo -e "${SCS} Directory created\n";
-            transIt $1 $2;
-        else
-            echo -e "${FLD} Invalid Directory specified\n";
-            exitScriBt 1;
-        fi
-    else
-        echo -e "${SCS} Directory Exists\n";
-        transIt $1 $2;
-    fi
-} # tranScriBt
-
 function the_response() # D ALL
 {
     case "$1" in
@@ -865,24 +830,27 @@ function tools() # 5
 
     function installdeps()
     {
-        echo -e "${EXE} Analyzing Distro";
-        for REL in os-release lsb-release debian-release; do
+        echo -e "\n${EXE} Analyzing Distro";
+        for REL in lsb-release os-release debian-release; do
             if [ -f "/etc/${REL}" ]; then
                 source /etc/${REL};
                 case "$REL" in
                     "lsb-release") DID="${DISTRIB_ID}"; VER="${DISTRIB_RELEASE}" ;;
                     "os-release") DID="${ID}"; VER="${VERSION_ID}" ;; # Most of the Newer Distros
-                    "debian-release") DID="Debian" VER=`cat /etc/debian-release` ;;
+                    "debian-release") DID="debian" VER=`cat /etc/debian-release` ;;
 #                   "other-release") DID="Distro Name (Single Worded)"; VER="Version (Single numbered)" ;;
                 esac
             fi
         done
         dist_db "$DID" "$VER"; # Determination of Distro by a Database
+        [[ ! -z "$DID"  && ! -z "$VER" ]] && \
+        echo -e "\n${SCS} Distro Detected Successfully" || \
+        (echo -e "\n${FLD} Distro not present in supported Distros\n\n${INF} Contact the Developer for Support\n"; quick_menu);
 
         echo -e "\n${EXE} Installing Build Dependencies\n";
         # Common Packages
         COMMON_PKGS=( git-core git gnupg flex bison gperf build-essential zip curl \
-        ccache libxml2-utils xsltproc g++-multilib squashfs-tools zlib1g-dev \
+        libxml2-utils xsltproc g++-multilib squashfs-tools zlib1g-dev \
         pngcrush schedtool python lib32z1-dev lib32z-dev lib32z1 \
         libxml2 optipng python-networkx python-markdown make unzip );
         case "$DYR" in
@@ -997,10 +965,10 @@ function tools() # 5
             [nN]) echo -e "${EXE} Keeping them Intact" ;;
             *)
                 echo -e "${FLD} Invalid Selection.\n";
-                java $1;
+                java_install $1;
                 ;;
         esac
-        echo -e "${CL_WYT}==========================================================${NONE}\n";
+        echo -e "\n${CL_WYT}==========================================================${NONE}\n";
         case "${PKGMGR}" in
             "apt") execroot apt-get update -y ;;
             "pacman") execroot pacman -Sy ;;
@@ -1010,7 +978,7 @@ function tools() # 5
             "apt") execroot apt-get install openjdk-$1-jdk -y ;;
             "pacman") execroot pacman -S jdk$1-openjdk ;;
         esac
-        if [[ $( java -version &> $TMP; grep -c "java version \"1.$1" $TMP ) == "1" ]]; then
+        if [[ $( java -version &> $TMP; grep -c "version \"1.$1" $TMP ) == "1" ]]; then
             echo -e "\n${CL_WYT}===========================================================${NONE}";
             echo -e "${SCS} OpenJDK-$1 or Java 1.$1.0 has been successfully installed";
             echo -e "${CL_WYT}===========================================================${NONE}";
@@ -1030,7 +998,7 @@ function tools() # 5
 
     function java_menu()
     {
-        echo -e "${CL_WYT}=============${NONE} ${CL_YEL}JAVA${NONE} Installation ${CL_WYT}============${NONE}\n";
+        echo -e "\n${CL_WYT}=============${NONE} ${CL_YEL}JAVA${NONE} Installation ${CL_WYT}============${NONE}\n";
         echo -e "1. Install Java";
         echo -e "2. Switch Between Java Versions / Providers\n";
         echo -e "0. Quick Menu\n";
@@ -1045,7 +1013,7 @@ function tools() # 5
                 echo -e "1. Java 1.6.0 (4.4.x Kitkat)";
                 echo -e "2. Java 1.7.0 (5.x.x Lollipop && 6.x.x Marshmallow)";
                 echo -e "3. Java 1.8.0 (7.x.x Nougat)\n";
-                [[ "${PKGMGR}" == "apt" ]] && echo -e "4. Ubuntu 16.04 & Want to install Java 7\n5. Ubuntu 14.04 & Want to install Java 8";
+                [[ "${PKGMGR}" == "apt" ]] && echo -e "4. Ubuntu 16.04 & Want to install Java 7\n5. Ubuntu 14.04 & Want to install Java 8\n";
                 prompt JAVER;
                 case "$JAVER" in
                     1) java_install 6 ;;
@@ -1170,13 +1138,13 @@ function tools() # 5
         echo -e "\n${CL_WYT}=======================${NONE} ${CL_LBL}Tools${NONE} ${CL_WYT}=========================${NONE}\n";
         echo -e "         1. Install Build Dependencies\n";
         echo -e "         2. Install Java (OpenJDK 6/7/8)";
-        echo -e "         3. Install and/or Set-up CCACHE";
+        echo -e "         3. Setup ccache (After installing it)";
         echo -e "         4. Install/Update ADB udev rules";
         echo -e "         5. Add/Update Git Credentials${CL_WYT}*${NONE}";
-        echo -e "         6. Install make (v3.81) ${CL_WYT}~${NONE}";
-        echo -e "         7. Install ninja (v1.7.2) ${CL_WYT}~${NONE}";
-        echo -e "         8. Install ccache (v3.3.3) ${CL_WYT}~${NONE}";
-        echo -e "         9. Install repo (v1.23) ${CL_WYT}~${NONE}";
+        echo -e "         6. Install make ${CL_WYT}~${NONE}";
+        echo -e "         7. Install ninja ${CL_WYT}~${NONE}";
+        echo -e "         8. Install ccache ${CL_WYT}~${NONE}";
+        echo -e "         9. Install repo ${CL_WYT}~${NONE}";
         echo -e "        10. Add ScriBt to PATH";
 # TODO: echo -e "         X. Find an Android Module's Directory";
         echo -e "\n         0. Quick Menu";
@@ -1290,7 +1258,7 @@ function the_start() # 0
 
     if [[ "$BRANCH" =~ (master|staging) ]]; then
         # Download the Remote Version of Updater, determine the Internet Connectivity by working of this command
-        curl -fs -o upScriBt.sh https://raw.githubusercontent.com/a7r3/ScriBt/${BRANCH}/upScriBt.sh  && \
+        curl -fs -o upScriBt.sh https://raw.githubusercontent.com/a7r3/ScriBt/${BRANCH}/upScriBt.sh && \
             (echo -e "\n${SCS} Internet Connectivity : ONLINE"; bash ${PATHDIR}upScriBt.sh $0 $1) || \
             echo -e "\n${FLD} Internet Connectivity : OFFINE\n\n${INF} Please connect to the Internet for complete functioning of ScriBt";
     else
@@ -1370,7 +1338,7 @@ function automator()
 # 'read' command with custom prompt '[>]' in Cyan
 function prompt(){ read -p $'\033[1;36m[>]\033[0m ' $1; };
 # 'sudo' command with custom prompt '[#]' in Pink
-function execroot(){ sudo -p $'\033[1;35m[#]\033[0m ' $1; };
+function execroot(){ sudo -p $'\033[1;35m[#]\033[0m ' $@; };
 
 function usage()
 {

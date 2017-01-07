@@ -15,4 +15,6 @@ To start with, read the ScriBt wiki, located here
 
 https://github.com/a7r3/ScriBt/wiki
 
+**Contributions to ScriBt should be submitted via Pull-Request on** ```staging``` **branch**
+
 #Happy ScriBting!

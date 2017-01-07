@@ -325,26 +325,25 @@ function dist_db()
                 16.04|16.10) DYR="D16" ;; # Distro(s) released in 2016
             esac
             ;;
-        "Debian")
+        debian)
             case "$2" in
                 8|8.1|8.2|8.3|8.4|8.5|8.6)
                     DYR="D15" ;;
             esac
             ;;
-        "elementary")
+        elementary)
             case "$2" in
                 0.2) DYR="D12" ;;
                 0.3|0.3.1|0.3.2) DYR="D14" ;;
                 0.4) DYR="D16" ;;
             esac
             ;;
-        "LinuxMint")
+        [Ll]inux[Mm]int)
             case "$2" in
                 14) DYR="D12" ;;
                 15|16) DYR="D13" ;;
                 17|17.1|17.2|17.3) DYR="D14" ;;
-                18|18.1) DYR="D15" ;;
-
+                18|18.1) DYR="D16" ;;
             esac
             ;;
         "Zorin OS")
