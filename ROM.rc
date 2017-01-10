@@ -17,7 +17,7 @@ function rom_names()
             ROM_FN="AOKP";
             ROMNIS="aokp";
             ;;
-        3|36)
+        3|35)
             ROM_NAME=( AOSIP );
             MAN=( platform_manifest.git );
             ROM_FN="AOSiP";
@@ -72,7 +72,7 @@ function rom_names()
             ROM_FN="CyanogenMod";
             ROMNIS="cm";
             ;;
-        12|37)
+        12|36)
             ROM_NAME=( DirtyUnicorns );
             MAN=( android_manifest.git );
             ROM_FN="Dirty Unicorns";
@@ -147,66 +147,60 @@ function rom_names()
             ROMNIS="pa";
             ;;
         24)
-            ROM_NAME=( Team-Radium );
-            MAN=( manifest.git );
-            ROM_FN="Team Radium";
-            ROMNIS="radium";
-            ;;
-        25)
             ROM_NAME=( ResurrectionRemix );
             MAN=( platform_manifest.git );
             ROM_FN="Resurrection Remix";
             ROMNIS="cm";
             ;;
-        26)
+        25)
             ROM_NAME=( SlimRoms );
             MAN=( platform_manifest.git );
             ROM_FN="SlimRoms";
             ROMNIS="slim";
             ;;
-        27)
+        26)
             ROM_NAME=( temasek );
             MAN=( android.git );
             ROM_FN="Temasek";
             ROMNIS="cm";
             ;;
-        28)
+        27)
             ROM_NAME=( Tesla-M TeslaRom-N );
             MAN=( manifest.git manifest.git );
             ROM_FN="GZR Tesla";
             ROMNIS="tesla";
             ;;
-        29)
+        28)
             ROM_NAME=( TipsyOs );
             MAN=( platform_manifest.git );
             ROM_FN="TipsyOs";
             ROMNIS="tipsy";
             ;;
-        30)
+        29)
             ROM_NAME=( TV-LP51 ValidusOs-M GZR-ValidusOS );
             MAN=( android.git manifest.git manifest.git );
             ROM_FN="GZR Validus";
             ROMNIS="validus";
             ;;
-        31)
+        30)
             ROM_NAME=( VanirAOSP );
             MAN=( platform_manifest.git );
             ROM_FN="VanirAOSP";
             ROMNIS="vanir";
             ;;
-        32)
+        31)
             ROM_NAME=( TeamHorizon );
             MAN=( platform_manifest.git );
             ROM_FN="XenonHD";
             ROMNIS="xenonhd";
             ;;
-        33)
+        32)
             ROM_NAME=( XOSP-Project );
             MAN=( platform_manifest.git );
             ROM_FN="XOSP";
             ROMNIS="xosp";
             ;;
-        34)
+        33)
             ROM_NAME=( Zephyr-Os );
             MAN=( manifest.git );
             ROM_FN="Zephyr-OS";
@@ -214,26 +208,26 @@ function rom_names()
             ROMV="zos";
             ;;
         # Nexus Only ROMs
-        35)
+        34)
             ROM_NAME=( ezio84 );
             MAN=( abc-n_manifest.git );
             ROM_FN="ABC ROM";
             ROMNIS="pure";
             ;;
-        # 36 - AOSIP; 37 - DU; See above
-        38)
+        # 35 - AOSIP; 36 - DU; See above
+        37)
             ROM_NAME=( krexus );
             MAN=( manifest.git );
             ROM_FN="Krexus";
             ROMNIS="krexus";
             ;;
-        39)
+        38)
             ROM_NAME=( nitrogen-project );
             MAN=( android_manifest.git );
             ROM_FN="Nitrogen OS";
             ROMNIS="nitrogen";
             ;;
-        40)
+        39)
             ROM_NAME=( PureNexusProject );
             MAN=( manifest.git );
             ROM_FN="PureNexus";

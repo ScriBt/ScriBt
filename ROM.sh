@@ -121,18 +121,18 @@ function quick_menu()
 
 function rom_select() # D 1,2
 {
-    echo -e "${CL_WYT}=======================================================${NONE}\n";
+    echo -e "\n${CL_WYT}=======================================================${NONE}\n";
     echo -e "${CL_YEL}[?]${NONE} ${CL_WYT}Which ROM are you trying to build\nChoose among these (Number Selection)\n";
     for RNO in {1..34}; do
         rom_names $RNO;
         echo -e "$RNO. $ROM_FN";
-    done
+    done | pr -t -2
     echo -e "\n${INF} ${CL_WYT}Non-CAF / Nexus-Family ROMs${NONE}";
     echo -e "${INF} ${CL_WYT}Choose among these ONLY if you're building for a Nexus Device\n"
     for RNO in {35..40}; do
         rom_names $RNO;
         echo -e "$RNO. $ROM_FN";
-    done
+    done | pr -t -2
     unset ROMV CNS; # Unset these
     echo -e "\n=======================================================${NONE}\n";
     [ -z "$automate" ] && prompt SBRN;
@@ -200,7 +200,11 @@ function init() # 1
         echo -e "\nOn ${ROM_NAME[$RC]} (ID->$RC)\n";
         BRANCHES=`git ls-remote -h https://github.com/${ROM_NAME[$RC]}/${MAN[$RC]} |\
             awk '{print $2}' | awk -F "/" '{if (length($4) != 0) {print $3"/"$4} else {print $3}}'`;
-        [[ ! -z "$CNS" && "$SBRN" < "35" ]] && (echo "$BRANCHES" | grep --color=never 'caf') || echo "$BRANCHES"; # ROM is CAF based, filter out CAF branches
+        if [[ ! -z "$CNS" && "$SBRN" < "34" ]]; then
+            echo "$BRANCHES" | grep --color=never 'caf' | column;
+        else
+            echo "$BRANCHES" | column;
+        fi
     done
     echo -e "\n${INF} These Branches are available at the moment\n${QN} Specify the ID and Branch you're going to sync\n${INF} Format : [ID] [BRANCH]\n";
     ST="Branch"; shut_my_mouth NBR "$ST";
@@ -457,8 +461,8 @@ function pre_build() # 3
 
     function find_ddc() # For Finding Default Device Configuration file
     {
-        ROMS=( aicp aokp aosp bliss candy carbon crdroid cyanide cm du eos orion \
-                ownrom radium slim tesla tipsy to validus vanir xenonhd xosp );
+        ROMS=( aicp aokp aosp bliss candy carbon crdroid cyanide cm du eos lineage \
+                orion ownrom radium slim tesla tipsy to validus vanir xenonhd xosp );
         for ROM in ${ROMS[*]}; do
             # Possible Default Device Configuration (DDC) Files
             DDCS=( ${ROM}_${SBDEV}.mk full_${SBDEV}.mk aosp_${SBDEV}.mk ${ROM}.mk );
@@ -511,10 +515,6 @@ function pre_build() # 3
 # See the License for the specific language governing permissions and
 # limitations under the License." >> ${INTM};
             echo -e "\n# Inherit ${ROMNIS} common stuff\n\$(call inherit-product, ${CNF}/${VNF}.mk)" >> ${INTM};
-            # Inherit Vendor specific files
-            if [[ $(grep -c 'nfc_enhanced' $DDC) == "1" ]] && [ -f ${CALL_ME_ROOT}/${CNF}/nfc_enhanced.mk ]; then
-                echo -e "\n# Enhanced NFC\n\$(call inherit-product, ${CNF}/nfc_enhanced.mk)" >> ${INTM};
-            fi
             echo -e "\n# Calling Default Device Configuration File" >> ${INTM};
             echo -e "\$(call inherit-product, ${DEVDIR}/${DDC})" >> ${INTM};
             # To prevent Missing Vendor Calls in DDC-File
@@ -558,7 +558,7 @@ function pre_build() # 3
     NOINT=$(echo -e "${SCS} Interactive Makefile Unneeded, continuing");
 
     case "$SBRN" in
-        4|5|1[3458]|22|34) # AOSP-CAF/RRO|Euphoria|F-AOSP|Flayr|OmniROM|Parallax|Zephyr
+        4|5|1[3458]|22|33) # AOSP-CAF/RRO|Euphoria|F-AOSP|Flayr|OmniROM|Parallax|Zephyr
             VNF="common";
             [[ "$SBRN" == "13" ]] && INTF="${ROMNIS}.mk" || INTF="${ROMNIS}_${SBDEV}.mk";
             need_for_int;
@@ -583,7 +583,7 @@ function pre_build() # 3
                 echo "$NOINT";
             fi
             ;;
-        1|16|23|3[5689]|40) # AICP|Krexus-CAF|AOSPA|Non-CAFs except DU
+        1|16|23|3[45789]) # AICP|Krexus-CAF|AOSPA|Non-CAFs except DU
             echo "$NOINT";
             ;;
         *) # Rest of the ROMs
@@ -947,6 +947,15 @@ function tools() # 5
         echo -e "\n${CL_WYT}================================================================${NONE}";
     } # java_select
 
+    function java_check()
+    {
+      if [[ $( java -version &> $TMP; grep -c "version \"1.$1" $TMP ) == "1" ]]; then
+          echo -e "\n${CL_WYT}===========================================================${NONE}";
+          echo -e "${SCS} OpenJDK-$1 or Java 1.$1.0 has been successfully installed";
+          echo -e "${CL_WYT}===========================================================${NONE}";
+      fi
+    } # java_check
+
     function java_install()
     {
         echo -ne "\033]0;ScriBt : Java $1\007";
@@ -978,11 +987,7 @@ function tools() # 5
             "apt") execroot apt-get install openjdk-$1-jdk -y ;;
             "pacman") execroot pacman -S jdk$1-openjdk ;;
         esac
-        if [[ $( java -version &> $TMP; grep -c "version \"1.$1" $TMP ) == "1" ]]; then
-            echo -e "\n${CL_WYT}===========================================================${NONE}";
-            echo -e "${SCS} OpenJDK-$1 or Java 1.$1.0 has been successfully installed";
-            echo -e "${CL_WYT}===========================================================${NONE}";
-        fi
+        java_check $1;
     } # java_install
 
     function java_ppa()
@@ -994,6 +999,7 @@ function tools() # 5
         execroot add-apt-repository ppa:openjdk-r/ppa -y; # Add Java PPA
         execroot apt-get update -y; # Update Sources
         execroot apt-get install openjdk-$1-jdk -y; # Install eet
+        java_check $1;
     } # java_ppa
 
     function java_menu()
@@ -1229,24 +1235,25 @@ function the_start() # 0
     elif [ ! -z "${PATHDIR}" ]; then
         source ${PATHDIR}ROM.rc; # Load ROM.rc under PATH
     else
-        echo "[ERROR] ROM.rc isn't present in ${PWD} OR PATH please make sure repo is cloned correctly";
+        echo "[F] ROM.rc isn't present in ${PWD} OR PATH please make sure repo is cloned correctly";
         exitScriBt 1;
     fi
     color_my_life;
 
     # Relevant_Coloring
-    export INF="${CL_LBL}[!]${NONE}";
-    export SCS="${CL_LGN}[!]${NONE}";
-    export FLD="${CL_LRD}[!]${NONE}";
-    export EXE="${CL_YEL}[!]${NONE}";
-    export QN="${CL_LRD}[?]${NONE}";
+    if [[ $(tput colors) < 2 ]]; then
+        export INF="[I]" SCS="[S]" FLD="[F]" EXE="[!]" QN="[?]";
+    else
+        export INF="${CL_LBL}[!]${NONE}" SCS="${CL_LGN}[!]${NONE}" \
+               FLD="${CL_LRD}[!]${NONE}" EXE="${CL_YEL}[!]${NONE}" \
+               QN="${CL_LRD}[?]${NONE}";
+    fi
 
     # I ez Root
     [[ "$(pwd)" != "/" ]] && export CALL_ME_ROOT="$(pwd)" || export CALL_ME_ROOT="";
 
     if [ ! -d ${PATHDIR}.git ]; then # tell the user to re-clone ScriBt
         echo -e "${FLD} Folder ${CL_WYT}.git${NONE} not found";
-        echo -e "${INF} Probably the folder's been deleted OR You've ${CL_WYT}Downloaded it${NONE}";
         echo -e "${INF} ${CL_WYT}Re-clone${NONE} ScriBt for upScriBt to work properly\n";
         echo -e "${FLD} Update-Check Cancelled\n\n${INF} No modifications have been done\n";
     fi
@@ -1264,7 +1271,6 @@ function the_start() # 0
     else
         echo -e "\n${INF} Current Working Branch is neither 'master' nor 'staging'\n";
         echo -e "${FLD} Update-Check Cancelled\n\n${INF} No modifications have been done\n";
-        cd ${CALL_ME_ROOT};
     fi
 
     # Where am I ?

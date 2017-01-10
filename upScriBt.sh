@@ -17,8 +17,7 @@ if [[ "$LHEAD" != "$RHEAD" ]]; then
         [Yy])
             echo -e "\n${EXE} Updating ScriBt to Version $RVER\n";
             git reset --hard FETCH_HEAD;
-            echo -e "\n${SCS} ScriBt updated Successfully";
-            echo -e "\n${EXE} Restarting ScriBt with the provided parameters";
+            echo -e "\n${SCS} ScriBt updated Successfully\n\n${EXE} Restarting ScriBt";
             cd ${CALL_ME_ROOT};
             exec bash $@;
             ;;
@@ -27,8 +26,7 @@ if [[ "$LHEAD" != "$RHEAD" ]]; then
             ;;
     esac
 else
-    echo -e "\n${SCS} ScriBt is up-to-date";
-    echo -e "\n${EXE} Continuing";
+    echo -e "\n${EXE} ScriBt is up-to-date, Continuing";
 fi
 cd ${CALL_ME_ROOT};
 exit 0; # No Failing possibilites, so Peace
