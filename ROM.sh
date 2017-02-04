@@ -121,18 +121,22 @@ function quick_menu()
 
 function rom_select() # D 1,2
 {
+    export ROMS=( " " "AICP" "AOKP" "AOSiP" "AOSP-CAF" "AOSP-OMS" "BlissRoms" \
+        "CandyRoms" "CarbonROM" "crDroid" "Cyanide" "CyanogenMod" "DirtyUnicorns" \
+        "Euphoria" "F-AOSP" "FlayrOS" "Krexus" "Lineage Android" "OctOs" \
+        "OmniROM" "OrionOS" "OwnROM" "PAC ROM" "Parallax OS" "Paranoid Android"\
+        "Resurrection Remix" "SlimRoms" "Temasek" "GZR Tesla" "TipsyOs" \
+        "GZR Validus" "VanirAOSP" "XenonHD" "XOSP" "Zephyr-OS" "AOSiP" "ABC ROM" \
+        "DirtyUnicorns" "Krexus" "Nitrogen OS" "PureNexus" );
     echo -e "\n${CL_WYT}=======================================================${NONE}\n";
     echo -e "${CL_YEL}[?]${NONE} ${CL_WYT}Which ROM are you trying to build\nChoose among these (Number Selection)\n";
     for CT in {1..34}; do
-        rom_names $CT;
-        echo -e "$CT. $ROM_FN";
+        echo -e "${CT}. ${ROMS[$CT]}";
     done | pr -t -2
-    unset CT;
     echo -e "\n${INF} ${CL_WYT}Non-CAF / Nexus-Family ROMs${NONE}";
     echo -e "${INF} ${CL_WYT}Choose among these ONLY if you're building for a Nexus Device\n"
     for CT in {35..40}; do
-        rom_names $CT;
-        echo -e "$CT. $ROM_FN";
+        echo -e "${CT}. ${ROMS[$CT]}";
     done | pr -t -2
     unset CT CNS; # Unset these
     echo -e "\n=======================================================${NONE}\n";
@@ -249,18 +253,27 @@ function init() # 1
     fi
     echo -e "${CL_WYT}=======================================================${NONE}\n";
     echo -e "${EXE} Initializing the ROM Repo\n";
-    repo init ${REF} ${CDP} -u https://github.com/${RNM}/${MNF} -b ${SBBR} && \
-    echo -e "\n${SCS} ${ROM_NAME[$RC]} Repo Initialized\n" || \
-    echo -e "\n${FLD} Failed to Initialize Repo";
-    echo -e "${CL_WYT}=======================================================${NONE}\n";
-    [ ! -f .repo/local_manifests ] && mkdir -pv .repo/local_manifests;
-    if [ -z "$automate" ]; then
-        echo -e "${INF} Create a Device Specific manifest and Press ENTER to start sync\n";
-        read ENTER;
-        echo;
+    repo init ${REF} ${CDP} -u https://github.com/${RNM}/${MNF} -b ${SBBR};
+    if [[ "$1" == "0" ]]; then
+        echo -e "\n${SCS} ${ROM_NAME[$RC]} Repo Initialized\n";
+    else
+        echo -e "\n${FLD} Failed to Initialize Repo";
+        export RINIT="FLD";
     fi
-    export action_1="init";
-    sync;
+    echo -e "${CL_WYT}=======================================================${NONE}\n";
+    if [[ -z "$RINIT" ]]; then
+        [ ! -f .repo/local_manifests ] && mkdir -pv .repo/local_manifests;
+        if [ -z "$automate" ]; then
+            echo -e "${INF} Create a Device Specific manifest and Press ENTER to start sync\n";
+            read ENTER;
+            echo;
+        fi
+        export action_1="init";
+        sync
+    else
+        unset RINIT;
+        quick_menu;
+    fi
 } # init
 
 function sync() # 2
@@ -463,9 +476,9 @@ function pre_build() # 3
 
     function find_ddc() # For Finding Default Device Configuration file
     {
-        ROMS=( aicp aokp aosp bliss candy carbon crdroid cyanide cm du eos lineage \
+        ROMC=( aicp aokp aosp bliss candy carbon crdroid cyanide cm du eos lineage \
                 orion ownrom radium slim tesla tipsy to validus vanir xenonhd xosp );
-        for ROM in ${ROMS[*]}; do
+        for ROM in ${ROMC[*]}; do
             # Possible Default Device Configuration (DDC) Files
             DDCS=( ${ROM}_${SBDEV}.mk full_${SBDEV}.mk aosp_${SBDEV}.mk ${ROM}.mk );
             # Makefiles are arranged according to their priority of Usage
@@ -561,14 +574,14 @@ function pre_build() # 3
     NOINT=$(echo -e "${SCS} Interactive Makefile Unneeded, continuing");
 
     case "$SBRN" in
-        4|5|1[3459]|23|34) # AOSP-CAF/RRO|Euphoria|F-AOSP|Flayr|OmniROM|Parallax|Zephyr
+        aosp|eos|omni|zos) # AOSP-CAF/RRO|Euphoria|F-AOSP|Flayr|OmniROM|Parallax|Zephyr
             VNF="common";
             [[ "$SBRN" == "13" ]] && INTF="${ROMNIS}.mk" || INTF="${ROMNIS}_${SBDEV}.mk";
             need_for_int;
             rm -rf ${DEVDIR}/AndroidProducts.mk;
             echo -e "PRODUCT_MAKEFILES :=  \\ \n\t\$(LOCAL_DIR)/${INTF}" >> AndroidProducts.mk;
             ;;
-        3) # AOSiP-CAF
+        aosip) # AOSiP-CAF
             if [ ! -f vendor/${ROMNIS}/products ]; then
                 VNF="common";
                 INTF="${ROMNIS}.mk";
@@ -577,7 +590,7 @@ function pre_build() # 3
                 echo "$NOINT";
             fi
             ;;
-        2|22) # AOKP-4.4|PAC-5.1
+        aokp|pac) # AOKP-4.4|PAC-5.1
             if [ ! -f vendor/${ROMNIS}/products ]; then
                 VNF="$SBDTP";
                 INTF="${ROMNIS}.mk"
@@ -586,7 +599,7 @@ function pre_build() # 3
                 echo "$NOINT";
             fi
             ;;
-        1|16|24|3[5689]|40) # AICP|Krexus-CAF|AOSPA|Non-CAFs except DU
+        aicp|krexus|pa|pure|krexus|nitrogen|pure) # AICP|Krexus-CAF|AOSPA|Non-CAFs except DU
             echo "$NOINT";
             ;;
         *) # Rest of the ROMs
@@ -741,14 +754,14 @@ function build() # 4
                 echo -e "$((${CT}+1)). ${KDEFS[$CT]}";
             done
             unset CT;
-            echo -e "\n${INF} These are the available Kernel Configurations\n${QN} Select the one according to the CPU Architecture\n";
+            echo -e "\n${INF} These are the available Kernel Configurations\n\n${QN} Select the one according to the CPU Architecture\n";
             prompt CT;
             KDEFC=`eval echo "\${KDEFS[$(($CT-1))]}" | awk -F "/" '{print $4}'`;
             KARCH=`eval echo "\${KDEFS[$(($CT-1))]}" | awk -F "/" '{print $2}'`;
-            echo -e "\n${INF} Arch : ${KARCH}\n";
-            echo -e "\n${QN} Number of Jobs / Threads";
+            echo -e "\n${INF} Arch : ${KARCH}";
+            echo -e "\n${QN} Number of Jobs / Threads\n";
             BCORES=$(grep -c ^processor /proc/cpuinfo); # CPU Threads/Cores
-            echo -e "${INF} Maximum No. of Jobs -> ${CL_WYT}${BCORES}${NONE}";
+            echo -e "${INF} Maximum No. of Jobs -> ${CL_WYT}${BCORES}${NONE}\n";
             ST="Number of Jobs"; shut_my_mouth NT "$ST";
             if [[ "$SBNT" > "$BCORES" ]]; then # Y u do dis
                 echo -e "\n${FLD} Invalid Response\n";
@@ -762,7 +775,7 @@ function build() # 4
             echo -e "\n${INF} Make sure you have downloaded (synced) a Toolchain for compiling the kernel";
             echo -e "\n${QN} Point me to the location of the toolchain\n";
             prompt KTCL;
-            if [ -d $KTCL ]; then
+            if [[ -d "${KTCL}" ]]; then
                 KCCP=$(ls ${KTCL}/bin/${KARCH}*gcc | sed -e 's/gcc//g' -e 's/.*bin\///g');
                 if [[ ! -z "${KCCP}" ]]; then
                     echo -e "\n${SCS} Toolchain Detected\n";
@@ -770,42 +783,44 @@ function build() # 4
                     # echo -e "${PRFXS}\n";
                     # echo -e "${QN} Type in the desired Toolchain Prefix\n";
                     # prompt KCCP;   ^^ Uhmm, not sure if there are multiple prefixes in one toolchain
-                    echo;
                 else
                     echo -e "${FLD} Toolchain Binaries not found\n";
                 fi
             else
                 echo -e "${FLD} Directory not present\n";
             fi
+            kbuild;
         } # settc
 
         function kclean()
         {
-            echo -e "${INF} Cleaning Levels\n";
+            export ARCH="${KARCH}" CROSS_COMPILE="${KTCL}/bin/${KCCP}";
+            echo -e "\n${INF} Cleaning Levels\n";
             echo -e "1. Clean Intermediate files";
             echo -e "2. 1 + Clean the Current Kernel Configuration\n";
             prompt KCLL;
-            case "$KCLL" in
+            case "${KCLL}" in
                 1) make clean -j${SBNT} ;;
                 2) make mrproper -j${SBNT} ;;
             esac
-            echo -e "${INF} Kernel Cleaning done\n${INF} Check output for details\n";
+            echo -e "\n${INF} Kernel Cleaning done\n\n${INF} Check output for details\n";
+            kbuild;
         } # kclean
 
 
         function mkkernel()
         {
-            echo -e "${INF} Compiling the Kernel\n";
-            export ARCH="${KARCH}" CROSS_COMPILE="${KTCL}/bin/${KCCP}";
+            echo -e "\n${INF} Compiling the Kernel\n";
             make ${KDEFC};
             make -j${SBNT} && echo -e "\n${SCS} Compiled Successfully\n" || echo -e "${FLD} Compilation failed\n";
-            quick_menu;
+            kbuild;
         } # mkkernel
 
         if [ -z "$KDEFC" ] && [ -z "$KARCH" ]; then
             kinit;
             kbuild;
         else
+            export ARCH="${KARCH}" CROSS_COMPILE="${KTCL}/bin/${KCCP}";
             KSTS=`echo -e "Arch : ${KARCH}\nDefinition Config : ${KDEFC}"`;
         fi
         echo -ne "\033]0;ScriBt : KernelBuilding\007";
@@ -815,7 +830,7 @@ function build() # 4
         echo -e "2. Setup Toolchain";
         echo -e "3. Clean Kernel output";
         echo -e "4. Build the kernel";
-#       echo -e "4. Setup Custom Toolchain";
+#       echo -e "5. Setup Custom Toolchain";
         echo -e "0. Quick Menu";
         echo -e "=======================================================\n";
         prompt KOPT;
@@ -826,7 +841,7 @@ function build() # 4
             3) kclean ;;
             4) mkkernel ;;
 #           5) dwntc ;;
-            *) echo -e "${FLD} Invalid Selection"; kbuild ;;
+            *) echo -e "${FLD} Invalid Selection" ;;
         esac
     } # kbuild
 

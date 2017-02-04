@@ -6,6 +6,11 @@
 [ ! -z "${PATHDIR}" ] && cd ${PATHDIR};
 RVER=`curl https://raw.githubusercontent.com/a7r3/ScriBt/${BRANCH}/VERSION -s`; # Remote VERSION
 LVER=`cat VERSION`; # Local VERSION
+MSG=`curl https://raw.githubusercontent.com/a7r3/ScriBt/status/${LVER} -s`;
+if [ ! -z "$MSG" ]; then
+    echo -e "\n${INF} ${CL_WYT}Important Message${NONE}\n";
+    echo -e "${CL_WYT}${MSG}${NONE}\n";
+fi
 LHEAD="$(git rev-parse HEAD)";
 git fetch -q origin ${BRANCH};
 RHEAD="$(git rev-parse origin/${BRANCH})";
