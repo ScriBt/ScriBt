@@ -174,7 +174,7 @@ function set_ccvars() # D 4,5
         if [ -f ${HOME}/${RC} ]; then
             if [[ $(grep -c 'USE_CCACHE\|CCACHE_DIR' ${HOME}/${RC}) == 0 ]]; then
                 echo -e "export USE_CCACHE=1\nexport CCACHE_DIR=${CCDIR}" >> ${HOME}/${RC};
-                . ${HOME}/${RC} &> /dev/null;
+                . ${HOME}/${RC};
                 echo -e "\n${SCS} CCACHE Specific exports added in ${CL_WYT}${RC}${NONE}";
             else
                 echo -e "\n${SCS} CCACHE Specific exports already enabled in ${CL_WYT}${RC}${NONE}";
@@ -836,7 +836,7 @@ function build() # 4
         prompt KOPT;
         case "$KOPT" in
             0) quick_menu ;;
-            1) setdefc ;;
+            1) kinit ;;
             2) settc ;;
             3) kclean ;;
             4) mkkernel ;;
@@ -852,13 +852,15 @@ function build() # 4
         echo -e "1. Start Building ROM (ZIP output) (Clean Options Available)";
         echo -e "2. Make a Particular Module";
         echo -e "3. Setup CCACHE for Faster Builds";
-        echo -e "4. Kernel Building\n";
+        echo -e "4. Kernel Building";
+        echo -e "0. Quick Menu\n";
         echo -e "${CL_WYT}=======================================================\n";
         ST="Option Selected"; shut_my_mouth BO "$ST";
     } # build_menu
 
     build_menu;
     case "$SBBO" in
+        0) quick_menu ;;
         1)
             if [ -d .repo ]; then
                 # Get Missing Information
@@ -1262,7 +1264,8 @@ function tools() # 5
                     echo -e "\n${EXE} Adding ScriBt to PATH";
                     echo -e "# ScriBtofy\nexport PATH=\"${CALL_ME_ROOT}:\$PATH\";" > ${HOME}/.scribt;
                     [[ $(grep 'source ${HOME}/.scribt' ${HOME}/.bashrc) ]] && echo -e "\n#ScriBtofy\nsource \${HOME}/.scribt;" >> ${HOME}/.bashrc;
-                    source ~/.bashrc &> /dev/null;
+                    echo -e "\n${EXE} Executing ~/.bashrc";
+                    source ~/.bashrc;
                     echo -e "\n${SCS} Done\n\n${INF} Now you can ${CL_WYT}bash ROM.sh${NONE} under any directory";
                 ;;
             [Nn])
