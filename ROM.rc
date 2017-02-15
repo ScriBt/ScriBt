@@ -202,9 +202,7 @@ function rom_names()
             ROMNIS="pure";
             ;;
         *)
-            if [ -z "$automate" ]; then
-                echo -e "${LRED}Invalid Selection.${NONE} Going back."; rom_select;
-            fi
+            [ -z "$automate" ] && SBRN="Invalid";
             ;;
     esac
     [ ! -z "$1" ] && ROM_FN="${ROMS[$1]}";

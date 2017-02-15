@@ -3,13 +3,13 @@
 
 **ROM Sync && Build Script for Learning Developers**
 
-Ready to use. Extensive Testing needed.
+Ready to use.
 
 **Now at [XDA-Developers](http://forum.xda-developers.com/chef-central/android/guide-tool-projekt-scribt-v1-33-t3503018)**
 
 **Supports Ubuntu & Debian based Distros, and ArchLinux**
 
-![ScriBt](https://cloud.githubusercontent.com/assets/14874906/21642379/b96e9882-d2a7-11e6-8fd5-fd6b294eaca4.png)
+![ScriBt](https://cloud.githubusercontent.com/assets/14874906/23310608/1d71209e-fad9-11e6-8546-7860816a2e64.png)
 
 To start with, read the ScriBt wiki, located here
 

@@ -69,7 +69,9 @@ function exitScriBt() # ID
         echo -e "\n${SCS} Configuration file ${NOC} created successfully\n${INF} You may modify the config, and automate ScriBt next time";
     } # prefGen
 
-    [[ "$RQ_PGN" == [Yy] ]] && prefGen;
+    [[ "$RQ_PGN" == [Yy] ]] && prefGen || ((set -o posix; set) > ${TV2});
+    echo -e "\n${EXE} Unsetting all variables";
+    unset `diff temp_v1.txt temp_v2.txt | grep SB | sed -e 's/[<>] /    /g' | awk -F "=" '{print $1}'`
     echo -e "\n${SCS:-[:)]} Thanks for using ScriBt.\n";
     [[ "$1" == "0" ]] && echo -e "${CL_LGN}[${NONE}${CL_LRD}<3${NONE}${CL_LGN}]${NONE} Peace! :)\n" ||\
         echo -e "${CL_LRD}[${NONE}${CL_RED}<${NONE}${CL_LGR}/${NONE}${CL_RED}3${NONE}${CL_LRD}]${NONE} Failed somewhere :(\n";
@@ -138,11 +140,15 @@ function rom_select() # D 1,2
     for CT in {35..40}; do
         echo -e "${CT}. ${ROMS[$CT]}";
     done | pr -t -2
-    unset CT CNS; # Unset these
+    unset CT CNS SBRN; # Unset these
     echo -e "\n=======================================================${NONE}\n";
     [ -z "$automate" ] && prompt SBRN;
     rom_names "$SBRN";
-    echo -e "\n${INF} You have chosen -> ${ROM_FN}\n";
+    if [[ "${SBRN}" == "Invalid" ]]; then
+        echo -e "\n${LRED}Invalid Selection.${NONE} Going back."; rom_select;
+    else
+        echo -e "\n${INF} You have chosen -> ${ROM_FN}\n";
+    fi
 } # rom_select
 
 function shut_my_mouth() # ID
@@ -685,6 +691,7 @@ function build() # 4
         if [[ "$1" != "brunch" ]]; then
             START=$(date +"%s"); # Build start time
             # Showtime!
+            BCORES="-j${BCORES}";
             if [ $(grep -q "^${ROMNIS}:" "${CALL_ME_ROOT}/build/core/Makefile") ]; then
                 $SBMK $ROMNIS $BCORES && BLDSCS="yay" 2>&1 | tee $RMTMP;
             elif [ $(grep -q "^bacon:" "${CALL_ME_ROOT}/build/core/Makefile") ]; then
@@ -733,32 +740,46 @@ function build() # 4
         fi
     } # make_module
 
+    function custuserhost()
+    {
+        echo -e "\n${QN} Enter the User name [$(whoami)]\n";
+        ST="Custom Username"; shut_my_mouth CU "$ST";
+        export KBUILD_BUILD_USER=${SBCU:-$(whoami)};
+        echo -e "\n${QN} Enter the Host name [$(hostname)]\n";
+        ST="Custom Hostname"; shut_my_mouth CH "$ST";
+        export KBUILD_BUILD_HOST=${SBCH:-$(hostname)};
+        echo -e "\n${INF} You're building on ${CL_WYT}${KBUILD_BUILD_USER}@${KBUILD_BUILD_HOST}${NONE}";
+        echo -e "\n${SCS} Done\n";
+        [ -z "$automate" ] && kbuild;
+    } # custuserhost
+
     function kbuild()
     {
         function kinit()
         {
             echo -e "${INF} Enter the location of the Kernel source\n";
-            prompt KLOC;
-            if [ -f ${KLOC}/Makefile ]; then
+            ST="Kernel Location"; shut_my_mouth KL "$ST";
+            if [ -f ${SBKL}/Makefile ]; then
                 echo -e "\n${SCS} Kernel Makefile found";
-                cd ${KLOC};
+                cd ${SBKL};
             else
                 echo -e "\n${FLD} Kernel Makefile not found. Aborting";
                 quick_menu;
             fi
             echo -e "\n${QN} Enter the codename of your device\n";
-            prompt SBDEV;
-            echo;
+            ST="Codename"; shut_my_mouth DEV "$ST";
             KDEFS=( `ls arch/*/configs/*${SBDEV}*_defconfig` );
             for((CT=0;CT<${#KDEFS[*]};CT++)); do
                 echo -e "$((${CT}+1)). ${KDEFS[$CT]}";
             done
             unset CT;
             echo -e "\n${INF} These are the available Kernel Configurations\n\n${QN} Select the one according to the CPU Architecture\n";
-            prompt CT;
-            KDEFC=`eval echo "\${KDEFS[$(($CT-1))]}" | awk -F "/" '{print $4}'`;
-            KARCH=`eval echo "\${KDEFS[$(($CT-1))]}" | awk -F "/" '{print $2}'`;
-            echo -e "\n${INF} Arch : ${KARCH}";
+            if [ -z "$automate" ]; then
+                prompt CT;
+                SBKD=`eval echo "\${KDEFS[$(($CT-1))]}" | awk -F "/" '{print $4}'`;
+                SBKA=`eval echo "\${KDEFS[$(($CT-1))]}" | awk -F "/" '{print $2}'`;
+            fi
+            echo -e "\n${INF} Arch : ${SBKA}";
             echo -e "\n${QN} Number of Jobs / Threads\n";
             BCORES=$(grep -c ^processor /proc/cpuinfo); # CPU Threads/Cores
             echo -e "${INF} Maximum No. of Jobs -> ${CL_WYT}${BCORES}${NONE}\n";
@@ -768,15 +789,17 @@ function build() # 4
                 SBNT="$BCORES";
                 echo -e "${INF} Using Maximum no of threads : $BCORES";
             fi
+            export action_kinit="done";
+            [ -z "$automate" ] && kbuild;
         } # kinit
 
         function settc()
         {
             echo -e "\n${INF} Make sure you have downloaded (synced) a Toolchain for compiling the kernel";
             echo -e "\n${QN} Point me to the location of the toolchain\n";
-            prompt KTCL;
-            if [[ -d "${KTCL}" ]]; then
-                KCCP=$(ls ${KTCL}/bin/${KARCH}*gcc | sed -e 's/gcc//g' -e 's/.*bin\///g');
+            ST="Toolchain Location"; shut_my_mouth KTL "$ST";
+            if [[ -d "${SBKTL}" ]]; then
+                KCCP=$(ls ${SBKTL}/bin/${SBKA}*gcc | sed -e 's/gcc//g' -e 's/.*bin\///g');
                 if [[ ! -z "${KCCP}" ]]; then
                     echo -e "\n${SCS} Toolchain Detected\n";
                     echo -e "${INF} Toolchain Prefix : ${KCCP}\n";
@@ -787,60 +810,67 @@ function build() # 4
                     echo -e "${FLD} Toolchain Binaries not found\n";
                 fi
             else
-                echo -e "${FLD} Directory not present\n";
+                echo -e "${FLD} Directory not found\n";
             fi
-            kbuild;
+            [ -z "$automate" ] && kbuild;
         } # settc
 
         function kclean()
         {
-            export ARCH="${KARCH}" CROSS_COMPILE="${KTCL}/bin/${KCCP}";
+            export ARCH="${SBKA}" CROSS_COMPILE="${SBKTL}/bin/${KCCP}";
             echo -e "\n${INF} Cleaning Levels\n";
             echo -e "1. Clean Intermediate files";
             echo -e "2. 1 + Clean the Current Kernel Configuration\n";
-            prompt KCLL;
-            case "${KCLL}" in
+            ST="Clean Method"; shut_my_mouth CK "$ST";
+            case "${SBCK}" in
                 1) make clean -j${SBNT} ;;
                 2) make mrproper -j${SBNT} ;;
             esac
             echo -e "\n${INF} Kernel Cleaning done\n\n${INF} Check output for details\n";
-            kbuild;
+            export action_kcl="done";
+            [ -z "$automate" ] && kbuild;
         } # kclean
 
 
         function mkkernel()
         {
-            echo -e "\n${INF} Compiling the Kernel\n";
-            make ${KDEFC};
-            make -j${SBNT} && echo -e "\n${SCS} Compiled Successfully\n" || echo -e "${FLD} Compilation failed\n";
-            kbuild;
+            # Execute these before building kernel
+            [ -z "${action_kinit}" ] && kinit;
+            [ -z "${KCCP}" ] && settc;
+            [ -z "${action_kcl}" ] && kclean;
+            [ ! -z "${SBCUH}" ] && custuserhost;
+
+            echo -e "\n${EXE} Compiling the Kernel\n";
+            export ARCH="${SBKA}" CROSS_COMPILE="${SBKTL}/bin/${KCCP}";
+            [ ! -z "$SBNT" ] && SBNT="-j${SBNT}";
+            make ${SBKD};
+            make ${SBNT} && echo -e "\n${SCS} Compiled Successfully\n" || echo -e "${FLD} Compilation failed\n";
+            [ -z "$automate" ] && kbuild;
         } # mkkernel
 
-        if [ -z "$KDEFC" ] && [ -z "$KARCH" ]; then
-            kinit;
-            kbuild;
-        else
-            export ARCH="${KARCH}" CROSS_COMPILE="${KTCL}/bin/${KCCP}";
-            KSTS=`echo -e "Arch : ${KARCH}\nDefinition Config : ${KDEFC}"`;
-        fi
         echo -ne "\033]0;ScriBt : KernelBuilding\007";
         echo -e "===============${CL_LCN}[!]${NONE} ${CL_WYT}Kernel Building${NONE} ${CL_LCN}[!]${NONE}=================";
-        echo -e "${CL_WYT}${KSTS}${NONE}";
-        echo -e "1. Setup defconfig";
+        echo -e "Building on : ${KBUILD_BUILD_USER:-$(whoami)}@${KBUILD_BUILD_HOST:-$(hostname)}";
+        echo -e "Arch : ${SBKA:-Not Set}";
+        echo -e "Definition Config : ${SBKD:-Not Set}";
+        echo -e "Toolchain : ${SBKTL:-Not Set}\n";
+        echo -e "1. Initialize the Kernel";
         echo -e "2. Setup Toolchain";
         echo -e "3. Clean Kernel output";
-        echo -e "4. Build the kernel";
-#       echo -e "5. Setup Custom Toolchain";
+        echo -e "4. Set Custom User and Host Names";
+        echo -e "5. Build the kernel";
+#       echo -e "X. Setup Custom Toolchain";
         echo -e "0. Quick Menu";
         echo -e "=======================================================\n";
-        prompt KOPT;
-        case "$KOPT" in
+        ST="Selected Option"; shut_my_mouth KO "$ST";
+        case "$SBKO" in
             0) quick_menu ;;
             1) kinit ;;
             2) settc ;;
             3) kclean ;;
-            4) mkkernel ;;
-#           5) dwntc ;;
+            4) custuserhost ;;
+            5) mkkernel ;;
+#           X) dwntc ;;
             *) echo -e "${FLD} Invalid Selection" ;;
         esac
     } # kbuild
@@ -943,6 +973,9 @@ function build() # 4
                 2) lunch ${TARGET}; $SBMK clean ;;
                 *) echo -e "${INF} No Clean Option Selected.\n" ;;
             esac
+            echo -e "${QN} Set a custom user/host\n [y/n]";
+            ST="Custom user@host"; shut_my_mouth CUH "$ST";
+            [[ "$SBCUH" =~ (Y|y) ]] && custuserhost;
             hotel_menu;
             build_make "$SBSLT";
             ;;
@@ -1391,16 +1424,6 @@ function the_start() # 0
     # is the distro supported ??
     pkgmgr_check;
 
-    if [[ ! $(which git) ]]; then
-        echo -e "\n${EXE} Installing git\n";
-        case "$PKGMGR" in
-            "apt"|"apt-get") MGRPRM="install -y" ;;
-            "pacman") MGRPRM="-S --noconfirm" ;;
-        esac
-        execroot ${PKGMGR} ${MGRPRM} git && \
-        echo -e "\n${SCS} git installed";
-    fi
-
     # I ez Root
     [[ "$(pwd)" != "/" ]] && export CALL_ME_ROOT="$(pwd)" || export CALL_ME_ROOT="";
 
@@ -1465,7 +1488,7 @@ function the_start() # 0
 function automator()
 {
     echo -e "\n${EXE} Searching for Automatable Configs\n";
-    for AF in `ls *.rc`; do
+    for AF in `ls *.rc | sed -e 's/ROM.rc//g'`; do
         grep 'AUTOMATOR\=\"true_dat\"' --color=never $AF -l >> ${TMP};
         sed -i -e 's/.rc//g' ${TMP}; # Remove the file format
     done
@@ -1473,12 +1496,12 @@ function automator()
         NO=1;
         # Adapted from lunch selection menu
         for CT in `cat ${TMP}`; do
-            CMB[$NO]="$i";
+            CMB[$NO]="$CT";
             ((NO++));
         done
         unset CT;
         for CT in `eval echo "{1..${#CMB[*]}}"`; do
-            echo -e " $j. ${CMB[$j]} ";
+            echo -e " $CT. ${CMB[$CT]} ";
         done | column
         unset CT;
         echo -e "\n${QN} Which would you like\n";
