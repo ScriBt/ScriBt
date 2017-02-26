@@ -75,6 +75,10 @@ function exitScriBt() # ID
     echo -e "\n${SCS:-[:)]} Thanks for using ScriBt.\n";
     [[ "$1" == "0" ]] && echo -e "${CL_LGN}[${NONE}${CL_LRD}<3${NONE}${CL_LGN}]${NONE} Peace! :)\n" ||\
         echo -e "${CL_LRD}[${NONE}${CL_RED}<${NONE}${CL_LGR}/${NONE}${CL_RED}3${NONE}${CL_LRD}]${NONE} Failed somewhere :(\n";
+    rm temp_v1.txt temp_v2.txt temp.txt
+    [ -s temp_sync.txt ] || rm temp_sync.txt # If temp_sync.txt is empty, delete it
+    [ -s temp_compile.txt ] || rm temp_compile.txt # If temp_compile.txt is empty, delete it
+    [ -f ROM.sh ] || rm upScriBt.sh # Assume we are not in the ScriBt directory if ROM.sh does not exist, so delete upScriBt.sh
     exit $1;
 } # exitScriBt
 
