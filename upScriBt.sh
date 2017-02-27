@@ -7,10 +7,12 @@
 RVER=`curl https://raw.githubusercontent.com/a7r3/ScriBt/${BRANCH}/VERSION -s | sed -e 's/\.//'`; # Remote VERSION
 LVER=`cat VERSION | sed -e 's/\.//'`; # Local VERSION
 echo -e "\n${INF} ${CL_WYT}Checking for Updates${NONE}\n";
-for V in `eval echo {${LVER}..$((${RVER}-1))}`; do
-    MSG=`curl https://raw.githubusercontent.com/a7r3/ScriBt/status/${V} -s`;
-    [ ! -z "$MSG" ] && echo -e "${CL_WYT}${MSG}${NONE}\n";
-done
+if [[ "${LVER}" < "${RVER}" ]]; then
+    for V in `eval echo {${LVER}..$((${RVER}-1))}`; do
+        MSG=`curl https://raw.githubusercontent.com/a7r3/ScriBt/status/${V} -s`;
+        [ ! -z "$MSG" ] && echo -e "${CL_WYT}${MSG}${NONE}\n";
+    done
+fi
 LHEAD="$(git rev-parse HEAD)";
 git fetch -q origin ${BRANCH};
 RHEAD="$(git rev-parse origin/${BRANCH})";

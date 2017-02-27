@@ -61,7 +61,7 @@ function exitScriBt() # ID
         fi
         (set -o posix; set) > ${TV2};
         echo -e "# ScriBt Automation Config File" >> ${NOC}.rc;
-        echo -e "# ${ROM_FN} for ${SBDEV}\nAUTOMATE=\"true\"\n" >> ${NOC}.rc;
+        echo -e "# ${ROM_FN} for ${SBDEV}\nAUTOMATE=\"true_dat\"\n" >> ${NOC}.rc;
         echo -e "#################\n#  Information  #\n#################\n\n" >> ${NOC}.rc;
         diff ${TV1} ${TV2} | grep SB | sed -e 's/[<>] /    /g' | awk '{print $0";"}' >> ${NOC}.rc;
         echo -e "\n\n#################\n#  Sequencing  #\n##################\n" >> ${NOC}.rc;
@@ -71,7 +71,7 @@ function exitScriBt() # ID
 
     [[ "$RQ_PGN" == [Yy] ]] && prefGen || ((set -o posix; set) > ${TV2});
     echo -e "\n${EXE} Unsetting all variables";
-    unset `diff temp_v1.txt temp_v2.txt | grep SB | sed -e 's/[<>] /    /g' | awk -F "=" '{print $1}'`
+    unset `diff temp_v1.txt temp_v2.txt | grep SB | sed -e 's/[<>] /    /g' | awk -F "=" '{print $1}'`;
     echo -e "\n${SCS:-[:)]} Thanks for using ScriBt.\n";
     [[ "$1" == "0" ]] && echo -e "${CL_LGN}[${NONE}${CL_LRD}<3${NONE}${CL_LGN}]${NONE} Peace! :)\n" ||\
         echo -e "${CL_LRD}[${NONE}${CL_RED}<${NONE}${CL_LGR}/${NONE}${CL_RED}3${NONE}${CL_LRD}]${NONE} Failed somewhere :(\n";
@@ -234,7 +234,7 @@ function init() # 1
     fi
     echo -e "${QN} Set clone-depth ${CL_WYT}[y/n]${NONE}\n"; gimme_info "cldp";
     ST="Use clone-depth"; shut_my_mouth CD "$ST";
-    if [[ "$SBCD" == [Yy] ]]; then
+    if [[ "$SBCD" =~ (Y|y) ]]; then
         echo -e "${QN} Depth Value [1]\n";
         ST="clone-depth Value"; shut_my_mouth DEP "$ST";
         [ -z "$SBDEP" ] && SBDEP=1;
@@ -260,14 +260,14 @@ function init() # 1
     echo -e "${CL_WYT}=======================================================${NONE}\n";
     echo -e "${EXE} Initializing the ROM Repo\n";
     repo init ${REF} ${CDP} -u https://github.com/${RNM}/${MNF} -b ${SBBR};
-    if [[ "$1" == "0" ]]; then
+    if [[ "$?" == "0" ]]; then
         echo -e "\n${SCS} ${ROM_NAME[$RC]} Repo Initialized\n";
     else
         echo -e "\n${FLD} Failed to Initialize Repo";
         export RINIT="FLD";
     fi
     echo -e "${CL_WYT}=======================================================${NONE}\n";
-    if [[ -z "$RINIT" ]]; then
+    if [ -z "$RINIT" ]; then
         [ ! -f .repo/local_manifests ] && mkdir -pv .repo/local_manifests;
         if [ -z "$automate" ]; then
             echo -e "${INF} Create a Device Specific manifest and Press ENTER to start sync\n";
@@ -1046,7 +1046,7 @@ function tools() # 5
                 DISTRO_PKGS=( automake lzop libesd0-dev maven \
                 liblz4-tool libncurses5-dev libsdl1.2-dev libwxgtk3.0-dev \
                 lzop lib32ncurses5-dev lib32readline6-dev lib32z1-dev \
-                zlib1g-dev:i386 libbz2-dev libbz2-1.0 libghc-bzlib-dev ) ;;
+                libbz2-dev libbz2-1.0 libghc-bzlib-dev ) ;;
         esac
         # Install 'em all
         execroot apt-get install -y ${COMMON_PKGS[*]} ${DISTRO_PKGS[*]};
