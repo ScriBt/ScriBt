@@ -806,9 +806,6 @@ function build() # 4
                 if [[ ! -z "${KCCP}" ]]; then
                     echo -e "\n${SCS} Toolchain Detected\n";
                     echo -e "${INF} Toolchain Prefix : ${KCCP}\n";
-                    # echo -e "${PRFXS}\n";
-                    # echo -e "${QN} Type in the desired Toolchain Prefix\n";
-                    # prompt KCCP;   ^^ Uhmm, not sure if there are multiple prefixes in one toolchain
                 else
                     echo -e "${FLD} Toolchain Binaries not found\n";
                 fi
@@ -867,7 +864,10 @@ function build() # 4
         echo -e "=======================================================\n";
         ST="Selected Option"; shut_my_mouth KO "$ST";
         case "$SBKO" in
-            0) quick_menu ;;
+            0)
+                cd ${CALL_ME_ROOT};
+                quick_menu;
+                ;;
             1) kinit ;;
             2) settc ;;
             3) kclean ;;
@@ -1485,7 +1485,7 @@ function the_start() # 0
     echo -e "      ${CL_LRD}███████${NONE}${CL_RED}║╚${NONE}${CL_LRD}██████${NONE}${CL_RED}╗${NONE}${CL_LRD}██${NONE}${CL_RED}║${NONE}  ${CL_LRD}██${NONE}${CL_RED}║${NONE}${CL_LRD}██${NONE}${CL_RED}║${NONE}${CL_LRD}██████${NONE}${CL_RED}╔╝${NONE}   ${CL_LRD}██${NONE}${CL_RED}║${NONE}";
     echo -e "      ${CL_RED}╚══════╝ ╚═════╝╚═╝  ╚═╝╚═╝╚═════╝    ╚═╝${NONE}\n";
     sleep 1.5;
-    echo -e "                     ${CL_WYT}Version `cat ${PATHDIR}VERSION`${NONE}\n";
+    echo -e "                         ${CL_WYT}v`cat ${PATHDIR}VERSION`${NONE}\n";
 } # the_start
 
 function automator()
