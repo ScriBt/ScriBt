@@ -42,6 +42,12 @@ function cherrypick() # Automated Use only
     echo -e "${CL_WYT}==================================================================${NONE}";
 } # cherrypick
 
+function interrupt()
+{
+    echo -en "\n*** Ouch! Plz don't kill me! ***\n"
+    exitScriBt 1
+}
+
 function exitScriBt() # ID
 {
     function prefGen()
@@ -75,9 +81,9 @@ function exitScriBt() # ID
     echo -e "\n${SCS:-[:)]} Thanks for using ScriBt.\n";
     [[ "$1" == "0" ]] && echo -e "${CL_LGN}[${NONE}${CL_LRD}<3${NONE}${CL_LGN}]${NONE} Peace! :)\n" ||\
         echo -e "${CL_LRD}[${NONE}${CL_RED}<${NONE}${CL_LGR}/${NONE}${CL_RED}3${NONE}${CL_LRD}]${NONE} Failed somewhere :(\n";
-    rm ${CALL_ME_ROOT}temp_v1.txt ${CALL_ME_ROOT}temp_v2.txt ${CALL_ME_ROOT}temp.txt
-    [ -s ${CALL_ME_ROOT}temp_sync.txt ] || rm ${CALL_ME_ROOT}temp_sync.txt # If temp_sync.txt is empty, delete it
-    [ -s ${CALL_ME_ROOT}temp_compile.txt ] || rm ${CALL_ME_ROOT}temp_compile.txt # If temp_compile.txt is empty, delete it
+    rm ${CALL_ME_ROOT}/temp_v1.txt ${CALL_ME_ROOT}/temp_v2.txt ${CALL_ME_ROOT}/temp.txt
+    [ -s ${CALL_ME_ROOT}/temp_sync.txt ] || rm ${CALL_ME_ROOT}/temp_sync.txt # If temp_sync.txt is empty, delete it
+    [ -s ${CALL_ME_ROOT}/temp_compile.txt ] || rm ${CALL_ME_ROOT}/temp_compile.txt # If temp_compile.txt is empty, delete it
     exit $1;
 } # exitScriBt
 
@@ -1460,9 +1466,9 @@ function the_start() # 0
         exitScriBt 1;
     fi
     #   tempfile      repo sync log       rom build log        vars b4 exe     vars after exe
-    TMP=${CALL_ME_ROOT}temp.txt; STMP=${CALL_ME_ROOT}temp_sync.txt; RMTMP=${CALL_ME_ROOT}temp_compile.txt; TV1=${CALL_ME_ROOT}temp_v1.txt; TV2=${CALL_ME_ROOT}temp_v2.txt;
-    rm -rf ${CALL_ME_ROOT}temp{,_sync,_compile,_v{1,2}}.txt;
-    touch ${CALL_ME_ROOT}temp{,_sync,_compile,_v{1,2}}.txt;
+    TMP=${CALL_ME_ROOT}/temp.txt; STMP=${CALL_ME_ROOT}/temp_sync.txt; RMTMP=${CALL_ME_ROOT}/temp_compile.txt; TV1=${CALL_ME_ROOT}/temp_v1.txt; TV2=${CALL_ME_ROOT}/temp_v2.txt;
+    rm -rf ${CALL_ME_ROOT}/temp{,_sync,_compile,_v{1,2}}.txt;
+    touch ${CALL_ME_ROOT}/temp{,_sync,_compile,_v{1,2}}.txt;
     ATBT="${CL_WYT}*${NONE}${CL_LRD}AutoBot${NONE}${CL_WYT}*${NONE}";
     # CHEAT CHEAT CHEAT!
     if [ -z "$automate" ]; then
@@ -1543,6 +1549,8 @@ function usage()
 } # usage
 
 # Point of Execution
+trap interrupt SIGINT
+
 if [[ "$0" == "ROM.sh" ]] && [[ $(type -p ROM.sh) ]]; then
     export PATHDIR="$(type -p ROM.sh | sed 's/ROM.sh//g')";
 fi
