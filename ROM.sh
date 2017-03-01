@@ -25,6 +25,7 @@
 # Adrian DC "AdrianDC"                                                 #
 # Akhil Narang "akhilnarang"                                           #
 # Łukasz "JustArchi" Domeradzki                                        #
+# Tim Schumacher (TimSchumi)                                           #
 # Tom Radtke "CubeDev"                                                 #
 # nosedive                                                             #
 #======================================================================#
@@ -44,7 +45,8 @@ function cherrypick() # Automated Use only
 
 function interrupt()
 {
-    echo -e "\n\n*** Ouch! Plz don't kill me! ***";
+    cd ${CALL_ME_ROOT};
+    echo -e "\n\n*** Ouch! Plz don't kill me! ***\n";
     exitScriBt 1;
 } # interrupt
 
@@ -759,14 +761,14 @@ function build() # 4
         export KBUILD_BUILD_HOST=${SBCH:-$(hostname)};
         echo -e "\n${INF} You're building on ${CL_WYT}${KBUILD_BUILD_USER}@${KBUILD_BUILD_HOST}${NONE}";
         echo -e "\n${SCS} Done\n";
-        [ -z "$automate" ] && kbuild;
+        [ -z "$automate" ] && [ "$SBKO" != "5" ] && kbuild;
     } # custuserhost
 
     function kbuild()
     {
         function kinit()
         {
-            echo -e "${INF} Enter the location of the Kernel source\n";
+            echo -e "${QN} Enter the location of the Kernel source\n";
             ST="Kernel Location"; shut_my_mouth KL "$ST";
             if [ -f ${SBKL}/Makefile ]; then
                 echo -e "\n${SCS} Kernel Makefile found";
@@ -799,7 +801,7 @@ function build() # 4
                 echo -e "${INF} Using Maximum no of threads : $BCORES";
             fi
             export action_kinit="done";
-            [ -z "$automate" ] && kbuild;
+            [ -z "$automate" ] && [ "$SBKO" != "5" ] && kbuild;
         } # kinit
 
         function settc()
@@ -818,7 +820,7 @@ function build() # 4
             else
                 echo -e "${FLD} Directory not found\n";
             fi
-            [ -z "$automate" ] && kbuild;
+            [ -z "$automate" ] && [ "$SBKO" != "5" ] && kbuild;
         } # settc
 
         function kclean()
@@ -832,9 +834,9 @@ function build() # 4
                 1) make clean -j${SBNT} ;;
                 2) make mrproper -j${SBNT} ;;
             esac
-            echo -e "\n${INF} Kernel Cleaning done\n\n${INF} Check output for details\n";
+            echo -e "\n${SCS} Kernel Cleaning done\n\n${INF} Check output for details\n";
             export action_kcl="done";
-            [ -z "$automate" ] && kbuild;
+            [ -z "$automate" ] && [ "$SBKO" != "5" ] && kbuild;
         } # kclean
 
 
@@ -1410,6 +1412,14 @@ function the_start() # 0
     DNT=`date +'%d/%m/%y %r'`;
     echo -ne "\033]0;ScriBt : The Beginning\007";
 
+    # I ez Root
+    [[ "$(pwd)" != "/" ]] && export CALL_ME_ROOT="$(pwd)" || export CALL_ME_ROOT="";
+
+    #   tempfile      repo sync log       rom build log        vars b4 exe     vars after exe
+    TMP=${CALL_ME_ROOT}/temp.txt; STMP=${CALL_ME_ROOT}/temp_sync.txt; RMTMP=${CALL_ME_ROOT}/temp_compile.txt; TV1=${CALL_ME_ROOT}/temp_v1.txt; TV2=${CALL_ME_ROOT}/temp_v2.txt;
+    rm -rf ${CALL_ME_ROOT}/temp{,_sync,_compile,_v{1,2}}.txt;
+    touch ${CALL_ME_ROOT}/temp{,_sync,_compile,_v{1,2}}.txt;
+
     # Load RIDb and Colors
     if [[ "$0" == "./ROM.sh" ]] && [ -f ROM.rc ]; then
         source ./ROM.rc; # Load Local ROM.rc
@@ -1432,9 +1442,6 @@ function the_start() # 0
 
     # is the distro supported ??
     pkgmgr_check;
-
-    # I ez Root
-    [[ "$(pwd)" != "/" ]] && export CALL_ME_ROOT="$(pwd)" || export CALL_ME_ROOT="";
 
     if [ ! -d ${PATHDIR}.git ]; then # tell the user to re-clone ScriBt
         echo -e "\n${FLD} Folder ${CL_WYT}.git${NONE} not found";
@@ -1465,11 +1472,10 @@ function the_start() # 0
         echo -e "\n\033[0;31m[!]\033[0m Your Processor is not supported\n";
         exitScriBt 1;
     fi
-    #   tempfile      repo sync log       rom build log        vars b4 exe     vars after exe
-    TMP=${CALL_ME_ROOT}/temp.txt; STMP=${CALL_ME_ROOT}/temp_sync.txt; RMTMP=${CALL_ME_ROOT}/temp_compile.txt; TV1=${CALL_ME_ROOT}/temp_v1.txt; TV2=${CALL_ME_ROOT}/temp_v2.txt;
-    rm -rf ${CALL_ME_ROOT}/temp{,_sync,_compile,_v{1,2}}.txt;
-    touch ${CALL_ME_ROOT}/temp{,_sync,_compile,_v{1,2}}.txt;
+
+    # AutoBot
     ATBT="${CL_WYT}*${NONE}${CL_LRD}AutoBot${NONE}${CL_WYT}*${NONE}";
+
     # CHEAT CHEAT CHEAT!
     if [ -z "$automate" ]; then
         echo -e "${QN} Before Starting off, shall I remember the responses you'll enter from now \n${INF} So that it can be Automated next time\n";
@@ -1549,7 +1555,7 @@ function usage()
 } # usage
 
 # Point of Execution
-trap interrupt SIGINT
+trap interrupt SIGINT;
 
 if [[ "$0" == "ROM.sh" ]] && [[ $(type -p ROM.sh) ]]; then
     export PATHDIR="$(type -p ROM.sh | sed 's/ROM.sh//g')";
