@@ -44,9 +44,9 @@ function cherrypick() # Automated Use only
 
 function interrupt()
 {
-    echo -en "\n*** Ouch! Plz don't kill me! ***\n"
-    exitScriBt 1
-}
+    echo -e "\n\n*** Ouch! Plz don't kill me! ***";
+    exitScriBt 1;
+} # interrupt
 
 function exitScriBt() # ID
 {
