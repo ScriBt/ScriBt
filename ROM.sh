@@ -886,6 +886,57 @@ function build() # 4
         esac
     } # kbuild
 
+    function patchmgr()
+    {
+        ([ -z $SBDEV ] || [ -z $SBCM ]) && echo -e "${EXE} Please set your device first" && build;
+        function check_patch()
+        {
+            (patch -p1 -N --dry-run < $1 > /dev/null && echo -n 0) || # Patch is not applied but can be applied
+            (patch -p1 -R --dry-run < $1 > /dev/null && echo -n 1) || # Patch is applied
+            echo -n 2; # Patch can not be applied
+        } # check_patch
+        function apply_patch()
+        {
+            case $(check_patch "$1") in
+                0) echo -en "\n${INF} Patch is being applied: ";
+                   patch -p1 -N < $1 > /dev/null;
+                   ([ $? == 0 ] && echo -e "${CL_GRN}Success${NONE}") || echo -e "${CL_RED}Fail${NONE}";; # Patch is being applied
+                1) echo -en "\n${INF} Patch is being reversed: ";
+                   patch -p1 -R < $1 > /dev/null;
+                   ([ $? == 0 ] && echo -e "${CL_GRN}Success${NONE}") || echo -e "${CL_RED}Fail${NONE}";; # Patch is being reversed
+                2) echo -e "\n${EXE} Patch can't be applied.";; # Patch can not be applied
+            esac
+        } # apply_patch
+        function visual_check_patch()
+        {
+            case $(check_patch "$1") in
+                0) echo -n "[${CL_RED}N${NONE}]";; # Patch is not applied but can be applied
+                1) echo -n "[${CL_GRN}Y${NONE}]";; # Patch is applied
+                2) echo -n "[${CL_BLU}X${NONE}]";; # Patch can not be applied
+            esac
+        } # visual_check_patch
+        function show_patches()
+        {
+            unset $PATCHES;
+            echo -e "\n${INF} Searching for patches in device/${SBDEV}/${SBCM}/patch\n";
+            echo "0.     Build Menu";
+            COUNT=1;
+            for PATCH in "$(find device/$SBCM/$SBDEV/patch/*)"; do
+                PATCHES[$COUNT]=$PATCH;
+                echo -e "${COUNT}. $(visual_check_patch $PATCH) $PATCH"
+                ((COUNT++));
+            done
+            echo "";
+            prompt PATCHNR;
+            if [ "$PATCHNR" != 0 ]; then
+                apply_patch "${PATCHES[$PATCHNR]}";
+                show_patches;
+            fi
+        } # show_patches
+        show_patches;
+        build;
+    } # patchmgr
+
     function build_menu()
     {
         echo -e "\n${CL_WYT}=======================================================${NONE}\n";
@@ -894,6 +945,7 @@ function build() # 4
         echo -e "2. Make a Particular Module";
         echo -e "3. Setup CCACHE for Faster Builds";
         echo -e "4. Kernel Building";
+        echo -e "5. Patch Manager";
         echo -e "0. Quick Menu\n";
         echo -e "${CL_WYT}=======================================================\n";
         ST="Option Selected"; shut_my_mouth BO "$ST";
@@ -993,6 +1045,7 @@ function build() # 4
         2) make_module ;;
         3) set_ccvars ;;
         4) kbuild ;;
+        5) patchmgr ;;
         *)
             echo -e "${FLD} Invalid Selection.\n";
             build;
