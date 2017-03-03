@@ -888,11 +888,10 @@ function build() # 4
 
     function patchmgr()
     {
-        ([ -z $SBDEV ] || [ -z $SBCM ]) && echo -e "${EXE} Please set your device first" && build;
         function check_patch()
         {
-            (patch -p1 -N --dry-run < $1 > /dev/null && echo -n 0) || # Patch is not applied but can be applied
-            (patch -p1 -R --dry-run < $1 > /dev/null && echo -n 1) || # Patch is applied
+            (patch -p1 -N --dry-run < $1 1> /dev/null 2>&1 && echo -n 0) || # Patch is not applied but can be applied
+            (patch -p1 -R --dry-run < $1 1> /dev/null 2>&1 && echo -n 1) || # Patch is applied
             echo -n 2; # Patch can not be applied
         } # check_patch
         function apply_patch()
@@ -910,21 +909,30 @@ function build() # 4
         function visual_check_patch()
         {
             case $(check_patch "$1") in
-                0) echo -n "[${CL_RED}N${NONE}]";; # Patch is not applied but can be applied
-                1) echo -n "[${CL_GRN}Y${NONE}]";; # Patch is applied
-                2) echo -n "[${CL_BLU}X${NONE}]";; # Patch can not be applied
+                0) echo -en "[${CL_RED}N${NONE}]";; # Patch is not applied but can be applied
+                1) echo -en "[${CL_GRN}Y${NONE}]";; # Patch is applied
+                2) echo -en "[${CL_BLU}X${NONE}]";; # Patch can not be applied
             esac
         } # visual_check_patch
         function show_patches()
         {
-            unset $PATCHES;
-            echo -e "\n${INF} Searching for patches in device/${SBDEV}/${SBCM}/patch\n";
+            cd $CALL_ME_ROOT;
+            unset PATCHES;
+            unset PATCHDIRS;
+            unset PATCHES_RAW;
+            PATCHDIRS=("device/*/*/patch" "patch");
+            echo -e "\n${INF} Searching for patches\n";
+            PATCHES_RAW="$(printf %s "$PATCHES_RAW")"
             echo "0.     Build Menu";
             COUNT=1;
-            for PATCH in "$(find device/$SBCM/$SBDEV/patch/*)"; do
-                PATCHES[$COUNT]=$PATCH;
-                echo -e "${COUNT}. $(visual_check_patch $PATCH) $PATCH"
-                ((COUNT++));
+            for PATCHDIR in "${PATCHDIRS[@]}"; do
+                if find ${PATCHDIR}/* 1> /dev/null 2>&1; then
+                    while read PATCH; do
+                        PATCHES[$COUNT]=$PATCH;
+                        echo -e ${COUNT}. $(visual_check_patch "$PATCH") $PATCH
+                        ((COUNT++));
+                    done <<< "$(find ${PATCHDIR}/*)"
+                fi
             done
             echo "";
             prompt PATCHNR;
