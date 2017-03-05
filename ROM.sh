@@ -938,7 +938,7 @@ function build() # 4
                         PATCHES[$COUNT]=$PATCH;
                         echo -e ${COUNT}. $(visual_check_patch "$PATCH") $PATCH
                         ((COUNT++));
-                    done <<< "$(find ${PATCHDIR}/*)"
+                    done <<< "$(find ${PATCHDIR}/* | grep -v '\/\*')"
                 fi
             done
         } # show_patches
