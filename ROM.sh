@@ -926,10 +926,8 @@ function build() # 4
             cd $CALL_ME_ROOT;
             unset PATCHES;
             unset PATCHDIRS;
-            unset PATCHES_RAW;
             PATCHDIRS=("device/*/*/patch" "patch");
             echo -e "\n${INF} Searching for patches\n";
-            PATCHES_RAW="$(printf %s "$PATCHES_RAW")"
             echo "0.     Exit the Patch Manager";
             echo "1.     Launch the Patch Creator";
             echo "";
