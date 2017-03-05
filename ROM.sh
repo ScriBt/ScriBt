@@ -46,8 +46,8 @@ function cherrypick() # Automated Use only
 function interrupt()
 {
     cd ${CALL_ME_ROOT};
-    echo -e "\n\n*** Ouch! Plz don't kill me! ***\n";
-    exitScriBt 1;
+    echo -e "\n\n*** Ouch! Plz don't kill me! ***";
+    exitScriBt 0;
 } # interrupt
 
 function exitScriBt() # ID
@@ -930,7 +930,7 @@ function build() # 4
             PATCHDIRS=("device/*/*/patch" "patch");
             echo -e "\n${INF} Searching for patches\n";
             PATCHES_RAW="$(printf %s "$PATCHES_RAW")"
-            echo "0.     Build Menu";
+            echo "0.     Exit the Patch Manager";
             COUNT=1;
             for PATCHDIR in "${PATCHDIRS[@]}"; do
                 if find ${PATCHDIR}/* 1> /dev/null 2>&1; then
