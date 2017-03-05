@@ -935,9 +935,11 @@ function build() # 4
             for PATCHDIR in "${PATCHDIRS[@]}"; do
                 if find ${PATCHDIR}/* 1> /dev/null 2>&1; then
                     while read PATCH; do
-                        PATCHES[$COUNT]=$PATCH;
-                        echo -e ${COUNT}. $(visual_check_patch "$PATCH") $PATCH
-                        ((COUNT++));
+                        if [ -s "$PATCH" ]; then
+                            PATCHES[$COUNT]=$PATCH;
+                            echo -e ${COUNT}. $(visual_check_patch "$PATCH") $PATCH
+                            ((COUNT++));
+                        fi
                     done <<< "$(find ${PATCHDIR}/* | grep -v '\/\*')"
                 fi
             done
