@@ -77,6 +77,13 @@ function exitScriBt() # ID
         echo -e "\n${SCS} Configuration file ${NOC} created successfully\n${INF} You may modify the config, and automate ScriBt next time";
     } # prefGen
 
+    if type patcher &>/dev/null; then # Assume the patchmgr was used if this function is loaded
+        if show_patches | grep -q '[Y]'; then # Some patches are still applied
+            echo -e "\n${INF} Applied Patches detected. Do you want to reverse them?\n"
+            prompt ANSWER;
+            [[ "$ANSWER" == [Yy] ]] && patcher;
+        fi
+    fi
     [[ "$RQ_PGN" == [Yy] ]] && prefGen || ((set -o posix; set) > ${TV2});
     echo -e "\n${EXE} Unsetting all variables";
     unset `diff temp_v1.txt temp_v2.txt | grep SB | sed -e 's/[<>] /    /g' | awk -F "=" '{print $1}'`;
@@ -934,14 +941,18 @@ function build() # 4
                     done <<< "$(find ${PATCHDIR}/*)"
                 fi
             done
+        } # show_patches
+        function patcher()
+        {
+            show_patches;
             echo "";
             prompt PATCHNR;
             if [ "$PATCHNR" != 0 ]; then
                 apply_patch "${PATCHES[$PATCHNR]}";
-                show_patches;
+                patcher;
             fi
-        } # show_patches
-        show_patches;
+        } # patcher
+        patcher;
         build;
     } # patchmgr
 
