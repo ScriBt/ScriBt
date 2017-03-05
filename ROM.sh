@@ -974,6 +974,9 @@ function build() # 4
                     done <<< "$PROJECTS"
                     cd ${CALL_ME_ROOT}
                     echo -e "\n\n${INF} Done.";
+                    [ ! -s "${CALL_ME_ROOT}/${PATCH_PATH}" ] &&
+                      rm ${CALL_ME_ROOT}/${PATCH_PATH} &&
+                      echo -e "${INF} Patch was empty, so it was deleted";
                 fi
             fi
         } # patch_creator
