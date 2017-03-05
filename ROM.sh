@@ -946,7 +946,6 @@ function build() # 4
         {
             function patch_creator_path_replace()
             {
-                #PROJECT_PATH=$(sed -e "s/\//\\\//g" <<< $1)
                 cat /dev/stdin |
                 sed -e "s@ a/@ a/$1/@g" |
                 sed -e "s@ b/@ b/$1/@g"
@@ -961,7 +960,7 @@ function build() # 4
                 if [[ "$CREATE_PATCH" =~ [Yy] ]]; then
                     echo -e "\n${INF} Where do you want to save the patch? (Make sure the directory exists)\n";
                     prompt PATCH_PATH;
-                    PROJECTS="$(repo forall -c env | grep REPO_PATH | sed -e 's/REPO_PATH=//g')";
+                    PROJECTS="$(repo list -p)";
                     PROJECT_COUNT=$(wc -l <<< "$PROJECTS");
                     [ -f "${CALL_ME_ROOT}/${PATCH_PATH}" ] && rm -rf ${CALL_ME_ROOT}/${PATCH_PATH}
                     COUNT=1
