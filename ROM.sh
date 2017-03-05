@@ -931,7 +931,9 @@ function build() # 4
             echo -e "\n${INF} Searching for patches\n";
             PATCHES_RAW="$(printf %s "$PATCHES_RAW")"
             echo "0.     Exit the Patch Manager";
-            COUNT=1;
+            echo "1.     Launch the Patch Creator";
+            echo "";
+            COUNT=2;
             for PATCHDIR in "${PATCHDIRS[@]}"; do
                 if find ${PATCHDIR}/* 1> /dev/null 2>&1; then
                     while read PATCH; do
@@ -942,15 +944,54 @@ function build() # 4
                 fi
             done
         } # show_patches
+        function patch_creator()
+        {
+            function patch_creator_path_replace()
+            {
+                #PROJECT_PATH=$(sed -e "s/\//\\\//g" <<< $1)
+                cat /dev/stdin |
+                sed -e "s@ a/@ a/$1/@g" |
+                sed -e "s@ b/@ b/$1/@g"
+            } # patch_creator_path_replace
+
+            if [ ! -d ".repo" ]; then
+                echo -e "\n${EXE} You are not inside a repo (or the .repo folder was not found)";
+            else
+                echo -e "\n${INF} Do you want to generate a patch file out of unstaged changes? (May take a long time)";
+                echo -e "${INF} WARNING: Changes outside of the repos listed in the manifest will NOT be recognized!\n";
+                prompt CREATE_PATCH;
+                if [[ "$CREATE_PATCH" =~ [Yy] ]]; then
+                    echo -e "\n${INF} Where do you want to save the patch? (Make sure the directory exists)\n";
+                    prompt PATCH_PATH;
+                    PROJECTS="$(repo forall -c env | grep REPO_PATH | sed -e 's/REPO_PATH=//g')";
+                    PROJECT_COUNT=$(wc -l <<< "$PROJECTS");
+                    [ -f "${CALL_ME_ROOT}/${PATCH_PATH}" ] && rm -rf ${CALL_ME_ROOT}/${PATCH_PATH}
+                    COUNT=1
+                    echo "";
+                    while read PROJECT; do
+                        cd ${CALL_ME_ROOT}/${PROJECT}
+                        git diff | patch_creator_path_replace $PROJECT >> ${CALL_ME_ROOT}/${PATCH_PATH};
+                        echo -en "\033[KGenerated patch for repo $COUNT of $PROJECT_COUNT\r";
+                        ((COUNT++))
+                    done <<< "$PROJECTS"
+                    cd ${CALL_ME_ROOT}
+                    echo -e "\n\n${INF} Done.";
+                fi
+            fi
+        } # patch_creator
         function patcher()
         {
             show_patches;
             echo "";
             prompt PATCHNR;
-            if [ "$PATCHNR" != 0 ]; then
-                apply_patch "${PATCHES[$PATCHNR]}";
-                patcher;
-            fi
+            case "$PATCHNR" in # Process śpecial actions
+                0) ;; # Exit the Patch Manager
+                1) patch_creator;
+                   patcher;;
+                *) [ "${PATCHES[$PATCHNR]}" ] && apply_patch "${PATCHES[$PATCHNR]}" ||
+                     echo -e "\n${EXE} Invalid selection: $PATCHNR";
+                   patcher;;
+            esac
         } # patcher
         patcher;
         build;
