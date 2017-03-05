@@ -946,13 +946,6 @@ function build() # 4
         } # show_patches
         function patch_creator()
         {
-            function patch_creator_path_replace()
-            {
-                cat /dev/stdin |
-                sed -e "s@ a/@ a/$1/@g" |
-                sed -e "s@ b/@ b/$1/@g"
-            } # patch_creator_path_replace
-
             if [ ! -d ".repo" ]; then
                 echo -e "\n${EXE} You are not inside a repo (or the .repo folder was not found)";
             else
@@ -969,7 +962,9 @@ function build() # 4
                     echo "";
                     while read PROJECT; do
                         cd ${CALL_ME_ROOT}/${PROJECT}
-                        git diff | patch_creator_path_replace $PROJECT >> ${CALL_ME_ROOT}/${PATCH_PATH};
+                        git diff | 
+                          sed -e "s@ a/@ a/${PROJECT}/@g" |
+                          sed -e "s@ b/@ b/${PROJECT}/@g" >> ${CALL_ME_ROOT}/${PATCH_PATH};
                         echo -en "\033[KGenerated patch for repo $COUNT of $PROJECT_COUNT\r";
                         ((COUNT++))
                     done <<< "$PROJECTS"
