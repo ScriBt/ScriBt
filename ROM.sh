@@ -901,6 +901,7 @@ function build() # 4
             (patch -p1 -R --dry-run < $1 1> /dev/null 2>&1 && echo -n 1) || # Patch is applied
             echo -n 2; # Patch can not be applied
         } # check_patch
+
         function apply_patch()
         {
             case $(check_patch "$1") in
@@ -913,6 +914,7 @@ function build() # 4
                 2) echo -e "\n${EXE} Patch can't be applied.";; # Patch can not be applied
             esac
         } # apply_patch
+
         function visual_check_patch()
         {
             case $(check_patch "$1") in
@@ -921,6 +923,7 @@ function build() # 4
                 2) echo -en "[${CL_BLU}X${NONE}]";; # Patch can not be applied
             esac
         } # visual_check_patch
+
         function show_patches()
         {
             cd $CALL_ME_ROOT;
@@ -944,9 +947,10 @@ function build() # 4
                 fi
             done
         } # show_patches
+
         function patch_creator()
         {
-            if [ ! -d ".repo" ]; then
+            if [ ! -d ".repo" ]; then # We are not inside a repo
                 echo -e "\n${EXE} You are not inside a repo (or the .repo folder was not found)";
             else
                 echo -e "\n${INF} Do you want to generate a patch file out of unstaged changes? (May take a long time)";
@@ -955,17 +959,17 @@ function build() # 4
                 if [[ "$CREATE_PATCH" =~ [Yy] ]]; then
                     echo -e "\n${INF} Where do you want to save the patch? (Make sure the directory exists)\n";
                     prompt PATCH_PATH;
-                    PROJECTS="$(repo list -p)";
-                    PROJECT_COUNT=$(wc -l <<< "$PROJECTS");
-                    [ -f "${CALL_ME_ROOT}/${PATCH_PATH}" ] && rm -rf ${CALL_ME_ROOT}/${PATCH_PATH}
+                    PROJECTS="$(repo list -p)"; # Get all teh projects
+                    PROJECT_COUNT=$(wc -l <<< "$PROJECTS"); # Count all teh projects
+                    [ -f "${CALL_ME_ROOT}/${PATCH_PATH}" ] && rm -rf ${CALL_ME_ROOT}/${PATCH_PATH} # Delete existing patch
                     COUNT=1
                     echo "";
-                    while read PROJECT; do
+                    while read PROJECT; do # Foreach does not work, as it seems to spawn a subshell
                         cd ${CALL_ME_ROOT}/${PROJECT}
                         git diff | 
                           sed -e "s@ a/@ a/${PROJECT}/@g" |
-                          sed -e "s@ b/@ b/${PROJECT}/@g" >> ${CALL_ME_ROOT}/${PATCH_PATH};
-                        echo -en "\033[KGenerated patch for repo $COUNT of $PROJECT_COUNT\r";
+                          sed -e "s@ b/@ b/${PROJECT}/@g" >> ${CALL_ME_ROOT}/${PATCH_PATH}; # Extend a/ and b/ with the project's path, as git diff only outputs the paths relative to the git repository's root
+                        echo -en "\033[KGenerated patch for repo $COUNT of $PROJECT_COUNT\r";  # Count teh processed repos
                         ((COUNT++))
                     done <<< "$PROJECTS"
                     cd ${CALL_ME_ROOT}
@@ -976,6 +980,7 @@ function build() # 4
                 fi
             fi
         } # patch_creator
+
         function patcher()
         {
             show_patches;
@@ -990,6 +995,7 @@ function build() # 4
                    patcher;;
             esac
         } # patcher
+
         patcher;
         build;
     } # patchmgr
