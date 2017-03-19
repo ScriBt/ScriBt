@@ -710,13 +710,12 @@ function build() # 4
             START=$(date +"%s"); # Build start time
             # Showtime!
             BCORES="-j${BCORES}";
-            if [ $(grep -q "^${ROMNIS}:" "${CALL_ME_ROOT}/build/core/Makefile") ]; then
-                $SBMK $ROMNIS $BCORES && BLDSCS="yay" 2>&1 | tee $RMTMP;
-            elif [ $(grep -q "^bacon:" "${CALL_ME_ROOT}/build/core/Makefile") ]; then
-                $SBMK bacon $BCORES && BLDSCS="yay" 2>&1 | tee $RMTMP;
-            else
-                $SBMK otapackage $BCORES && BLDSCS="yay" 2>&1 | tee $RMTMP;
-            fi
+            #            GZRs | AOKP | CM & CM Based | All ROMs
+            for ROM in ${ROMNIS} rainbowfarts bacon otapackage; do
+                if [ grep -q "^${ROM}:" "${CALL_ME_ROOT}/build/core/Makefile" ]; then
+                    ${SBMK} ${ROM} ${BCORES} && BLDSCS="yay" 2>&1 | tee $RMTMP;
+                fi
+            done
             END=$(date +"%s"); # Build end time
             SEC=$(($END - $START)); # Difference gives Build Time
             if [ -z "$BLDSCS" ]; then
@@ -1052,7 +1051,7 @@ function build() # 4
                 *)
                     echo -e "\n${FLD} No response received\n";
                     echo -e "${EXE} Using ${CL_WYT}mka${NONE}";
-                    SBMT="mka"; BCORES="";
+                    SBMK="mka"; BCORES="";
                     ;;
             esac
             echo -e "${QN} Want to keep /out in another directory ${CL_WYT}[y/n]${NONE}\n"; gimme_info "outdir";
