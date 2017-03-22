@@ -710,10 +710,10 @@ function build() # 4
             START=$(date +"%s"); # Build start time
             # Showtime!
             BCORES="-j${BCORES}";
-            #            GZRs | AOKP | CM & CM Based | All ROMs
-            for ROM in ${ROMNIS} rainbowfarts bacon otapackage; do
-                if [ grep -q "^${ROM}:" "${CALL_ME_ROOT}/build/core/Makefile" ]; then
-                    ${SBMK} ${ROM} ${BCORES} && BLDSCS="yay" 2>&1 | tee $RMTMP;
+            #            GZRs | AOKP | AOSiP | A lot of ROMs | All ROMs
+            for MAKECOMMAND in ${ROMNIS} rainbowfarts kronic bacon otapackage; do
+                if [ grep -q "^${MAKECOMMAND}:" "${CALL_ME_ROOT}/build/core/Makefile" ]; then
+                    ${SBMK} ${MAKECOMMAND} ${BCORES} && BLDSCS="yay" 2>&1 | tee $RMTMP;
                 fi
             done
             END=$(date +"%s"); # Build end time
@@ -1073,7 +1073,7 @@ function build() # 4
             esac
             echo -e "${QN} Want to Clean the /out before Building\n"; gimme_info "outcln";
             ST="Option Selected"; shut_my_mouth CL "$ST";
-            if [[ $(grep -c 'BUILD_ID=M\|BUILD_ID=N' ${CALL_ME_ROOT}/build/core/build_id.mk) == "1" ]]; then
+            if [[ $(grep -c 'BUILD_ID=M' ${CALL_ME_ROOT}/build/core/build_id.mk) == "1" ]]; then
                 echo -e "${QN} Use Jack Toolchain ${CL_WYT}[y/n]${NONE}\n"; gimme_info "jack";
                 ST="Use Jacky"; shut_my_mouth JK "$ST";
                 case "$SBJK" in
