@@ -15,11 +15,10 @@ function rom_names()
             MAN=( platform_manifest.git );
             ROMNIS="aokp";
             ;;
-        3|36)
+        3)
             ROM_NAME=( AOSIP );
             MAN=( platform_manifest.git );
             ROMNIS="aosip";
-            CNS="y";
             ;;
         4)
             ROM_NAME=( AOSP-CAF );
@@ -61,7 +60,7 @@ function rom_names()
             MAN=( android.git );
             ROMNIS="cm";
             ;;
-        12|37)
+        12|36)
             ROM_NAME=( DirtyUnicorns );
             MAN=( android_manifest.git );
             ROMNIS="du";
@@ -185,18 +184,18 @@ function rom_names()
             MAN=( abc-n_manifest.git );
             ROMNIS="pure";
             ;;
-        # 36 - AOSIP; 37 - DU; See above
-        38)
+        # 36 - DU; See above
+        37)
             ROM_NAME=( krexus );
             MAN=( manifest.git );
             ROMNIS="krexus";
             ;;
-        39)
+        38)
             ROM_NAME=( nitrogen-project );
             MAN=( android_manifest.git );
             ROMNIS="nitrogen";
             ;;
-        40)
+        39)
             ROM_NAME=( PureNexusProject );
             MAN=( manifest.git );
             ROMNIS="pure";
