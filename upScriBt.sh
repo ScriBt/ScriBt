@@ -10,7 +10,7 @@ RVER=`curl https://raw.githubusercontent.com/a7r3/ScriBt/${BRANCH}/VERSION -s`;
 LVER=`cat VERSION`;
 # Status 404
 PAGE404=`curl https://raw.githubusercontent.com/a7r3/ScriBt/status/generate_404 -s`; # 404 Page
-echo -e "\n${INF} ${CL_WYT}Checking for Updates${NONE}\n";
+echo -e "\n${EXE} ${CL_WYT}Checking for Updates${NONE}\n";
 # Integral Version Names
 L=`echo "${LVER}" | sed -e 's/\.//'`;
 R=`echo "${RVER}" | sed -e 's/\.//'`;

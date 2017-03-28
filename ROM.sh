@@ -43,7 +43,7 @@ function cherrypick() # Automated Use only
     echo -e "${CL_WYT}==================================================================${NONE}";
 } # cherrypick
 
-function interrupt()
+function interrupt() # ID
 {
     cd ${CALL_ME_ROOT};
     echo -e "\n\n*** Ouch! Plz don't kill me! ***";
@@ -146,7 +146,7 @@ function rom_select() # D 1,2
         "Euphoria" "F-AOSP" "FlayrOS" "Krexus" "Lineage Android" "OctOs" \
         "OmniROM" "OrionOS" "OwnROM" "PAC ROM" "Parallax OS" "Paranoid Android"\
         "Resurrection Remix" "SlimRoms" "Temasek" "GZR Tesla" "TipsyOs" \
-        "GZR Validus" "VanirAOSP" "XenonHD" "XOSP" "Zephyr-OS" "AOSiP" "ABC ROM" \
+        "GZR Validus" "VanirAOSP" "XenonHD" "XOSP" "Zephyr-OS" "ABC ROM" \
         "DirtyUnicorns" "Krexus" "Nitrogen OS" "PureNexus" );
     echo -e "\n${CL_WYT}=======================================================${NONE}\n";
     echo -e "${CL_YEL}[?]${NONE} ${CL_WYT}Which ROM are you trying to build\nChoose among these (Number Selection)\n";
@@ -155,7 +155,7 @@ function rom_select() # D 1,2
     done | pr -t -2
     echo -e "\n${INF} ${CL_WYT}Non-CAF / Nexus-Family ROMs${NONE}";
     echo -e "${INF} ${CL_WYT}Choose among these ONLY if you're building for a Nexus Device\n"
-    for CT in {35..40}; do
+    for CT in {35..39}; do
         echo -e "${CT}. ${ROMS[$CT]}";
     done | pr -t -2
     unset CT CNS SBRN; # Unset these
@@ -355,10 +355,11 @@ function device_info() # D 3,4
     TYPES=( common_full_phone common_mini_phone common_full_hybrid_wifionly \
     common_full_tablet_lte common_full_tablet_wifionly common_mini_tablet_wifionly common_tablet \
     common_full_tv common_mini_tv );
-    CNT=0;
+    CT=0;
     for TYP in ${TYPES[*]}; do
-        if [ -f ${CNF}/${TYP}.mk ]; then echo -e "${CNT}. $TYP"; ((CNT++)); fi;
+        if [ -f ${CNF}/${TYP}.mk ]; then echo -e "${CT}. $TYP"; ((CT++)); fi;
     done
+    unset CT;
     echo;
     ST="Device Type"; shut_my_mouth DTP "$ST";
     [ -z $SBDTP ] && SBDTP="common" || SBDTP="${TYPES[${SBDTP}]}";
@@ -638,7 +639,7 @@ function pre_build() # 3
         if [ ! -f vendor/${ROMNIS}/products/${ROMNIS}_${SBDEV}.mk ||
              ! -f vendor/${ROMNIS}/products/${SBDEV}.mk ||
              ! -f vendor/${ROMNIS}/products/${SBDEV}/${ROMNIS}_${SBDEV}.mk ]; then
-            vendor_strat_kpa; #if found products folder, go ahead
+            vendor_strat_kpa; # if found products folder, go ahead
         else
             echo -e "\n${SCS} Looks like ${SBDEV} has been already added to ${ROM_FN} vendor. Good to go\n";
         fi
@@ -934,14 +935,14 @@ function build() # 4
             echo -e "==================== ${CL_LRD}Patch Manager${NONE} ====================\n";
             echo -e "0. Exit the Patch Manager";
             echo -e "1. Launch the Patch Creator";
-            COUNT=2;
+            CT=2;
             for PATCHDIR in "${PATCHDIRS[@]}"; do
                 if find ${PATCHDIR}/* 1> /dev/null 2>&1; then
                     while read PATCH; do
                         if [ -s "$PATCH" ]; then
-                            PATCHES[$COUNT]=$PATCH;
-                            echo -e ${COUNT}. $(visual_check_patch "$PATCH") $PATCH;
-                            ((COUNT++));
+                            PATCHES[$CT]=$PATCH;
+                            echo -e ${CT}. $(visual_check_patch "$PATCH") $PATCH;
+                            ((CT++));
                         fi
                     done <<< "$(find ${PATCHDIR}/* | grep -v '\/\*')";
                 fi
@@ -962,15 +963,15 @@ function build() # 4
                     PROJECTS="$(repo list -p)"; # Get all teh projects
                     PROJECT_COUNT=$(wc -l <<< "$PROJECTS"); # Count all teh projects
                     [ -f "${CALL_ME_ROOT}/${PATCH_PATH}" ] && rm -rf ${CALL_ME_ROOT}/${PATCH_PATH} # Delete existing patch
-                    COUNT=1;
+                    CT=1;
                     echo "";
                     while read PROJECT; do # repo foreach does not work, as it seems to spawn a subshell
                         cd ${CALL_ME_ROOT}/${PROJECT}
                         git diff |
                           sed -e "s@ a/@ a/${PROJECT}/@g" |
                           sed -e "s@ b/@ b/${PROJECT}/@g" >> ${CALL_ME_ROOT}/${PATCH_PATH}; # Extend a/ and b/ with the project's path, as git diff only outputs the paths relative to the git repository's root
-                        echo -en "\033[KGenerated patch for repo $COUNT of $PROJECT_COUNT\r";  # Count teh processed repos
-                        ((COUNT++));
+                        echo -en "\033[KGenerated patch for repo $CT of $PROJECT_COUNT\r";  # Count teh processed repos
+                        ((CT++));
                     done <<< "$PROJECTS";
                     cd ${CALL_ME_ROOT};
                     echo -e "\n\n${SCS} Done.";
@@ -1633,7 +1634,7 @@ function automator()
             CMB[$NO]="$CT";
             ((NO++));
         done
-        unset CT;
+        unset CT NO;
         for CT in `eval echo "{1..${#CMB[*]}}"`; do
             echo -e " $CT. ${CMB[$CT]} ";
         done | column
@@ -1674,15 +1675,18 @@ function usage()
 } # usage
 
 # Point of Execution
+
+# Show Interrupt Acknowledgement message on receiving SIGINT
 trap interrupt SIGINT;
 
 if [[ "$0" == "ROM.sh" ]] && [[ $(type -p ROM.sh) ]]; then
     export PATHDIR="$(type -p ROM.sh | sed 's/ROM.sh//g')";
 fi
+
 if [[ "$1" == "automate" ]]; then
     export automate="yus_do_eet";
     the_start; # Pre-Initial Stage
-    echo -e "${INF} ${ATBT} Thanks for Selecting Me. Lem'me do your work";
+    echo -e "${INF} ${ATBT} Lem'me do your work";
     automator;
 elif [ -z $1 ]; then
     the_start; # Pre-Initial Stage
