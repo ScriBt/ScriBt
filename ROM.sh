@@ -1652,21 +1652,21 @@ function the_start() # 0
         echo -e "\n${FLD} Folder ${CL_WYT}.git${NONE} not found";
         echo -e "${INF} ${CL_WYT}Re-clone${NONE} ScriBt for upScriBt to work properly\n";
         echo -e "${FLD} Update-Check Cancelled\n\n${INF} No modifications have been done\n";
-    fi
-
-    [ ! -z "${PATHDIR}" ] && cd ${PATHDIR};
-    # Check Branch
-    export BRANCH=`git rev-parse --abbrev-ref HEAD`;
-    cd ${CALL_ME_ROOT};
-
-    if [[ "$BRANCH" =~ (master|staging) ]]; then
-        # Download the Remote Version of Updater, determine the Internet Connectivity by working of this command
-        curl -fs -o ${PATHDIR}upScriBt.sh https://raw.githubusercontent.com/a7r3/ScriBt/${BRANCH}/upScriBt.sh && \
-            (echo -e "\n${SCS} Internet Connectivity : ONLINE"; bash ${PATHDIR}upScriBt.sh $0 $1) || \
-            echo -e "\n${FLD} Internet Connectivity : OFFINE\n\n${INF} Please connect to the Internet for complete functioning of ScriBt";
     else
-        echo -e "\n${INF} Current Working Branch is neither 'master' nor 'staging'\n";
-        echo -e "${FLD} Update-Check Cancelled\n\n${INF} No modifications have been done\n";
+        [ ! -z "${PATHDIR}" ] && cd ${PATHDIR};
+        # Check Branch
+        export BRANCH=`git rev-parse --abbrev-ref HEAD`;
+        cd ${CALL_ME_ROOT};
+
+        if [[ "$BRANCH" =~ (master|staging) ]]; then
+            # Download the Remote Version of Updater, determine the Internet Connectivity by working of this command
+            #curl -fs -o ${PATHDIR}upScriBt.sh https://raw.githubusercontent.com/a7r3/ScriBt/${BRANCH}/upScriBt.sh && \
+                (echo -e "\n${SCS} Internet Connectivity : ONLINE"; bash ${PATHDIR}upScriBt.sh $0 $1) || \
+                echo -e "\n${FLD} Internet Connectivity : OFFINE\n\n${INF} Please connect to the Internet for complete functioning of ScriBt";
+        else
+            echo -e "\n${INF} Current Working Branch is neither 'master' nor 'staging'\n";
+            echo -e "${FLD} Update-Check Cancelled\n\n${INF} No modifications have been done\n";
+        fi
     fi
 
     # Where am I ?
@@ -1701,8 +1701,12 @@ function the_start() # 0
     echo -e "      ${CL_RED}╚════${NONE}${CL_LRD}██${NONE}${CL_RED}║${NONE}${CL_LRD}██${NONE}${CL_RED}║${NONE}     ${CL_LRD}██${NONE}${CL_RED}╔══${NONE}${CL_LRD}██${NONE}${CL_RED}╗${NONE}${CL_LRD}██${NONE}${CL_RED}║${NONE}${CL_LRD}██${NONE}${CL_RED}╔══${NONE}${CL_LRD}██${NONE}${CL_RED}╗${NONE}   ${CL_LRD}██${NONE}${CL_RED}║${NONE}";
     echo -e "      ${CL_LRD}███████${NONE}${CL_RED}║╚${NONE}${CL_LRD}██████${NONE}${CL_RED}╗${NONE}${CL_LRD}██${NONE}${CL_RED}║${NONE}  ${CL_LRD}██${NONE}${CL_RED}║${NONE}${CL_LRD}██${NONE}${CL_RED}║${NONE}${CL_LRD}██████${NONE}${CL_RED}╔╝${NONE}   ${CL_LRD}██${NONE}${CL_RED}║${NONE}";
     echo -e "      ${CL_RED}╚══════╝ ╚═════╝╚═╝  ╚═╝╚═╝╚═════╝    ╚═╝${NONE}\n";
-    sleep 1.5;
-    echo -e "                     ${CL_WYT}v`cat ${PATHDIR}VERSION`-${BRANCH}${NONE}\n";
+    if [ -d ${PATHDIR}.git ]; then
+        sleep 1.5;
+        cd ${PATHDIR};
+        echo -e "                         ${CL_WYT}`git describe --tags $(git rev-list --max-count=1 HEAD)`${NONE}\n";
+        cd ${CALL_ME_ROOT};
+    fi
 } # the_start
 
 function automator()
@@ -1788,7 +1792,14 @@ elif [ -z $1 ]; then
     the_start; # Pre-Initial Stage
     main_menu;
 elif [[ "$1" == "version" ]]; then
-    echo -e "\n\033[1;34m[\033[1;31m~\033[1;34m]\033[0m Projekt ScriBt \033[1;34m[\033[1;31m~\033[1;34m]\033[0m\n     Version `cat ${PATHDIR}VERSION`\n";
+    if [ -d ${PATHDIR}.git ]; then
+        cd ${PATHDIR};
+        echo -e "\n\033[1;34m[\033[1;31m~\033[1;34m]\033[0m Projekt ScriBt \033[1;34m[\033[1;31m~\033[1;34m]\033[0m\n     `git describe --tags $(git rev-list --max-count=1 HEAD)`\n";
+        cd ${CALL_ME_ROOT};
+    else
+        echo -e "Not available. Please resync ScriBt through Git";
+        exit 1;
+    fi
 elif [[ "$1" == "usage" ]]; then
     usage;
 else
