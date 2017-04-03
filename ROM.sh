@@ -30,6 +30,29 @@
 # nosedive                                                             #
 #======================================================================#
 
+function cmdprex()
+{
+    # Replace Space with '#' in individual parameter
+    ARGS=( `echo ${@/ /#}`);
+    # Provide 'em some colors
+    # Argument (Paramter) Array
+    ARG=( `echo ${ARGS[*]/*<->/}` );
+    for ((i=0;i<${#ARG1[*]};i++)); do
+         echo -en "\033[1;3${i}m `eval echo \${ARG1[$i]} | sed 's/#/ /g'`";
+    done
+    echo -e "\n";
+    # Argument Description Array
+    ARGD=( `echo ${ARGS[*]/<->*/}` );
+    for ((i=0;i<${#ARGS[*]};i++)); do
+         echo -en "\033[1;3${i}m `eval echo \${ARG2[$i]}` \033[0m";
+    done
+    echo -e "\n";
+    # Make up the command, restore '#' back to spaces
+    CMD=`echo "${ARG1[*]}" | sed 's/#/ /g'`;
+    # Execute the command
+    $CMD;
+} # cmdprex
+
 function cherrypick() # Automated Use only
 {
     echo -ne '\033]0;ScriBt : Picking Cherries\007';
@@ -256,7 +279,7 @@ function init() # 1
         echo -e "${QN} Depth Value [1]\n";
         ST="clone-depth Value"; shut_my_mouth DEP "$ST";
         [ -z "$SBDEP" ] && SBDEP=1;
-        CDP=--depth\=\"${SBDEP}\";
+        CDP=--depth\=${SBDEP};
     fi
     # Check for Presence of Repo Binary
     if [[ ! $(which repo) ]]; then
@@ -276,8 +299,14 @@ function init() # 1
         echo -e "${SCS} Done. Ready to Init Repo.\n";
     fi
     echo -e "${CL_WYT}=======================================================${NONE}\n";
-    echo -e "${EXE} Initializing the ROM Repo\n";
-    repo init ${REF} ${CDP} -u https://github.com/${RNM}/${MNF} -b ${SBBR};
+    MURL="https://github.com/${RNM}/${MNF}";
+    export CMD="repo init ";
+    cmdprex \
+     "CommandName<->repo init" \
+     "ReferenceSource<->${REF}" \
+     "CloneDepth<->${CDP}" \
+     "GitHubURL<->-u ${MURL}" \
+     "Branch<->-b ${SBBR}";
     if [[ "$?" == "0" ]]; then
         echo -e "\n${SCS} ${ROM_NAME[$RC]} Repo Initialized\n";
     else
@@ -1651,8 +1680,17 @@ function automator()
 } # automator
 
 # Some Essentials
+
 # 'read' command with custom prompt '[>]' in Cyan
-function prompt(){ read -p $'\033[1;36m[>]\033[0m ' $1; };
+function prompt()
+{
+    read -p $'\033[1;36m[>]\033[0m ' $1;
+    if [[ -z $(eval echo \$$1) ]]; then
+        echo -e "\n${FLD} No response provided\n";
+        prompt $1;
+    fi
+}
+
 # 'sudo' command with custom prompt '[#]' in Pink
 function execroot(){ sudo -p $'\033[1;35m[#]\033[0m ' $@; };
 
