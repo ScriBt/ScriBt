@@ -35,23 +35,29 @@ function cmdprex()
     # Replace Space with '#' in individual parameter
     ARGS=( `echo ${@/ /#}`);
     # Provide 'em some colors
-    # Argument (Paramter) Array
+    # Argument (Parameter) Array
     ARG=( `echo ${ARGS[*]/*<->/}` );
-    for ((i=0;i<${#ARG1[*]};i++)); do
-         echo -en "\033[1;3${i}m `eval echo \${ARG1[$i]} | sed 's/#/ /g'`";
+    for ((i=0;i<${#ARG[*]};i++)); do
+         echo -en "\033[1;3${i}m `eval echo \${ARG[$i]}`" | sed 's/#/ /g';
     done
     echo -e "\n";
     # Argument Description Array
     ARGD=( `echo ${ARGS[*]/<->*/}` );
-    for ((i=0;i<${#ARGS[*]};i++)); do
-         echo -en "\033[1;3${i}m `eval echo \${ARG2[$i]}` \033[0m";
+    for ((i=0;i<${#ARGD[*]};i++)); do
+         echo -en "\033[1;3${i}m `eval echo \${ARGD[$i]}`\033[0m" | sed 's/#/ /g';
     done
     echo -e "\n";
     # Make up the command, restore '#' back to spaces
-    CMD=`echo "${ARG1[*]}" | sed 's/#/ /g'`;
+    CMD=`echo "${ARG[*]}" | sed 's/#/ /g'`;
     # Execute the command
     $CMD;
-    unet -v CMD
+    if [[ "$?" == "0" ]]; then
+        echo -e "${SCS} Command Execution Successful\n";
+    else
+        echo -e "${FLD} Command Execution Failed\n";
+        STS="1";
+    fi
+    unset -v CMD;
 } # cmdprex
 
 function cherrypick() # Automated Use only
@@ -308,14 +314,8 @@ function init() # 1
      "CloneDepth<->${CDP}" \
      "GitHubURL<->-u ${MURL}" \
      "Branch<->-b ${SBBR}";
-    if [[ "$?" == "0" ]]; then
-        echo -e "\n${SCS} ${ROM_NAME[$RC]} Repo Initialized\n";
-    else
-        echo -e "\n${FLD} Failed to Initialize Repo";
-        export RINIT="FLD";
-    fi
     echo -e "${CL_WYT}=======================================================${NONE}\n";
-    if [ -z "$RINIT" ]; then
+    if [ -z "$STS" ]; then
         [ ! -f .repo/local_manifests ] && mkdir -pv .repo/local_manifests;
         if [ -z "$automate" ]; then
             echo -e "${INF} Create a Device Specific manifest and Press ENTER to start sync\n";
