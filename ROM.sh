@@ -51,6 +51,7 @@ function cmdprex()
     CMD=`echo "${ARG1[*]}" | sed 's/#/ /g'`;
     # Execute the command
     $CMD;
+    unet -v CMD
 } # cmdprex
 
 function cherrypick() # Automated Use only
