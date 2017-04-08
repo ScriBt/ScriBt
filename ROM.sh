@@ -21,7 +21,7 @@
 # a Pull Request, Contributions are WELCOME                            #
 #                                                                      #
 # Contributors:                                                        #
-# Arvindraj "a7r3" (Myself)                                            #
+# Arvindraj Thangaraj "a7r3"                                           #
 # Adrian DC "AdrianDC"                                                 #
 # Akhil Narang "akhilnarang"                                           #
 # Łukasz "JustArchi" Domeradzki                                        #
@@ -30,35 +30,45 @@
 # nosedive                                                             #
 #======================================================================#
 
-function cmdprex()
+function cmdprex() # D ALL
 {
     # Replace Space with '#' in individual parameter
-    ARGS=( `echo ${@/ /#}`);
-    # Provide 'em some colors
+    # Remove First Parameter v--(Needs to be refined)--v
+    ARGS=( $(echo ${@// /#} | sed -e 's/--out=.*txt//') );
+    echo -e "${ARGS[*]}";
     # Argument (Parameter) Array
-    ARG=( `echo ${ARGS[*]/*<->/}` );
-    for ((i=0;i<${#ARG[*]};i++)); do
-         echo -en "\033[1;3${i}m `eval echo \${ARG[$i]}`" | sed 's/#/ /g';
-    done
-    echo -e "\n";
+    # If Parameter is empty, Element value would be 'NULL'
+    # This is useful to prevent echoing Parameter Description
+    # if Parameter itself is empty
+    ARG=( `echo ${ARGS[*]/*<->/NULL}` );
     # Argument Description Array
     ARGD=( `echo ${ARGS[*]/<->*/}` );
-    for ((i=0;i<${#ARGD[*]};i++)); do
-         echo -en "\033[1;3${i}m `eval echo \${ARGD[$i]}`\033[0m" | sed 's/#/ /g';
+    # Splash some colors!
+    for ((CT=0;CT<${#ARG[*]};i++)); do
+        echo -en "\033[1;3${CT}m`eval echo \${ARG[${CT}]}` " | sed -e 's/NULL//g' -e 's/#/ /g';
+    done
+    echo -e "\n";
+    for ((CT=0;CT<${#ARGD[*]};i++)); do
+        [[ `eval echo \${ARG[${CT}]}` != "NULL" ]] && \
+         echo -en "\033[1;3${CT}m`eval echo \${ARGD[${CT}]}`\033[0m " | sed 's/#/ /g';
     done
     echo -e "\n";
     # Make up the command, restore '#' back to spaces
-    CMD=`echo "${ARG[*]}" | sed 's/#/ /g'`;
+    # If --out is mentioned add the tee redirection statement
+    [[ "$1" =~ --out=* ]] && TEE=`echo "2>&1 | tee -a ${1/*=/}"`;
+    CMD=`echo "${ARG[*]} ${TEE}" | sed -e 's/NULL//g' -e 's/#/ /g'`;
     # Execute the command
-    $CMD;
+    eval $CMD;
     if [[ "$?" == "0" ]]; then
         echo -e "${SCS} Command Execution Successful\n";
+        unset STS;
     else
         echo -e "${FLD} Command Execution Failed\n";
         STS="1";
     fi
-    unset -v CMD;
+    unset -v CMD CT;
 } # cmdprex
+
 
 function cherrypick() # Automated Use only
 {
@@ -85,15 +95,15 @@ function exitScriBt() # ID
     function prefGen()
     {
         echo -e "\n${EXE} Saving Current Configuration";
-        echo -e "\n${QN} Name of the Config\n${INF} Default : ${ROMNIS}_${SBDEV}\n";
-        prompt NOC;
+        echo -e "\n${QN} Name of the Config\n${INF} Default : ${ROMNIS:-scribt}_${SBDEV:-config}\n";
+        prompt NOC --no-repeat;
         [[ -z "$NOC" ]] && NOC="${ROMNIS}_${SBDEV}";
-        if [[ ! -f "${NOC}.rc" ]]; then
-            echo -e "${FLD} Configuration ${NOC} exists";
-            echo -e "${QN} Overwrite it ${CL_WYT}[y/n]${NONE}";
+        if [[ -f "${NOC}.rc" ]]; then
+            echo -e "\n${FLD} Configuration ${NOC} exists";
+            echo -e "\n${QN} Overwrite it ${CL_WYT}[y/n]${NONE}";
             prompt OVRT;
             case "$OVRT" in
-                [Yy]) echo -e "${EXE} Deleting ${NOC}"; rm -rf ${NOC}.rc ;;
+                [Yy]) echo -e "\n${EXE} Deleting ${NOC}"; rm -rf ${NOC}.rc ;;
                 [Nn]) prefGen ;;
             esac
         fi
@@ -104,12 +114,12 @@ function exitScriBt() # ID
         diff ${TV1} ${TV2} | grep SB | sed -e 's/[<>] /    /g' | awk '{print $0";"}' >> ${NOC}.rc;
         echo -e "\n\n#################\n#  Sequencing  #\n##################\n" >> ${NOC}.rc;
         echo -e "# Your Code goes here\n\ninit;\npre_build;\nbuild;\n\n# Some moar code eg. Uploading the ROM" >> ${NOC}.rc;
-        echo -e "\n${SCS} Configuration file ${NOC} created successfully\n${INF} You may modify the config, and automate ScriBt next time";
+        echo -e "\n${SCS} Configuration file ${NOC} created successfully\n\n${INF} You may modify the config, and automate ScriBt next time";
     } # prefGen
 
     if type patcher &>/dev/null; then # Assume the patchmgr was used if this function is loaded
         if show_patches | grep -q '[Y]'; then # Some patches are still applied
-            echo -e "\n${INF} Applied Patches detected. Do you want to reverse them?\n"
+            echo -e "\n${SCS} Applied Patches detected\n${QN} Do you want to reverse them ${CL_WYT}[y/n]${NONE}\n"
             prompt ANSWER;
             [[ "$ANSWER" == [Yy] ]] && patcher;
         fi
@@ -239,11 +249,12 @@ function set_ccvars() # D 4,5
     set_ccache;
 } # set_ccvars
 
-function the_response() # D ALL
+function response() # D ALL
 {
-    case "$1" in
-        "COOL") echo -e "\n${SCS} ${ATBT} Automated $2 Successful! :)" ;;
-        "FAIL") echo -e "\n${FLD} ${ATBT} Automated $2 Failed :(" ;;
+    # About to be deprecated
+    case "$STS" in
+        "1") echo -e "\n${FLD} ${ATBT} Automated $2 Failed :(" ;;
+        *) echo -e "\n${SCS} ${ATBT} Automated $2 Successful! :)" ;;
     esac
 } # the_response
 
@@ -308,12 +319,12 @@ function init() # 1
     echo -e "${CL_WYT}=======================================================${NONE}\n";
     MURL="https://github.com/${RNM}/${MNF}";
     export CMD="repo init ";
-    cmdprex \
+    cmdprex --out="${STMP}" \
      "CommandName<->repo init" \
-     "ReferenceSource<->${REF}" \
-     "CloneDepth<->${CDP}" \
-     "GitHubURL<->-u ${MURL}" \
-     "Branch<->-b ${SBBR}";
+     "Reference Source<->${REF}" \
+     "Clone Depth<->${CDP}" \
+     "Manifest URL<->-u ${MURL}" \
+     "Manifest Branch<->-b ${SBBR}";
     echo -e "${CL_WYT}=======================================================${NONE}\n";
     if [ -z "$STS" ]; then
         [ ! -f .repo/local_manifests ] && mkdir -pv .repo/local_manifests;
@@ -354,8 +365,13 @@ function sync() # 2
     [[ "$SBC" == "y" ]] && SYNC_CRNT=-c || SYNC_CRNT=" ";
     [[ "$SBB" == "y" ]] && CLN_BUN=" " || CLN_BUN=--no-clone-bundle;
     echo -e "${EXE} Let's Sync!\n";
-    repo sync -j${SBJOBS:-1} ${SILENT:--q} ${FORCE} ${SYNC_CRNT:--c} ${CLN_BUN} \
-    && the_response COOL Sync || the_response FAIL Sync;
+    cmdprex --out="${STMP}" \
+    "CommandName<->repo sync" \
+    "No. of Jobs<->-j${SBJOBS:-1}" \
+    "Silent Sync<->${SILENT:--q}" \
+    "Force Sync<->${FORCE}" \
+    "Sync Current Branches Only<->${SYNC_CRNT:--c}" \
+    "Use Clone Bundle<->${CLN_BUN}";
     echo -e "\n${SCS} Done.\n";
     echo -e "${CL_WYT}=======================================================${NONE}\n";
     [ -z "$automate" ] && quick_menu;
@@ -710,12 +726,11 @@ function build() # 4
         echo;
     } # hotel_menu
 
-    function post_build()
+    function post_build() # Deprecated
     {
         NRT_0=`tac $RMTMP | grep -m 1 'No rule to make target\|no known rule to make it'`;
         if [[ $(tac $RMTMP | grep -c -m 1 '#### make completed successfully') == "1" ]]; then
             echo -e "\n${SCS} Build completed successfully! Cool. Now make it Boot!";
-            the_response COOL Build;
             teh_action 6 COOL;
         elif [[ ! -z "$NRT_0" ]]; then
 #           if [[ ! -z "$DMNJ" ]]; then
@@ -726,11 +741,9 @@ function build() # 4
 #               NRT_1=(`echo "$NRT_0" | awk -F "No rule to make target" '{print $2}' | awk -F "'" '{print $2" "$4}'`);
 #           fi
             if [ ! -z "$automate" ]; then
-                the_response FAIL Build;
                 teh_action 6 FAIL;
             fi
         else
-            the_response FAIL Build;
             teh_action 6 FAIL;
         fi
     } # post_build
@@ -744,18 +757,22 @@ function build() # 4
             #            GZRs | AOKP | AOSiP | A lot of ROMs | All ROMs
             for MAKECOMMAND in ${ROMNIS} rainbowfarts kronic bacon otapackage; do
                 if [ grep -q "^${MAKECOMMAND}:" "${CALL_ME_ROOT}/build/core/Makefile" ]; then
-                    ${SBMK} ${MAKECOMMAND} ${BCORES} && BLDSCS="yay" 2>&1 | tee $RMTMP;
+                    cmdprex --out="${RMTMP}" \
+                    "Command<->${SBMK}" \
+                    "Zip target name<->${MAKECOMMAND}" \
+                    "No. of cores<->${BCORES}";
+                    break;  # Building one target is "enough"
                 fi
             done
             END=$(date +"%s"); # Build end time
             SEC=$(($END - $START)); # Difference gives Build Time
-            if [ -z "$BLDSCS" ]; then
+            if [ -z "$STS" ]; then
                 echo -e "\n${FLD} Build Status : Failed";
             else
                 echo -e "\n${SCS} Build Status : Success";
             fi
             echo -e "\n${INF} ${CL_WYT}Build took $(($SEC / 3600)) hour(s), $(($SEC / 60 % 60)) minute(s) and $(($SEC % 60)) second(s).${NONE}" | tee -a rom_compile.txt;
-            #post_build; # comment it please xD
+            # post_build;
         fi
     } # build_make
 
@@ -792,10 +809,14 @@ function build() # 4
     {
         echo -e "\n${QN} Enter the User name [$(whoami)]\n";
         ST="Custom Username"; shut_my_mouth CU "$ST";
-        export KBUILD_BUILD_USER=${SBCU:-$(whoami)};
+        cmdprex \
+        "CommandName<->export" \
+        "Variable to Set Custom User<->KBUILD_BUILD_USER=${SBCU:-$(whoami)}";
         echo -e "\n${QN} Enter the Host name [$(hostname)]\n";
         ST="Custom Hostname"; shut_my_mouth CH "$ST";
-        export KBUILD_BUILD_HOST=${SBCH:-$(hostname)};
+        cmdprex \
+        "CommandName<->export" \
+        "Variable to Set Custom Host<->KBUILD_BUILD_HOST=${SBCH:-$(hostname)}";
         echo -e "\n${INF} You're building on ${CL_WYT}${KBUILD_BUILD_USER}@${KBUILD_BUILD_HOST}${NONE}";
         echo -e "\n${SCS} Done\n";
         [ -z "$automate" ] && [ "$SBKO" != "5" ] && kbuild;
@@ -868,8 +889,16 @@ function build() # 4
             echo -e "2. 1 + Clean the Current Kernel Configuration\n";
             ST="Clean Method"; shut_my_mouth CK "$ST";
             case "${SBCK}" in
-                1) make clean -j${SBNT} ;;
-                2) make mrproper -j${SBNT} ;;
+                1) cmdprex \
+                    "CommandName<->make" \
+                    "TargetName<->clean" \
+                    "No. of Jobs<->-j${SBNT}" \
+                    ;;
+                2) cmdprex \
+                    "CommandName<->make" \
+                    "TargetName<->mrproper" \
+                    "No. of Jobs<->-j${SBNT}" \
+                    ;;
             esac
             echo -e "\n${SCS} Kernel Cleaning done\n\n${INF} Check output for details\n";
             export action_kcl="done";
@@ -886,10 +915,22 @@ function build() # 4
             [ ! -z "${SBCUH}" ] && custuserhost;
 
             echo -e "\n${EXE} Compiling the Kernel\n";
-            export ARCH="${SBKA}" CROSS_COMPILE="${SBKTL}/bin/${KCCP}";
+            cmdprex \
+            "CommandName<->export" \
+            "Set CPU Architecture<->ARCH=\"${SBKA}\"" \
+            "Set Toolchain Location<->CROSS_COMPILE=\"${SBKTL}/bin/${KCCP}\"";
             [ ! -z "$SBNT" ] && SBNT="-j${SBNT}";
-            make ${SBKD};
-            make ${SBNT} && echo -e "\n${SCS} Compiled Successfully\n" || echo -e "${FLD} Compilation failed\n";
+            cmdprex \
+            "CommandName<->make" \
+            "Defconfig to be Initialized<->${SBKD}";
+            cmdprex \
+            "CommandName<->make" \
+            "No. of Jobs<->${SBNT}";
+            if [[ ! -z "${STS}" ]]; then
+                echo -e "\n${SCS} Compiled Successfully\n";
+            else
+                echo -e "\n${FLD} Compilation failed\n";
+            fi
             [ -z "$automate" ] && kbuild;
         } # mkkernel
 
@@ -1093,7 +1134,9 @@ function build() # 4
                     ST="/out location"; shut_my_mouth OL "$ST";
                     if [ -d "$SBOL" ]; then
                         [ ! -d out ] && mkdir -pv out;
-                        export OUT_DIR="${SBOL}/out";
+                        cmdprex \
+                        "CommandName<->export" \
+                        "Variable to Set Custom Output Directory<->OUT_DIR=\"${SBOL}/out\"";
                     else
                         echo -e "${INF} /out location is unchanged";
                     fi
@@ -1108,8 +1151,14 @@ function build() # 4
                 echo -e "${QN} Use Jack Toolchain ${CL_WYT}[y/n]${NONE}\n"; gimme_info "jack";
                 ST="Use Jacky"; shut_my_mouth JK "$ST";
                 case "$SBJK" in
-                     [yY]) export ANDROID_COMPILE_WITH_JACK=true ;;
-                     [nN]) export ANDROID_COMPILE_WITH_JACK=false ;;
+                     [yY]) cmdprex \
+                            "CommandName<->export" \
+                            "Variable to Enable Jack<->ANDROID_COMPILE_WITH_JACK=true"
+                            ;;
+                     [nN]) cmdprex \
+                            "CommandName<->export" \
+                            "Variable to Disable Jack<->ANDROID_COMPILE_WITH_JACK=false"
+                            ;;
                 esac
             fi
             if [[ $(grep -c 'BUILD_ID=N' ${CALL_ME_ROOT}/build/core/build_id.mk) == "1" ]]; then
@@ -1118,19 +1167,39 @@ function build() # 4
                 case "$SBNJ" in
                     [yY])
                         echo -e "\n${INF} Building Android with Ninja BuildSystem";
-                        export USE_NINJA=true;
+                        cmdprex \
+                        "CommandName<->export" \
+                        "Variable to Use Ninja<->USE_NINJA=true";
                         ;;
                     [nN])
                         echo -e "\n${INF} Building Android with the Non-Ninja BuildSystem\n";
-                        export USE_NINJA=false;
-                        unset BUILDING_WITH_NINJA;
+                        cmdprex \
+                        "CommandName<->export" \
+                        "Variable to Disable Ninja<->USE_NINJA=false";
+                        cmdprex \
+                        "CommandName<->unset" \
+                        "Unsetting this Var removes Ninja temp files<->BUILDING_WITH_NINJA";
                         ;;
                     *) echo -e "${FLD} Invalid Selection.\n" ;;
                 esac
             fi
             case "$SBCL" in
-                1) lunch ${TARGET}; $SBMK installclean ;;
-                2) lunch ${TARGET}; $SBMK clean ;;
+                1)
+                    cmdprex \
+                    "CommandName<->lunch" \
+                    "Build Target Name<->${TARGET}";
+                    cmdprex \
+                    "CommandName<->$SBMK" \
+                    "TargetName to Remove Staging Files<->installclean";
+                    ;;
+                2)
+                    cmdprex \
+                    "CommandName<->lunch" \
+                    "Build Target Name<->${TARGET}";
+                    cmdprex \
+                    "CommandName<->$SBMK" \
+                    "TargetName to Remove Entire Build Output<->clean";
+                    ;;
                 *) echo -e "${INF} No Clean Option Selected.\n" ;;
             esac
             echo -e "${QN} Set a custom user/host\n [y/n]";
@@ -1435,7 +1504,7 @@ function tools() # 5
             2) IDIR="/usr/bin/" ;;
             *) echo -e "\n${FLD} Invalid Selection\n"; installer $@ ;;
         esac
-        sudo -p $'\n\033[1;35m[#]\033[0m ' install utils/$1 ${IDIR};
+        execroot install utils/$1 ${IDIR};
         check_utils_version "$1" "installed"; # Check Installed Version
         echo -e "\n${INF} Installed Version of $1 : $VER";
         if [[ "$1" == "ninja" ]]; then
@@ -1647,7 +1716,7 @@ function the_start() # 0
     echo -e "      ${CL_LRD}███████${NONE}${CL_RED}║╚${NONE}${CL_LRD}██████${NONE}${CL_RED}╗${NONE}${CL_LRD}██${NONE}${CL_RED}║${NONE}  ${CL_LRD}██${NONE}${CL_RED}║${NONE}${CL_LRD}██${NONE}${CL_RED}║${NONE}${CL_LRD}██████${NONE}${CL_RED}╔╝${NONE}   ${CL_LRD}██${NONE}${CL_RED}║${NONE}";
     echo -e "      ${CL_RED}╚══════╝ ╚═════╝╚═╝  ╚═╝╚═╝╚═════╝    ╚═╝${NONE}\n";
     sleep 1.5;
-    echo -e "                         ${CL_WYT}v`cat ${PATHDIR}VERSION`${NONE}\n";
+    echo -e "                     ${CL_WYT}v`cat ${PATHDIR}VERSION`-${BRANCH}${NONE}\n";
 } # the_start
 
 function automator()
@@ -1686,7 +1755,7 @@ function automator()
 function prompt()
 {
     read -p $'\033[1;36m[>]\033[0m ' $1;
-    if [[ -z $(eval echo \$$1) ]]; then
+    if [[ -z $(eval echo \$$1) ]] && [[ -z "$2" ]]; then
         echo -e "\n${FLD} No response provided\n";
         prompt $1;
     fi
