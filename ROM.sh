@@ -35,7 +35,6 @@ function cmdprex() # D ALL
     # Replace Space with '#' in individual parameter
     # Remove First Parameter v--(Needs to be refined)--v
     ARGS=( $(echo ${@// /#} | sed -e 's/--out=.*txt//') );
-    echo -e "${ARGS[*]}";
     # Argument (Parameter) Array
     # If Parameter is empty, Element value would be 'NULL'
     # This is useful to prevent echoing Parameter Description
@@ -44,11 +43,11 @@ function cmdprex() # D ALL
     # Argument Description Array
     ARGD=( `echo ${ARGS[*]/<->*/}` );
     # Splash some colors!
-    for ((CT=0;CT<${#ARG[*]};i++)); do
+    for ((CT=0;CT<${#ARG[*]};CT++)); do
         echo -en "\033[1;3${CT}m`eval echo \${ARG[${CT}]}` " | sed -e 's/NULL//g' -e 's/#/ /g';
     done
     echo -e "\n";
-    for ((CT=0;CT<${#ARGD[*]};i++)); do
+    for ((CT=0;CT<${#ARGD[*]};CT++)); do
         [[ `eval echo \${ARG[${CT}]}` != "NULL" ]] && \
          echo -en "\033[1;3${CT}m`eval echo \${ARGD[${CT}]}`\033[0m " | sed 's/#/ /g';
     done
@@ -66,7 +65,7 @@ function cmdprex() # D ALL
         echo -e "${FLD} Command Execution Failed\n";
         STS="1";
     fi
-    unset -v CMD CT;
+    unset -v CMD CT ARG{,S,D};
 } # cmdprex
 
 
