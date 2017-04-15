@@ -1524,7 +1524,7 @@ function tools() # 5
     	echo -e "Do you want to:\n1)Add a repository,\n2)Remove a repository or\n3)Or add a remote."
     	prompt choice
     	case ${choice} in
-    		1) 
+    		1)
 				export lineStart="<project ";
 				export lineEnd="/>";
 				echo -e "Please enter the following one by one\nRepository Name,\nRepository Path,\nBranch to be synced, and\nRemote of the repository.";
