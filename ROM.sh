@@ -1514,6 +1514,36 @@ function tools() # 5
         echo -e "\n${SCS} Done\n";
     } # installer
 
+    function generateLocalManifest() {
+    	[ -z $1 ] && echo -e "Please provide a valid path for the resultant XML to be stored";
+    	export localManifestPath=$1;
+    	if [ ! -f ${localManifestPath} ]; then
+    		mkdir -pv $(dirname ${localManifestPath}) && touch ${localManifestPath};
+    		[ $? -ne 0 ] && echo -e "Error occurred trying to create ${localManifestPath}" && exit 1;
+    	fi
+    	echo -e "Do you want to:\n1)Add a repository,\n2)Remove a repository or\n3)Or add a remote."
+    	prompt choice
+    	case ${choice} in
+    		1) 
+				export lineStart="<project ";
+				export lineEnd="/>";
+				echo -e "Please enter the following one by one\nRepository Name,\nRepository Path,\nBranch to be synced, and\nRemote of the repository.";
+				echo -e "If any of them are not needed, please just enter a blank value (repository name and repository path CANNOT be blank.";
+				prompt repo_name;
+				prompt repo_path;
+				prompt repo_revision;
+				prompt repo_remote;
+				if [ -z ${repo_name} ] || [ -z ${repo_path} ]; then
+					echo -e "Y U DO THIS!!!!!!!!"
+					exit 1;
+				fi
+				line='name="${repo_name}" path="repo_path"';
+				[ -z ${repo_revision} ] || line=${line}+'revision="${repo_revision}"'
+				[ -z ${repo_remote}   ] || line=${line}+'remote="${repo_remote}"'
+				line=${lineStart}+${line}+${lineEnd};
+				echo "${line}" >> ${localManifestPath};
+    } # generateLocalManifest
+
     function scribtofy()
     {
         echo -e "\n${INF} This Function allows ScriBt to be executed under any directory";
