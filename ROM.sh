@@ -1444,6 +1444,18 @@ function tools() # 5
 				[ -z ${repo_remote}   ] || line=${line}+'remote="${repo_remote}"'
 				line=${lineStart}+${line}+${lineEnd};
 				echo "${line}" >> ${localManifestPath};
+		;;
+		2)
+				export lineStart="<remove-project ";
+                                export lineEnd="/>";
+                                echo -e "Please enter the Repository Name.";
+				prompt repo_name;
+				[ -z ${repo_name} ] && echo -e "Y U DO THIS!!!!!!!!" && exit 1;
+				line='name="${repo_name}"';
+                                line=${lineStart}+${line}+${lineEnd};
+                                echo "${line}" >> ${localManifestPath};
+		;;
+
     } # generateLocalManifest
 
     function scribtofy()
