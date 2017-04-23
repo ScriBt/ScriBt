@@ -125,7 +125,7 @@ function exitScriBt() # ID
     fi
     [[ "$RQ_PGN" == [Yy] ]] && prefGen || ((set -o posix; set) > ${TV2});
     echo -e "\n${EXE} Unsetting all variables";
-    unset `diff temp_v1.txt temp_v2.txt | grep SB | sed -e 's/[<>] /    /g' | awk -F "=" '{print $1}'`;
+    unset `diff ${CALL_ME_ROOT}/temp_v1.txt ${CALL_ME_ROOT}/temp_v2.txt | grep SB | sed -e 's/[<>] /    /g' | awk -F "=" '{print $1}'`;
     echo -e "\n${SCS:-[:)]} Thanks for using ScriBt.\n";
     [[ "$1" == "0" ]] && echo -e "${CL_LGN}[${NONE}${CL_LRD}<3${NONE}${CL_LGN}]${NONE} Peace! :)\n" ||\
         echo -e "${CL_LRD}[${NONE}${CL_RED}<${NONE}${CL_LGR}/${NONE}${CL_RED}3${NONE}${CL_LRD}]${NONE} Failed somewhere :(\n";
