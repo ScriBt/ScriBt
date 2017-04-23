@@ -180,7 +180,7 @@ function quick_menu()
 
 function rom_select() # D 1,2
 {
-    export ROMS=( " " "AICP" "AOKP" "AOSiP" "AOSP-CAF" "AOSP-OMS" "BlissRoms" \
+    export ROMS=( "NullROM" "AICP" "AOKP" "AOSiP" "AOSP-CAF" "AOSP-OMS" "BlissRoms" \
         "CandyRoms" "CarbonROM" "crDroid" "Cyanide" "CyanogenMod" "DirtyUnicorns" \
         "Euphoria" "F-AOSP" "FlayrOS" "Krexus" "Lineage Android" "OctOs" \
         "OmniROM" "OrionOS" "OwnROM" "PAC ROM" "Parallax OS" "Paranoid Android"\
@@ -248,15 +248,6 @@ function set_ccvars() # D 4,5
     set_ccache;
 } # set_ccvars
 
-function response() # D ALL
-{
-    # About to be deprecated
-    case "$STS" in
-        "1") echo -e "\n${FLD} ${ATBT} Automated $2 Failed :(" ;;
-        *) echo -e "\n${SCS} ${ATBT} Automated $2 Successful! :)" ;;
-    esac
-} # the_response
-
 function init() # 1
 {
     # change terminal title
@@ -278,29 +269,27 @@ function init() # 1
     unset CT;
     echo -e "\n${INF} These Branches are available at the moment\n${QN} Specify the ID and Branch you're going to sync\n${INF} Format : [ID] [BRANCH]\n";
     ST="Branch"; shut_my_mouth NBR "$ST";
-    RC=`echo "$SBNBR" | awk '{print $1}'`; SBBR=`echo "$SBNBR" | awk '{print $2}'`;
-    MNF=`echo "${MAN[$RC]}"`;
-    RNM=`echo "${ROM_NAME[$RC]}"`;
+    CT=`echo "${SBNBR/ */}"`; # Count
+    SBBR=`echo "${SBNBR/* /}"`; # Branch
+    MNF=`echo "${MAN[$CT]}"`; # Orgn manifest name at count
+    RNM=`echo "${ROM_NAME[$CT]}"`; # Orgn name at count
     echo -e "${QN} Any Source you have already synced ${CL_WYT}[y/n]${NONE}\n"; gimme_info "refer";
     ST="Use Reference Source"; shut_my_mouth RF "$ST";
     if [[ "$SBRF" == [Yy] ]]; then
         echo -e "\n${QN} Provide me the Synced Source's Location from /\n";
         ST="Reference Location"; shut_my_mouth RFL "$ST";
         REF=--reference\=\"${SBRFL}\";
-    else
-        REF=" ";
     fi
     echo -e "${QN} Set clone-depth ${CL_WYT}[y/n]${NONE}\n"; gimme_info "cldp";
     ST="Use clone-depth"; shut_my_mouth CD "$ST";
-    if [[ "$SBCD" =~ (Y|y) ]]; then
-        echo -e "${QN} Depth Value [1]\n";
+    if [[ "$SBCD" == [Yy] ]]; then
+        echo -e "${QN} Depth Value ${CL_WYT}[Default - 1]${NONE}\n";
         ST="clone-depth Value"; shut_my_mouth DEP "$ST";
-        [ -z "$SBDEP" ] && SBDEP=1;
-        CDP=--depth\=${SBDEP};
+        CDP=--depth\=${SBDEP:-1};
     fi
     # Check for Presence of Repo Binary
     if [[ ! $(which repo) ]]; then
-        echo -e "${EXE} Looks like the Repo binary isn't installed. Let's Install it.\n";
+        echo -e "${FLD} ${CL_WYT}repo${NONE} binary isn't installed\n\n${EXE} Installing ${CL_WYT}repo${CL_WYT}\n";
         [ ! -d "${HOME}/bin" ] && mkdir -pv ${HOME}/bin;
         curl https://storage.googleapis.com/git-repo-downloads/repo > ~/bin/repo;
         chmod a+x ~/bin/repo;
@@ -319,11 +308,11 @@ function init() # 1
     MURL="https://github.com/${RNM}/${MNF}";
     export CMD="repo init ";
     cmdprex --out="${STMP}" \
-     "CommandName<->repo init" \
-     "Reference Source<->${REF}" \
-     "Clone Depth<->${CDP}" \
-     "Manifest URL<->-u ${MURL}" \
-     "Manifest Branch<->-b ${SBBR}";
+        "CommandName<->repo init" \
+        "Reference Source<->${REF}" \
+        "Clone Depth<->${CDP}" \
+        "Manifest URL<->-u ${MURL}" \
+        "Manifest Branch<->-b ${SBBR}";
     echo -e "${CL_WYT}=======================================================${NONE}\n";
     if [ -z "$STS" ]; then
         [ ! -f .repo/local_manifests ] && mkdir -pv .repo/local_manifests;
@@ -333,9 +322,9 @@ function init() # 1
             echo;
         fi
         export action_1="init";
-        sync
+        sync;
     else
-        unset RINIT;
+        unset STS;
         quick_menu;
     fi
 } # init
@@ -344,7 +333,7 @@ function sync() # 2
 {
     # Change terminal title
     [ ! -z "$automate" ] && teh_action 2;
-    # If   Repo not inited          then do it else                        get rom info
+    # if   repo not inited          then do it else                        get rom info
     if [ ! -f .repo/manifest.xml ]; then init; elif [ -z "$action_1" ]; then rom_select; fi;
     echo -e "\n${EXE} Preparing for Sync\n";
     echo -e "${QN} Number of Threads for Sync \n"; gimme_info "jobs";
@@ -359,18 +348,18 @@ function sync() # 2
     ST="Use clone-bundle"; shut_my_mouth B "$ST";
     echo -e "${CL_WYT}=======================================================${NONE}\n";
     #Sync-Options
-    [[ "$SBS" == "y" ]] && SILENT=-q || SILENT=" ";
-    [[ "$SBF" == "y" ]] && FORCE=--force-sync || FORCE=" ";
-    [[ "$SBC" == "y" ]] && SYNC_CRNT=-c || SYNC_CRNT=" ";
-    [[ "$SBB" == "y" ]] && CLN_BUN=" " || CLN_BUN=--no-clone-bundle;
+    [[ "$SBS" == "y" ]] && SILENT="-q";
+    [[ "$SBF" == "y" ]] && FORCE=--force-sync;
+    [[ "$SBC" == "y" ]] && SYNC_CRNT=-c;
+    [[ "$SBB" == "y" ]] || CLN_BUN=--no-clone-bundle;
     echo -e "${EXE} Let's Sync!\n";
     cmdprex --out="${STMP}" \
-    "CommandName<->repo sync" \
-    "No. of Jobs<->-j${SBJOBS:-1}" \
-    "Silent Sync<->${SILENT:--q}" \
-    "Force Sync<->${FORCE}" \
-    "Sync Current Branches Only<->${SYNC_CRNT:--c}" \
-    "Use Clone Bundle<->${CLN_BUN}";
+        "CommandName<->repo sync" \
+        "No. of Jobs<->-j${SBJOBS:-1}" \
+        "Silent Sync<->${SILENT}" \
+        "Force Sync<->${FORCE}" \
+        "Sync Current Branches Only<->${SYNC_CRNT}" \
+        "Use Clone Bundle<->${CLN_BUN}";
     echo -e "\n${SCS} Done.\n";
     echo -e "${CL_WYT}=======================================================${NONE}\n";
     [ -z "$automate" ] && quick_menu;
@@ -415,7 +404,9 @@ function init_bld() # D 3,4
 {
     echo -e "\n${CL_WYT}=======================================================${NONE}";
     echo -e "${EXE} Initializing Build Environment\n";
-    . build/envsetup.sh;
+    cmdprex \
+        "Execute in Current Shell<->." \
+        "EnvSetup Script<->build/envsetup.sh";
     echo -e "\n${CL_WYT}=======================================================${NONE}\n";
     echo -e "${SCS} Done\n";
 } # init_bld
@@ -546,8 +537,8 @@ function pre_build() # 3
 
     function find_ddc() # For Finding Default Device Configuration file
     {
-        ROMC=( aicp aokp aosp bliss candy carbon crdroid cyanide cm du eos lineage \
-                orion ownrom radium slim tesla tipsy to validus vanir xenonhd xosp );
+        # Get all the ROMNIS values - Duplicates doesn't matter
+        ROMC=( `for CT in {1..39}; do rom_names "${SBRN}"; echo "${ROMNIS}"; done` );
         for ROM in ${ROMC[*]}; do
             # Possible Default Device Configuration (DDC) Files
             DDCS=( ${ROM}_${SBDEV}.mk full_${SBDEV}.mk aosp_${SBDEV}.mk ${ROM}.mk );
@@ -704,48 +695,36 @@ function build() # 4
 
     function hotel_menu()
     {
-        echo -e "${CL_WYT}=====================${NONE} ${CL_LBL}Hotel Menu${NONE} ${CL_WYT}======================${NONE}";
-        echo -e " Menu is only for your Device, not for you. No Complaints pls.\n";
+        echo -e "${CL_WYT}=====================${NONE} ${CL_LBL}Hotel Menu${NONE} ${CL_WYT}======================${NONE}\n";
         echo -e "[*] lunch - Setup Build Environment for the Device";
         echo -e "[*] breakfast - Download Device Dependencies and lunch";
         echo -e "[*] brunch - breakfast + lunch then Start Build\n";
-        echo -e "${QN} Type in the Option you want to select\n";
-        echo -e "${INF} Building for the first time ? select lunch";
+        echo -e "${QN} Type in the desired option\n";
+        echo -e "${INF} Building for a new Device ? select ${CL_WYT}lunch${NONE}";
         echo -e "${CL_WYT}=======================================================${NONE}\n";
         ST="Selected Option"; shut_my_mouth SLT "$ST";
         case "$SBSLT" in
-            "lunch") ${SBSLT} ${TARGET} ;;
-            "breakfast") ${SBSLT} ${SBDEV} ${SBBT} ;;
+            "lunch")
+                cmdprex \
+                    "CommandName<->${SBSLT}" \
+                    "Target Name<->${TARGET}";
+                ;;
+            "breakfast")
+                cmdprex \
+                    "CommandName<->${SBSLT}" \
+                    "Device Codename<->${SBDEV}" \
+                    "ROM BuildType<->${SBBT}";
+                ;;
             "brunch")
                 echo -e "\n${EXE} Starting Compilation - ${ROM_FN} for ${SBDEV}\n";
-                ${SBSLT} ${SBDEV};
+                cmdprex \
+                    "CommandName<->${SBSLT}" \
+                    "Device Codename<->${SBDEV}";
                 ;;
             *) echo -e "${FLD} Invalid Selection.\n"; hotel_menu ;;
         esac
         echo;
     } # hotel_menu
-
-    function post_build() # Deprecated
-    {
-        NRT_0=`tac $RMTMP | grep -m 1 'No rule to make target\|no known rule to make it'`;
-        if [[ $(tac $RMTMP | grep -c -m 1 '#### make completed successfully') == "1" ]]; then
-            echo -e "\n${SCS} Build completed successfully! Cool. Now make it Boot!";
-            teh_action 6 COOL;
-        elif [[ ! -z "$NRT_0" ]]; then
-#           if [[ ! -z "$DMNJ" ]]; then
-#               # ninja: error: 'A', needed by 'B', missing and no known rule to make it
-# W             NRT_1=(`echo "$NRT_0" | awk '{print $3 $6}' | awk -F "'" '{print $2" "$4}'`);
-# i         else
-# P             # make[X]: *** No rule to make target 'A', needed by 'B'.
-#               NRT_1=(`echo "$NRT_0" | awk -F "No rule to make target" '{print $2}' | awk -F "'" '{print $2" "$4}'`);
-#           fi
-            if [ ! -z "$automate" ]; then
-                teh_action 6 FAIL;
-            fi
-        else
-            teh_action 6 FAIL;
-        fi
-    } # post_build
 
     function build_make()
     {
@@ -753,14 +732,14 @@ function build() # 4
             START=$(date +"%s"); # Build start time
             # Showtime!
             BCORES="-j${BCORES}";
-            #            GZRs | AOKP | AOSiP | A lot of ROMs | All ROMs
+            # Sequence - GZRs | AOKP | AOSiP | A lot of ROMs | All ROMs
             for MAKECOMMAND in ${ROMNIS} rainbowfarts kronic bacon otapackage; do
                 if [ grep -q "^${MAKECOMMAND}:" "${CALL_ME_ROOT}/build/core/Makefile" ]; then
                     cmdprex --out="${RMTMP}" \
                     "Command<->${SBMK}" \
                     "Zip target name<->${MAKECOMMAND}" \
                     "No. of cores<->${BCORES}";
-                    break;  # Building one target is "enough"
+                    break;  # Building one target is enough
                 fi
             done
             END=$(date +"%s"); # Build end time
@@ -771,23 +750,8 @@ function build() # 4
                 echo -e "\n${SCS} Build Status : Success";
             fi
             echo -e "\n${INF} ${CL_WYT}Build took $(($SEC / 3600)) hour(s), $(($SEC / 60 % 60)) minute(s) and $(($SEC % 60)) second(s).${NONE}" | tee -a rom_compile.txt;
-            # post_build;
         fi
     } # build_make
-
-    function make_it() # Part of make_module
-    {
-        echo -e "${QN} ENTER the Directory where the Module is made from : \n";
-        prompt MODDIR;
-        echo -e "\n${QN} Do you want to push the Module to the Device (Running the Same ROM) ${CL_WYT}[y/n]${NONE} : \n";
-        prompt PMOD;
-        echo;
-        case "$PMOD" in
-            [yY]) mmmp -B $MODDIR ;; # make module and push it to device
-            [nN]) mmm -B $MODDIR ;; # make module only
-            *) echo -e "${FLD}Invalid Selection.\n"; make_it ;;
-        esac
-    } # make_it
 
     function make_module()
     {
@@ -796,9 +760,28 @@ function build() # 4
             prompt KNWLOC;
         fi
         if [[ "$KNWLOC" == "y" || "$1" == "y" ]]; then
-            make_it;
+            echo -e "${QN} Specify the directory which builds the module\n";
+            prompt MODDIR;
+            echo -e "\n${QN} Push module to the Device (through ADB, running the same ROM) ${CL_WYT}[y/n]${NONE}\n";
+            prompt PMOD;
+            echo;
+            case "$PMOD" in
+                [Yy])
+                    cmdprex \
+                     "make module and push it to device<->mmmp" \
+                     "Force Rebuild the module<->-B" \
+                     "Module Directory<->${MODDIR}"
+                     ;;
+                [Nn])
+                    cmdprex \
+                     "make-module<->mmm" \
+                     "Force Rebuild the module<->-B" \
+                     "Module Directory<->$MODDIR"
+                     ;;
+                *) echo -e "${FLD}Invalid Selection.\n"; make_it ;;
+            esac
         else
-            echo -e "${INF} Do either of these two actions:\n1. Google it (Easier)\n2. Run this command in terminal : sgrep \"LOCAL_MODULE := <Insert_MODULE_NAME_Here> \".\n\n Press ENTER after it's Done..\n";
+            echo -e "${INF} Do either of these two actions:\n1. Google it (Easier)\n2. Run this command in terminal : grep \"LOCAL_MODULE := <Insert_MODULE_NAME_Here> \".\n\n Press ENTER after it's Done..\n";
             read ENTER;
             make_it;
         fi
@@ -809,13 +792,13 @@ function build() # 4
         echo -e "\n${QN} Enter the User name [$(whoami)]\n";
         ST="Custom Username"; shut_my_mouth CU "$ST";
         cmdprex \
-        "CommandName<->export" \
-        "Variable to Set Custom User<->KBUILD_BUILD_USER=${SBCU:-$(whoami)}";
+            "CommandName<->export" \
+            "Variable to Set Custom User<->KBUILD_BUILD_USER=${SBCU:-$(whoami)}";
         echo -e "\n${QN} Enter the Host name [$(hostname)]\n";
         ST="Custom Hostname"; shut_my_mouth CH "$ST";
         cmdprex \
-        "CommandName<->export" \
-        "Variable to Set Custom Host<->KBUILD_BUILD_HOST=${SBCH:-$(hostname)}";
+            "CommandName<->export" \
+            "Variable to Set Custom Host<->KBUILD_BUILD_HOST=${SBCH:-$(hostname)}";
         echo -e "\n${INF} You're building on ${CL_WYT}${KBUILD_BUILD_USER}@${KBUILD_BUILD_HOST}${NONE}";
         echo -e "\n${SCS} Done\n";
         [ -z "$automate" ] && [ "$SBKO" != "5" ] && kbuild;
@@ -888,15 +871,17 @@ function build() # 4
             echo -e "2. 1 + Clean the Current Kernel Configuration\n";
             ST="Clean Method"; shut_my_mouth CK "$ST";
             case "${SBCK}" in
-                1) cmdprex \
-                    "CommandName<->make" \
-                    "TargetName<->clean" \
-                    "No. of Jobs<->-j${SBNT}" \
+                1)
+                    cmdprex \
+                        "CommandName<->make" \
+                        "TargetName<->clean" \
+                        "No. of Jobs<->-j${SBNT}" \
                     ;;
-                2) cmdprex \
-                    "CommandName<->make" \
-                    "TargetName<->mrproper" \
-                    "No. of Jobs<->-j${SBNT}" \
+                2)
+                    cmdprex \
+                        "CommandName<->make" \
+                        "TargetName<->mrproper" \
+                        "No. of Jobs<->-j${SBNT}" \
                     ;;
             esac
             echo -e "\n${SCS} Kernel Cleaning done\n\n${INF} Check output for details\n";
@@ -915,16 +900,16 @@ function build() # 4
 
             echo -e "\n${EXE} Compiling the Kernel\n";
             cmdprex \
-            "CommandName<->export" \
-            "Set CPU Architecture<->ARCH=\"${SBKA}\"" \
-            "Set Toolchain Location<->CROSS_COMPILE=\"${SBKTL}/bin/${KCCP}\"";
+                "CommandName<->export" \
+                "Set CPU Architecture<->ARCH=\"${SBKA}\"" \
+                "Set Toolchain Location<->CROSS_COMPILE=\"${SBKTL}/bin/${KCCP}\"";
             [ ! -z "$SBNT" ] && SBNT="-j${SBNT}";
             cmdprex \
-            "CommandName<->make" \
-            "Defconfig to be Initialized<->${SBKD}";
+                "CommandName<->make" \
+                "Defconfig to be Initialized<->${SBKD}";
             cmdprex \
-            "CommandName<->make" \
-            "No. of Jobs<->${SBNT}";
+                "CommandName<->make" \
+                "No. of Jobs<->${SBNT}";
             if [[ ! -z "${STS}" ]]; then
                 echo -e "\n${SCS} Compiled Successfully\n";
             else
@@ -1134,8 +1119,8 @@ function build() # 4
                     if [ -d "$SBOL" ]; then
                         [ ! -d out ] && mkdir -pv out;
                         cmdprex \
-                        "CommandName<->export" \
-                        "Variable to Set Custom Output Directory<->OUT_DIR=\"${SBOL}/out\"";
+                            "CommandName<->export" \
+                            "Variable to Set Custom Output Directory<->OUT_DIR=\"${SBOL}/out\"";
                     else
                         echo -e "${INF} /out location is unchanged";
                     fi
@@ -1150,14 +1135,16 @@ function build() # 4
                 echo -e "${QN} Use Jack Toolchain ${CL_WYT}[y/n]${NONE}\n"; gimme_info "jack";
                 ST="Use Jacky"; shut_my_mouth JK "$ST";
                 case "$SBJK" in
-                     [yY]) cmdprex \
+                    [yY])
+                        cmdprex \
                             "CommandName<->export" \
                             "Variable to Enable Jack<->ANDROID_COMPILE_WITH_JACK=true"
-                            ;;
-                     [nN]) cmdprex \
+                        ;;
+                    [nN])
+                        cmdprex \
                             "CommandName<->export" \
                             "Variable to Disable Jack<->ANDROID_COMPILE_WITH_JACK=false"
-                            ;;
+                        ;;
                 esac
             fi
             if [[ $(grep -c 'BUILD_ID=N' ${CALL_ME_ROOT}/build/core/build_id.mk) == "1" ]]; then
@@ -1167,17 +1154,17 @@ function build() # 4
                     [yY])
                         echo -e "\n${INF} Building Android with Ninja BuildSystem";
                         cmdprex \
-                        "CommandName<->export" \
-                        "Variable to Use Ninja<->USE_NINJA=true";
+                            "CommandName<->export" \
+                            "Variable to Use Ninja<->USE_NINJA=true";
                         ;;
                     [nN])
                         echo -e "\n${INF} Building Android with the Non-Ninja BuildSystem\n";
                         cmdprex \
-                        "CommandName<->export" \
-                        "Variable to Disable Ninja<->USE_NINJA=false";
+                            "CommandName<->export" \
+                            "Variable to Disable Ninja<->USE_NINJA=false";
                         cmdprex \
-                        "CommandName<->unset" \
-                        "Unsetting this Var removes Ninja temp files<->BUILDING_WITH_NINJA";
+                            "CommandName<->unset" \
+                            "Unsetting this Var removes Ninja temp files<->BUILDING_WITH_NINJA";
                         ;;
                     *) echo -e "${FLD} Invalid Selection.\n" ;;
                 esac
@@ -1185,19 +1172,19 @@ function build() # 4
             case "$SBCL" in
                 1)
                     cmdprex \
-                    "CommandName<->lunch" \
-                    "Build Target Name<->${TARGET}";
+                        "CommandName<->lunch" \
+                        "Build Target Name<->${TARGET}";
                     cmdprex \
-                    "CommandName<->$SBMK" \
-                    "TargetName to Remove Staging Files<->installclean";
+                        "CommandName<->$SBMK" \
+                        "TargetName to Remove Staging Files<->installclean";
                     ;;
                 2)
                     cmdprex \
-                    "CommandName<->lunch" \
-                    "Build Target Name<->${TARGET}";
+                        "CommandName<->lunch" \
+                        "Build Target Name<->${TARGET}";
                     cmdprex \
-                    "CommandName<->$SBMK" \
-                    "TargetName to Remove Entire Build Output<->clean";
+                        "CommandName<->$SBMK" \
+                        "TargetName to Remove Entire Build Output<->clean";
                     ;;
                 *) echo -e "${INF} No Clean Option Selected.\n" ;;
             esac
@@ -1696,7 +1683,7 @@ function the_start() # 0
 
     # CHEAT CHEAT CHEAT!
     if [ -z "$automate" ]; then
-        echo -e "${QN} Before Starting off, shall I remember the responses you'll enter from now \n${INF} So that it can be Automated next time\n";
+        echo -e "${QN} Remember Responses for Automation ${CL_WYT}[y/n]${NONE}\n";
         prompt RQ_PGN;
         (set -o posix; set) > ${TV1};
     else
