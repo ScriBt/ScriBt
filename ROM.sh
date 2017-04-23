@@ -1775,6 +1775,8 @@ trap interrupt SIGINT;
 
 if [[ "$0" == "ROM.sh" ]] && [[ $(type -p ROM.sh) ]]; then
     export PATHDIR="$(type -p ROM.sh | sed 's/ROM.sh//g')";
+else
+    export PATHDIR="$(pwd)/"
 fi
 
 if [[ "$1" == "automate" ]]; then
