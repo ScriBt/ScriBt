@@ -129,7 +129,8 @@ function exitScriBt() # ID
     echo -e "\n${SCS:-[:)]} Thanks for using ScriBt.\n";
     [[ "$1" == "0" ]] && echo -e "${CL_LGN}[${NONE}${CL_LRD}<3${NONE}${CL_LGN}]${NONE} Peace! :)\n" ||\
         echo -e "${CL_LRD}[${NONE}${CL_RED}<${NONE}${CL_LGR}/${NONE}${CL_RED}3${NONE}${CL_LRD}]${NONE} Failed somewhere :(\n";
-    rm ${CALL_ME_ROOT}/temp_v1.txt ${CALL_ME_ROOT}/temp_v2.txt ${CALL_ME_ROOT}/temp.txt
+    rm ${CALL_ME_ROOT}/temp_v1.txt ${CALL_ME_ROOT}/temp_v2.txt ${CALL_ME_ROOT}/temp.txt 
+    [ -f ${PATHDIR}update_message.txt ] && rm ${PATHDIR}update_message.txt
     [ -s ${CALL_ME_ROOT}/temp_sync.txt ] || rm ${CALL_ME_ROOT}/temp_sync.txt # If temp_sync.txt is empty, delete it
     [ -s ${CALL_ME_ROOT}/temp_compile.txt ] || rm ${CALL_ME_ROOT}/temp_compile.txt # If temp_compile.txt is empty, delete it
     exit $1;
@@ -1523,6 +1524,72 @@ function tools() # 5
         esac
     } # scribtofy
 
+    function update_creator()
+    {
+        [ -f ${PATHDIR}update_message.txt ] && rm ${PATHDIR}update_message.txt
+        cd ${PATHDIR};
+
+        if [ ! -d ${PATHDIR}.git ]; then # tell the user to re-clone ScriBt
+            echo -e "\n${FLD} Folder ${CL_WYT}.git${NONE} not found";
+            echo -e "${INF} ${CL_WYT}Re-clone${NONE} ScriBt for the update creator to work properly\n";
+        else
+            echo -e "\n${INF} This Function creates a new Update for ScriBt.";
+            echo -e "${INF} Please make sure you are on the right commit which should be the last in the new update!";
+            echo -e "${QN} Do you want to continue?\n"
+            prompt CORRECT;
+            if [[ "$CORRECT" =~ (y|yes) ]]; then
+                CORRECT=n
+                while [[ ! "$CORRECT" =~ (y|yes) ]]; do
+                    echo -e "\n${INF} Please enter the version number (without the prefix v, it will be added automatically)\n";
+                    prompt UPDATE_VERSION;
+                    echo -e "\n${INF} The new version number is \"${UPDATE_VERSION}\"";
+                    echo -e "${QN} Is this correct?\n";
+                    prompt CORRECT;
+                done;
+
+                CORRECT=n
+                while [[ ! "$CORRECT" =~ (y|yes) ]]; do
+                    echo -e "\n${INF} Please enter the update message [Press ENTER]";
+                    read
+                    nano ${PATHDIR}update_message.txt;
+                    echo -e "\n${INF} The new update message is\n";
+                    cat ${PATHDIR}update_message.txt
+                    echo -e "\n${QN} Is this correct?\n";
+                    prompt CORRECT;
+                done;
+
+                echo -e "\n${QN} Do you want to sign the tag?";
+                echo -e "${INF} Do it only if you have a git-compatible GPG setup\n";
+                prompt QN_SIGN
+                if [[ "${QN_SIGN}" =~ (y|yes) ]]; then
+                    RESULT_SIGN=" -s";
+                fi
+
+                if git tag -a${RESULT_SIGN} -F "${PATHDIR}update_message.txt" "v${UPDATE_VERSION}" &> /dev/null; then
+                    echo -e "\n${INF} Tag was created successfully";
+                    echo -e "${QN} Do you want to upload it to the server (origin)?\n";
+                    prompt QN_UPLOAD
+                    if [[ "${QN_UPLOAD}" =~ (y|yes) ]]; then
+                        if git push origin master && git push origin v${UPDATE_VERSION}; then
+                            echo -e "\n${INF} Upload successful";
+                        else
+                            echo -e "\n${FLD} Upload failed";
+                        fi
+                    fi
+                else
+                    echo -e "${FLD} Failed to create the tag";
+                fi
+            fi
+        fi
+        unset CORRECT;
+        unset UPDATE_VERSION;
+        unset RESULT_SIGN;
+        unset QN_SIGN;
+        unset QN_UPLOAD;
+        [ -f ${PATHDIR}update_message.txt ] && rm ${PATHDIR}update_message.txt
+        cd ${CALL_ME_ROOT};
+    } # update_creator
+
     function tool_menu()
     {
         echo -e "\n${CL_WYT}=======================${NONE} ${CL_LBL}Tools${NONE} ${CL_WYT}=========================${NONE}\n";
@@ -1536,6 +1603,7 @@ function tools() # 5
         echo -e "         8. Install ccache ${CL_WYT}~${NONE}";
         echo -e "         9. Install repo ${CL_WYT}~${NONE}";
         echo -e "        10. Add ScriBt to PATH";
+        echo -e "        11. Create a ScriBt Update";
 # TODO: echo -e "         X. Find an Android Module's Directory";
         echo -e "\n         0. Quick Menu";
         echo -e "\n${CL_WYT}*${NONE} Create a GitHub account before using this option";
@@ -1558,6 +1626,7 @@ function tools() # 5
             8) installer "ccache" ;;
             9) installer "repo" ;;
             10) scribtofy ;;
+            11) update_creator ;;
 # TODO:     X) find_mod ;;
             *) echo -e "${FLD} Invalid Selection.\n"; tool_menu ;;
         esac
@@ -1591,7 +1660,7 @@ function teh_action() # Takes ya Everywhere within ScriBt
         [ -z "$automate" ] && build;
         ;;
     5)
-        echo -ne '\033]0;ScriBt : Installing Dependencies\007';
+        echo -ne '\033]0;ScriBt : Various Tools\007';
         [ -z "$automate" ] && tools;
         ;;
     6)
@@ -1652,21 +1721,21 @@ function the_start() # 0
         echo -e "\n${FLD} Folder ${CL_WYT}.git${NONE} not found";
         echo -e "${INF} ${CL_WYT}Re-clone${NONE} ScriBt for upScriBt to work properly\n";
         echo -e "${FLD} Update-Check Cancelled\n\n${INF} No modifications have been done\n";
-    fi
-
-    [ ! -z "${PATHDIR}" ] && cd ${PATHDIR};
-    # Check Branch
-    export BRANCH=`git rev-parse --abbrev-ref HEAD`;
-    cd ${CALL_ME_ROOT};
-
-    if [[ "$BRANCH" =~ (master|staging) ]]; then
-        # Download the Remote Version of Updater, determine the Internet Connectivity by working of this command
-        curl -fs -o ${PATHDIR}upScriBt.sh https://raw.githubusercontent.com/a7r3/ScriBt/${BRANCH}/upScriBt.sh && \
-            (echo -e "\n${SCS} Internet Connectivity : ONLINE"; bash ${PATHDIR}upScriBt.sh $0 $1) || \
-            echo -e "\n${FLD} Internet Connectivity : OFFINE\n\n${INF} Please connect to the Internet for complete functioning of ScriBt";
     else
-        echo -e "\n${INF} Current Working Branch is neither 'master' nor 'staging'\n";
-        echo -e "${FLD} Update-Check Cancelled\n\n${INF} No modifications have been done\n";
+        [ ! -z "${PATHDIR}" ] && cd ${PATHDIR};
+        # Check Branch
+        export BRANCH=`git rev-parse --abbrev-ref HEAD`;
+        cd ${CALL_ME_ROOT};
+
+        if [[ "$BRANCH" =~ (master|staging) ]]; then
+            # Download the Remote Version of Updater, determine the Internet Connectivity by working of this command
+            #curl -fs -o ${PATHDIR}upScriBt.sh https://raw.githubusercontent.com/a7r3/ScriBt/${BRANCH}/upScriBt.sh && \
+                (echo -e "\n${SCS} Internet Connectivity : ONLINE"; bash ${PATHDIR}upScriBt.sh $0 $1) || \
+                echo -e "\n${FLD} Internet Connectivity : OFFINE\n\n${INF} Please connect to the Internet for complete functioning of ScriBt";
+        else
+            echo -e "\n${INF} Current Working Branch is neither 'master' nor 'staging'\n";
+            echo -e "${FLD} Update-Check Cancelled\n\n${INF} No modifications have been done\n";
+        fi
     fi
 
     # Where am I ?
@@ -1701,8 +1770,12 @@ function the_start() # 0
     echo -e "      ${CL_RED}╚════${NONE}${CL_LRD}██${NONE}${CL_RED}║${NONE}${CL_LRD}██${NONE}${CL_RED}║${NONE}     ${CL_LRD}██${NONE}${CL_RED}╔══${NONE}${CL_LRD}██${NONE}${CL_RED}╗${NONE}${CL_LRD}██${NONE}${CL_RED}║${NONE}${CL_LRD}██${NONE}${CL_RED}╔══${NONE}${CL_LRD}██${NONE}${CL_RED}╗${NONE}   ${CL_LRD}██${NONE}${CL_RED}║${NONE}";
     echo -e "      ${CL_LRD}███████${NONE}${CL_RED}║╚${NONE}${CL_LRD}██████${NONE}${CL_RED}╗${NONE}${CL_LRD}██${NONE}${CL_RED}║${NONE}  ${CL_LRD}██${NONE}${CL_RED}║${NONE}${CL_LRD}██${NONE}${CL_RED}║${NONE}${CL_LRD}██████${NONE}${CL_RED}╔╝${NONE}   ${CL_LRD}██${NONE}${CL_RED}║${NONE}";
     echo -e "      ${CL_RED}╚══════╝ ╚═════╝╚═╝  ╚═╝╚═╝╚═════╝    ╚═╝${NONE}\n";
-    sleep 1.5;
-    echo -e "                     ${CL_WYT}v`cat ${PATHDIR}VERSION`-${BRANCH}${NONE}\n";
+    if [ -d ${PATHDIR}.git ]; then
+        sleep 1.5;
+        cd ${PATHDIR};
+        echo -e "                         ${CL_WYT}`git describe --tags $(git rev-list --max-count=1 HEAD)`${NONE}\n";
+        cd ${CALL_ME_ROOT};
+    fi
 } # the_start
 
 function automator()
@@ -1741,7 +1814,7 @@ function automator()
 function prompt()
 {
     read -p $'\033[1;36m[>]\033[0m ' $1;
-    if [[ -z $(eval echo \$$1) ]] && [[ -z "$2" ]]; then
+    if [[ -z "$(eval echo \$$1)" ]] && [[ -z "$2" ]]; then
         echo -e "\n${FLD} No response provided\n";
         prompt $1;
     fi
@@ -1788,7 +1861,14 @@ elif [ -z $1 ]; then
     the_start; # Pre-Initial Stage
     main_menu;
 elif [[ "$1" == "version" ]]; then
-    echo -e "\n\033[1;34m[\033[1;31m~\033[1;34m]\033[0m Projekt ScriBt \033[1;34m[\033[1;31m~\033[1;34m]\033[0m\n     Version `cat ${PATHDIR}VERSION`\n";
+    if [ -d ${PATHDIR}.git ]; then
+        cd ${PATHDIR};
+        echo -e "\n\033[1;34m[\033[1;31m~\033[1;34m]\033[0m Projekt ScriBt \033[1;34m[\033[1;31m~\033[1;34m]\033[0m\n     `git describe --tags $(git rev-list --max-count=1 HEAD)`\n";
+        cd ${CALL_ME_ROOT};
+    else
+        echo -e "Not available. Please resync ScriBt through Git";
+        exit 1;
+    fi
 elif [[ "$1" == "usage" ]]; then
     usage;
 else
