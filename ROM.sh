@@ -1421,7 +1421,7 @@ function tools() # 5
         [ -z "$1" ] && echo -e "Please provide a valid path for the resultant XML to be stored";
         export localManifestPath=$1;
         # Search for Available Remotes
-        REM=( $(cat .repo/manifest.xml `ls .repo/local_manifests/*.xml | sed 's/${MAN}//g'` | grep '<remote' | awk -F "\"" '{print $2}') );
+        REM=( $(repo manifest | sed 's/${MAN}//g'` | grep '<remote' | awk -F "\"" '{print $2}') );
         if [ ! -f "${localManifestPath}" ]; then
         	mkdir -pv $(dirname ${localManifestPath}) && touch ${localManifestPath};
         	[ "$?" -ne 0 ] && echo -e "Error occurred trying to create ${localManifestPath}" && return 1;
