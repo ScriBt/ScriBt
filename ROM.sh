@@ -1439,7 +1439,7 @@ function tools() # 5
     			export lineStart="<project";
     			export lineEnd="/>";
     			echo -e "Please enter the following one by one\n";
-    			echo -e "If any of them are not needed, please just enter a blank value (repository name and repository path CANNOT be blank.";
+    			echo -e "If any of them are not needed, please just enter a blank value (repository name and repository path CANNOT be blank).";
     		    echo -en "\n${CL_LCN}[>]${NONE} Repository Name : "; prompt repo_name;
     			echo -en "\n${CL_LCN}[>]${NONE} Repository Path : "; prompt repo_path;
     			echo -en "\n${CL_LCN}[>]${NONE} Branch : "; prompt repo_revision;
@@ -1463,7 +1463,17 @@ function tools() # 5
                 fi
     		    ;;
             3)
-                echo "Kthxbai";
+                        export lineStart="<remote";
+                        export lineEnd="/>";
+                        echo -e "Please enter the following one by one\n";
+                        echo -e "If any of them are not needed, please just enter a blank value (remote name and remote URL CANNOT be blank).";
+                        echo -en "\n${CL_LCN}[>]${NONE} Remote Name : "; prompt remote_name;
+                        echo -en "\n${CL_LCN}[>]${NONE} Remote URL : "; prompt remote_url;
+                        echo -en "\n${CL_LCN}[>]${NONE} Revision : "; prompt remote_revision;
+                        echo -en "\n${INF} Available Remotes : ${REMOTES}\n";
+                        line='name="${remote_name}" fetch="remote_url"';
+                        [ ! -z "${remote_revision}" ] || line="${line}" revision="${remote_revision}"
+                        line="${lineStart} ${line} ${lineEnd}";
                 ;;
         esac
     } # manifest_gen
