@@ -1416,47 +1416,57 @@ function tools() # 5
         echo -e "\n${SCS} Done\n";
     } # installer
 
-    function generateLocalManifest() {
-    	[ -z $1 ] && echo -e "Please provide a valid path for the resultant XML to be stored";
-    	export localManifestPath=$1;
-    	if [ ! -f ${localManifestPath} ]; then
-    		mkdir -pv $(dirname ${localManifestPath}) && touch ${localManifestPath};
-    		[ $? -ne 0 ] && echo -e "Error occurred trying to create ${localManifestPath}" && exit 1;
-    	fi
-    	echo -e "Do you want to:\n1)Add a repository,\n2)Remove a repository or\n3)Or add a remote."
-    	prompt choice
-    	case ${choice} in
-    		1)
-				export lineStart="<project ";
-				export lineEnd="/>";
-				echo -e "Please enter the following one by one\nRepository Name,\nRepository Path,\nBranch to be synced, and\nRemote of the repository.";
-				echo -e "If any of them are not needed, please just enter a blank value (repository name and repository path CANNOT be blank.";
-				prompt repo_name;
-				prompt repo_path;
-				prompt repo_revision;
-				prompt repo_remote;
-				if [ -z ${repo_name} ] || [ -z ${repo_path} ]; then
-					echo -e "Y U DO THIS!!!!!!!!"
-					exit 1;
-				fi
-				line='name="${repo_name}" path="repo_path"';
-				[ -z ${repo_revision} ] || line=${line}+'revision="${repo_revision}"'
-				[ -z ${repo_remote}   ] || line=${line}+'remote="${repo_remote}"'
-				line=${lineStart}+${line}+${lineEnd};
-				echo "${line}" >> ${localManifestPath};
-		;;
-		2)
-				export lineStart="<remove-project ";
-                                export lineEnd="/>";
-                                echo -e "Please enter the Repository Name.";
-				prompt repo_name;
-				[ -z ${repo_name} ] && echo -e "Y U DO THIS!!!!!!!!" && exit 1;
-				line='name="${repo_name}"';
-                                line=${lineStart}+${line}+${lineEnd};
-                                echo "${line}" >> ${localManifestPath};
-		;;
-
-    } # generateLocalManifest
+    function manifest_gen() # D 1,5
+    {
+        [ -z "$1" ] && echo -e "Please provide a valid path for the resultant XML to be stored";
+        export localManifestPath=$1;
+        # Search for Available Remotes
+        REM=( $(cat .repo/manifest.xml `ls .repo/local_manifests/*.xml | sed 's/${MAN}//g'` | grep '<remote' | awk -F "\"" '{print $2}') );
+        if [ ! -f "${localManifestPath}" ]; then
+        	mkdir -pv $(dirname ${localManifestPath}) && touch ${localManifestPath};
+        	[ "$?" -ne 0 ] && echo -e "Error occurred trying to create ${localManifestPath}" && return 1;
+        fi
+        echo -e "===============${CL_LGN}[!]${NONE} Manifest Generator ${CL_LGN}[!]${NONE}==============";
+        echo -e "1) Add a repository";
+        echo -e "2) Remove a repository";
+        echo -e "3) Add a remote";
+        echo -e "4) Save Custom Manifest";
+        echo -e "\nReplacing a repo ? Remove the repo, then add it's replacement";
+        echo -e "=======================================================\n";
+        prompt OP;
+        case "${OP}" in
+        	1)
+    			export lineStart="<project";
+    			export lineEnd="/>";
+    			echo -e "Please enter the following one by one\n";
+    			echo -e "If any of them are not needed, please just enter a blank value (repository name and repository path CANNOT be blank.";
+    		    echo -en "\n${CL_LCN}[>]${NONE} Repository Name : "; prompt repo_name;
+    			echo -en "\n${CL_LCN}[>]${NONE} Repository Path : "; prompt repo_path;
+    			echo -en "\n${CL_LCN}[>]${NONE} Branch : "; prompt repo_revision;
+                echo -en "\n${INF} Available Remotes : ${REMOTES}\n";
+                echo -en "\n${CL_LCN}[>]${NONE} Remote : ";prompt repo_remote;
+    			line='name="${repo_name}" path="repo_path"';
+    			[ ! -z "${repo_revision}" ] || line="${line}" revision="${repo_revision}"
+    			[ ! -z "${repo_remote}" ] || line="${line}" remote="${repo_remote}"
+    			line="${lineStart} ${line} ${lineEnd}";
+    			echo "${line}" >> ${localManifestPath};
+    		    ;;
+    		2)
+    			export lineStart="<remove-project" lineEnd="/>";
+                echo -e "Please enter the Repository Name.";
+    			prompt repo_name;
+                if [[ $(grep "${repo_name}" .repo/manifest.xml) ]]; then
+                    line="${line_start} name=\"${repo_name}\" ${line_end}";
+                    echo "${line}" >> ${localManifestPath};
+                else
+                    echo -e "Project ${name} not found. Bailing out.";
+                fi
+    		    ;;
+            3)
+                echo "Kthxbai";
+                ;;
+        esac
+    } # manifest_gen
 
     function scribtofy()
     {
