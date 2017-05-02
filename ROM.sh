@@ -44,7 +44,7 @@ function cmdprex() # D ALL
     ARGD=( `echo ${ARGS[*]/<->*/}` );
     # Splash some colors!
     for ((CT=0;CT<${#ARG[*]};CT++)); do
-        echo -en "\033[1;3${CT}m`eval echo \${ARG[${CT}]}` " | sed -e 's/NULL//g' -e 's/#/ /g';
+        echo -en "\033[1;3${CT}m`eval echo \${ARG[${CT}]}` " | sed -e 's/NULL//g' -e 's/execroot/sudo/g' -e 's/#/ /g';
     done
     echo -e "\n";
     for ((CT=0;CT<${#ARGD[*]};CT++)); do
@@ -129,7 +129,7 @@ function exitScriBt() # ID
     echo -e "\n${SCS:-[:)]} Thanks for using ScriBt.\n";
     [[ "$1" == "0" ]] && echo -e "${CL_LGN}[${NONE}${CL_LRD}<3${NONE}${CL_LGN}]${NONE} Peace! :)\n" ||\
         echo -e "${CL_LRD}[${NONE}${CL_RED}<${NONE}${CL_LGR}/${NONE}${CL_RED}3${NONE}${CL_LRD}]${NONE} Failed somewhere :(\n";
-    rm ${CALL_ME_ROOT}/temp_v1.txt ${CALL_ME_ROOT}/temp_v2.txt ${CALL_ME_ROOT}/temp.txt 
+    rm ${CALL_ME_ROOT}/temp_v1.txt ${CALL_ME_ROOT}/temp_v2.txt ${CALL_ME_ROOT}/temp.txt
     [ -f ${PATHDIR}update_message.txt ] && rm ${PATHDIR}update_message.txt
     [ -s ${CALL_ME_ROOT}/temp_sync.txt ] || rm ${CALL_ME_ROOT}/temp_sync.txt # If temp_sync.txt is empty, delete it
     [ -s ${CALL_ME_ROOT}/temp_compile.txt ] || rm ${CALL_ME_ROOT}/temp_compile.txt # If temp_compile.txt is empty, delete it
@@ -697,9 +697,9 @@ function build() # 4
     function hotel_menu()
     {
         echo -e "${CL_WYT}=====================${NONE} ${CL_LBL}Hotel Menu${NONE} ${CL_WYT}======================${NONE}\n";
-        echo -e "[*] lunch - Setup Build Environment for the Device";
-        echo -e "[*] breakfast - Download Device Dependencies and lunch";
-        echo -e "[*] brunch - breakfast + lunch then Start Build\n";
+        echo -e "[*] ${CL_WYT}lunch${NONE} - Setup Build Environment for the Device";
+        echo -e "[*] ${CL_WYT}breakfast${NONE} - Download Device Dependencies and lunch";
+        echo -e "[*] ${CL_WYT}brunch${NONE} - breakfast + lunch then Start Build\n";
         echo -e "${QN} Type in the desired option\n";
         echo -e "${INF} Building for a new Device ? select ${CL_WYT}lunch${NONE}";
         echo -e "${CL_WYT}=======================================================${NONE}\n";
@@ -793,12 +793,12 @@ function build() # 4
         echo -e "\n${QN} Enter the User name [$(whoami)]\n";
         ST="Custom Username"; shut_my_mouth CU "$ST";
         cmdprex \
-            "CommandName<->export" \
+            "Mark variable(s) to be Inherited by child processes<->export" \
             "Variable to Set Custom User<->KBUILD_BUILD_USER=${SBCU:-$(whoami)}";
         echo -e "\n${QN} Enter the Host name [$(hostname)]\n";
         ST="Custom Hostname"; shut_my_mouth CH "$ST";
         cmdprex \
-            "CommandName<->export" \
+            "Mark variable(s) to be Inherited by child processes<->export" \
             "Variable to Set Custom Host<->KBUILD_BUILD_HOST=${SBCH:-$(hostname)}";
         echo -e "\n${INF} You're building on ${CL_WYT}${KBUILD_BUILD_USER}@${KBUILD_BUILD_HOST}${NONE}";
         echo -e "\n${SCS} Done\n";
@@ -901,7 +901,7 @@ function build() # 4
 
             echo -e "\n${EXE} Compiling the Kernel\n";
             cmdprex \
-                "CommandName<->export" \
+                "Mark variable(s) to be Inherited by child processes<->export" \
                 "Set CPU Architecture<->ARCH=\"${SBKA}\"" \
                 "Set Toolchain Location<->CROSS_COMPILE=\"${SBKTL}/bin/${KCCP}\"";
             [ ! -z "$SBNT" ] && SBNT="-j${SBNT}";
@@ -1120,7 +1120,7 @@ function build() # 4
                     if [ -d "$SBOL" ]; then
                         [ ! -d out ] && mkdir -pv out;
                         cmdprex \
-                            "CommandName<->export" \
+                            "Mark variable(s) to be Inherited by child processes<->export" \
                             "Variable to Set Custom Output Directory<->OUT_DIR=\"${SBOL}/out\"";
                     else
                         echo -e "${INF} /out location is unchanged";
@@ -1138,12 +1138,12 @@ function build() # 4
                 case "$SBJK" in
                     [yY])
                         cmdprex \
-                            "CommandName<->export" \
+                            "Mark variable(s) to be Inherited by child processes<->export" \
                             "Variable to Enable Jack<->ANDROID_COMPILE_WITH_JACK=true"
                         ;;
                     [nN])
                         cmdprex \
-                            "CommandName<->export" \
+                            "Mark variable(s) to be Inherited by child processes<->export" \
                             "Variable to Disable Jack<->ANDROID_COMPILE_WITH_JACK=false"
                         ;;
                 esac
@@ -1155,13 +1155,13 @@ function build() # 4
                     [yY])
                         echo -e "\n${INF} Building Android with Ninja BuildSystem";
                         cmdprex \
-                            "CommandName<->export" \
+                            "Mark variable(s) to be Inherited by child processes<->export" \
                             "Variable to Use Ninja<->USE_NINJA=true";
                         ;;
                     [nN])
                         echo -e "\n${INF} Building Android with the Non-Ninja BuildSystem\n";
                         cmdprex \
-                            "CommandName<->export" \
+                            "Mark variable(s) to be Inherited by child processes<->export" \
                             "Variable to Disable Ninja<->USE_NINJA=false";
                         cmdprex \
                             "CommandName<->unset" \
@@ -1266,7 +1266,12 @@ function tools() # 5
                 libbz2-dev libbz2-1.0 libghc-bzlib-dev ) ;;
         esac
         # Install 'em all
-        execroot apt-get install -y ${COMMON_PKGS[*]} ${DISTRO_PKGS[*]};
+        cmdprex \
+            "Command Execution as 'root'<->execroot" \
+            "Commandline Package Manager<->apt-get" \
+            "Keyword for Installing Package<->install" \
+            "Answer 'yes' to prompts<->-y" \
+            "Packages list<->${COMMON_PKGS[*]} ${DISTRO_PKGS[*]}";
     } # installdeps
 
     function installdeps_arch()
@@ -1317,9 +1322,17 @@ function tools() # 5
         echo -e "${CL_WYT}=======================================================${NONE}\n";
         case "${PKGMGR}" in
             "apt")
-                execroot update-alternatives --config java;
+                cmdprex \
+                    "Command Execution as 'root'<->execroot" \
+                    "Maintains symlinks for default commands<->update-alternatives"
+                    "Configure command symlink<->--config" \
+                    "Command to Configure<->java";
                 echo -e "\n${CL_WYT}=======================================================${NONE}\n";
-                execroot update-alternatives --config javac;
+                cmdprex \
+                    "Command Execution as 'root'<->execroot" \
+                    "Maintains symlinks for default commands<->update-alternatives"
+                    "Configure command symlink<->--config" \
+                    "Command to Configure<->javac";
                 ;;
             "pacman")
                 archlinux-java status;
@@ -1350,7 +1363,13 @@ function tools() # 5
         case "$REMOJA" in
             [yY])
                 case "${PKGMGR}" in
-                    "apt") execroot apt-get purge openjdk-* icedtea-* icedtea6-* ;;
+                    "apt")
+                        cmdprex \
+                            "Command Execution as 'root'<->execroot" \
+                            "Commandline Package Manager<->apt-get" \
+                            "Keyword to Remove Packages<->purge" \
+                            "Packages to be purged<->openjdk-* icedtea-* icedtea6-*"
+                            ;;
                     "pacman") execroot pacman -Rddns $( pacman -Qqs ^jdk ) ;;
                 esac
                 echo -e "\n${SCS} Removed Other Versions successfully"
@@ -1363,12 +1382,25 @@ function tools() # 5
         esac
         echo -e "\n${CL_WYT}=======================================================${NONE}\n";
         case "${PKGMGR}" in
-            "apt") execroot apt-get update -y ;;
+            "apt")
+                cmdprex \
+                    "Command Execution as 'root'<->execroot" \
+                    "Commandline Package Manager<->apt-get" \
+                    "Answer 'yes' to prompts<->-y" \
+                    "Update Packages List<->update";
+                ;;
             "pacman") execroot pacman -Sy ;;
         esac
         echo -e "\n${CL_WYT}=======================================================${NONE}\n";
         case "${PKGMGR}" in
-            "apt") execroot apt-get install openjdk-$1-jdk -y ;;
+            "apt")
+                cmdprex \
+                    "Command Execution as 'root'<->execroot" \
+                    "Commandline Package Manager<->apt-get" \
+                    "Keyword for Installing Package<->install" \
+                    "Answer 'yes' to prompts<->-y" \
+                    "OpenJDK PackageName<->openjdk-$1-jdk";
+                ;;
             "pacman") execroot pacman -S jdk$1-openjdk ;;
         esac
         java_check $1;
@@ -1378,17 +1410,34 @@ function tools() # 5
     {
         if [[ ! $(which add-apt-repository) ]]; then
             echo -e "${EXE} add-apt-repository not present. Installing it";
-            execroot apt-get install software-properties-common;
+            cmdprex \
+                "Command Execution as 'root'<->execroot" \
+                "Commandline Package Manager<->apt-get" \
+                "Keyword for Installing Package<->install" \
+                "WiP<->software-properties-common";
         fi
-        execroot add-apt-repository ppa:openjdk-r/ppa -y; # Add Java PPA
-        execroot apt-get update -y; # Update Sources
-        execroot apt-get install openjdk-$1-jdk -y; # Install eet
+        cmdprex \
+            "Command Execution as 'root'<->execroot" \
+            "Add PPA for apt<->add-apt-repository" \
+            "OpenJDK PPA<->ppa:openjdk-r/ppa" \
+            "Answer 'yes' to prompts<->-y";
+        cmdprex \
+            "Command Execution as 'root'<->execroot" \
+            "Commandline Package Manager<->apt-get" \
+            "Answer 'yes' to prompts<->-y" \
+            "Update Packages List<->update";
+        cmdprex \
+            "Command Execution as 'root'<->execroot" \
+            "Commandline Package Manager<->apt-get" \
+            "Keyword for Installing Package<->install" \
+            "Answer 'yes' to prompts<->-y" \
+            "OpenJDK PackageName<->openjdk-$1-jdk";
         java_check $1;
     } # java_ppa
 
     function java_menu()
     {
-        echo -e "\n${CL_WYT}========${NONE} ${CL_YEL}JAVA${NONE} Installation ${CL_WYT}=======${NONE}\n";
+        echo -e "\n${CL_WYT}===================${NONE} ${CL_YEL}JAVA${NONE} Installation ${CL_WYT}=================${NONE}\n";
         echo -e "1. Install Java";
         echo -e "2. Switch Between Java Versions / Providers\n";
         echo -e "0. Quick Menu\n";
@@ -1446,8 +1495,18 @@ function tools() # 5
         prompt GIT_U;
         echo -e "\n${QN} Enter the E-mail ID\n";
         prompt GIT_E;
-        git config --global user.name "${GIT_U}";
-        git config --global user.email "${GIT_E}";
+        cmdprex \
+            "git commandline<->git" \
+            "Configure git<->config" \
+            "Apply changes to all users<->--global" \
+            "Configuration<->user.name" \
+            "Value<->${GIT_U}";
+        cmdprex \
+            "git commandline<->git" \
+            "Configure git<->config" \
+            "Apply changes to all users<->--global" \
+            "Configuration<->user.email" \
+            "Value<->${GIT_E}";
         echo -e "\n${SCS} Done.\n"
         quick_menu;
     } # git_creds
@@ -1491,7 +1550,11 @@ function tools() # 5
             2) IDIR="/usr/bin/" ;;
             *) echo -e "\n${FLD} Invalid Selection\n"; installer $@ ;;
         esac
-        execroot install utils/$1 ${IDIR};
+        cmdprex \
+            "Command Execution as 'root'<->execroot" \
+            "Install to directory<->install" \
+            "Source Directory<->utils/$1" \
+            "Destination Directory<->${IDIR}";
         check_utils_version "$1" "installed"; # Check Installed Version
         echo -e "\n${INF} Installed Version of $1 : $VER";
         if [[ "$1" == "ninja" ]]; then
@@ -1524,7 +1587,7 @@ function tools() # 5
         esac
     } # scribtofy
 
-    function update_creator()
+    function update_creator() # Dev Only
     {
         [ -f ${PATHDIR}update_message.txt ] && rm ${PATHDIR}update_message.txt
         cd ${PATHDIR};
@@ -1603,7 +1666,7 @@ function tools() # 5
         echo -e "         8. Install ccache ${CL_WYT}~${NONE}";
         echo -e "         9. Install repo ${CL_WYT}~${NONE}";
         echo -e "        10. Add ScriBt to PATH";
-        echo -e "        11. Create a ScriBt Update";
+        echo -e "        11. Create a ScriBt Update [DEV]";
 # TODO: echo -e "         X. Find an Android Module's Directory";
         echo -e "\n         0. Quick Menu";
         echo -e "\n${CL_WYT}*${NONE} Create a GitHub account before using this option";
@@ -1729,7 +1792,7 @@ function the_start() # 0
 
         if [[ "$BRANCH" =~ (master|staging) ]]; then
             # Download the Remote Version of Updater, determine the Internet Connectivity by working of this command
-            #curl -fs -o ${PATHDIR}upScriBt.sh https://raw.githubusercontent.com/a7r3/ScriBt/${BRANCH}/upScriBt.sh && \
+            curl -fs -o ${PATHDIR}upScriBt.sh https://raw.githubusercontent.com/a7r3/ScriBt/${BRANCH}/upScriBt.sh && \
                 (echo -e "\n${SCS} Internet Connectivity : ONLINE"; bash ${PATHDIR}upScriBt.sh $0 $1) || \
                 echo -e "\n${FLD} Internet Connectivity : OFFINE\n\n${INF} Please connect to the Internet for complete functioning of ScriBt";
         else
