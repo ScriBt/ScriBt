@@ -74,7 +74,7 @@ function cherrypick() # Automated Use only
     echo -ne '\033]0;ScriBt : Picking Cherries\007';
     echo -e "${CL_WYT}=======================${NONE} ${CL_LRD}Pick those Cherries${NONE} ${CL_WYT}======================${NONE}\n";
     echo -e "${EXE} ${ATBT} Attempting to Cherry-Pick Provided Commits\n";
-    cd ${CALL_ME_ROOT}/$1;
+    cd ${CALL_ME_ROOT}$1;
     git fetch ${2/\/tree\// };
     git cherry-pick $3;
     cd ${CALL_ME_ROOT};
@@ -125,14 +125,14 @@ function exitScriBt() # ID
     fi
     [[ "$RQ_PGN" == [Yy] ]] && prefGen || ((set -o posix; set) > ${TV2});
     echo -e "\n${EXE} Unsetting all variables";
-    unset `diff ${CALL_ME_ROOT}/temp_v1.txt ${CALL_ME_ROOT}/temp_v2.txt | grep SB | sed -e 's/[<>] /    /g' | awk -F "=" '{print $1}'`;
+    unset `diff ${CALL_ME_ROOT}temp_v1.txt ${CALL_ME_ROOT}temp_v2.txt | grep SB | sed -e 's/[<>] /    /g' | awk -F "=" '{print $1}'`;
     echo -e "\n${SCS:-[:)]} Thanks for using ScriBt.\n";
     [[ "$1" == "0" ]] && echo -e "${CL_LGN}[${NONE}${CL_LRD}<3${NONE}${CL_LGN}]${NONE} Peace! :)\n" ||\
         echo -e "${CL_LRD}[${NONE}${CL_RED}<${NONE}${CL_LGR}/${NONE}${CL_RED}3${NONE}${CL_LRD}]${NONE} Failed somewhere :(\n";
-    rm ${CALL_ME_ROOT}/temp_v1.txt ${CALL_ME_ROOT}/temp_v2.txt ${CALL_ME_ROOT}/temp.txt
+    rm ${CALL_ME_ROOT}temp_v1.txt ${CALL_ME_ROOT}temp_v2.txt ${CALL_ME_ROOT}temp.txt
     [ -f ${PATHDIR}update_message.txt ] && rm ${PATHDIR}update_message.txt
-    [ -s ${CALL_ME_ROOT}/temp_sync.txt ] || rm ${CALL_ME_ROOT}/temp_sync.txt # If temp_sync.txt is empty, delete it
-    [ -s ${CALL_ME_ROOT}/temp_compile.txt ] || rm ${CALL_ME_ROOT}/temp_compile.txt # If temp_compile.txt is empty, delete it
+    [ -s ${CALL_ME_ROOT}temp_sync.txt ] || rm ${CALL_ME_ROOT}temp_sync.txt # If temp_sync.txt is empty, delete it
+    [ -s ${CALL_ME_ROOT}temp_compile.txt ] || rm ${CALL_ME_ROOT}temp_compile.txt # If temp_compile.txt is empty, delete it
     exit $1;
 } # exitScriBt
 
@@ -370,9 +370,9 @@ function device_info() # D 3,4
 {
     echo -ne "\033]0;ScriBt : Device Info\007";
     [[ ! -z ${ROMV} ]] && export ROMNIS="${ROMV}"; # Change ROMNIS to ROMV if ROMV is non-zero
-    if [ -d ${CALL_ME_ROOT}/vendor/${ROMNIS}/config ]; then
+    if [ -d ${CALL_ME_ROOT}vendor/${ROMNIS}/config ]; then
         CNF="vendor/${ROMNIS}/config";
-    elif [ -d ${CALL_ME_ROOT}/vendor/${ROMNIS}/configs ]; then
+    elif [ -d ${CALL_ME_ROOT}vendor/${ROMNIS}/configs ]; then
         CNF="vendor/${ROMNIS}/configs";
     else
         CNF="vendor/${ROMNIS}";
@@ -516,7 +516,7 @@ function pre_build() # 3
                 echo -e "\nifeq (${ROMNIS}_${SBDEV},\$(TARGET_PRODUCT))" >> AndroidProducts.mk;
                 echo -e "\tPRODUCT_MAKEFILES += \$(LOCAL_DIR)/${VENF}\nendif" >> AndroidProducts.mk;
                 echo -e "\ninclude vendor/${ROMNIS}/main.mk" >> $VENF;
-                mv -f ${CALL_ME_ROOT}/${DEVDIR}/*.dependencies ${SBDEV}/pa.dependencies;
+                mv -f ${CALL_ME_ROOT}${DEVDIR}/*.dependencies ${SBDEV}/pa.dependencies;
                 ;;
             "pac")
                 bootanim;
@@ -602,7 +602,7 @@ function pre_build() # 3
             for (( CT=0; CNT<"${SBNMK}"; CT++ )); do
                 echo -e "\n${QN} Enter Makefile location from Root of BuildSystem";
                 ST="Makefile"; shut_my_mouth LOC[$CNT] "$ST" array;
-                if [ -f ${CALL_ME_ROOT}/${SBLOC[$CNT]} ]; then
+                if [ -f ${CALL_ME_ROOT}${SBLOC[$CNT]} ]; then
                     echo -e "\n${EXE} Adding Makefile `$[ $CNT + 1 ]` ";
                     echo -e "\n\$(call inherit-product, ${SBLOC[$CNT]})" >> ${INTM};
                 else
@@ -625,7 +625,7 @@ function pre_build() # 3
 
     function need_for_int()
     {
-        if [ -f ${CALL_ME_ROOT}/${DEVDIR}/${INTF} ]; then
+        if [ -f ${CALL_ME_ROOT}${DEVDIR}/${INTF} ]; then
             echo "$NOINT";
         else
             interactive_mk "$SBRN";
@@ -735,7 +735,7 @@ function build() # 4
             BCORES="-j${BCORES}";
             # Sequence - GZRs | AOKP | AOSiP | A lot of ROMs | All ROMs
             for MAKECOMMAND in ${ROMNIS} rainbowfarts kronic bacon otapackage; do
-                if [ grep -q "^${MAKECOMMAND}:" "${CALL_ME_ROOT}/build/core/Makefile" ]; then
+                if [ grep -q "^${MAKECOMMAND}:" "${CALL_ME_ROOT}build/core/Makefile" ]; then
                     cmdprex --out="${RMTMP}" \
                     "Command<->${SBMK}" \
                     "Zip target name<->${MAKECOMMAND}" \
@@ -1018,21 +1018,21 @@ function build() # 4
                     prompt PATCH_PATH;
                     PROJECTS="$(repo list -p)"; # Get all teh projects
                     PROJECT_COUNT=$(wc -l <<< "$PROJECTS"); # Count all teh projects
-                    [ -f "${CALL_ME_ROOT}/${PATCH_PATH}" ] && rm -rf ${CALL_ME_ROOT}/${PATCH_PATH} # Delete existing patch
+                    [ -f "${CALL_ME_ROOT}${PATCH_PATH}" ] && rm -rf ${CALL_ME_ROOT}${PATCH_PATH} # Delete existing patch
                     CT=1;
                     echo "";
                     while read PROJECT; do # repo foreach does not work, as it seems to spawn a subshell
-                        cd ${CALL_ME_ROOT}/${PROJECT}
+                        cd ${CALL_ME_ROOT}${PROJECT}
                         git diff |
                           sed -e "s@ a/@ a/${PROJECT}/@g" |
-                          sed -e "s@ b/@ b/${PROJECT}/@g" >> ${CALL_ME_ROOT}/${PATCH_PATH}; # Extend a/ and b/ with the project's path, as git diff only outputs the paths relative to the git repository's root
+                          sed -e "s@ b/@ b/${PROJECT}/@g" >> ${CALL_ME_ROOT}${PATCH_PATH}; # Extend a/ and b/ with the project's path, as git diff only outputs the paths relative to the git repository's root
                         echo -en "\033[KGenerated patch for repo $CT of $PROJECT_COUNT\r";  # Count teh processed repos
                         ((CT++));
                     done <<< "$PROJECTS";
                     cd ${CALL_ME_ROOT};
                     echo -e "\n\n${SCS} Done.";
-                    [ ! -s "${CALL_ME_ROOT}/${PATCH_PATH}" ] &&
-                      rm ${CALL_ME_ROOT}/${PATCH_PATH} &&
+                    [ ! -s "${CALL_ME_ROOT}${PATCH_PATH}" ] &&
+                      rm ${CALL_ME_ROOT}${PATCH_PATH} &&
                       echo -e "${INF} Patch was empty, so it was deleted";
                 fi
             fi
@@ -1132,7 +1132,7 @@ function build() # 4
             esac
             echo -e "${QN} Want to Clean the /out before Building\n"; gimme_info "outcln";
             ST="Option Selected"; shut_my_mouth CL "$ST";
-            if [[ $(grep -c 'BUILD_ID=M' ${CALL_ME_ROOT}/build/core/build_id.mk) == "1" ]]; then
+            if [[ $(grep -c 'BUILD_ID=M' ${CALL_ME_ROOT}build/core/build_id.mk) == "1" ]]; then
                 echo -e "${QN} Use Jack Toolchain ${CL_WYT}[y/n]${NONE}\n"; gimme_info "jack";
                 ST="Use Jacky"; shut_my_mouth JK "$ST";
                 case "$SBJK" in
@@ -1148,7 +1148,7 @@ function build() # 4
                         ;;
                 esac
             fi
-            if [[ $(grep -c 'BUILD_ID=N' ${CALL_ME_ROOT}/build/core/build_id.mk) == "1" ]]; then
+            if [[ $(grep -c 'BUILD_ID=N' ${CALL_ME_ROOT}build/core/build_id.mk) == "1" ]]; then
                 echo -e "${QN} Use Ninja to build Android ${CL_WYT}[y/n]${NONE}\n"; gimme_info "ninja";
                 ST="Use Ninja"; shut_my_mouth NJ "$ST";
                 case "$SBNJ" in
@@ -1749,22 +1749,17 @@ function the_start() # 0
     DNT=`date +'%d/%m/%y %r'`;
     echo -ne "\033]0;ScriBt : The Beginning\007";
 
-    # I ez Root
-    [[ "$(pwd)" != "/" ]] && export CALL_ME_ROOT="$(pwd)" || export CALL_ME_ROOT="";
-
     #   tempfile      repo sync log       rom build log        vars b4 exe     vars after exe
-    TMP=${CALL_ME_ROOT}/temp.txt; STMP=${CALL_ME_ROOT}/temp_sync.txt; RMTMP=${CALL_ME_ROOT}/temp_compile.txt; TV1=${CALL_ME_ROOT}/temp_v1.txt; TV2=${CALL_ME_ROOT}/temp_v2.txt;
-    rm -rf ${CALL_ME_ROOT}/temp{,_sync,_compile,_v{1,2}}.txt;
-    touch ${CALL_ME_ROOT}/temp{,_sync,_compile,_v{1,2}}.txt;
+    TMP=${CALL_ME_ROOT}temp.txt; STMP=${CALL_ME_ROOT}temp_sync.txt; RMTMP=${CALL_ME_ROOT}temp_compile.txt; TV1=${CALL_ME_ROOT}temp_v1.txt; TV2=${CALL_ME_ROOT}temp_v2.txt;
+    rm -rf ${CALL_ME_ROOT}temp{,_sync,_compile,_v{1,2}}.txt;
+    touch ${CALL_ME_ROOT}temp{,_sync,_compile,_v{1,2}}.txt;
 
     # Load RIDb and Colors
-    if [[ "$0" == "./ROM.sh" ]] && [ -f ROM.rc ]; then
-        source ./ROM.rc; # Load Local ROM.rc
-    elif [ ! -z "${PATHDIR}" ]; then
-        source ${PATHDIR}ROM.rc; # Load ROM.rc under PATH
-    else
-        echo "[F] ROM.rc isn't present in ${PWD} OR PATH please make sure repo is cloned correctly";
-        exitScriBt 1;
+    if ! source ${CALL_ME_ROOT}ROM.rc &> /dev/null; then # Load Local ROM.rc
+        if ! source ${PATHDIR}ROM.rc &> /dev/null; then # Load ROM.rc from PATHDIR
+            echo "[F] ROM.rc isn't present in ${CALL_ME_ROOT} OR PATH. Please make sure repo is cloned correctly";
+            exitScriBt 1;
+        fi
     fi
     color_my_life;
 
@@ -1790,19 +1785,19 @@ function the_start() # 0
         export BRANCH=`git rev-parse --abbrev-ref HEAD`;
         cd ${CALL_ME_ROOT};
 
-        if [[ "$BRANCH" =~ (master|staging) ]]; then
+        if [[ "${BRANCH}" == "master" ]]; then
             # Download the Remote Version of Updater, determine the Internet Connectivity by working of this command
             curl -fs -o ${PATHDIR}upScriBt.sh https://raw.githubusercontent.com/a7r3/ScriBt/${BRANCH}/upScriBt.sh && \
                 (echo -e "\n${SCS} Internet Connectivity : ONLINE"; bash ${PATHDIR}upScriBt.sh $0 $1) || \
                 echo -e "\n${FLD} Internet Connectivity : OFFINE\n\n${INF} Please connect to the Internet for complete functioning of ScriBt";
         else
-            echo -e "\n${INF} Current Working Branch is neither 'master' nor 'staging'\n";
-            echo -e "${FLD} Update-Check Cancelled\n\n${INF} No modifications have been done\n";
+            echo -e "\n${INF} Current working branch is not ${CL_WYT}master${NONE} [${BRANCH}]\n";
+            echo -e "${FLD} Update-Check Cancelled\n\n${INF} No modifications have been done";
         fi
     fi
 
     # Where am I ?
-    echo -e "\n${INF} ${CL_WYT}I'm in $(pwd)${NONE}\n";
+    echo -e "\n${INF} ${CL_WYT}I'm in ${CALL_ME_ROOT}${NONE}\n";
 
     # are we 64-bit ??
     if ! [[ $(uname -m) =~ (x86_64|amd64) ]]; then
@@ -1833,12 +1828,10 @@ function the_start() # 0
     echo -e "      ${CL_RED}╚════${NONE}${CL_LRD}██${NONE}${CL_RED}║${NONE}${CL_LRD}██${NONE}${CL_RED}║${NONE}     ${CL_LRD}██${NONE}${CL_RED}╔══${NONE}${CL_LRD}██${NONE}${CL_RED}╗${NONE}${CL_LRD}██${NONE}${CL_RED}║${NONE}${CL_LRD}██${NONE}${CL_RED}╔══${NONE}${CL_LRD}██${NONE}${CL_RED}╗${NONE}   ${CL_LRD}██${NONE}${CL_RED}║${NONE}";
     echo -e "      ${CL_LRD}███████${NONE}${CL_RED}║╚${NONE}${CL_LRD}██████${NONE}${CL_RED}╗${NONE}${CL_LRD}██${NONE}${CL_RED}║${NONE}  ${CL_LRD}██${NONE}${CL_RED}║${NONE}${CL_LRD}██${NONE}${CL_RED}║${NONE}${CL_LRD}██████${NONE}${CL_RED}╔╝${NONE}   ${CL_LRD}██${NONE}${CL_RED}║${NONE}";
     echo -e "      ${CL_RED}╚══════╝ ╚═════╝╚═╝  ╚═╝╚═╝╚═════╝    ╚═╝${NONE}\n";
-    if [ -d ${PATHDIR}.git ]; then
-        sleep 1.5;
-        cd ${PATHDIR};
-        echo -e "                         ${CL_WYT}`git describe --tags $(git rev-list --max-count=1 HEAD)`${NONE}\n";
-        cd ${CALL_ME_ROOT};
-    fi
+    sleep 1.5;
+    cd ${PATHDIR};
+    echo -e "                         ${CL_WYT}${VERSION}${NONE}\n";
+    cd ${CALL_ME_ROOT};
 } # the_start
 
 function automator()
@@ -1906,13 +1899,29 @@ function usage()
 
 # Point of Execution
 
-# Show Interrupt Acknowledgement message on receiving SIGINT
-trap interrupt SIGINT;
+# I ez Root
+export CALL_ME_ROOT=`echo "$(pwd)/" | sed -e 's#//$#/#g'`
 
 if [[ "$0" == "ROM.sh" ]] && [[ $(type -p ROM.sh) ]]; then
     export PATHDIR="$(type -p ROM.sh | sed 's/ROM.sh//g')";
 else
-    export PATHDIR="$(pwd)/"
+    export PATHDIR="${CALL_ME_ROOT}"
+fi
+
+# Show Interrupt Acknowledgement message on receiving SIGINT
+trap interrupt SIGINT;
+
+# Version
+if [ -d ${PATHDIR}.git ]; then
+    cd ${PATHDIR};
+    if [[ "`git rev-parse --abbrev-ref HEAD`" == "master" ]]; then
+        VERSION=`git describe --tags $(git rev-list --max-count=1 HEAD)`;
+    else
+        VERSION="staging";
+    fi
+    cd ${CALL_ME_ROOT};
+else
+    VERSION="";
 fi
 
 if [[ "$1" == "automate" ]]; then
@@ -1924,10 +1933,8 @@ elif [ -z $1 ]; then
     the_start; # Pre-Initial Stage
     main_menu;
 elif [[ "$1" == "version" ]]; then
-    if [ -d ${PATHDIR}.git ]; then
-        cd ${PATHDIR};
-        echo -e "\n\033[1;34m[\033[1;31m~\033[1;34m]\033[0m Projekt ScriBt \033[1;34m[\033[1;31m~\033[1;34m]\033[0m\n     `git describe --tags $(git rev-list --max-count=1 HEAD)`\n";
-        cd ${CALL_ME_ROOT};
+    if [ -n "$VERSION" ]; then
+        echo -e "\n\033[1;34m[\033[1;31m~\033[1;34m]\033[0m Projekt ScriBt \033[1;34m[\033[1;31m~\033[1;34m]\033[0m\n     ${VERSION}\n";
     else
         echo -e "Not available. Please resync ScriBt through Git";
         exit 1;
