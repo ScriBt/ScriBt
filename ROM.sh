@@ -34,7 +34,7 @@ function cmdprex() # D ALL
 {
     # Replace Space with '#' in individual parameter
     # Remove First Parameter v--(Needs to be refined)--v
-    ARGS=( $(echo ${@// /#} | sed -e 's/--out=.*txt//') );
+    ARGS=( $(echo "${@// /#}" | sed -e 's/--out=.*txt//') );
     # Argument (Parameter) Array
     # If Parameter is empty, Element value would be 'NULL'
     # This is useful to prevent echoing Parameter Description
@@ -123,16 +123,22 @@ function exitScriBt() # ID
             [[ "$ANSWER" == [Yy] ]] && patcher;
         fi
     fi
-    [[ "$RQ_PGN" == [Yy] ]] && prefGen || ((set -o posix; set) > ${TV2});
+    if [[ "$RQ_PGN" == [Yy] ]]; then
+         prefGen;
+    else
+        set -o posix;
+        set > ${TV2};
+    fi
     echo -e "\n${EXE} Unsetting all variables";
-    unset `diff ${CALL_ME_ROOT}temp_v1.txt ${CALL_ME_ROOT}temp_v2.txt | grep SB | sed -e 's/[<>] /    /g' | awk -F "=" '{print $1}'`;
+    VARS=$(diff ${TV1} ${TV2} | grep SB | sed -e 's/[<>] /    /g' | awk -F "=" '{print $1}');
+    unset $VARS;
     echo -e "\n${SCS:-[:)]} Thanks for using ScriBt.\n";
     [[ "$1" == "0" ]] && echo -e "${CL_LGN}[${NONE}${CL_LRD}<3${NONE}${CL_LGN}]${NONE} Peace! :)\n" ||\
         echo -e "${CL_LRD}[${NONE}${CL_RED}<${NONE}${CL_LGR}/${NONE}${CL_RED}3${NONE}${CL_LRD}]${NONE} Failed somewhere :(\n";
-    rm ${CALL_ME_ROOT}temp_v1.txt ${CALL_ME_ROOT}temp_v2.txt ${CALL_ME_ROOT}temp.txt
+    rm ${TV1} ${TV2} ${TEMP};
     [ -f ${PATHDIR}update_message.txt ] && rm ${PATHDIR}update_message.txt
-    [ -s ${CALL_ME_ROOT}temp_sync.txt ] || rm ${CALL_ME_ROOT}temp_sync.txt # If temp_sync.txt is empty, delete it
-    [ -s ${CALL_ME_ROOT}temp_compile.txt ] || rm ${CALL_ME_ROOT}temp_compile.txt # If temp_compile.txt is empty, delete it
+    [ -s "${STMP}" ] || rm "${STMP}"; # If temp_sync.txt is empty, delete it
+    [ -s "${RMTMP}" ] || rm ${RMTMP}; # If temp_compile.txt is empty, delete it
     exit $1;
 } # exitScriBt
 
@@ -198,7 +204,8 @@ function rom_select() # D 1,2
     for CT in {35..39}; do
         echo -e "${CT}. ${ROMS[$CT]}";
     done | pr -t -2
-    unset CT CNS SBRN; # Unset these
+    unset CT CNS; # Unset these
+    [ -z "$automate" ] && unset SBRN;
     echo -e "\n=======================================================${NONE}\n";
     [ -z "$automate" ] && prompt SBRN;
     rom_names "$SBRN";
@@ -216,7 +223,7 @@ function shut_my_mouth() # ID
         echo -e "${CL_PNK}[!]${NONE} ${ATBT} $2 : ${!RST}";
     else
         prompt SB2;
-        [ -z "$3" ] && export SB$1="${SB2}" || eval SB$1=${SB2};
+        [ -z "$3" ] && read "SB$1" <<< "${SB2}" || eval SB$1=${SB2};
     fi
     echo;
 } # shut_my_mouth
@@ -261,7 +268,7 @@ function init() # 1
         echo -e "\nOn ${ROM_NAME[$CT]} (ID->$CT)\n";
         BRANCHES=`git ls-remote -h https://github.com/${ROM_NAME[$CT]}/${MAN[$CT]} |\
             awk '{print $2}' | awk -F "/" '{if (length($4) != 0) {print $3"/"$4} else {print $3}}'`;
-        if [[ ! -z "$CNS" && "$SBRN" < "35" ]]; then
+        if [[ ! -z "$CNS" && "$SBRN" -lt "35" ]]; then
             echo "$BRANCHES" | grep --color=never 'caf' | column;
         else
             echo "$BRANCHES" | column;
@@ -319,14 +326,13 @@ function init() # 1
         [ ! -f .repo/local_manifests ] && mkdir -pv .repo/local_manifests;
         if [ -z "$automate" ]; then
             echo -e "${INF} Create a Device Specific manifest and Press ENTER to start sync\n";
-            read ENTER;
+            read;
             echo;
         fi
         export action_1="init";
-        sync;
     else
         unset STS;
-        quick_menu;
+        [ -z "$automate" ] && quick_menu;
     fi
 } # init
 
@@ -446,7 +452,7 @@ function pre_build() # 3
             fi
         } # dtree_add
 
-        [[ "$ROMNIS" == "du"  && "$CAF" == "y" ]] && VSTP="caf-vendorsetup.sh" | VSTP="vendorsetup.sh";
+        [[ "$ROMNIS" == "du" && "$CNS" == "y" ]] && VSTP="caf-vendorsetup.sh" || VSTP="vendorsetup.sh";
         echo -e "${EXE} Adding Device to ROM Vendor";
         for STRT in "${ROMNIS}.devices" "${ROMNIS}-device-targets" "${VSTP}"; do
             #    Found file   &&  Strat Not Performed
@@ -468,13 +474,13 @@ function pre_build() # 3
         done
         [ -z "$STDN" ] && dtree_add; # If none of the Strats Worked
         echo -e "${SCS} Done.\n";
-        croot;
+        cd ${CALL_ME_ROOT};
         echo -e "${CL_WYT}=======================================================${NONE}";
     } # vendor_strat
 
     function vendor_strat_kpa() # AOKP-4.4|AICP|PAC-5.1|Krexus-CAF|AOSPA|Non-CAFs
     {
-        croot;
+        cd ${CALL_ME_ROOT};
         cd vendor/${ROMNIS}/products;
 
         function bootanim()
@@ -616,7 +622,7 @@ function pre_build() # 3
             echo -e "${EXE} Renaming .dependencies file\n";
             [ ! -f ${ROMNIS}.dependencies ] && mv -f *.dependencies ${ROMNIS}.dependencies;
             echo -e "${SCS} Done.";
-            croot;
+            cd ${CALL_ME_ROOT};
         } # create_imk
 
         find_ddc "intm";
@@ -673,9 +679,9 @@ function pre_build() # 3
 
     choose_target;
     if [ -d vendor/${ROMNIS}/products ]; then # [ -d vendor/aosip ] <- Temporarily commented
-        if [ ! -f vendor/${ROMNIS}/products/${ROMNIS}_${SBDEV}.mk ||
-             ! -f vendor/${ROMNIS}/products/${SBDEV}.mk ||
-             ! -f vendor/${ROMNIS}/products/${SBDEV}/${ROMNIS}_${SBDEV}.mk ]; then
+        if [ ! -f vendor/${ROMNIS}/products/${ROMNIS}_${SBDEV}.mk ] ||
+            [ ! -f vendor/${ROMNIS}/products/${SBDEV}.mk ] ||
+             [ ! -f vendor/${ROMNIS}/products/${SBDEV}/${ROMNIS}_${SBDEV}.mk ]; then
             vendor_strat_kpa; # if found products folder, go ahead
         else
             echo -e "\n${SCS} Looks like ${SBDEV} has been already added to ${ROM_FN} vendor. Good to go\n";
@@ -683,7 +689,7 @@ function pre_build() # 3
     else
         vendor_strat_all; # if not found, normal strategies
     fi
-    croot;
+    cd ${CALL_ME_ROOT};
     sleep 2;
     export action_1="init" action_2="pre_build";
     [ -z "$automate" ] && quick_menu;
@@ -732,10 +738,10 @@ function build() # 4
         if [[ "$1" != "brunch" ]]; then
             START=$(date +"%s"); # Build start time
             # Showtime!
-            BCORES="-j${BCORES}";
+            [[ "$SBMK" != "mka" ]] && BCORES="-j${BCORES}";
             # Sequence - GZRs | AOKP | AOSiP | A lot of ROMs | All ROMs
             for MAKECOMMAND in ${ROMNIS} rainbowfarts kronic bacon otapackage; do
-                if [ grep -q "^${MAKECOMMAND}:" "${CALL_ME_ROOT}build/core/Makefile" ]; then
+                if [[ $(grep -c "^${MAKECOMMAND}:" "${CALL_ME_ROOT}build/core/Makefile") == "1" ]]; then
                     cmdprex --out="${RMTMP}" \
                     "Command<->${SBMK}" \
                     "Zip target name<->${MAKECOMMAND}" \
@@ -783,7 +789,7 @@ function build() # 4
             esac
         else
             echo -e "${INF} Do either of these two actions:\n1. Google it (Easier)\n2. Run this command in terminal : grep \"LOCAL_MODULE := <Insert_MODULE_NAME_Here> \".\n\n Press ENTER after it's Done..\n";
-            read ENTER;
+            read;
             make_it;
         fi
     } # make_module
@@ -793,12 +799,12 @@ function build() # 4
         echo -e "\n${QN} Enter the User name [$(whoami)]\n";
         ST="Custom Username"; shut_my_mouth CU "$ST";
         cmdprex \
-            "Mark variable(s) to be Inherited by child processes<->export" \
+            "Mark variable to be Inherited by child processes<->export" \
             "Variable to Set Custom User<->KBUILD_BUILD_USER=${SBCU:-$(whoami)}";
         echo -e "\n${QN} Enter the Host name [$(hostname)]\n";
         ST="Custom Hostname"; shut_my_mouth CH "$ST";
         cmdprex \
-            "Mark variable(s) to be Inherited by child processes<->export" \
+            "Mark variable to be Inherited by child processes<->export" \
             "Variable to Set Custom Host<->KBUILD_BUILD_HOST=${SBCH:-$(hostname)}";
         echo -e "\n${INF} You're building on ${CL_WYT}${KBUILD_BUILD_USER}@${KBUILD_BUILD_HOST}${NONE}";
         echo -e "\n${SCS} Done\n";
@@ -890,7 +896,6 @@ function build() # 4
             [ -z "$automate" ] && [ "$SBKO" != "5" ] && kbuild;
         } # kclean
 
-
         function mkkernel()
         {
             # Execute these before building kernel
@@ -901,7 +906,7 @@ function build() # 4
 
             echo -e "\n${EXE} Compiling the Kernel\n";
             cmdprex \
-                "Mark variable(s) to be Inherited by child processes<->export" \
+                "Mark variable to be Inherited by child processes<->export" \
                 "Set CPU Architecture<->ARCH=\"${SBKA}\"" \
                 "Set Toolchain Location<->CROSS_COMPILE=\"${SBKTL}/bin/${KCCP}\"";
             [ ! -z "$SBNT" ] && SBNT="-j${SBNT}";
@@ -1022,7 +1027,7 @@ function build() # 4
                     CT=1;
                     echo "";
                     while read PROJECT; do # repo foreach does not work, as it seems to spawn a subshell
-                        cd ${CALL_ME_ROOT}${PROJECT}
+                        cd ${CALL_ME_ROOT}${PROJECT};
                         git diff |
                           sed -e "s@ a/@ a/${PROJECT}/@g" |
                           sed -e "s@ b/@ b/${PROJECT}/@g" >> ${CALL_ME_ROOT}${PATCH_PATH}; # Extend a/ and b/ with the project's path, as git diff only outputs the paths relative to the git repository's root
@@ -1120,7 +1125,7 @@ function build() # 4
                     if [ -d "$SBOL" ]; then
                         [ ! -d out ] && mkdir -pv out;
                         cmdprex \
-                            "Mark variable(s) to be Inherited by child processes<->export" \
+                            "Mark variable to be Inherited by child processes<->export" \
                             "Variable to Set Custom Output Directory<->OUT_DIR=\"${SBOL}/out\"";
                     else
                         echo -e "${INF} /out location is unchanged";
@@ -1138,12 +1143,12 @@ function build() # 4
                 case "$SBJK" in
                     [yY])
                         cmdprex \
-                            "Mark variable(s) to be Inherited by child processes<->export" \
+                            "Mark variable to be Inherited by child processes<->export" \
                             "Variable to Enable Jack<->ANDROID_COMPILE_WITH_JACK=true"
                         ;;
                     [nN])
                         cmdprex \
-                            "Mark variable(s) to be Inherited by child processes<->export" \
+                            "Mark variable to be Inherited by child processes<->export" \
                             "Variable to Disable Jack<->ANDROID_COMPILE_WITH_JACK=false"
                         ;;
                 esac
@@ -1155,13 +1160,13 @@ function build() # 4
                     [yY])
                         echo -e "\n${INF} Building Android with Ninja BuildSystem";
                         cmdprex \
-                            "Mark variable(s) to be Inherited by child processes<->export" \
+                            "Mark variable to be Inherited by child processes<->export" \
                             "Variable to Use Ninja<->USE_NINJA=true";
                         ;;
                     [nN])
                         echo -e "\n${INF} Building Android with the Non-Ninja BuildSystem\n";
                         cmdprex \
-                            "Mark variable(s) to be Inherited by child processes<->export" \
+                            "Mark variable to be Inherited by child processes<->export" \
                             "Variable to Disable Ninja<->USE_NINJA=false";
                         cmdprex \
                             "CommandName<->unset" \
@@ -1189,7 +1194,7 @@ function build() # 4
                     ;;
                 *) echo -e "${INF} No Clean Option Selected.\n" ;;
             esac
-            echo -e "${QN} Set a custom user/host\n [y/n]";
+            echo -e "${QN} Set a custom user/host ${CL_WYT}[y/n]${NONE}";
             ST="Custom user@host"; shut_my_mouth CUH "$ST";
             [[ "$SBCUH" =~ (Y|y) ]] && custuserhost;
             hotel_menu;
@@ -1548,7 +1553,7 @@ function tools() # 5
         case "$UIC" in
             1) IDIR="${HOME}/bin/" ;;
             2) IDIR="/usr/bin/" ;;
-            *) echo -e "\n${FLD} Invalid Selection\n"; installer $@ ;;
+            *) echo -e "\n${FLD} Invalid Selection\n"; installer "$@" ;;
         esac
         cmdprex \
             "Command Execution as 'root'<->execroot" \
@@ -1708,7 +1713,7 @@ function teh_action() # Takes ya Everywhere within ScriBt
         ;;
     2)
         echo -ne "\033]0;ScriBt : Syncing ${ROM_FN}\007";
-        [ -z "$automate" ] & sync;
+        [ -z "$automate" ] && sync;
         ;;
     3)
         echo -ne '\033]0;ScriBt : Pre-Build\007';
@@ -1746,13 +1751,12 @@ function teh_action() # Takes ya Everywhere within ScriBt
 function the_start() # 0
 {
     # VROOM!
-    DNT=`date +'%d/%m/%y %r'`;
     echo -ne "\033]0;ScriBt : The Beginning\007";
 
     #   tempfile      repo sync log       rom build log        vars b4 exe     vars after exe
     TMP=${CALL_ME_ROOT}temp.txt; STMP=${CALL_ME_ROOT}temp_sync.txt; RMTMP=${CALL_ME_ROOT}temp_compile.txt; TV1=${CALL_ME_ROOT}temp_v1.txt; TV2=${CALL_ME_ROOT}temp_v2.txt;
-    rm -rf ${CALL_ME_ROOT}temp{,_sync,_compile,_v{1,2}}.txt;
-    touch ${CALL_ME_ROOT}temp{,_sync,_compile,_v{1,2}}.txt;
+    rm -f "$TMP" "$STMP" "$RMTMP" "$TV1" "$TV2";
+    touch "$TMP" "$STMP" "$RMTMP" "$TV1" "$TV2";
 
     # Load RIDb and Colors
     if ! source ${CALL_ME_ROOT}ROM.rc &> /dev/null; then # Load Local ROM.rc
@@ -1764,7 +1768,7 @@ function the_start() # 0
     color_my_life;
 
     # Relevant_Coloring
-    if [[ $(tput colors) < 2 ]]; then
+    if [[ $(tput colors) -lt 2 ]]; then
         export INF="[I]" SCS="[S]" FLD="[F]" EXE="[!]" QN="[?]";
     else
         export INF="${CL_LBL}[!]${NONE}" SCS="${CL_LGN}[!]${NONE}" \
@@ -1837,7 +1841,7 @@ function the_start() # 0
 function automator()
 {
     echo -e "\n${EXE} Searching for Automatable Configs\n";
-    for AF in `ls *.rc | sed -e 's/ROM.rc//g'`; do
+    for AF in *.rc; do
         grep 'AUTOMATOR\=\"true_dat\"' --color=never $AF -l >> ${TMP};
         sed -i -e 's/.rc//g' ${TMP}; # Remove the file format
     done
@@ -1877,7 +1881,7 @@ function prompt()
 }
 
 # 'sudo' command with custom prompt '[#]' in Pink
-function execroot(){ sudo -p $'\033[1;35m[#]\033[0m ' $@; };
+function execroot(){ sudo -p $'\033[1;35m[#]\033[0m ' "$@"; };
 
 function usage()
 {
@@ -1923,7 +1927,6 @@ if [ -d ${PATHDIR}.git ]; then
 else
     VERSION="";
 fi
-
 if [[ "$1" == "automate" ]]; then
     export automate="yus_do_eet";
     the_start; # Pre-Initial Stage
