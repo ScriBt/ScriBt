@@ -91,6 +91,7 @@ function rom_names()
             ROM_NAME=( LineageOS );
             MAN=( android.git );
             ROMNIS="lineage";
+            ROMV="cm";
             ;;
         18)
             ROM_NAME=( Team-OctOS );

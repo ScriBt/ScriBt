@@ -21,7 +21,7 @@
 # a Pull Request, Contributions are WELCOME                            #
 #                                                                      #
 # Contributors:                                                        #
-# Arvindraj "a7r3" (Myself)                                            #
+# Arvindraj Thangaraj "a7r3"                                           #
 # Adrian DC "AdrianDC"                                                 #
 # Akhil Narang "akhilnarang"                                           #
 # Łukasz "JustArchi" Domeradzki                                        #
@@ -30,12 +30,51 @@
 # nosedive                                                             #
 #======================================================================#
 
+function cmdprex() # D ALL
+{
+    # Replace Space with '#' in individual parameter
+    # Remove First Parameter v--(Needs to be refined)--v
+    ARGS=( $(echo "${@// /#}" | sed -e 's/--out=.*txt//') );
+    # Argument (Parameter) Array
+    # If Parameter is empty, Element value would be 'NULL'
+    # This is useful to prevent echoing Parameter Description
+    # if Parameter itself is empty
+    ARG=( `echo ${ARGS[*]/*<->/NULL}` );
+    # Argument Description Array
+    ARGD=( `echo ${ARGS[*]/<->*/}` );
+    # Splash some colors!
+    for ((CT=0;CT<${#ARG[*]};CT++)); do
+        echo -en "\033[1;3${CT}m`eval echo \${ARG[${CT}]}` " | sed -e 's/NULL//g' -e 's/execroot/sudo/g' -e 's/#/ /g';
+    done
+    echo -e "\n";
+    for ((CT=0;CT<${#ARGD[*]};CT++)); do
+        [[ `eval echo \${ARG[${CT}]}` != "NULL" ]] && \
+         echo -en "\033[1;3${CT}m`eval echo \${ARGD[${CT}]}`\033[0m " | sed 's/#/ /g';
+    done
+    echo -e "\n";
+    # Make up the command, restore '#' back to spaces
+    # If --out is mentioned add the tee redirection statement
+    [[ "$1" =~ --out=* ]] && TEE=`echo "2>&1 | tee -a ${1/*=/}"`;
+    CMD=`echo "${ARG[*]} ${TEE}" | sed -e 's/NULL//g' -e 's/#/ /g'`;
+    # Execute the command
+    eval $CMD;
+    if [[ "$?" == "0" ]]; then
+        echo -e "${SCS} Command Execution Successful\n";
+        unset STS;
+    else
+        echo -e "${FLD} Command Execution Failed\n";
+        STS="1";
+    fi
+    unset -v CMD CT ARG{,S,D};
+} # cmdprex
+
+
 function cherrypick() # Automated Use only
 {
     echo -ne '\033]0;ScriBt : Picking Cherries\007';
     echo -e "${CL_WYT}=======================${NONE} ${CL_LRD}Pick those Cherries${NONE} ${CL_WYT}======================${NONE}\n";
     echo -e "${EXE} ${ATBT} Attempting to Cherry-Pick Provided Commits\n";
-    cd ${CALL_ME_ROOT}/$1;
+    cd ${CALL_ME_ROOT}$1;
     git fetch ${2/\/tree\// };
     git cherry-pick $3;
     cd ${CALL_ME_ROOT};
@@ -55,15 +94,15 @@ function exitScriBt() # ID
     function prefGen()
     {
         echo -e "\n${EXE} Saving Current Configuration";
-        echo -e "\n${QN} Name of the Config\n${INF} Default : ${ROMNIS}_${SBDEV}\n";
-        prompt NOC;
+        echo -e "\n${QN} Name of the Config\n${INF} Default : ${ROMNIS:-scribt}_${SBDEV:-config}\n";
+        prompt NOC --no-repeat;
         [[ -z "$NOC" ]] && NOC="${ROMNIS}_${SBDEV}";
-        if [[ ! -f "${NOC}.rc" ]]; then
-            echo -e "${FLD} Configuration ${NOC} exists";
-            echo -e "${QN} Overwrite it ${CL_WYT}[y/n]${NONE}";
+        if [[ -f "${NOC}.rc" ]]; then
+            echo -e "\n${FLD} Configuration ${NOC} exists";
+            echo -e "\n${QN} Overwrite it ${CL_WYT}[y/n]${NONE}";
             prompt OVRT;
             case "$OVRT" in
-                [Yy]) echo -e "${EXE} Deleting ${NOC}"; rm -rf ${NOC}.rc ;;
+                [Yy]) echo -e "\n${EXE} Deleting ${NOC}"; rm -rf ${NOC}.rc ;;
                 [Nn]) prefGen ;;
             esac
         fi
@@ -74,25 +113,32 @@ function exitScriBt() # ID
         diff ${TV1} ${TV2} | grep SB | sed -e 's/[<>] /    /g' | awk '{print $0";"}' >> ${NOC}.rc;
         echo -e "\n\n#################\n#  Sequencing  #\n##################\n" >> ${NOC}.rc;
         echo -e "# Your Code goes here\n\ninit;\npre_build;\nbuild;\n\n# Some moar code eg. Uploading the ROM" >> ${NOC}.rc;
-        echo -e "\n${SCS} Configuration file ${NOC} created successfully\n${INF} You may modify the config, and automate ScriBt next time";
+        echo -e "\n${SCS} Configuration file ${NOC} created successfully\n\n${INF} You may modify the config, and automate ScriBt next time";
     } # prefGen
 
     if type patcher &>/dev/null; then # Assume the patchmgr was used if this function is loaded
         if show_patches | grep -q '[Y]'; then # Some patches are still applied
-            echo -e "\n${INF} Applied Patches detected. Do you want to reverse them?\n"
+            echo -e "\n${SCS} Applied Patches detected\n${QN} Do you want to reverse them ${CL_WYT}[y/n]${NONE}\n"
             prompt ANSWER;
             [[ "$ANSWER" == [Yy] ]] && patcher;
         fi
     fi
-    [[ "$RQ_PGN" == [Yy] ]] && prefGen || ((set -o posix; set) > ${TV2});
+    if [[ "$RQ_PGN" == [Yy] ]]; then
+         prefGen;
+    else
+        set -o posix;
+        set > ${TV2};
+    fi
     echo -e "\n${EXE} Unsetting all variables";
-    unset `diff temp_v1.txt temp_v2.txt | grep SB | sed -e 's/[<>] /    /g' | awk -F "=" '{print $1}'`;
+    VARS=$(diff ${TV1} ${TV2} | grep SB | sed -e 's/[<>] /    /g' | awk -F "=" '{print $1}');
+    unset $VARS;
     echo -e "\n${SCS:-[:)]} Thanks for using ScriBt.\n";
     [[ "$1" == "0" ]] && echo -e "${CL_LGN}[${NONE}${CL_LRD}<3${NONE}${CL_LGN}]${NONE} Peace! :)\n" ||\
         echo -e "${CL_LRD}[${NONE}${CL_RED}<${NONE}${CL_LGR}/${NONE}${CL_RED}3${NONE}${CL_LRD}]${NONE} Failed somewhere :(\n";
-    rm ${CALL_ME_ROOT}/temp_v1.txt ${CALL_ME_ROOT}/temp_v2.txt ${CALL_ME_ROOT}/temp.txt
-    [ -s ${CALL_ME_ROOT}/temp_sync.txt ] || rm ${CALL_ME_ROOT}/temp_sync.txt # If temp_sync.txt is empty, delete it
-    [ -s ${CALL_ME_ROOT}/temp_compile.txt ] || rm ${CALL_ME_ROOT}/temp_compile.txt # If temp_compile.txt is empty, delete it
+    rm ${TV1} ${TV2} ${TEMP};
+    [ -f ${PATHDIR}update_message.txt ] && rm ${PATHDIR}update_message.txt
+    [ -s "${STMP}" ] || rm "${STMP}"; # If temp_sync.txt is empty, delete it
+    [ -s "${RMTMP}" ] || rm ${RMTMP}; # If temp_compile.txt is empty, delete it
     exit $1;
 } # exitScriBt
 
@@ -141,7 +187,7 @@ function quick_menu()
 
 function rom_select() # D 1,2
 {
-    export ROMS=( " " "AICP" "AOKP" "AOSiP" "AOSP-CAF" "AOSP-OMS" "BlissRoms" \
+    export ROMS=( "NullROM" "AICP" "AOKP" "AOSiP" "AOSP-CAF" "AOSP-OMS" "BlissRoms" \
         "CandyRoms" "CarbonROM" "crDroid" "Cyanide" "CyanogenMod" "DirtyUnicorns" \
         "Euphoria" "F-AOSP" "FlayrOS" "Krexus" "Lineage Android" "OctOs" \
         "OmniROM" "OrionOS" "OwnROM" "PAC ROM" "Parallax OS" "Paranoid Android"\
@@ -158,7 +204,8 @@ function rom_select() # D 1,2
     for CT in {35..39}; do
         echo -e "${CT}. ${ROMS[$CT]}";
     done | pr -t -2
-    unset CT CNS SBRN; # Unset these
+    unset CT CNS; # Unset these
+    [ -z "$automate" ] && unset SBRN;
     echo -e "\n=======================================================${NONE}\n";
     [ -z "$automate" ] && prompt SBRN;
     rom_names "$SBRN";
@@ -176,7 +223,7 @@ function shut_my_mouth() # ID
         echo -e "${CL_PNK}[!]${NONE} ${ATBT} $2 : ${!RST}";
     else
         prompt SB2;
-        [ -z "$3" ] && export SB$1="${SB2}" || eval SB$1=${SB2};
+        [ -z "$3" ] && read "SB$1" <<< "${SB2}" || eval SB$1=${SB2};
     fi
     echo;
 } # shut_my_mouth
@@ -209,14 +256,6 @@ function set_ccvars() # D 4,5
     set_ccache;
 } # set_ccvars
 
-function the_response() # D ALL
-{
-    case "$1" in
-        "COOL") echo -e "\n${SCS} ${ATBT} Automated $2 Successful! :)" ;;
-        "FAIL") echo -e "\n${FLD} ${ATBT} Automated $2 Failed :(" ;;
-    esac
-} # the_response
-
 function init() # 1
 {
     # change terminal title
@@ -229,7 +268,7 @@ function init() # 1
         echo -e "\nOn ${ROM_NAME[$CT]} (ID->$CT)\n";
         BRANCHES=`git ls-remote -h https://github.com/${ROM_NAME[$CT]}/${MAN[$CT]} |\
             awk '{print $2}' | awk -F "/" '{if (length($4) != 0) {print $3"/"$4} else {print $3}}'`;
-        if [[ ! -z "$CNS" && "$SBRN" < "35" ]]; then
+        if [[ ! -z "$CNS" && "$SBRN" -lt "35" ]]; then
             echo "$BRANCHES" | grep --color=never 'caf' | column;
         else
             echo "$BRANCHES" | column;
@@ -238,29 +277,27 @@ function init() # 1
     unset CT;
     echo -e "\n${INF} These Branches are available at the moment\n${QN} Specify the ID and Branch you're going to sync\n${INF} Format : [ID] [BRANCH]\n";
     ST="Branch"; shut_my_mouth NBR "$ST";
-    RC=`echo "$SBNBR" | awk '{print $1}'`; SBBR=`echo "$SBNBR" | awk '{print $2}'`;
-    MNF=`echo "${MAN[$RC]}"`;
-    RNM=`echo "${ROM_NAME[$RC]}"`;
+    CT=`echo "${SBNBR/ */}"`; # Count
+    SBBR=`echo "${SBNBR/* /}"`; # Branch
+    MNF=`echo "${MAN[$CT]}"`; # Orgn manifest name at count
+    RNM=`echo "${ROM_NAME[$CT]}"`; # Orgn name at count
     echo -e "${QN} Any Source you have already synced ${CL_WYT}[y/n]${NONE}\n"; gimme_info "refer";
     ST="Use Reference Source"; shut_my_mouth RF "$ST";
     if [[ "$SBRF" == [Yy] ]]; then
         echo -e "\n${QN} Provide me the Synced Source's Location from /\n";
         ST="Reference Location"; shut_my_mouth RFL "$ST";
         REF=--reference\=\"${SBRFL}\";
-    else
-        REF=" ";
     fi
     echo -e "${QN} Set clone-depth ${CL_WYT}[y/n]${NONE}\n"; gimme_info "cldp";
     ST="Use clone-depth"; shut_my_mouth CD "$ST";
-    if [[ "$SBCD" =~ (Y|y) ]]; then
-        echo -e "${QN} Depth Value [1]\n";
+    if [[ "$SBCD" == [Yy] ]]; then
+        echo -e "${QN} Depth Value ${CL_WYT}[Default - 1]${NONE}\n";
         ST="clone-depth Value"; shut_my_mouth DEP "$ST";
-        [ -z "$SBDEP" ] && SBDEP=1;
-        CDP=--depth\=\"${SBDEP}\";
+        CDP=--depth\=${SBDEP:-1};
     fi
     # Check for Presence of Repo Binary
     if [[ ! $(which repo) ]]; then
-        echo -e "${EXE} Looks like the Repo binary isn't installed. Let's Install it.\n";
+        echo -e "${FLD} ${CL_WYT}repo${NONE} binary isn't installed\n\n${EXE} Installing ${CL_WYT}repo${CL_WYT}\n";
         [ ! -d "${HOME}/bin" ] && mkdir -pv ${HOME}/bin;
         curl https://storage.googleapis.com/git-repo-downloads/repo > ~/bin/repo;
         chmod a+x ~/bin/repo;
@@ -276,35 +313,34 @@ function init() # 1
         echo -e "${SCS} Done. Ready to Init Repo.\n";
     fi
     echo -e "${CL_WYT}=======================================================${NONE}\n";
-    echo -e "${EXE} Initializing the ROM Repo\n";
-    repo init ${REF} ${CDP} -u https://github.com/${RNM}/${MNF} -b ${SBBR};
-    if [[ "$?" == "0" ]]; then
-        echo -e "\n${SCS} ${ROM_NAME[$RC]} Repo Initialized\n";
-    else
-        echo -e "\n${FLD} Failed to Initialize Repo";
-        export RINIT="FLD";
-    fi
+    MURL="https://github.com/${RNM}/${MNF}";
+    export CMD="repo init ";
+    cmdprex --out="${STMP}" \
+        "CommandName<->repo init" \
+        "Reference Source<->${REF}" \
+        "Clone Depth<->${CDP}" \
+        "Manifest URL<->-u ${MURL}" \
+        "Manifest Branch<->-b ${SBBR}";
     echo -e "${CL_WYT}=======================================================${NONE}\n";
-    if [ -z "$RINIT" ]; then
+    if [ -z "$STS" ]; then
         [ ! -f .repo/local_manifests ] && mkdir -pv .repo/local_manifests;
         if [ -z "$automate" ]; then
             echo -e "${INF} Create a Device Specific manifest and Press ENTER to start sync\n";
-            read ENTER;
+            read;
             echo;
         fi
         export action_1="init";
-        sync
     else
-        unset RINIT;
-        quick_menu;
+        unset STS;
     fi
+    [ -z "$automate" ] && quick_menu;
 } # init
 
 function sync() # 2
 {
     # Change terminal title
     [ ! -z "$automate" ] && teh_action 2;
-    # If   Repo not inited          then do it else                        get rom info
+    # if   repo not inited          then do it else                        get rom info
     if [ ! -f .repo/manifest.xml ]; then init; elif [ -z "$action_1" ]; then rom_select; fi;
     echo -e "\n${EXE} Preparing for Sync\n";
     echo -e "${QN} Number of Threads for Sync \n"; gimme_info "jobs";
@@ -319,13 +355,18 @@ function sync() # 2
     ST="Use clone-bundle"; shut_my_mouth B "$ST";
     echo -e "${CL_WYT}=======================================================${NONE}\n";
     #Sync-Options
-    [[ "$SBS" == "y" ]] && SILENT=-q || SILENT=" ";
-    [[ "$SBF" == "y" ]] && FORCE=--force-sync || FORCE=" ";
-    [[ "$SBC" == "y" ]] && SYNC_CRNT=-c || SYNC_CRNT=" ";
-    [[ "$SBB" == "y" ]] && CLN_BUN=" " || CLN_BUN=--no-clone-bundle;
+    [[ "$SBS" == "y" ]] && SILENT="-q";
+    [[ "$SBF" == "y" ]] && FORCE=--force-sync;
+    [[ "$SBC" == "y" ]] && SYNC_CRNT=-c;
+    [[ "$SBB" == "y" ]] || CLN_BUN=--no-clone-bundle;
     echo -e "${EXE} Let's Sync!\n";
-    repo sync -j${SBJOBS:-1} ${SILENT:--q} ${FORCE} ${SYNC_CRNT:--c} ${CLN_BUN} \
-    && the_response COOL Sync || the_response FAIL Sync;
+    cmdprex --out="${STMP}" \
+        "CommandName<->repo sync" \
+        "No. of Jobs<->-j${SBJOBS:-1}" \
+        "Silent Sync<->${SILENT}" \
+        "Force Sync<->${FORCE}" \
+        "Sync Current Branches Only<->${SYNC_CRNT}" \
+        "Use Clone Bundle<->${CLN_BUN}";
     echo -e "\n${SCS} Done.\n";
     echo -e "${CL_WYT}=======================================================${NONE}\n";
     [ -z "$automate" ] && quick_menu;
@@ -335,9 +376,9 @@ function device_info() # D 3,4
 {
     echo -ne "\033]0;ScriBt : Device Info\007";
     [[ ! -z ${ROMV} ]] && export ROMNIS="${ROMV}"; # Change ROMNIS to ROMV if ROMV is non-zero
-    if [ -d ${CALL_ME_ROOT}/vendor/${ROMNIS}/config ]; then
+    if [ -d ${CALL_ME_ROOT}vendor/${ROMNIS}/config ]; then
         CNF="vendor/${ROMNIS}/config";
-    elif [ -d ${CALL_ME_ROOT}/vendor/${ROMNIS}/configs ]; then
+    elif [ -d ${CALL_ME_ROOT}vendor/${ROMNIS}/configs ]; then
         CNF="vendor/${ROMNIS}/configs";
     else
         CNF="vendor/${ROMNIS}";
@@ -370,7 +411,9 @@ function init_bld() # D 3,4
 {
     echo -e "\n${CL_WYT}=======================================================${NONE}";
     echo -e "${EXE} Initializing Build Environment\n";
-    . build/envsetup.sh;
+    cmdprex \
+        "Execute in Current Shell<->." \
+        "EnvSetup Script<->build/envsetup.sh";
     echo -e "\n${CL_WYT}=======================================================${NONE}\n";
     echo -e "${SCS} Done\n";
 } # init_bld
@@ -409,7 +452,7 @@ function pre_build() # 3
             fi
         } # dtree_add
 
-        [[ "$ROMNIS" == "du"  && "$CAF" == "y" ]] && VSTP="caf-vendorsetup.sh" | VSTP="vendorsetup.sh";
+        [[ "$ROMNIS" == "du" && "$CNS" == "y" ]] && VSTP="caf-vendorsetup.sh" || VSTP="vendorsetup.sh";
         echo -e "${EXE} Adding Device to ROM Vendor";
         for STRT in "${ROMNIS}.devices" "${ROMNIS}-device-targets" "${VSTP}"; do
             #    Found file   &&  Strat Not Performed
@@ -431,13 +474,13 @@ function pre_build() # 3
         done
         [ -z "$STDN" ] && dtree_add; # If none of the Strats Worked
         echo -e "${SCS} Done.\n";
-        croot;
+        cd ${CALL_ME_ROOT};
         echo -e "${CL_WYT}=======================================================${NONE}";
     } # vendor_strat
 
     function vendor_strat_kpa() # AOKP-4.4|AICP|PAC-5.1|Krexus-CAF|AOSPA|Non-CAFs
     {
-        croot;
+        cd ${CALL_ME_ROOT};
         cd vendor/${ROMNIS}/products;
 
         function bootanim()
@@ -479,7 +522,7 @@ function pre_build() # 3
                 echo -e "\nifeq (${ROMNIS}_${SBDEV},\$(TARGET_PRODUCT))" >> AndroidProducts.mk;
                 echo -e "\tPRODUCT_MAKEFILES += \$(LOCAL_DIR)/${VENF}\nendif" >> AndroidProducts.mk;
                 echo -e "\ninclude vendor/${ROMNIS}/main.mk" >> $VENF;
-                mv -f ${CALL_ME_ROOT}/${DEVDIR}/*.dependencies ${SBDEV}/pa.dependencies;
+                mv -f ${CALL_ME_ROOT}${DEVDIR}/*.dependencies ${SBDEV}/pa.dependencies;
                 ;;
             "pac")
                 bootanim;
@@ -501,8 +544,8 @@ function pre_build() # 3
 
     function find_ddc() # For Finding Default Device Configuration file
     {
-        ROMC=( aicp aokp aosp bliss candy carbon crdroid cyanide cm du eos lineage \
-                orion ownrom radium slim tesla tipsy to validus vanir xenonhd xosp );
+        # Get all the ROMNIS values - Duplicates doesn't matter
+        ROMC=( `for CT in {1..39}; do rom_names "${SBRN}"; echo "${ROMNIS}"; done` );
         for ROM in ${ROMC[*]}; do
             # Possible Default Device Configuration (DDC) Files
             DDCS=( ${ROM}_${SBDEV}.mk full_${SBDEV}.mk aosp_${SBDEV}.mk ${ROM}.mk );
@@ -565,7 +608,7 @@ function pre_build() # 3
             for (( CT=0; CNT<"${SBNMK}"; CT++ )); do
                 echo -e "\n${QN} Enter Makefile location from Root of BuildSystem";
                 ST="Makefile"; shut_my_mouth LOC[$CNT] "$ST" array;
-                if [ -f ${CALL_ME_ROOT}/${SBLOC[$CNT]} ]; then
+                if [ -f ${CALL_ME_ROOT}${SBLOC[$CNT]} ]; then
                     echo -e "\n${EXE} Adding Makefile `$[ $CNT + 1 ]` ";
                     echo -e "\n\$(call inherit-product, ${SBLOC[$CNT]})" >> ${INTM};
                 else
@@ -579,7 +622,7 @@ function pre_build() # 3
             echo -e "${EXE} Renaming .dependencies file\n";
             [ ! -f ${ROMNIS}.dependencies ] && mv -f *.dependencies ${ROMNIS}.dependencies;
             echo -e "${SCS} Done.";
-            croot;
+            cd ${CALL_ME_ROOT};
         } # create_imk
 
         find_ddc "intm";
@@ -588,7 +631,7 @@ function pre_build() # 3
 
     function need_for_int()
     {
-        if [ -f ${CALL_ME_ROOT}/${DEVDIR}/${INTF} ]; then
+        if [ -f ${CALL_ME_ROOT}${DEVDIR}/${INTF} ]; then
             echo "$NOINT";
         else
             interactive_mk "$SBRN";
@@ -636,9 +679,9 @@ function pre_build() # 3
 
     choose_target;
     if [ -d vendor/${ROMNIS}/products ]; then # [ -d vendor/aosip ] <- Temporarily commented
-        if [ ! -f vendor/${ROMNIS}/products/${ROMNIS}_${SBDEV}.mk ||
-             ! -f vendor/${ROMNIS}/products/${SBDEV}.mk ||
-             ! -f vendor/${ROMNIS}/products/${SBDEV}/${ROMNIS}_${SBDEV}.mk ]; then
+        if [ ! -f vendor/${ROMNIS}/products/${ROMNIS}_${SBDEV}.mk ] ||
+            [ ! -f vendor/${ROMNIS}/products/${SBDEV}.mk ] ||
+             [ ! -f vendor/${ROMNIS}/products/${SBDEV}/${ROMNIS}_${SBDEV}.mk ]; then
             vendor_strat_kpa; # if found products folder, go ahead
         else
             echo -e "\n${SCS} Looks like ${SBDEV} has been already added to ${ROM_FN} vendor. Good to go\n";
@@ -646,7 +689,7 @@ function pre_build() # 3
     else
         vendor_strat_all; # if not found, normal strategies
     fi
-    croot;
+    cd ${CALL_ME_ROOT};
     sleep 2;
     export action_1="init" action_2="pre_build";
     [ -z "$automate" ] && quick_menu;
@@ -659,89 +702,63 @@ function build() # 4
 
     function hotel_menu()
     {
-        echo -e "${CL_WYT}=====================${NONE} ${CL_LBL}Hotel Menu${NONE} ${CL_WYT}======================${NONE}";
-        echo -e " Menu is only for your Device, not for you. No Complaints pls.\n";
-        echo -e "[*] lunch - Setup Build Environment for the Device";
-        echo -e "[*] breakfast - Download Device Dependencies and lunch";
-        echo -e "[*] brunch - breakfast + lunch then Start Build\n";
-        echo -e "${QN} Type in the Option you want to select\n";
-        echo -e "${INF} Building for the first time ? select lunch";
+        echo -e "${CL_WYT}=====================${NONE} ${CL_LBL}Hotel Menu${NONE} ${CL_WYT}======================${NONE}\n";
+        echo -e "[*] ${CL_WYT}lunch${NONE} - Setup Build Environment for the Device";
+        echo -e "[*] ${CL_WYT}breakfast${NONE} - Download Device Dependencies and lunch";
+        echo -e "[*] ${CL_WYT}brunch${NONE} - breakfast + lunch then Start Build\n";
+        echo -e "${QN} Type in the desired option\n";
+        echo -e "${INF} Building for a new Device ? select ${CL_WYT}lunch${NONE}";
         echo -e "${CL_WYT}=======================================================${NONE}\n";
         ST="Selected Option"; shut_my_mouth SLT "$ST";
         case "$SBSLT" in
-            "lunch") ${SBSLT} ${TARGET} ;;
-            "breakfast") ${SBSLT} ${SBDEV} ${SBBT} ;;
+            "lunch")
+                cmdprex \
+                    "CommandName<->${SBSLT}" \
+                    "Target Name<->${TARGET}";
+                ;;
+            "breakfast")
+                cmdprex \
+                    "CommandName<->${SBSLT}" \
+                    "Device Codename<->${SBDEV}" \
+                    "ROM BuildType<->${SBBT}";
+                ;;
             "brunch")
                 echo -e "\n${EXE} Starting Compilation - ${ROM_FN} for ${SBDEV}\n";
-                ${SBSLT} ${SBDEV};
+                cmdprex \
+                    "CommandName<->${SBSLT}" \
+                    "Device Codename<->${SBDEV}";
                 ;;
             *) echo -e "${FLD} Invalid Selection.\n"; hotel_menu ;;
         esac
         echo;
     } # hotel_menu
 
-    function post_build()
-    {
-        NRT_0=`tac $RMTMP | grep -m 1 'No rule to make target\|no known rule to make it'`;
-        if [[ $(tac $RMTMP | grep -c -m 1 '#### make completed successfully') == "1" ]]; then
-            echo -e "\n${SCS} Build completed successfully! Cool. Now make it Boot!";
-            the_response COOL Build;
-            teh_action 6 COOL;
-        elif [[ ! -z "$NRT_0" ]]; then
-#           if [[ ! -z "$DMNJ" ]]; then
-#               # ninja: error: 'A', needed by 'B', missing and no known rule to make it
-# W             NRT_1=(`echo "$NRT_0" | awk '{print $3 $6}' | awk -F "'" '{print $2" "$4}'`);
-# i         else
-# P             # make[X]: *** No rule to make target 'A', needed by 'B'.
-#               NRT_1=(`echo "$NRT_0" | awk -F "No rule to make target" '{print $2}' | awk -F "'" '{print $2" "$4}'`);
-#           fi
-            if [ ! -z "$automate" ]; then
-                the_response FAIL Build;
-                teh_action 6 FAIL;
-            fi
-        else
-            the_response FAIL Build;
-            teh_action 6 FAIL;
-        fi
-    } # post_build
-
     function build_make()
     {
         if [[ "$1" != "brunch" ]]; then
             START=$(date +"%s"); # Build start time
             # Showtime!
-            BCORES="-j${BCORES}";
-            #            GZRs | AOKP | AOSiP | A lot of ROMs | All ROMs
+            [[ "$SBMK" != "mka" ]] && BCORES="-j${BCORES}";
+            # Sequence - GZRs | AOKP | AOSiP | A lot of ROMs | All ROMs
             for MAKECOMMAND in ${ROMNIS} rainbowfarts kronic bacon otapackage; do
-                if [ grep -q "^${MAKECOMMAND}:" "${CALL_ME_ROOT}/build/core/Makefile" ]; then
-                    ${SBMK} ${MAKECOMMAND} ${BCORES} && BLDSCS="yay" 2>&1 | tee $RMTMP;
+                if [[ $(grep -c "^${MAKECOMMAND}:" "${CALL_ME_ROOT}build/core/Makefile") == "1" ]]; then
+                    cmdprex --out="${RMTMP}" \
+                    "Command<->${SBMK}" \
+                    "Zip target name<->${MAKECOMMAND}" \
+                    "No. of cores<->${BCORES}";
+                    break;  # Building one target is enough
                 fi
             done
             END=$(date +"%s"); # Build end time
             SEC=$(($END - $START)); # Difference gives Build Time
-            if [ -z "$BLDSCS" ]; then
+            if [ -z "$STS" ]; then
                 echo -e "\n${FLD} Build Status : Failed";
             else
                 echo -e "\n${SCS} Build Status : Success";
             fi
             echo -e "\n${INF} ${CL_WYT}Build took $(($SEC / 3600)) hour(s), $(($SEC / 60 % 60)) minute(s) and $(($SEC % 60)) second(s).${NONE}" | tee -a rom_compile.txt;
-            #post_build; # comment it please xD
         fi
     } # build_make
-
-    function make_it() # Part of make_module
-    {
-        echo -e "${QN} ENTER the Directory where the Module is made from : \n";
-        prompt MODDIR;
-        echo -e "\n${QN} Do you want to push the Module to the Device (Running the Same ROM) ${CL_WYT}[y/n]${NONE} : \n";
-        prompt PMOD;
-        echo;
-        case "$PMOD" in
-            [yY]) mmmp -B $MODDIR ;; # make module and push it to device
-            [nN]) mmm -B $MODDIR ;; # make module only
-            *) echo -e "${FLD}Invalid Selection.\n"; make_it ;;
-        esac
-    } # make_it
 
     function make_module()
     {
@@ -750,10 +767,29 @@ function build() # 4
             prompt KNWLOC;
         fi
         if [[ "$KNWLOC" == "y" || "$1" == "y" ]]; then
-            make_it;
+            echo -e "${QN} Specify the directory which builds the module\n";
+            prompt MODDIR;
+            echo -e "\n${QN} Push module to the Device (through ADB, running the same ROM) ${CL_WYT}[y/n]${NONE}\n";
+            prompt PMOD;
+            echo;
+            case "$PMOD" in
+                [Yy])
+                    cmdprex \
+                     "make module and push it to device<->mmmp" \
+                     "Force Rebuild the module<->-B" \
+                     "Module Directory<->${MODDIR}"
+                     ;;
+                [Nn])
+                    cmdprex \
+                     "make-module<->mmm" \
+                     "Force Rebuild the module<->-B" \
+                     "Module Directory<->$MODDIR"
+                     ;;
+                *) echo -e "${FLD}Invalid Selection.\n"; make_it ;;
+            esac
         else
-            echo -e "${INF} Do either of these two actions:\n1. Google it (Easier)\n2. Run this command in terminal : sgrep \"LOCAL_MODULE := <Insert_MODULE_NAME_Here> \".\n\n Press ENTER after it's Done..\n";
-            read ENTER;
+            echo -e "${INF} Do either of these two actions:\n1. Google it (Easier)\n2. Run this command in terminal : grep \"LOCAL_MODULE := <Insert_MODULE_NAME_Here> \".\n\n Press ENTER after it's Done..\n";
+            read;
             make_it;
         fi
     } # make_module
@@ -762,10 +798,14 @@ function build() # 4
     {
         echo -e "\n${QN} Enter the User name [$(whoami)]\n";
         ST="Custom Username"; shut_my_mouth CU "$ST";
-        export KBUILD_BUILD_USER=${SBCU:-$(whoami)};
+        cmdprex \
+            "Mark variable to be Inherited by child processes<->export" \
+            "Variable to Set Custom User<->KBUILD_BUILD_USER=${SBCU:-$(whoami)}";
         echo -e "\n${QN} Enter the Host name [$(hostname)]\n";
         ST="Custom Hostname"; shut_my_mouth CH "$ST";
-        export KBUILD_BUILD_HOST=${SBCH:-$(hostname)};
+        cmdprex \
+            "Mark variable to be Inherited by child processes<->export" \
+            "Variable to Set Custom Host<->KBUILD_BUILD_HOST=${SBCH:-$(hostname)}";
         echo -e "\n${INF} You're building on ${CL_WYT}${KBUILD_BUILD_USER}@${KBUILD_BUILD_HOST}${NONE}";
         echo -e "\n${SCS} Done\n";
         [ -z "$automate" ] && [ "$SBKO" != "5" ] && kbuild;
@@ -838,14 +878,23 @@ function build() # 4
             echo -e "2. 1 + Clean the Current Kernel Configuration\n";
             ST="Clean Method"; shut_my_mouth CK "$ST";
             case "${SBCK}" in
-                1) make clean -j${SBNT} ;;
-                2) make mrproper -j${SBNT} ;;
+                1)
+                    cmdprex \
+                        "CommandName<->make" \
+                        "TargetName<->clean" \
+                        "No. of Jobs<->-j${SBNT}" \
+                    ;;
+                2)
+                    cmdprex \
+                        "CommandName<->make" \
+                        "TargetName<->mrproper" \
+                        "No. of Jobs<->-j${SBNT}" \
+                    ;;
             esac
             echo -e "\n${SCS} Kernel Cleaning done\n\n${INF} Check output for details\n";
             export action_kcl="done";
             [ -z "$automate" ] && [ "$SBKO" != "5" ] && kbuild;
         } # kclean
-
 
         function mkkernel()
         {
@@ -856,10 +905,22 @@ function build() # 4
             [ ! -z "${SBCUH}" ] && custuserhost;
 
             echo -e "\n${EXE} Compiling the Kernel\n";
-            export ARCH="${SBKA}" CROSS_COMPILE="${SBKTL}/bin/${KCCP}";
+            cmdprex \
+                "Mark variable to be Inherited by child processes<->export" \
+                "Set CPU Architecture<->ARCH=\"${SBKA}\"" \
+                "Set Toolchain Location<->CROSS_COMPILE=\"${SBKTL}/bin/${KCCP}\"";
             [ ! -z "$SBNT" ] && SBNT="-j${SBNT}";
-            make ${SBKD};
-            make ${SBNT} && echo -e "\n${SCS} Compiled Successfully\n" || echo -e "${FLD} Compilation failed\n";
+            cmdprex \
+                "CommandName<->make" \
+                "Defconfig to be Initialized<->${SBKD}";
+            cmdprex \
+                "CommandName<->make" \
+                "No. of Jobs<->${SBNT}";
+            if [[ ! -z "${STS}" ]]; then
+                echo -e "\n${SCS} Compiled Successfully\n";
+            else
+                echo -e "\n${FLD} Compilation failed\n";
+            fi
             [ -z "$automate" ] && kbuild;
         } # mkkernel
 
@@ -962,21 +1023,21 @@ function build() # 4
                     prompt PATCH_PATH;
                     PROJECTS="$(repo list -p)"; # Get all teh projects
                     PROJECT_COUNT=$(wc -l <<< "$PROJECTS"); # Count all teh projects
-                    [ -f "${CALL_ME_ROOT}/${PATCH_PATH}" ] && rm -rf ${CALL_ME_ROOT}/${PATCH_PATH} # Delete existing patch
+                    [ -f "${CALL_ME_ROOT}${PATCH_PATH}" ] && rm -rf ${CALL_ME_ROOT}${PATCH_PATH} # Delete existing patch
                     CT=1;
                     echo "";
                     while read PROJECT; do # repo foreach does not work, as it seems to spawn a subshell
-                        cd ${CALL_ME_ROOT}/${PROJECT}
+                        cd ${CALL_ME_ROOT}${PROJECT};
                         git diff |
                           sed -e "s@ a/@ a/${PROJECT}/@g" |
-                          sed -e "s@ b/@ b/${PROJECT}/@g" >> ${CALL_ME_ROOT}/${PATCH_PATH}; # Extend a/ and b/ with the project's path, as git diff only outputs the paths relative to the git repository's root
+                          sed -e "s@ b/@ b/${PROJECT}/@g" >> ${CALL_ME_ROOT}${PATCH_PATH}; # Extend a/ and b/ with the project's path, as git diff only outputs the paths relative to the git repository's root
                         echo -en "\033[KGenerated patch for repo $CT of $PROJECT_COUNT\r";  # Count teh processed repos
                         ((CT++));
                     done <<< "$PROJECTS";
                     cd ${CALL_ME_ROOT};
                     echo -e "\n\n${SCS} Done.";
-                    [ ! -s "${CALL_ME_ROOT}/${PATCH_PATH}" ] &&
-                      rm ${CALL_ME_ROOT}/${PATCH_PATH} &&
+                    [ ! -s "${CALL_ME_ROOT}${PATCH_PATH}" ] &&
+                      rm ${CALL_ME_ROOT}${PATCH_PATH} &&
                       echo -e "${INF} Patch was empty, so it was deleted";
                 fi
             fi
@@ -1063,7 +1124,9 @@ function build() # 4
                     ST="/out location"; shut_my_mouth OL "$ST";
                     if [ -d "$SBOL" ]; then
                         [ ! -d out ] && mkdir -pv out;
-                        export OUT_DIR="${SBOL}/out";
+                        cmdprex \
+                            "Mark variable to be Inherited by child processes<->export" \
+                            "Variable to Set Custom Output Directory<->OUT_DIR=\"${SBOL}/out\"";
                     else
                         echo -e "${INF} /out location is unchanged";
                     fi
@@ -1074,36 +1137,64 @@ function build() # 4
             esac
             echo -e "${QN} Want to Clean the /out before Building\n"; gimme_info "outcln";
             ST="Option Selected"; shut_my_mouth CL "$ST";
-            if [[ $(grep -c 'BUILD_ID=M' ${CALL_ME_ROOT}/build/core/build_id.mk) == "1" ]]; then
+            if [[ $(grep -c 'BUILD_ID=M' ${CALL_ME_ROOT}build/core/build_id.mk) == "1" ]]; then
                 echo -e "${QN} Use Jack Toolchain ${CL_WYT}[y/n]${NONE}\n"; gimme_info "jack";
                 ST="Use Jacky"; shut_my_mouth JK "$ST";
                 case "$SBJK" in
-                     [yY]) export ANDROID_COMPILE_WITH_JACK=true ;;
-                     [nN]) export ANDROID_COMPILE_WITH_JACK=false ;;
+                    [yY])
+                        cmdprex \
+                            "Mark variable to be Inherited by child processes<->export" \
+                            "Variable to Enable Jack<->ANDROID_COMPILE_WITH_JACK=true"
+                        ;;
+                    [nN])
+                        cmdprex \
+                            "Mark variable to be Inherited by child processes<->export" \
+                            "Variable to Disable Jack<->ANDROID_COMPILE_WITH_JACK=false"
+                        ;;
                 esac
             fi
-            if [[ $(grep -c 'BUILD_ID=N' ${CALL_ME_ROOT}/build/core/build_id.mk) == "1" ]]; then
+            if [[ $(grep -c 'BUILD_ID=N' ${CALL_ME_ROOT}build/core/build_id.mk) == "1" ]]; then
                 echo -e "${QN} Use Ninja to build Android ${CL_WYT}[y/n]${NONE}\n"; gimme_info "ninja";
                 ST="Use Ninja"; shut_my_mouth NJ "$ST";
                 case "$SBNJ" in
                     [yY])
                         echo -e "\n${INF} Building Android with Ninja BuildSystem";
-                        export USE_NINJA=true;
+                        cmdprex \
+                            "Mark variable to be Inherited by child processes<->export" \
+                            "Variable to Use Ninja<->USE_NINJA=true";
                         ;;
                     [nN])
                         echo -e "\n${INF} Building Android with the Non-Ninja BuildSystem\n";
-                        export USE_NINJA=false;
-                        unset BUILDING_WITH_NINJA;
+                        cmdprex \
+                            "Mark variable to be Inherited by child processes<->export" \
+                            "Variable to Disable Ninja<->USE_NINJA=false";
+                        cmdprex \
+                            "CommandName<->unset" \
+                            "Unsetting this Var removes Ninja temp files<->BUILDING_WITH_NINJA";
                         ;;
                     *) echo -e "${FLD} Invalid Selection.\n" ;;
                 esac
             fi
             case "$SBCL" in
-                1) lunch ${TARGET}; $SBMK installclean ;;
-                2) lunch ${TARGET}; $SBMK clean ;;
+                1)
+                    cmdprex \
+                        "CommandName<->lunch" \
+                        "Build Target Name<->${TARGET}";
+                    cmdprex \
+                        "CommandName<->$SBMK" \
+                        "TargetName to Remove Staging Files<->installclean";
+                    ;;
+                2)
+                    cmdprex \
+                        "CommandName<->lunch" \
+                        "Build Target Name<->${TARGET}";
+                    cmdprex \
+                        "CommandName<->$SBMK" \
+                        "TargetName to Remove Entire Build Output<->clean";
+                    ;;
                 *) echo -e "${INF} No Clean Option Selected.\n" ;;
             esac
-            echo -e "${QN} Set a custom user/host\n [y/n]";
+            echo -e "${QN} Set a custom user/host ${CL_WYT}[y/n]${NONE}";
             ST="Custom user@host"; shut_my_mouth CUH "$ST";
             [[ "$SBCUH" =~ (Y|y) ]] && custuserhost;
             hotel_menu;
@@ -1180,7 +1271,12 @@ function tools() # 5
                 libbz2-dev libbz2-1.0 libghc-bzlib-dev ) ;;
         esac
         # Install 'em all
-        execroot apt-get install -y ${COMMON_PKGS[*]} ${DISTRO_PKGS[*]};
+        cmdprex \
+            "Command Execution as 'root'<->execroot" \
+            "Commandline Package Manager<->apt-get" \
+            "Keyword for Installing Package<->install" \
+            "Answer 'yes' to prompts<->-y" \
+            "Packages list<->${COMMON_PKGS[*]} ${DISTRO_PKGS[*]}";
     } # installdeps
 
     function installdeps_arch()
@@ -1231,9 +1327,17 @@ function tools() # 5
         echo -e "${CL_WYT}=======================================================${NONE}\n";
         case "${PKGMGR}" in
             "apt")
-                execroot update-alternatives --config java;
+                cmdprex \
+                    "Command Execution as 'root'<->execroot" \
+                    "Maintains symlinks for default commands<->update-alternatives"
+                    "Configure command symlink<->--config" \
+                    "Command to Configure<->java";
                 echo -e "\n${CL_WYT}=======================================================${NONE}\n";
-                execroot update-alternatives --config javac;
+                cmdprex \
+                    "Command Execution as 'root'<->execroot" \
+                    "Maintains symlinks for default commands<->update-alternatives"
+                    "Configure command symlink<->--config" \
+                    "Command to Configure<->javac";
                 ;;
             "pacman")
                 archlinux-java status;
@@ -1264,7 +1368,13 @@ function tools() # 5
         case "$REMOJA" in
             [yY])
                 case "${PKGMGR}" in
-                    "apt") execroot apt-get purge openjdk-* icedtea-* icedtea6-* ;;
+                    "apt")
+                        cmdprex \
+                            "Command Execution as 'root'<->execroot" \
+                            "Commandline Package Manager<->apt-get" \
+                            "Keyword to Remove Packages<->purge" \
+                            "Packages to be purged<->openjdk-* icedtea-* icedtea6-*"
+                            ;;
                     "pacman") execroot pacman -Rddns $( pacman -Qqs ^jdk ) ;;
                 esac
                 echo -e "\n${SCS} Removed Other Versions successfully"
@@ -1277,12 +1387,25 @@ function tools() # 5
         esac
         echo -e "\n${CL_WYT}=======================================================${NONE}\n";
         case "${PKGMGR}" in
-            "apt") execroot apt-get update -y ;;
+            "apt")
+                cmdprex \
+                    "Command Execution as 'root'<->execroot" \
+                    "Commandline Package Manager<->apt-get" \
+                    "Answer 'yes' to prompts<->-y" \
+                    "Update Packages List<->update";
+                ;;
             "pacman") execroot pacman -Sy ;;
         esac
         echo -e "\n${CL_WYT}=======================================================${NONE}\n";
         case "${PKGMGR}" in
-            "apt") execroot apt-get install openjdk-$1-jdk -y ;;
+            "apt")
+                cmdprex \
+                    "Command Execution as 'root'<->execroot" \
+                    "Commandline Package Manager<->apt-get" \
+                    "Keyword for Installing Package<->install" \
+                    "Answer 'yes' to prompts<->-y" \
+                    "OpenJDK PackageName<->openjdk-$1-jdk";
+                ;;
             "pacman") execroot pacman -S jdk$1-openjdk ;;
         esac
         java_check $1;
@@ -1292,17 +1415,34 @@ function tools() # 5
     {
         if [[ ! $(which add-apt-repository) ]]; then
             echo -e "${EXE} add-apt-repository not present. Installing it";
-            execroot apt-get install software-properties-common;
+            cmdprex \
+                "Command Execution as 'root'<->execroot" \
+                "Commandline Package Manager<->apt-get" \
+                "Keyword for Installing Package<->install" \
+                "WiP<->software-properties-common";
         fi
-        execroot add-apt-repository ppa:openjdk-r/ppa -y; # Add Java PPA
-        execroot apt-get update -y; # Update Sources
-        execroot apt-get install openjdk-$1-jdk -y; # Install eet
+        cmdprex \
+            "Command Execution as 'root'<->execroot" \
+            "Add PPA for apt<->add-apt-repository" \
+            "OpenJDK PPA<->ppa:openjdk-r/ppa" \
+            "Answer 'yes' to prompts<->-y";
+        cmdprex \
+            "Command Execution as 'root'<->execroot" \
+            "Commandline Package Manager<->apt-get" \
+            "Answer 'yes' to prompts<->-y" \
+            "Update Packages List<->update";
+        cmdprex \
+            "Command Execution as 'root'<->execroot" \
+            "Commandline Package Manager<->apt-get" \
+            "Keyword for Installing Package<->install" \
+            "Answer 'yes' to prompts<->-y" \
+            "OpenJDK PackageName<->openjdk-$1-jdk";
         java_check $1;
     } # java_ppa
 
     function java_menu()
     {
-        echo -e "\n${CL_WYT}========${NONE} ${CL_YEL}JAVA${NONE} Installation ${CL_WYT}=======${NONE}\n";
+        echo -e "\n${CL_WYT}===================${NONE} ${CL_YEL}JAVA${NONE} Installation ${CL_WYT}=================${NONE}\n";
         echo -e "1. Install Java";
         echo -e "2. Switch Between Java Versions / Providers\n";
         echo -e "0. Quick Menu\n";
@@ -1360,8 +1500,18 @@ function tools() # 5
         prompt GIT_U;
         echo -e "\n${QN} Enter the E-mail ID\n";
         prompt GIT_E;
-        git config --global user.name "${GIT_U}";
-        git config --global user.email "${GIT_E}";
+        cmdprex \
+            "git commandline<->git" \
+            "Configure git<->config" \
+            "Apply changes to all users<->--global" \
+            "Configuration<->user.name" \
+            "Value<->${GIT_U}";
+        cmdprex \
+            "git commandline<->git" \
+            "Configure git<->config" \
+            "Apply changes to all users<->--global" \
+            "Configuration<->user.email" \
+            "Value<->${GIT_E}";
         echo -e "\n${SCS} Done.\n"
         quick_menu;
     } # git_creds
@@ -1403,9 +1553,13 @@ function tools() # 5
         case "$UIC" in
             1) IDIR="${HOME}/bin/" ;;
             2) IDIR="/usr/bin/" ;;
-            *) echo -e "\n${FLD} Invalid Selection\n"; installer $@ ;;
+            *) echo -e "\n${FLD} Invalid Selection\n"; installer "$@" ;;
         esac
-        sudo -p $'\n\033[1;35m[#]\033[0m ' install utils/$1 ${IDIR};
+        cmdprex \
+            "Command Execution as 'root'<->execroot" \
+            "Install to directory<->install" \
+            "Source Directory<->utils/$1" \
+            "Destination Directory<->${IDIR}";
         check_utils_version "$1" "installed"; # Check Installed Version
         echo -e "\n${INF} Installed Version of $1 : $VER";
         if [[ "$1" == "ninja" ]]; then
@@ -1438,6 +1592,72 @@ function tools() # 5
         esac
     } # scribtofy
 
+    function update_creator() # Dev Only
+    {
+        [ -f ${PATHDIR}update_message.txt ] && rm ${PATHDIR}update_message.txt
+        cd ${PATHDIR};
+
+        if [ ! -d ${PATHDIR}.git ]; then # tell the user to re-clone ScriBt
+            echo -e "\n${FLD} Folder ${CL_WYT}.git${NONE} not found";
+            echo -e "${INF} ${CL_WYT}Re-clone${NONE} ScriBt for the update creator to work properly\n";
+        else
+            echo -e "\n${INF} This Function creates a new Update for ScriBt.";
+            echo -e "${INF} Please make sure you are on the right commit which should be the last in the new update!";
+            echo -e "${QN} Do you want to continue?\n"
+            prompt CORRECT;
+            if [[ "$CORRECT" =~ (y|yes) ]]; then
+                CORRECT=n
+                while [[ ! "$CORRECT" =~ (y|yes) ]]; do
+                    echo -e "\n${INF} Please enter the version number (without the prefix v, it will be added automatically)\n";
+                    prompt UPDATE_VERSION;
+                    echo -e "\n${INF} The new version number is \"${UPDATE_VERSION}\"";
+                    echo -e "${QN} Is this correct?\n";
+                    prompt CORRECT;
+                done;
+
+                CORRECT=n
+                while [[ ! "$CORRECT" =~ (y|yes) ]]; do
+                    echo -e "\n${INF} Please enter the update message [Press ENTER]";
+                    read
+                    nano ${PATHDIR}update_message.txt;
+                    echo -e "\n${INF} The new update message is\n";
+                    cat ${PATHDIR}update_message.txt
+                    echo -e "\n${QN} Is this correct?\n";
+                    prompt CORRECT;
+                done;
+
+                echo -e "\n${QN} Do you want to sign the tag?";
+                echo -e "${INF} Do it only if you have a git-compatible GPG setup\n";
+                prompt QN_SIGN
+                if [[ "${QN_SIGN}" =~ (y|yes) ]]; then
+                    RESULT_SIGN=" -s";
+                fi
+
+                if git tag -a${RESULT_SIGN} -F "${PATHDIR}update_message.txt" "v${UPDATE_VERSION}" &> /dev/null; then
+                    echo -e "\n${INF} Tag was created successfully";
+                    echo -e "${QN} Do you want to upload it to the server (origin)?\n";
+                    prompt QN_UPLOAD
+                    if [[ "${QN_UPLOAD}" =~ (y|yes) ]]; then
+                        if git push origin master && git push origin v${UPDATE_VERSION}; then
+                            echo -e "\n${INF} Upload successful";
+                        else
+                            echo -e "\n${FLD} Upload failed";
+                        fi
+                    fi
+                else
+                    echo -e "${FLD} Failed to create the tag";
+                fi
+            fi
+        fi
+        unset CORRECT;
+        unset UPDATE_VERSION;
+        unset RESULT_SIGN;
+        unset QN_SIGN;
+        unset QN_UPLOAD;
+        [ -f ${PATHDIR}update_message.txt ] && rm ${PATHDIR}update_message.txt
+        cd ${CALL_ME_ROOT};
+    } # update_creator
+
     function tool_menu()
     {
         echo -e "\n${CL_WYT}=======================${NONE} ${CL_LBL}Tools${NONE} ${CL_WYT}=========================${NONE}\n";
@@ -1451,6 +1671,7 @@ function tools() # 5
         echo -e "         8. Install ccache ${CL_WYT}~${NONE}";
         echo -e "         9. Install repo ${CL_WYT}~${NONE}";
         echo -e "        10. Add ScriBt to PATH";
+        echo -e "        11. Create a ScriBt Update [DEV]";
 # TODO: echo -e "         X. Find an Android Module's Directory";
         echo -e "\n         0. Quick Menu";
         echo -e "\n${CL_WYT}*${NONE} Create a GitHub account before using this option";
@@ -1473,6 +1694,7 @@ function tools() # 5
             8) installer "ccache" ;;
             9) installer "repo" ;;
             10) scribtofy ;;
+            11) update_creator ;;
 # TODO:     X) find_mod ;;
             *) echo -e "${FLD} Invalid Selection.\n"; tool_menu ;;
         esac
@@ -1491,7 +1713,7 @@ function teh_action() # Takes ya Everywhere within ScriBt
         ;;
     2)
         echo -ne "\033]0;ScriBt : Syncing ${ROM_FN}\007";
-        [ -z "$automate" ] & sync;
+        [ -z "$automate" ] && sync;
         ;;
     3)
         echo -ne '\033]0;ScriBt : Pre-Build\007';
@@ -1506,7 +1728,7 @@ function teh_action() # Takes ya Everywhere within ScriBt
         [ -z "$automate" ] && build;
         ;;
     5)
-        echo -ne '\033]0;ScriBt : Installing Dependencies\007';
+        echo -ne '\033]0;ScriBt : Various Tools\007';
         [ -z "$automate" ] && tools;
         ;;
     6)
@@ -1529,30 +1751,24 @@ function teh_action() # Takes ya Everywhere within ScriBt
 function the_start() # 0
 {
     # VROOM!
-    DNT=`date +'%d/%m/%y %r'`;
     echo -ne "\033]0;ScriBt : The Beginning\007";
 
-    # I ez Root
-    [[ "$(pwd)" != "/" ]] && export CALL_ME_ROOT="$(pwd)" || export CALL_ME_ROOT="";
-
     #   tempfile      repo sync log       rom build log        vars b4 exe     vars after exe
-    TMP=${CALL_ME_ROOT}/temp.txt; STMP=${CALL_ME_ROOT}/temp_sync.txt; RMTMP=${CALL_ME_ROOT}/temp_compile.txt; TV1=${CALL_ME_ROOT}/temp_v1.txt; TV2=${CALL_ME_ROOT}/temp_v2.txt;
-    rm -rf ${CALL_ME_ROOT}/temp{,_sync,_compile,_v{1,2}}.txt;
-    touch ${CALL_ME_ROOT}/temp{,_sync,_compile,_v{1,2}}.txt;
+    TMP=${CALL_ME_ROOT}temp.txt; STMP=${CALL_ME_ROOT}temp_sync.txt; RMTMP=${CALL_ME_ROOT}temp_compile.txt; TV1=${CALL_ME_ROOT}temp_v1.txt; TV2=${CALL_ME_ROOT}temp_v2.txt;
+    rm -f "$TMP" "$STMP" "$RMTMP" "$TV1" "$TV2";
+    touch "$TMP" "$STMP" "$RMTMP" "$TV1" "$TV2";
 
     # Load RIDb and Colors
-    if [[ "$0" == "./ROM.sh" ]] && [ -f ROM.rc ]; then
-        source ./ROM.rc; # Load Local ROM.rc
-    elif [ ! -z "${PATHDIR}" ]; then
-        source ${PATHDIR}ROM.rc; # Load ROM.rc under PATH
-    else
-        echo "[F] ROM.rc isn't present in ${PWD} OR PATH please make sure repo is cloned correctly";
-        exitScriBt 1;
+    if ! source ${CALL_ME_ROOT}ROM.rc &> /dev/null; then # Load Local ROM.rc
+        if ! source ${PATHDIR}ROM.rc &> /dev/null; then # Load ROM.rc from PATHDIR
+            echo "[F] ROM.rc isn't present in ${CALL_ME_ROOT} OR PATH. Please make sure repo is cloned correctly";
+            exitScriBt 1;
+        fi
     fi
     color_my_life;
 
     # Relevant_Coloring
-    if [[ $(tput colors) < 2 ]]; then
+    if [[ $(tput colors) -lt 2 ]]; then
         export INF="[I]" SCS="[S]" FLD="[F]" EXE="[!]" QN="[?]";
     else
         export INF="${CL_LBL}[!]${NONE}" SCS="${CL_LGN}[!]${NONE}" \
@@ -1567,25 +1783,25 @@ function the_start() # 0
         echo -e "\n${FLD} Folder ${CL_WYT}.git${NONE} not found";
         echo -e "${INF} ${CL_WYT}Re-clone${NONE} ScriBt for upScriBt to work properly\n";
         echo -e "${FLD} Update-Check Cancelled\n\n${INF} No modifications have been done\n";
-    fi
-
-    [ ! -z "${PATHDIR}" ] && cd ${PATHDIR};
-    # Check Branch
-    export BRANCH=`git rev-parse --abbrev-ref HEAD`;
-    cd ${CALL_ME_ROOT};
-
-    if [[ "$BRANCH" =~ (master|staging) ]]; then
-        # Download the Remote Version of Updater, determine the Internet Connectivity by working of this command
-        curl -fs -o ${PATHDIR}upScriBt.sh https://raw.githubusercontent.com/a7r3/ScriBt/${BRANCH}/upScriBt.sh && \
-            (echo -e "\n${SCS} Internet Connectivity : ONLINE"; bash ${PATHDIR}upScriBt.sh $0 $1) || \
-            echo -e "\n${FLD} Internet Connectivity : OFFINE\n\n${INF} Please connect to the Internet for complete functioning of ScriBt";
     else
-        echo -e "\n${INF} Current Working Branch is neither 'master' nor 'staging'\n";
-        echo -e "${FLD} Update-Check Cancelled\n\n${INF} No modifications have been done\n";
+        [ ! -z "${PATHDIR}" ] && cd ${PATHDIR};
+        # Check Branch
+        export BRANCH=`git rev-parse --abbrev-ref HEAD`;
+        cd ${CALL_ME_ROOT};
+
+        if [[ "${BRANCH}" == "master" ]]; then
+            # Download the Remote Version of Updater, determine the Internet Connectivity by working of this command
+            curl -fs -o ${PATHDIR}upScriBt.sh https://raw.githubusercontent.com/ScriBt/ScriBt/${BRANCH}/upScriBt.sh && \
+                (echo -e "\n${SCS} Internet Connectivity : ONLINE"; bash ${PATHDIR}upScriBt.sh $0 $1) || \
+                echo -e "\n${FLD} Internet Connectivity : OFFINE\n\n${INF} Please connect to the Internet for complete functioning of ScriBt";
+        else
+            echo -e "\n${INF} Current working branch is not ${CL_WYT}master${NONE} [${BRANCH}]\n";
+            echo -e "${FLD} Update-Check Cancelled\n\n${INF} No modifications have been done";
+        fi
     fi
 
     # Where am I ?
-    echo -e "\n${INF} ${CL_WYT}I'm in $(pwd)${NONE}\n";
+    echo -e "\n${INF} ${CL_WYT}I'm in ${CALL_ME_ROOT}${NONE}\n";
 
     # are we 64-bit ??
     if ! [[ $(uname -m) =~ (x86_64|amd64) ]]; then
@@ -1598,7 +1814,7 @@ function the_start() # 0
 
     # CHEAT CHEAT CHEAT!
     if [ -z "$automate" ]; then
-        echo -e "${QN} Before Starting off, shall I remember the responses you'll enter from now \n${INF} So that it can be Automated next time\n";
+        echo -e "${QN} Remember Responses for Automation ${CL_WYT}[y/n]${NONE}\n";
         prompt RQ_PGN;
         (set -o posix; set) > ${TV1};
     else
@@ -1617,13 +1833,15 @@ function the_start() # 0
     echo -e "      ${CL_LRD}███████${NONE}${CL_RED}║╚${NONE}${CL_LRD}██████${NONE}${CL_RED}╗${NONE}${CL_LRD}██${NONE}${CL_RED}║${NONE}  ${CL_LRD}██${NONE}${CL_RED}║${NONE}${CL_LRD}██${NONE}${CL_RED}║${NONE}${CL_LRD}██████${NONE}${CL_RED}╔╝${NONE}   ${CL_LRD}██${NONE}${CL_RED}║${NONE}";
     echo -e "      ${CL_RED}╚══════╝ ╚═════╝╚═╝  ╚═╝╚═╝╚═════╝    ╚═╝${NONE}\n";
     sleep 1.5;
-    echo -e "                         ${CL_WYT}v`cat ${PATHDIR}VERSION`${NONE}\n";
+    cd ${PATHDIR};
+    echo -e "                         ${CL_WYT}${VERSION}${NONE}\n";
+    cd ${CALL_ME_ROOT};
 } # the_start
 
 function automator()
 {
     echo -e "\n${EXE} Searching for Automatable Configs\n";
-    for AF in `ls *.rc | sed -e 's/ROM.rc//g'`; do
+    for AF in *.rc; do
         grep 'AUTOMATOR\=\"true_dat\"' --color=never $AF -l >> ${TMP};
         sed -i -e 's/.rc//g' ${TMP}; # Remove the file format
     done
@@ -1651,10 +1869,19 @@ function automator()
 } # automator
 
 # Some Essentials
+
 # 'read' command with custom prompt '[>]' in Cyan
-function prompt(){ read -p $'\033[1;36m[>]\033[0m ' $1; };
+function prompt()
+{
+    read -p $'\033[1;36m[>]\033[0m ' $1;
+    if [[ -z "$(eval echo \$$1)" ]] && [[ -z "$2" ]]; then
+        echo -e "\n${FLD} No response provided\n";
+        prompt $1;
+    fi
+}
+
 # 'sudo' command with custom prompt '[#]' in Pink
-function execroot(){ sudo -p $'\033[1;35m[#]\033[0m ' $@; };
+function execroot(){ sudo -p $'\033[1;35m[#]\033[0m ' "$@"; };
 
 function usage()
 {
@@ -1676,13 +1903,30 @@ function usage()
 
 # Point of Execution
 
-# Show Interrupt Acknowledgement message on receiving SIGINT
-trap interrupt SIGINT;
+# I ez Root
+export CALL_ME_ROOT=`echo "$(pwd)/" | sed -e 's#//$#/#g'`
 
 if [[ "$0" == "ROM.sh" ]] && [[ $(type -p ROM.sh) ]]; then
     export PATHDIR="$(type -p ROM.sh | sed 's/ROM.sh//g')";
+else
+    export PATHDIR="${CALL_ME_ROOT}"
 fi
 
+# Show Interrupt Acknowledgement message on receiving SIGINT
+trap interrupt SIGINT;
+
+# Version
+if [ -d ${PATHDIR}.git ]; then
+    cd ${PATHDIR};
+    if [[ "`git rev-parse --abbrev-ref HEAD`" == "master" ]]; then
+        VERSION=`git describe --tags $(git rev-list --max-count=1 HEAD)`;
+    else
+        VERSION="staging";
+    fi
+    cd ${CALL_ME_ROOT};
+else
+    VERSION="";
+fi
 if [[ "$1" == "automate" ]]; then
     export automate="yus_do_eet";
     the_start; # Pre-Initial Stage
@@ -1692,7 +1936,12 @@ elif [ -z $1 ]; then
     the_start; # Pre-Initial Stage
     main_menu;
 elif [[ "$1" == "version" ]]; then
-    echo -e "\n\033[1;34m[\033[1;31m~\033[1;34m]\033[0m Projekt ScriBt \033[1;34m[\033[1;31m~\033[1;34m]\033[0m\n     Version `cat ${PATHDIR}VERSION`\n";
+    if [ -n "$VERSION" ]; then
+        echo -e "\n\033[1;34m[\033[1;31m~\033[1;34m]\033[0m Projekt ScriBt \033[1;34m[\033[1;31m~\033[1;34m]\033[0m\n     ${VERSION}\n";
+    else
+        echo -e "Not available. Please resync ScriBt through Git";
+        exit 1;
+    fi
 elif [[ "$1" == "usage" ]]; then
     usage;
 else
