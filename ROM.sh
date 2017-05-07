@@ -332,8 +332,8 @@ function init() # 1
         export action_1="init";
     else
         unset STS;
-        [ -z "$automate" ] && quick_menu;
     fi
+    [ -z "$automate" ] && quick_menu;
 } # init
 
 function sync() # 2
@@ -1791,7 +1791,7 @@ function the_start() # 0
 
         if [[ "${BRANCH}" == "master" ]]; then
             # Download the Remote Version of Updater, determine the Internet Connectivity by working of this command
-            curl -fs -o ${PATHDIR}upScriBt.sh https://raw.githubusercontent.com/a7r3/ScriBt/${BRANCH}/upScriBt.sh && \
+            curl -fs -o ${PATHDIR}upScriBt.sh https://raw.githubusercontent.com/ScriBt/ScriBt/${BRANCH}/upScriBt.sh && \
                 (echo -e "\n${SCS} Internet Connectivity : ONLINE"; bash ${PATHDIR}upScriBt.sh $0 $1) || \
                 echo -e "\n${FLD} Internet Connectivity : OFFINE\n\n${INF} Please connect to the Internet for complete functioning of ScriBt";
         else
