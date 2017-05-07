@@ -1626,6 +1626,8 @@ function tools() # 5
                     prompt CORRECT;
                 done;
 
+                echo -e "Version ${UPDATE_VERSION}\n\n" | cat - update_message.txt > temp && mv temp update_message.txt
+
                 echo -e "\n${QN} Do you want to sign the tag?";
                 echo -e "${INF} Do it only if you have a git-compatible GPG setup\n";
                 prompt QN_SIGN
