@@ -1,6 +1,14 @@
+#!/bin/bash
 #========================< Projekt ScriBt >============================#
 #=========< Copyright 2016-2017, Arvindraj Thangaraj - "a7r3" >========#
 #===============< ROM Information Database aka RIDb >==================#
+# ShellCheck notes:                                                    #
+# ROM.rc is a companion script for ROM.sh which can be associated with #
+# a database. It runs in the same shell in which ROM.sh runs           #
+# Most of the variables are set in ROM.sh, so the following warning    #
+# codes are ignored                                                    #
+# SC2034, SC2153, SC2154                                               #
+#======================================================================#
 
 function rom_names()
 {
@@ -215,7 +223,8 @@ function color_my_life()
     for NO in 0 1; do
         CT=0; CLR="CLR_${NO}[*]";
         for COLOR in ${!CLR}; do
-            export CL_${COLOR}="\033[${NO};3${CT}m"; ((CT++));
+            read "CL_${COLOR}" <<< "$(echo -e "\\033[${NO};3${CT}m")";
+            (( CT++ ));
         done
     done
     unset CT CLR COLOR; # To be safe
