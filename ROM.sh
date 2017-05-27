@@ -32,7 +32,6 @@
 
 function cmdprex() # D ALL
 {
-    # Replace Space with '#' in individual parameter
     # shellcheck disable=SC2001
     ARGS=( $(echo "${@// /#}" | sed -e 's/--out=.*txt//') );
     # Argument (Parameter) Array
@@ -49,8 +48,6 @@ function cmdprex() # D ALL
          echo -en "\033[1;3${CT}m$(eval "echo \${ARGD[${CT}]}")\033[0m " | sed 's/#/ /g';
     done
     echo -e "\n";
-    # Make up the command, restore '#' back to spaces
-    # If --out is mentioned add the tee redirection statement
     [[ "$1" =~ --out=* ]] && TEE="2>&1 | tee -a ${1/*=/}";
     CMD=$(echo "${ARG[*]} ${TEE}" | sed -e 's/NULL//g' -e 's/#/ /g');
     # Execute the command
@@ -65,13 +62,12 @@ function cmdprex() # D ALL
     unset -v CMD CT ARG{,S,D};
 } # cmdprex
 
-
 function cherrypick() # Automated Use only
 {
     echo -ne '\033]0;ScriBt : Picking Cherries\007';
     echo -e "${CL_WYT}=======================${NONE} ${CL_LRD}Pick those Cherries${NONE} ${CL_WYT}======================${NONE}\n";
     echo -e "${EXE} ${ATBT} Attempting to Cherry-Pick Provided Commits\n";
-    cd "${CALL_ME_ROOT}$1";
+    cd "${CALL_ME_ROOT}$1" || exitScriBt 1;
     git fetch ${2/\/tree\// };
     git cherry-pick "$3";
     cd "${CALL_ME_ROOT}";
@@ -88,7 +84,6 @@ function interrupt() # ID
 
 function exitScriBt() # ID
 {
-
     function prefGen()
     {
         echo -e "\n${EXE} Saving Current Configuration";
@@ -103,23 +98,28 @@ function exitScriBt() # ID
                 [Yy]) echo -e "\n${EXE} Deleting ${NOC}"; rm -rf "${NOC}.rc" ;;
                 [Nn]) prefGen ;;
             esac
+            unset OVRT;
         fi
         {
             echo -e "# ScriBt Automation Config File";
-            echo -e "# ${ROM_FN} for ${SBDEV}\nAUTOMATE=\"true_dat\"\n";
+            echo -e "# ${ROM_FN} for ${SBDEV:-"Some Device"}\nAUTOMATE=\"true_dat\"\n";
             echo -e "#################\n#  Information  #\n#################\n\n";
             cat varlist;
             echo -e "\n\n#################\n#  Sequencing  #\n##################\n";
             echo -e "# Your Code goes here\n\ninit;\nsync;\npre_build;\nbuild;\n\n# Some moar code eg. Uploading the ROM";
         } >> "${NOC}.rc";
-        echo -e "\n${SCS} Configuration file ${NOC} created successfully\n\n${INF} You may modify the config, and automate ScriBt next time";
+        echo -e "\n${SCS} Configuration file ${NOC} created successfully";
+        echo -e "\n${INF} You may modify the config, and automate ScriBt next time";
+        unset NOC;
     } # prefGen
 
     if type patcher &>/dev/null; then # Assume the patchmgr was used if this function is loaded
         if show_patches | grep -q '[Y]'; then # Some patches are still applied
-            echo -e "\n${SCS} Applied Patches detected\n${QN} Do you want to reverse them ${CL_WYT}[y/n]${NONE}\n"
+            echo -e "\n${SCS} Applied Patches detected";
+            echo -e "\n${QN} Do you want to reverse them ${CL_WYT}[y/n]${NONE}\n";
             prompt ANSWER;
             [[ "$ANSWER" == [Yy] ]] && patcher;
+            unset ANSWER;
         fi
     fi
 
@@ -131,12 +131,12 @@ function exitScriBt() # ID
         VARS="${VARS}${line//=*/} ";
     done <<< "$(cat varlist)";
 
-    if [[ "$RQ_PGN" == [Yy] ]]; then
+    if [[ "${RQ_PGN}" == [Yy] ]]; then
          prefGen;
     fi
     rm -f varlist;
     echo -e "\n${EXE} Unsetting all variables";
-    unset ${VARS:-SB2} VARS;
+    unset ${VARS:-SB2} VARS RQ_PGN;
     echo -e "\n${SCS:-[:)]} Thanks for using ScriBt.\n";
     if [[ "$1" == "0" ]]; then
         echo -e "${CL_LGN}[${NONE}${CL_LRD}<3${NONE}${CL_LGN}]${NONE} Peace! :)\n";
@@ -171,6 +171,9 @@ function pkgmgr_check() # ID
     if which apt &> /dev/null; then
         echo -e "\n${SCS} Package manager ${CL_WYT}apt${NONE} detected.\033[0m";
         PKGMGR="apt";
+    elif which apt-get &> /dev/null; then
+        echo -e "\n${SCS} Package manager ${CL_WYT}apt-get${NONE} detected.\033[0m";
+        PKGMGR="apt-get";
     elif which pacman &> /dev/null; then
         echo -e "\n${SCS} Package manager ${CL_WYT}pacman${NONE} detected.\033[0m";
         PKGMGR="pacman";
@@ -211,7 +214,6 @@ function rom_select() # D 1,2
     for CT in {35..39}; do
         echo -e "${CT}. ${ROMS[$CT]}";
     done | pr -t -2
-    unset CT CNS; # Unset these
     echo -e "\n=======================================================${NONE}\n";
     [ -z "$automate" ] && unset SBRN && prompt SBRN;
     rom_names "$SBRN";
@@ -221,6 +223,7 @@ function rom_select() # D 1,2
     else
         echo -e "\n${INF} You have chosen -> ${ROM_FN}\n";
     fi
+    unset CT CNS; # Unset these
 } # rom_select
 
 function shut_my_mouth() # ID
@@ -241,13 +244,6 @@ function shut_my_mouth() # ID
     echo;
 } # shut_my_mouth
 
-function set_ccache() # D set_ccvars
-{
-    echo -e "\n${EXE} Setting up CCACHE\n";
-    ccache -M "${CCSIZE}G";
-    echo -e "\n${SCS} CCACHE Setup Successful.\n";
-} # set_ccache
-
 function set_ccvars() # D 4,5
 {
     echo -e "\n${INF} Specify the Size (Number) for Reservation of CCACHE (in GB)";
@@ -267,7 +263,10 @@ function set_ccvars() # D 4,5
             break; # One file, and its done
         fi
     done
-    set_ccache;
+    echo -e "\n${EXE} Setting up CCACHE\n";
+    ccache -M "${CCSIZE}G";
+    echo -e "\n${SCS} CCACHE Setup Successful.\n";
+    unset CCSIZE CCDIR;
 } # set_ccvars
 
 function init() # 1
@@ -314,10 +313,17 @@ function init() # 1
     if [[ ! $(which repo) ]]; then
         echo -e "${FLD} ${CL_WYT}repo${NONE} binary isn't installed\n\n${EXE} Installing ${CL_WYT}repo${CL_WYT}\n";
         [ ! -d "${HOME}/bin" ] && mkdir -pv ${HOME}/bin;
-        curl https://storage.googleapis.com/git-repo-downloads/repo > ~/bin/repo;
-        chmod a+x ~/bin/repo;
+        cmdprex \
+            "Tool/Lib to transfer data with URL syntax<->curl" \
+            "repo dwnld URL<->https://storage.googleapis.com/git-repo-downloads/repo" \
+            "Output Redirection Operator<->>" \
+            "Redirection file<->~/bin/repo";
+        cmdprex \
+            "Change Permissions on an Entity<->chmod" \
+            "Add executable permission<->a+r" \
+            "File to be chmod-ed<->~/bin/repo";
         echo -e "${SCS} Repo Binary Installed\n${EXE} Adding ~/bin to PATH\n";
-        if [[ $(grep 'PATH=*' ~/.profile | grep -c '$HOME/bin') != "0" ]]; then
+        if [[ $(grep 'PATH=["]*' ~/.profile | grep -c '$HOME/bin') != "0" ]]; then
             echo -e "${SCS} $HOME/bin is in PATH";
         else
             {
@@ -325,13 +331,12 @@ function init() # 1
                 echo -e "if [ -d \"\$HOME/bin\" ]; then\n\tPATH=\"\$HOME/bin:\$PATH\"\nfi";
             } >> ~/.profile;
             source ~/.profile;
-            echo -e "${SCS} $HOME/bin added to PATH"
+            echo -e "${SCS} $HOME/bin added to PATH";
         fi
         echo -e "${SCS} Done. Ready to Init Repo.\n";
     fi
     echo -e "${CL_WYT}=======================================================${NONE}\n";
     MURL="https://github.com/${RNM}/${MNF}";
-    export CMD="repo init ";
     cmdprex --out="${STMP}" \
         "repository management tool<->repo" \
         "initialze in current dir<->init" \
@@ -351,6 +356,7 @@ function init() # 1
     else
         unset STS;
     fi
+    unset BRANCHES MURL CDP REF MNF CT;
     [ -z "$automate" ] && quick_menu;
 } # init
 
@@ -358,7 +364,6 @@ function sync() # 2
 {
     # Change terminal title
     [ ! -z "$automate" ] && teh_action 2;
-    # if   repo not inited          then do it else                        get rom info
     if [ ! -f .repo/manifest.xml ]; then init; elif [ -z "$action_1" ]; then rom_select; fi;
     echo -e "\n${EXE} Preparing for Sync\n";
     echo -e "${QN} Number of Threads for Sync \n"; gimme_info "jobs";
@@ -374,9 +379,9 @@ function sync() # 2
     echo -e "${CL_WYT}=======================================================${NONE}\n";
     #Sync-Options
     [[ "$SBS" == "y" ]] && SILENT="-q";
-    [[ "$SBF" == "y" ]] && FORCE=--force-sync;
-    [[ "$SBC" == "y" ]] && SYNC_CRNT=-c;
-    [[ "$SBB" == "y" ]] || CLN_BUN=--no-clone-bundle;
+    [[ "$SBF" == "y" ]] && FORCE="--force-sync";
+    [[ "$SBC" == "y" ]] && SYNC_CRNT="-c";
+    [[ "$SBB" == "y" ]] || CLN_BUN="--no-clone-bundle";
     echo -e "${EXE} Let's Sync!\n";
     cmdprex --out="${STMP}" \
         "repository management tool<->repo" \
@@ -384,10 +389,11 @@ function sync() # 2
         "no. of jobs<->-j${SBJOBS:-1}" \
         "silent sync<->${SILENT}" \
         "force sync<->${FORCE}" \
-        "sync current branches only<->${SYNC_CRNT}" \
-        "use clone bundle<->${CLN_BUN}";
+        "sync current branch only<->${SYNC_CRNT}" \
+        "use clone.bundle<->${CLN_BUN}";
     echo -e "\n${SCS} Done.\n";
     echo -e "${CL_WYT}=======================================================${NONE}\n";
+    unset SILENT FORCE SYNC_CRNT CLN_BUN;
     [ -z "$automate" ] && quick_menu;
 } # sync
 
@@ -503,8 +509,7 @@ function pre_build() # 3
 
     function vendor_strat_kpa() # AOKP-4.4|AICP|PAC-5.1|Krexus-CAF|AOSPA|Non-CAFs
     {
-        cd "${CALL_ME_ROOT}";
-        cd "vendor/${ROMNIS}/products";
+        cd "${CALL_ME_ROOT}vendor/${ROMNIS}/products";
 
         function bootanim()
         {
@@ -1064,7 +1069,7 @@ function build() # 4
                     prompt PATCH_PATH;
                     PROJECTS="$(repo list -p)"; # Get all teh projects
                     PROJECT_COUNT=$(wc -l <<< "$PROJECTS"); # Count all teh projects
-                    [ -f "${CALL_ME_ROOT}${PATCH_PATH}" ] && rm -rf "${CALL_ME_ROOT}${PATCH_PATH}" # Delete existing patch
+                    [ -f "${CALL_ME_ROOT}${PATCH_PATH}" ] && rm -rf "${CALL_ME_ROOT}${PATCH_PATH}"; # Delete existing patch
                     CT=1;
                     echo;
                     while read PROJECT; do # repo foreach does not work, as it seems to spawn a subshell
@@ -1131,7 +1136,8 @@ function build() # 4
                 # Change terminal title
                 [ ! -z "$automate" ] && teh_action 4;
             else
-                echo -e "${FLD} ROM Source Not Found (Synced)\n${FLD} Please perform an init and sync before doing this";
+                echo -e "${FLD} ROM Source Not Found (Synced)\n";
+                echo -e "${FLD} Please perform an init and sync before doing this";
                 exitScriBt 1;
             fi
             init_bld;
@@ -1185,12 +1191,12 @@ function build() # 4
                     [yY])
                         cmdprex \
                             "Mark variable to be Inherited by child processes<->export" \
-                            "Variable to Enable Jack<->ANDROID_COMPILE_WITH_JACK=true"
+                            "Variable to Enable Jack<->ANDROID_COMPILE_WITH_JACK=true";
                         ;;
                     [nN])
                         cmdprex \
                             "Mark variable to be Inherited by child processes<->export" \
-                            "Variable to Disable Jack<->ANDROID_COMPILE_WITH_JACK=false"
+                            "Variable to Disable Jack<->ANDROID_COMPILE_WITH_JACK=false";
                         ;;
                 esac
             fi
@@ -1219,18 +1225,18 @@ function build() # 4
             case "$SBCL" in
                 1)
                     cmdprex \
-                        "CommandName<->lunch" \
+                        "Setup Device-Specific BuildEnv<->lunch" \
                         "Build Target Name<->${TARGET}";
                     cmdprex \
-                        "CommandName<->$SBMK" \
+                        "GNU make<->$SBMK" \
                         "TargetName to Remove Staging Files<->installclean";
                     ;;
                 2)
                     cmdprex \
-                        "CommandName<->lunch" \
+                        "Setup Device-Specific BuildEnv<->lunch" \
                         "Build Target Name<->${TARGET}";
                     cmdprex \
-                        "CommandName<->$SBMK" \
+                        "GNU make<->$SBMK" \
                         "TargetName to Remove Entire Build Output<->clean";
                     ;;
                 *) echo -e "${INF} No Clean Option Selected.\n" ;;
@@ -1308,7 +1314,9 @@ function tools() # 5
                 DISTRO_PKGS=( libesd0-dev liblz4-tool libncurses5-dev \
                 libsdl1.2-dev libwxgtk2.8-dev lzop maven maven2 \
                 lib32ncurses5-dev lib32readline6-dev liblz4-tool ) ;;
-            D16)
+            D16|D17)
+                # Seperate D17 list when testing other Distros
+                # Ubuntu 17.04 installed these packages successfully
                 DISTRO_PKGS=( automake lzop libesd0-dev maven \
                 liblz4-tool libncurses5-dev libsdl1.2-dev libwxgtk3.0-dev \
                 lzop lib32ncurses5-dev lib32readline6-dev lib32z1-dev \
@@ -1317,10 +1325,11 @@ function tools() # 5
         # Install 'em all
         cmdprex \
             "Command Execution as 'root'<->execroot" \
-            "Commandline Package Manager<->apt-get" \
+            "Commandline Package Manager<->${PKGMGR}" \
             "Keyword for Installing Package<->install" \
             "Answer 'yes' to prompts<->-y" \
             "Packages list<->${COMMON_PKGS[*]} ${DISTRO_PKGS[*]}";
+        unset DISTRO_PKGS COMMON_PKGS;
     } # installdeps
 
     function installdeps_arch()
@@ -1351,17 +1360,30 @@ function tools() # 5
             # look for conflicting packages and uninstall them
             for item in ${PKGS_CONFLICT}; do
                 if pacman -Qq "${item}" &> /dev/null; then
-                    execroot pacman -Rddns --noconfirm "${item}";
+                    cmdprex \
+                    "Command Execution as 'root'<->execroot" \
+                    "Arch Package Mgr<->pacman" \
+                    "Remove<->-R" \
+                    "Skip all Dependency Checks<->-dd" \
+                    "WiP<->-n" \
+                    "WiP<->-s" \
+                    "Answer 'yes' to prompts<->--noconfirm" \
+                    "Conflicting Packages list<->${item}";
                     sleep 3;
                 fi
             done
             # install required packages
             for item in ${PKGSREQ}; do
-                "${AURMGR}" -S --noconfirm "$item";
+                cmdprex \
+                "Arch Package Mgr.<->${AURMGR}" \
+                "Sync Pkgs<->-S" \
+                "Answer 'yes' to prompts<->--noconfirm" \
+                "Packages List<->${item}";
             done
         else
             echo -e "\n${SCS} You already have all required packages\n";
         fi
+        unset item AURMGR PKGSREQ;
     } # installdeps_arch
 
     function java_select()
@@ -1370,7 +1392,7 @@ function tools() # 5
         echo -e "${INF} You may now select the Version of Java which is to be used BY-DEFAULT\n";
         echo -e "${CL_WYT}=======================================================${NONE}\n";
         case "${PKGMGR}" in
-            "apt")
+            apt{,-get})
                 cmdprex \
                     "Command Execution as 'root'<->execroot" \
                     "Maintains symlinks for default commands<->update-alternatives"
@@ -1385,7 +1407,7 @@ function tools() # 5
                 ;;
             "pacman")
                 archlinux-java status;
-                echo -e "${QN} Please enter desired version [eg. \"java-7-openjdk\"]\n";
+                echo -e "\n${QN} Please enter desired version [eg. \"java-7-openjdk\"]\n";
                 prompt ARCHJA;
                 execroot archlinux-java set "${ARCHJA}";
                 ;;
@@ -1412,45 +1434,64 @@ function tools() # 5
         case "$REMOJA" in
             [yY])
                 case "${PKGMGR}" in
-                    "apt")
+                    apt{,-get})
                         cmdprex \
                             "Command Execution as 'root'<->execroot" \
-                            "Commandline Package Manager<->apt-get" \
+                            "Commandline Package Manager<->${PKGMGR}" \
                             "Keyword to Remove Packages<->purge" \
                             "Packages to be purged<->openjdk-* icedtea-* icedtea6-*"
                             ;;
-                    "pacman") execroot pacman -Rddns $( pacman -Qqs ^jdk ) ;;
+                    "pacman")
+                        cmdprex \
+                            "Commad Execution as 'root'<->execroot" \
+                            "Arch Package Mgr.<->pacman" \
+                            "Remove Package<->-R" \
+                            "Skip all Dependency Checks<->-dd" \
+                            "WiP<->-n" \
+                            "WiP<->-s" \
+                            "PackageName<->$( pacman -Qqs ^jdk )" ;;
                 esac
-                echo -e "\n${SCS} Removed Other Versions successfully"
+                echo -e "\n${SCS} Removed Other Versions successfully";
                 ;;
             [nN]) echo -e "${EXE} Keeping them Intact" ;;
             *)
                 echo -e "${FLD} Invalid Selection.\n";
-                java_install $1;
+                java_install "$1";
                 ;;
         esac
         echo -e "\n${CL_WYT}=======================================================${NONE}\n";
         case "${PKGMGR}" in
-            "apt")
+            "apt"|"apt-get")
                 cmdprex \
                     "Command Execution as 'root'<->execroot" \
-                    "Commandline Package Manager<->apt-get" \
+                    "Commandline Package Manager<->${PKGMGR}" \
                     "Answer 'yes' to prompts<->-y" \
                     "Update Packages List<->update";
                 ;;
-            "pacman") execroot pacman -Sy ;;
+            "pacman")
+                cmdprex \
+                    "Execute command as 'root'<->execroot" \
+                    "Arch Package Mgr.<->pacman" \
+                    "Sync Pkgs<->-S" \
+                    "Answer 'yes' to prompts<->-y" ;;
         esac
         echo -e "\n${CL_WYT}=======================================================${NONE}\n";
         case "${PKGMGR}" in
-            "apt")
+            apt{,-get})
                 cmdprex \
                     "Command Execution as 'root'<->execroot" \
-                    "Commandline Package Manager<->apt-get" \
+                    "Commandline Package Manager<->${PKGMGR}" \
                     "Keyword for Installing Package<->install" \
                     "Answer 'yes' to prompts<->-y" \
                     "OpenJDK PackageName<->openjdk-$1-jdk";
                 ;;
-            "pacman") execroot pacman -S "jdk$1-openjdk" ;;
+            "pacman")
+                cmdprex \
+                    "Execute command as 'root'<->execroot" \
+                    "Arch Package Mgr.<->pacman" \
+                    "Sync Pkgs<->-S" \
+                    "Answer 'yes' to prompts<->-y"
+                    "OpenJDK PackageName<->jdk$1-openjdk" ;;
         esac
         java_check "$1";
     } # java_install
@@ -1501,7 +1542,7 @@ function tools() # 5
                 echo -e "1. Java 1.6.0 (4.4.x Kitkat)";
                 echo -e "2. Java 1.7.0 (5.x.x Lollipop && 6.x.x Marshmallow)";
                 echo -e "3. Java 1.8.0 (7.x.x Nougat)\n";
-                [[ "${PKGMGR}" == "apt" ]] && echo -e "4. Ubuntu 16.04 & Want to install Java 7\n5. Ubuntu 14.04 & Want to install Java 8\n";
+                [[ "${PKGMGR}" =~ apt(|-get) ]] && echo -e "4. Ubuntu 16.04 & Want to install Java 7\n5. Ubuntu 14.04 & Want to install Java 8\n";
                 prompt JAVER;
                 case "$JAVER" in
                     1) java_install 6 ;;
@@ -1527,9 +1568,33 @@ function tools() # 5
     {
         echo -e "\n${CL_WYT}=======================================================${NONE}\n";
         echo -e "${EXE} Updating / Creating Android USB udev rules (51-android)\n";
-        execroot curl -s --create-dirs -L -o /etc/udev/rules.d/51-android.rules -O -L https://raw.githubusercontent.com/snowdream/51-android/master/51-android.rules;
-        execroot chmod a+r /etc/udev/rules.d/51-android.rules;
-        execroot service udev restart;
+        cmdprex \
+            "Execute Command as 'root'<->execroot" \
+            "Tool/Lib to transfer data with URL syntax<->curl" \
+            "Be silent<->-s" \
+            "Create non-existent dirs<->--create-dirs" \
+            "Follow URL redirections<->-L" \
+            "Output Directory<->-o /etc/udev/rules.d/51-android.rules" \
+            "Name file as specified in remote<->-O" \
+            "URL<->https://raw.githubusercontent.com/snowdream/51-android/master/51-android.rules";
+        cmdprex \
+            "Execute command as 'root'<->execroot" \
+            "Change Permissions on an Entity<->chmod" \
+            "Add read Permissions<->a+r" \
+            "file to be chmod-ed<->/etc/udev/rules.d/51-android.rules";
+        if [[ "$PKGMGR" =~ apt(|-get) ]]; then
+            cmdprex \
+                "Execute command as 'root'<->execroot" \
+                "Service mgmt tool<->service" \
+                "Device Mgr 'userspace /dev'<->udev" \
+                "Restart the service<->restart";
+        elif [[ "$PKGMGR" == "pacman" ]]; then
+            cmdprex \
+                "Execute command as 'root'<->execroot" \
+                "Device Mgr<->udevadm" \
+                "Perform Operation with udev daemon<->control" \
+                "Reload udev rules<->--reload-rules";
+        fi
         echo -e "\n${SCS} Done";
         echo -e "\n${CL_WYT}=======================================================${NONE}\n";
     } # udev_rules
@@ -1547,13 +1612,13 @@ function tools() # 5
         cmdprex \
             "git commandline<->git" \
             "Configure git<->config" \
-            "Apply changes to all users<->--global" \
+            "Apply changes to all local repositories<->--global" \
             "Configuration<->user.name" \
             "Value<->${GIT_U}";
         cmdprex \
             "git commandline<->git" \
             "Configure git<->config" \
-            "Apply changes to all users<->--global" \
+            "Apply changes to all local repositories<->--global" \
             "Configuration<->user.email" \
             "Value<->${GIT_E}";
         echo -e "\n${SCS} Done.\n"
@@ -1574,11 +1639,12 @@ function tools() # 5
             "make") VER=$(${BIN} -v | head -1 | awk '{print $3}') ;;
             "ninja") VER=$(${BIN} --version) ;;
             # since repo is a python script and not a binary
-            "repo") VER=$(${BIN} | grep -m 1 VERSION |\
-                        awk -F "= " '{print $2}' |\
-                        sed -e 's/[()]//g' |\
-                        awk -F ", " '{print $1"."$2}');
-                    ;;
+            "repo")
+                VER=$(${BIN} | grep -m 1 VERSION |\
+                    awk -F "= " '{print $2}' |\
+                    tr -d ')(' |\
+                    awk -F ", " '{print $1"."$2}')
+                ;;
         esac
     } # check_utils_version
 
@@ -1614,6 +1680,7 @@ function tools() # 5
             echo -e "\n${INF} Cherry-Pick this commit under the ${CL_WYT}build${NONE} folder/repo of the ROM you're building";
         fi
         echo -e "\n${SCS} Done\n";
+        unset VER IDIR UIC;
     } # installer
 
     function scribtofy()
@@ -1636,6 +1703,7 @@ function tools() # 5
                 echo -e "${FLD} ScriBtofication cancelled";
                 ;;
         esac
+        unset SBFY;
     } # scribtofy
 
     function update_creator() # Dev Only
@@ -1701,11 +1769,7 @@ function tools() # 5
                 fi
             fi
         fi
-        unset CORRECT;
-        unset UPDATE_VERSION;
-        unset RESULT_SIGN;
-        unset QN_SIGN;
-        unset QN_UPLOAD;
+        unset CORRECT UPDATE_VERSION RESULT_SIGN QN_SIGN QN_UPLOAD;
         [ -f "${PATHDIR}update_message.txt" ] && rm "${PATHDIR}update_message.txt";
         cd "${CALL_ME_ROOT}";
     } # update_creator
@@ -1733,7 +1797,7 @@ function tools() # 5
         case "$TOOL" in
             0) quick_menu ;;
             1) case "${PKGMGR}" in
-                   "apt") installdeps ;;
+                   apt{,get}) installdeps ;;
                    "pacman") installdeps_arch ;;
                esac
                ;;
@@ -1750,6 +1814,7 @@ function tools() # 5
 # TODO:     X) find_mod ;;
             *) echo -e "${FLD} Invalid Selection.\n"; tool_menu ;;
         esac
+        unset TOOL;
         [ -z "$automate" ] && quick_menu;
     } # tool_menu
 
@@ -1851,8 +1916,9 @@ function the_start() # 0
                 (echo -e "\n${SCS} Internet Connectivity : ONLINE"; bash "${PATHDIR}upScriBt.sh" "$0" "$1") || \
                 echo -e "\n${FLD} Internet Connectivity : OFFINE\n\n${INF} Please connect to the Internet for complete functioning of ScriBt";
         else
-            echo -e "\n${INF} Current working branch is not ${CL_WYT}master${NONE} [${BRANCH}]\n";
-            echo -e "${FLD} Update-Check Cancelled\n\n${INF} No modifications have been done";
+            echo -e "\n${INF} Current working branch is not ${CL_WYT}master${NONE} [${BRANCH}]";
+            echo -e "\n${FLD} Update-Check Cancelled";
+            echo -e "\n${INF} No modifications have been done";
         fi
     fi
 
@@ -1966,7 +2032,7 @@ export CALL_ME_ROOT=$(echo "$(pwd)/" | sed -e 's#//$#/#g');
 if [[ "$0" == "ROM.sh" ]] && [[ $(type -p ROM.sh) ]]; then
     export PATHDIR="$(type -p ROM.sh | sed 's/ROM.sh//g')";
 else
-    export PATHDIR="${CALL_ME_ROOT}"
+    export PATHDIR="${CALL_ME_ROOT}";
 fi
 
 # Show Interrupt Acknowledgement message on receiving SIGINT
@@ -1990,7 +2056,7 @@ if [[ "$1" == "automate" ]]; then
     echo -e "${INF} ${ATBT} Lem'me do your work";
     automator;
 elif [ -z "$1" ]; then
-    the_start; # Pre-Initial Stage
+    the_start;
     main_menu;
 elif [[ "$1" == "version" ]]; then
     if [ -n "$VERSION" ]; then
