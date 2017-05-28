@@ -1225,7 +1225,7 @@ function build() # 4
                 # Jack workaround prompt is asked if this is set to y/Y
                 SBJK="y";
             fi
-            if [[ "${SBJK}" == [Yy] ]] && [[ "$(free | awk '/^Mem:/{print $2}')" -lt 4096 ]]; then
+            if [[ "${SBJK}" == [Yy] ]] && [[ "$(free -m | awk '/^Mem:/{print $2}')" -lt "4096" ]]; then
                 echo -e "${INF} Your system has less than 4GB RAM\n";
                 echo -e "${INF} Jack's Java VM requires >8GB of RAM to function properly\n";
                 echo -e "${QN} Use Jack workarounds for proper functioning\n";
@@ -1235,12 +1235,12 @@ function build() # 4
                     [Yy])
                         export ANDROID_JACK_VM_ARGS="-Dfile.encoding=UTF-8 -XX:+TieredCompilation -Xmx3G";
                         if [[ -f "${HOME}/.jack-server/config.properties" ]]; then
-                            if [[ "$(cat ~/.jack-server/config.properties | grep jack.server.max-service=1 | wc -l)" == "0" ]]; then
+                            if [[ "$(grep -c 'jack.server.max-service=1' ${HOME}/.jack-server/config.properties)" == "0" ]]; then
                                 sed -i "/jack.server.max-service=*/c\jack.server.max-service=1" ~/.jack-server/config.properties;
                             fi
                         fi
                         if [[ -f "${HOME}/.jack" ]]; then
-                            if [[ "$(cat ~/.jack | grep SERVER_NB_COMPILE=1 | wc -l)" == "0" ]]; then
+                            if [[ "$(grep -c 'SERVER_NB_COMPILE=1' ${HOME}/.jack)" == "0" ]]; then
                                 sed -i "/SERVER_NB_COMPILE=*/c\SERVER_NB_COMPILE=1" ~/.jack;
                             fi
                         fi
