@@ -1221,6 +1221,37 @@ function build() # 4
                         ;;
                     *) echo -e "${FLD} Invalid Selection.\n" ;;
                 esac
+                # Jack cannot be disabled in N
+                # Jack workaround prompt is asked if this is set to y/Y
+                SBJK="y";
+            fi
+            if [[ "${SBJK}" == [Yy] ]] && [[ "$(free | awk '/^Mem:/{print $2}')" -lt 4096 ]]; then
+                echo -e "${INF} Your system has less than 4GB RAM\n";
+                echo -e "${INF} Jack's Java VM requires >8GB of RAM to function properly\n";
+                echo -e "${QN} Use Jack workarounds for proper functioning\n";
+                echo -e "${INF} Unless you know what you're doing - ${CL_LBL}Answer y${NONE}\n";
+                ST="Use Jack Workaround"; shut_my_mouth JWA "$ST";
+                case "${SBJWA}" in
+                    [Yy])
+                        export ANDROID_JACK_VM_ARGS="-Dfile.encoding=UTF-8 -XX:+TieredCompilation -Xmx3G";
+                        if [[ -f "${HOME}/.jack-server/config.properties" ]]; then
+                            if [[ "$(cat ~/.jack-server/config.properties | grep jack.server.max-service=1 | wc -l)" == "0" ]]; then
+                                sed -i "/jack.server.max-service=*/c\jack.server.max-service=1" ~/.jack-server/config.properties;
+                            fi
+                        fi
+                        if [[ -f "${HOME}/.jack" ]]; then
+                            if [[ "$(cat ~/.jack | grep SERVER_NB_COMPILE=1 | wc -l)" == "0" ]]; then
+                                sed -i "/SERVER_NB_COMPILE=*/c\SERVER_NB_COMPILE=1" ~/.jack;
+                            fi
+                        fi
+                        echo "${EXE} Cleaning old JACK Session";
+                        rm -rf /tmp/jack-*;
+                        jack-admin kill-server;
+                        ;;
+                    *)
+                        echo -e "${INF} Not using Jack Workarounds\n";
+                        ;;
+                esac
             fi
             case "$SBCL" in
                 1)
