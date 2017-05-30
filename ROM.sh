@@ -21,10 +21,12 @@
 # a Pull Request, Contributions are WELCOME                            #
 #                                                                      #
 # Contributors:                                                        #
-# Arvindraj Thangaraj "a7r3"                                           #
-# Adrian DC "AdrianDC"                                                 #
-# Akhil Narang "akhilnarang"                                           #
+# Arvindraj Thangaraj (a7r3/Arvind7352)                                #
+# Adrian DC (AdrianDC)                                                 #
+# Akhil Narang (akhilnarang)                                           #
+# Caio Oliveira (Caio99BR)                                             #
 # Łukasz "JustArchi" Domeradzki                                        #
+# Nathan Chancellor (nathanchance/The Flash)                           #
 # Tim Schumacher (TimSchumi)                                           #
 # Tom Radtke "CubeDev"                                                 #
 # nosedive                                                             #
@@ -45,18 +47,18 @@ function cmdprex() # D ALL
     echo -e "\n";
     for (( CT=0; CT<${#ARGD[*]}; CT++ )); do
         [[ $(eval "echo \${ARG[${CT}]}") != "NULL" ]] && \
-         echo -en "\033[1;3${CT}m$(eval "echo \${ARGD[${CT}]}")\033[0m " | sed 's/#/ /g';
+         echo -en "\033[1;3${CT}m$(eval "echo \${ARGD[${CT}]}")\033[0m\n" | sed 's/#/ /g';
     done
-    echo -e "\n";
+    echo;
+    sleep 2; # Give some time for the user to read it
     [[ "$1" =~ --out=* ]] && TEE="2>&1 | tee -a ${1/*=/}";
     CMD=$(echo "${ARG[*]} ${TEE}" | sed -e 's/NULL//g' -e 's/#/ /g');
     # Execute the command
-    eval $CMD;
-    if [[ "$?" == "0" ]]; then
-        echo -e "${SCS} Command Execution Successful\n";
+    if eval ${CMD}; then
+        echo -e "\n${SCS} Command Execution Successful\n";
         unset STS;
     else
-        echo -e "${FLD} Command Execution Failed\n";
+        echo -e "\n${FLD} Command Execution Failed\n";
         STS="1";
     fi
     unset -v CMD CT ARG{,S,D};
@@ -323,9 +325,10 @@ function init() # 1
             "Redirection file<->~/bin/repo";
         cmdprex \
             "Change Permissions on an Entity<->chmod" \
-            "Add executable permission<->a+r" \
+            "Add executable permission<->a+x" \
             "File to be chmod-ed<->~/bin/repo";
-        echo -e "${SCS} Repo Binary Installed\n${EXE} Adding ~/bin to PATH\n";
+        echo -e "${SCS} Repo Binary Installed";
+        echo -e "\n${EXE} Adding ~/bin to PATH\n";
         if [[ $(grep 'PATH=["]*' ~/.profile | grep -c '$HOME/bin') != "0" ]]; then
             echo -e "${SCS} $HOME/bin is in PATH";
         else
@@ -487,7 +490,7 @@ function init_bld() # D 3,4
     echo -e "\n${CL_WYT}=======================================================${NONE}";
     echo -e "${EXE} Initializing Build Environment\n";
     cmdprex \
-        "Execute in Current Shell<->." \
+        "Execute in current shell<->source" \
         "EnvSetup Script<->build/envsetup.sh";
     echo -e "\n${CL_WYT}=======================================================${NONE}\n";
     echo -e "${SCS} Done\n";
@@ -639,9 +642,6 @@ function pre_build() # 3
         for ROM in ${ROMC[*]}; do
             # Possible Default Device Configuration (DDC) Files
             DDCS=( "${ROM}_${SBDEV}.mk" "full_${SBDEV}.mk" "aosp_${SBDEV}.mk" "${ROM}.mk" );
-            # Makefiles are arranged according to their priority of Usage
-            # ROM.mk is the most used, ROM_DEVICE.mk is the least used.
-            # Inherit DDC
             for ACTUAL_DDC in ${DDCS[*]}; do
                 if [ -f "${DEVDIR}/${ACTUAL_DDC}" ]; then
                     case "$1" in
@@ -854,9 +854,6 @@ function build() # 4
             fi
             echo -e "\n${INF} ${CL_WYT}Build took $(( SEC / 3600 )) hour(s), $(( SEC / 60 % 60 )) minute(s) and $(( SEC % 60 )) second(s).${NONE}" | tee -a rom_compile.txt;
         fi
-        if [[ ! -z "${ACTIVE_VENV}" ]]; then
-            stop_venv;
-        fi
     } # build_make
 
     function make_module()
@@ -882,9 +879,9 @@ function build() # 4
                     cmdprex \
                      "make-module<->mmm" \
                      "Force Rebuild the module<->-B" \
-                     "Module Directory<->$MODDIR"
+                     "Module Directory<->${MODDIR}"
                      ;;
-                *) echo -e "${FLD}Invalid Selection.\n"; make_it ;;
+                *) echo -e "${FLD} Invalid Selection.\n"; make_it ;;
             esac
         else
             echo -e "${INF} Do either of these two actions:\n1. Google it (Easier)\n2. Run this command in terminal : grep \"LOCAL_MODULE := <Insert_MODULE_NAME_Here> \".\n\n Press ENTER after it's Done..\n";
@@ -930,7 +927,8 @@ function build() # 4
                 echo -e "$(( CT + 1 )). ${KDEFS[$CT]}";
             done
             unset CT;
-            echo -e "\n${INF} These are the available Kernel Configurations\n\n${QN} Select the one according to the CPU Architecture\n";
+            echo -e "\n${INF} These are the available Kernel Configurations";
+            echo -e "\n${QN} Select the one according to the CPU Architecture\n";
             if [ -z "$automate" ]; then
                 prompt CT;
                 SBKD=$(eval echo "\${KDEFS[$(( CT - 1 ))]}" | awk -F "/" '{print $4}');
@@ -956,7 +954,7 @@ function build() # 4
             echo -e "\n${QN} Point me to the location of the toolchain [ from \"/\" ]\n";
             ST="Toolchain Location"; shut_my_mouth KTL "$ST";
             if [[ -d "${SBKTL}" ]]; then
-                KCCP=$(find ${SBKTL}/bin/${SBKA}*gcc | sed -e 's/gcc//g' -e 's/.*bin\///g');
+                KCCP=$(find bin/${SBKA}*gcc | grep -v 'androidkernel' | sed -e 's/gcc//g' -e 's/.*bin\///g');
                 if [[ ! -z "${KCCP}" ]]; then
                     echo -e "\n${SCS} Toolchain Detected\n";
                     echo -e "${INF} Toolchain Prefix : ${KCCP}\n";
@@ -1778,7 +1776,7 @@ function tools() # 5
             [Yy])
                     echo -e "\n${EXE} Adding ScriBt to PATH";
                     echo -e "# ScriBtofy\nexport PATH=\"${CALL_ME_ROOT}:\$PATH\";" > "${HOME}/.scribt";
-                    grep -q 'source ${HOME}/.scribt' ${HOME}/.bashrc && echo -e "\n#ScriBtofy\nsource \${HOME}/.scribt;" >> "${HOME}/.bashrc";
+                    grep -q 'source ${HOME}/.scribt' ${HOME}/.bashrc || echo -e "\n#ScriBtofy\nsource \${HOME}/.scribt;" >> "${HOME}/.bashrc";
                     echo -e "\n${EXE} Executing ~/.bashrc";
                     source ~/.bashrc;
                     echo -e "\n${SCS} Done\n\n${INF} Now you can ${CL_WYT}bash ROM.sh${NONE} under any directory";
@@ -1990,8 +1988,7 @@ function the_start() # 0
         echo -e "${FLD} Update-Check Cancelled\n\n${INF} No modifications have been done\n";
     else
         [ ! -z "${PATHDIR}" ] && cd "${PATHDIR}";
-        # Check Branch
-        export BRANCH=$(git rev-parse --abbrev-ref HEAD);
+
         cd "${CALL_ME_ROOT}";
 
         if [[ "${BRANCH}" == "master" ]]; then
@@ -2044,7 +2041,12 @@ function the_start() # 0
     echo -e "      ${CL_RED}╚══════╝ ╚═════╝╚═╝  ╚═╝╚═╝╚═════╝    ╚═╝${NONE}\n";
     sleep 1.5;
     cd "${PATHDIR}";
-    echo -e "                         ${CL_WYT}${VERSION}${NONE}\n";
+    # Spaces
+    SP=$(( 27 - $(( $(echo ${VERSION} | wc -L) / 2 ))));
+    SPCS=$(for ((i=0;i<"${SP}";i++)); do echo -en " "; done);
+    unset SP;
+    echo -e "${SPCS}${CL_WYT}${VERSION}${NONE}\n";
+    unset SPCS;
     cd "${CALL_ME_ROOT}";
 } # the_start
 
@@ -2127,11 +2129,13 @@ trap interrupt SIGINT;
 
 # Version
 if [ -d "${PATHDIR}.git" ]; then
+    # Check Branch
+    export BRANCH=$(git rev-parse --abbrev-ref HEAD);
     cd "${PATHDIR}";
-    if [[ $(git rev-parse --abbrev-ref HEAD) == "master" ]]; then
+    if [[ "${BRANCH}" == "master" ]]; then
         VERSION=$(git describe --tags $(git rev-list --max-count=1 HEAD));
     else
-        VERSION="staging";
+        VERSION="${BRANCH}";
     fi
     cd "${CALL_ME_ROOT}";
 else
