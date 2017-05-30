@@ -173,6 +173,17 @@ function main_menu()
 
 function manifest_gen() # D 1,5
 {
+    function listremotes()
+    {
+        echo -en "\n${INF} Following are the list of Remotes\n";
+        echo -en "\n${INF} Format : ${CL_WYT}Name${NONE}\t${CL_DGR}(Fetch URL)\n";
+        for (( CT=0; CT<"${#REMN[*]}"; CT++ )); do
+            eval echo "\${CL_WYT}\${REMN[$CT]} \${CL_DGR}(\${REMF[$CT]})";
+            echo -e "${NONE}";
+        done
+        echo -e "\n${QN} Enter the desired remote name\n";
+    } # listremotes
+
     if [[ ! -d .repo ]]; then
         echo -e "\n${FLD} ROM Source not synced";
         echo -e "\n${INF} You need to have a ROM source synced\n";
@@ -192,6 +203,7 @@ function manifest_gen() # D 1,5
                 echo -e "${INF} Try again\n";
                 manifest_gen;
             fi
+            echo -e "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<manifest>" > file.xml;
         fi
         echo -e "===============${CL_LGN}[!]${NONE} Manifest Generator ${CL_LGN}[!]${NONE}==============";
         echo -e "1) Add a repository";
@@ -203,19 +215,13 @@ function manifest_gen() # D 1,5
         prompt OP;
         case "${OP}" in
             1)
-                export lineStart="<project";
-                export lineEnd="/>";
+                export lineStart="<project" lineEnd="/>";
                 echo -e "Please enter the following one by one\n";
                 echo -e "If any of them are not needed, please just enter a blank value (repository name and repository path CANNOT be blank).";
                 echo -en "\n${QN} Repository Name : "; prompt repo_name;
                 echo -en "\n${QN} Repository Path : "; prompt repo_path;
                 echo -en "\n${QN} Branch : "; prompt repo_revision --no-repeat;
-                echo -en "\n${INF} Following are the list of Remotes\n";
-                echo -en "\n${INF} ${CL_WYT}Name${NONE}\t${CL_DGR}Fetch URL\n";
-                for (( CT=0; CT<"${#REMN[*]}"; CT++ )); do
-                    eval echo "\${CL_WYT}\${REMN[$CT]}  \${CL_DGR}\${REMF[$CT]}";
-                    echo -e "${NONE}";
-                done;
+                listremotes;
                 prompt repo_remote --no-repeat;
                 line="name=\"${repo_name}\" path=\"${repo_path}\"";
                 [ ! -z "${repo_revision}" ] && line="${line} revision=\"${repo_revision}\"";
@@ -237,19 +243,26 @@ function manifest_gen() # D 1,5
             3)
                 export lineStart="<remote"; export lineEnd="/>";
                 echo -e "${INF} Please enter the following one by one\n";
-                echo -e "${INF} If some of them are not needed, hit ENTER key \(remote name and remote URL CANNOT be blank\)\n";
-                echo -en "\n${CL_LCN}[>]${NONE} Remote Name : "; prompt remote_name;
-                echo -en "\n${CL_LCN}[>]${NONE} Remote URL : "; prompt remote_url;
-                echo -en "\n${CL_LCN}[>]${NONE} Revision : "; prompt remote_revision;
-                echo -en "\n${INF} Available Remotes : ${REMOTES}\n";
+                echo -e "${INF} If some of them are not needed, hit ENTER key [remote name and remote URL CANNOT be blank]\n";
+                echo -en "\n${QN} Remote Name : "; prompt remote_name;
+                echo -en "\n${QN} Remote URL : "; prompt remote_url;
+                echo -en "\n${QN} Revision : "; prompt remote_revision;
+                for CT in ${REMN[*]}; do
+                    if [[ "${CT}" == "${remote_name}" ]]; then
+                        echo -e "${FLD} Remote ${remote_name} already exists";
+                        echo -e "${INF} Try again\n";
+                        break && manifest_gen;
+                    fi
+                done
                 line="name=\"${remote_name}\" fetch=\"${remote_url}\"";
                 [ ! -z "${remote_revision}" ] || line="${line} revision=\"${remote_revision}\"";
                 line="${lineStart} ${line} ${lineEnd}";
                 echo "${line}" >> ${LMPATH}/file.xml;
                 ;;
             4)
-                echo -e "${QN} Provide a name for this manifest (Just the name)\n";
+                echo -e "${QN} Provide a name for this manifest [Just the name]\n";
                 prompt NAME;
+                echo -e "</manifest>" >> file.xml;
                 cp -rf file.xml ${NAME}.xml;
                 echo -e "${SCS} Custom Manifest successfully saved\n";
                 ;;
