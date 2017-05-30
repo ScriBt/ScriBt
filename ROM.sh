@@ -171,6 +171,88 @@ function main_menu()
     teh_action "${ACTION}" "mm";
 } # main_menu
 
+function manifest_gen() # D 1,5
+{
+    echo -e "${QN} Specify the path under which Manifest has to be made\n";
+    prompt LMPATH;
+    while read line; do
+        eval $line;
+        REMN=( ${REMN} $name );
+        REMF=( ${REMF} $fetch );
+    done <<< $(repo manifest | grep '<remote' | sed -e 's/<remote//g' -e 's/\/>//g' -e 's/<//g');
+    echo -e "${INF} Creating folder(s) if doesn't exist\n";
+    if [ ! -f "${LMPATH}" ]; then
+        mkdir -pv ${LMPATH} && touch ${LMPATH}/file.xml;
+        if [ "$?" -ne 0 ]; then
+            echo -e "${FLD} Error occurred trying to create ${LMPATH}";
+            echo -e "${INF} Try again\n";
+            manifest_gen;
+        fi
+    fi
+    echo -e "===============${CL_LGN}[!]${NONE} Manifest Generator ${CL_LGN}[!]${NONE}==============";
+    echo -e "1) Add a repository";
+    echo -e "2) Remove a repository";
+    echo -e "3) Add a remote";
+    echo -e "4) Save Custom Manifest";
+    echo -e "\nReplacing a repo ? Remove the repo, then add it's replacement";
+    echo -e "=======================================================\n";
+    prompt OP;
+    case "${OP}" in
+        1)
+            export lineStart="<project";
+            export lineEnd="/>";
+            echo -e "Please enter the following one by one\n";
+            echo -e "If any of them are not needed, please just enter a blank value (repository name and repository path CANNOT be blank).";
+            echo -en "\n${QN} Repository Name : "; prompt repo_name;
+            echo -en "\n${QN} Repository Path : "; prompt repo_path;
+            echo -en "\n${QN} Branch : "; prompt repo_revision --no-repeat;
+            echo -en "\n${INF} Following are the list of Remotes\n";
+            echo -en "\n${INF} ${CL_WYT}Name${NONE}\t${CL_DGR}Fetch URL\n";
+            for ((CT=0;CT<${#REMN[*]};CT++)); do
+                eval echo "\${CL_WYT}\${REMN[$CT]}  \${CL_DGR}\${REMF[$CT]}";
+                echo -e "${NONE}";
+            done;
+            prompt repo_remote --no-repeat;
+            line="name=\"${repo_name}\" path=\"${repo_path}\"";
+            [ ! -z "${repo_revision}" ] && line="${line} revision=\"${repo_revision}\"";
+            [ ! -z "${repo_remote}" ] && line="${line} remote=\"${repo_remote}\"";
+            line="${lineStart} ${line} ${lineEnd}";
+            echo "${line}" >> ${CALL_ME_ROOT}${LMPATH}/file.xml;
+            ;;
+        2)
+            export lineStart="<remove-project" lineEnd="/>";
+            echo -e "${QN} Please enter the Repository Name";
+            prompt repo_name;
+            if [[ $(grep "${repo_name}" .repo/manifest.xml) ]]; then
+                line="${line_start} name=\"${repo_name}\" ${line_end}";
+                echo "${line}" >> ${LMPATH}/file.xml;
+            else
+                echo -e "${FLD} Project ${name} not found. Bailing out.";
+            fi
+            ;;
+        3)
+            export lineStart="<remote";
+            export lineEnd="/>";
+            echo -e "${INF} Please enter the following one by one\n";
+            echo -e "${INF} If some of them are not needed, hit ENTER key \(remote name and remote URL CANNOT be blank\)\n";
+            echo -en "\n${CL_LCN}[>]${NONE} Remote Name : "; prompt remote_name;
+            echo -en "\n${CL_LCN}[>]${NONE} Remote URL : "; prompt remote_url;
+            echo -en "\n${CL_LCN}[>]${NONE} Revision : "; prompt remote_revision;
+            echo -en "\n${INF} Available Remotes : ${REMOTES}\n";
+            line="name=\"${remote_name}\" fetch=\"remote_url\"";
+            [ ! -z "${remote_revision}" ] || line="${line}" revision="${remote_revision}"
+            line="${lineStart} ${line} ${lineEnd}";
+            echo "${line}" >> ${LMPATH}/file.xml;
+            ;;
+        4)
+            echo -e "${QN} Provide a name for this manifest (Just the name)\n";
+            prompt NAME;
+            cp -rf file.xml ${NAME}.xml;
+            echo -e "${SCS} Custom Manifest successfully saved\n";
+            ;;
+    esac
+} # manifest_gen
+
 function pkgmgr_check() # ID
 {
     if which apt &> /dev/null; then
@@ -354,9 +436,9 @@ function init() # 1
     if [ -z "$STS" ]; then
         [ ! -f .repo/local_manifests ] && mkdir -pv .repo/local_manifests;
         if [ -z "$automate" ]; then
-            echo -e "${INF} Create a Device Specific manifest and Press ENTER to start sync\n";
-            read;
-            echo;
+            echo -e "${QN} Generate a Custom manifest ${CL_WYT}[y/n]${NONE}\n";
+            prompt SBGCM;
+            [[ "$SBGCM" == [Yy] ]] && manifest_gen;
         fi
         export action_1="init";
     else
@@ -1765,68 +1847,6 @@ function tools() # 5
         unset VER IDIR UIC;
     } # installer
 
-    function manifest_gen() # D 1,5
-    {
-        [ -z "$1" ] && echo -e "Please provide a valid path for the resultant XML to be stored";
-        export localManifestPath=$1;
-        # Search for Available Remotes
-        REM=( $(repo manifest | sed 's/${MAN}//g'` | grep '<remote' | awk -F "\"" '{print $2}') );
-        if [ ! -f "${localManifestPath}" ]; then
-        	mkdir -pv $(dirname ${localManifestPath}) && touch ${localManifestPath};
-        	[ "$?" -ne 0 ] && echo -e "Error occurred trying to create ${localManifestPath}" && return 1;
-        fi
-        echo -e "===============${CL_LGN}[!]${NONE} Manifest Generator ${CL_LGN}[!]${NONE}==============";
-        echo -e "1) Add a repository";
-        echo -e "2) Remove a repository";
-        echo -e "3) Add a remote";
-        echo -e "4) Save Custom Manifest";
-        echo -e "\nReplacing a repo ? Remove the repo, then add it's replacement";
-        echo -e "=======================================================\n";
-        prompt OP;
-        case "${OP}" in
-        	1)
-    			export lineStart="<project";
-    			export lineEnd="/>";
-    			echo -e "Please enter the following one by one\n";
-    			echo -e "If any of them are not needed, please just enter a blank value (repository name and repository path CANNOT be blank).";
-    		    echo -en "\n${CL_LCN}[>]${NONE} Repository Name : "; prompt repo_name;
-    			echo -en "\n${CL_LCN}[>]${NONE} Repository Path : "; prompt repo_path;
-    			echo -en "\n${CL_LCN}[>]${NONE} Branch : "; prompt repo_revision;
-                echo -en "\n${INF} Available Remotes : ${REMOTES}\n";
-                echo -en "\n${CL_LCN}[>]${NONE} Remote : ";prompt repo_remote;
-    			line='name="${repo_name}" path="repo_path"';
-    			[ ! -z "${repo_revision}" ] || line="${line}" revision="${repo_revision}"
-    			[ ! -z "${repo_remote}" ] || line="${line}" remote="${repo_remote}"
-    			line="${lineStart} ${line} ${lineEnd}";
-    			echo "${line}" >> ${localManifestPath};
-    		    ;;
-    		2)
-    			export lineStart="<remove-project" lineEnd="/>";
-                echo -e "Please enter the Repository Name.";
-    			prompt repo_name;
-                if [[ $(grep "${repo_name}" .repo/manifest.xml) ]]; then
-                    line="${line_start} name=\"${repo_name}\" ${line_end}";
-                    echo "${line}" >> ${localManifestPath};
-                else
-                    echo -e "Project ${name} not found. Bailing out.";
-                fi
-    		    ;;
-            3)
-                        export lineStart="<remote";
-                        export lineEnd="/>";
-                        echo -e "Please enter the following one by one\n";
-                        echo -e "If any of them are not needed, please just enter a blank value (remote name and remote URL CANNOT be blank).";
-                        echo -en "\n${CL_LCN}[>]${NONE} Remote Name : "; prompt remote_name;
-                        echo -en "\n${CL_LCN}[>]${NONE} Remote URL : "; prompt remote_url;
-                        echo -en "\n${CL_LCN}[>]${NONE} Revision : "; prompt remote_revision;
-                        echo -en "\n${INF} Available Remotes : ${REMOTES}\n";
-                        line='name="${remote_name}" fetch="remote_url"';
-                        [ ! -z "${remote_revision}" ] || line="${line}" revision="${remote_revision}"
-                        line="${lineStart} ${line} ${lineEnd}";
-                ;;
-        esac
-    } # manifest_gen
-
     function scribtofy()
     {
         echo -e "\n${INF} This Function allows ScriBt to be executed under any directory";
@@ -1932,6 +1952,7 @@ function tools() # 5
         echo -e "         9. Install repo ${CL_WYT}~${NONE}";
         echo -e "        10. Add ScriBt to PATH";
         echo -e "        11. Create a ScriBt Update [DEV]";
+        echo -e "        12. Generate a Custom Manifest";
 # TODO: echo -e "         X. Find an Android Module's Directory";
         echo -e "\n         0. Quick Menu";
         echo -e "\n${CL_WYT}*${NONE} Create a GitHub account before using this option";
@@ -1955,6 +1976,7 @@ function tools() # 5
             9) installer "repo" ;;
             10) scribtofy ;;
             11) update_creator ;;
+            12) manifest_gen ;;
 # TODO:     X) find_mod ;;
             *) echo -e "${FLD} Invalid Selection.\n"; tool_menu ;;
         esac
