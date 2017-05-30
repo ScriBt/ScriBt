@@ -137,6 +137,9 @@ function exitScriBt() # ID
     rm -f varlist;
     echo -e "\n${EXE} Unsetting all variables";
     unset ${VARS:-SB2} VARS RQ_PGN;
+    if [[ ! -z "${ACTIVE_VENV}" ]]; then
+        stop_venv;
+    fi
     echo -e "\n${SCS:-[:)]} Thanks for using ScriBt.\n";
     if [[ "$1" == "0" ]]; then
         echo -e "${CL_LGN}[${NONE}${CL_LRD}<3${NONE}${CL_LGN}]${NONE} Peace! :)\n";
@@ -431,6 +434,53 @@ function device_info() # D 3,4
     if [ -z "${SBDTP}" ]; then SBDTP="common"; else SBDTP="${TYPES[${SBDTP}]}"; fi;
     echo -e "${CL_WYT}=======================================================${NONE}\n";
 } # device_info
+
+function start_venv()
+{
+    # Create a Virtual Python2 Environment
+    if [[ "${PKGMGR}" == "pacman" ]] && [[ -z "${ACTIVE_VENV}" ]]; then
+        if python -V | grep -i -q "Python 3."; then
+            echo -e "${INF} Python 3 is detected, looking for Python 2 fallback\n";
+            echo -e "${INF} Android BuildSystem requires a Python 2.x Environment to function properly\n";
+            if ! which virtualenv2 &> /dev/null; then
+                echo -e "${FLD} Python2 not found\n";
+                echo -e "${EXE} Attempting to install Python2\n";
+                cmdprex \
+                    "Execute command as 'root'<->execroot" \
+                    "Arch Linux Package Mgr.<->${PKGMGR}" \
+                    "Sync Pkgs.<->-S" \
+                    "Answer 'yes' to prompts<->-y" \
+                    "Python2 package<->python2";
+            fi
+            echo -e "${EXE} Creating Python2 virtual environment\n";
+            cmdprex \
+                "Python2 Virtual EnvSetup<->virtualenv2" \
+                "Location of Virtual Env<->${HOME}/venv";
+            if [[ -z "$STS" ]]; then
+                cmdprex \
+                    "Execute in current shell<->source" \
+                    "Shell script to activate Virtual Env<->${HOME}/venv/bin/activate";
+                 echo -e "\n${SCS} Python2 environment created\n";
+                 ACTIVE_VENV="true";
+            else
+                echo -e "${FLD} An error occured while trying to start the Environment\n";
+                echo -e "${EXE} Aborting\n";
+                exitScriBt 1;
+            fi
+        fi
+    fi
+} # start_venv
+
+function stop_venv()
+{
+    if [[ "${ACTIVE_VENV}" == "true" ]]; then
+        echo -e "\n${EXE} Exiting virtual environment\n";
+        deactivate && rm -rf ${HOME}/venv;
+        if [[ ! -d "${HOME}/venv" ]]; then
+            echo -e "${SCS} Python2 virtual environment deactivated";
+        fi
+    fi
+} # stop_venv
 
 function init_bld() # D 3,4
 {
@@ -803,6 +853,9 @@ function build() # 4
                 echo -e "\n${SCS} Build Status : Success";
             fi
             echo -e "\n${INF} ${CL_WYT}Build took $(( SEC / 3600 )) hour(s), $(( SEC / 60 % 60 )) minute(s) and $(( SEC % 60 )) second(s).${NONE}" | tee -a rom_compile.txt;
+        fi
+        if [[ ! -z "${ACTIVE_VENV}" ]]; then
+            stop_venv;
         fi
     } # build_make
 
@@ -1961,6 +2014,9 @@ function the_start() # 0
         echo -e "\n\033[0;31m[!]\033[0m Your Processor is not supported\n";
         exitScriBt 1;
     fi
+
+    # Start a python2 virtualenv
+    start_venv;
 
     # AutoBot
     ATBT="${CL_WYT}*${NONE}${CL_LRD}AutoBot${NONE}${CL_WYT}*${NONE}";
