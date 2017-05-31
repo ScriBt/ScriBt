@@ -301,21 +301,21 @@ function quick_menu()
 
 function rom_select() # D 1,2
 {
-    export ROMS=( "NullROM" "AICP" "AOKP" "AOSiP" "AOSP-CAF" "AOSP-OMS" "BlissRoms" \
-        "CandyRoms" "CarbonROM" "crDroid" "Cyanide" "CyanogenMod" "DirtyUnicorns" \
-        "Euphoria" "F-AOSP" "FlayrOS" "Krexus" "Lineage Android" "OctOs" \
+    export ROMS=( "NullROM" "AICP" "AOKP" "AOSiP" "AOSP-CAF" "AOSP-Extended" "AOSP-OMS" \
+        "BlissRoms" "CandyRoms" "CarbonROM" "crDroid" "Cyanide" "CyanogenMod" "DirtyUnicorns" \
+        "Euphoria" "F-AOSP" "FlayrOS" "Krexus" "Lineage Android" "Nitrogen OS" "OctOs" \
         "OmniROM" "OrionOS" "OwnROM" "PAC ROM" "Parallax OS" "Paranoid Android"\
         "Resurrection Remix" "SlimRoms" "Temasek" "GZR Tesla" "TipsyOs" \
         "GZR Validus" "VanirAOSP" "XenonHD" "XOSP" "Zephyr-OS" "ABC ROM" \
-        "DirtyUnicorns" "Krexus" "Nitrogen OS" "PureNexus" );
+        "Copperhead OS" "DirtyUnicorns" "Krexus" "Nitrogen OS" "PureNexus" );
     echo -e "\n${CL_WYT}=======================================================${NONE}\n";
     echo -e "${CL_YEL}[?]${NONE} ${CL_WYT}Which ROM are you trying to build\nChoose among these (Number Selection)\n";
-    for CT in {1..34}; do
+    for CT in {1..36}; do
         echo -e "${CT}. ${ROMS[$CT]}";
     done | pr -t -2
-    echo -e "\n${INF} ${CL_WYT}Non-CAF / Nexus-Family ROMs${NONE}";
-    echo -e "${INF} ${CL_WYT}Choose among these ONLY if you're building for a Nexus Device\n"
-    for CT in {35..39}; do
+    echo -e "\n${INF} ${CL_WYT}Non-CAF / Google-Family ROMs${NONE}";
+    echo -e "${INF} ${CL_WYT}Choose among these ONLY if you're building for a Nexus/Pixel Device\n"
+    for CT in {37..42}; do
         echo -e "${CT}. ${ROMS[$CT]}";
     done | pr -t -2
     echo -e "\n=======================================================${NONE}\n";
@@ -327,7 +327,7 @@ function rom_select() # D 1,2
     else
         echo -e "\n${INF} You have chosen -> ${ROM_FN}\n";
     fi
-    unset CT CNS; # Unset these
+    unset CT; # Unset these
 } # rom_select
 
 function shut_my_mouth() # ID
@@ -385,7 +385,7 @@ function init() # 1
         echo -e "\nOn ${ROM_NAME[$CT]} (ID->$CT)\n";
         BRANCHES=$(git ls-remote -h "https://github.com/${ROM_NAME[$CT]}/${MAN[$CT]}" |\
             awk '{print $2}' | awk -F "/" '{if (length($4) != 0) {print $3"/"$4} else {print $3}}');
-        if [[ ! -z "$CNS" && "$SBRN" -lt "35" ]]; then
+        if [[ ! -z "$CNS" && "$SBRN" -lt "37" ]]; then
             echo "$BRANCHES" | grep --color=never 'caf' | column;
         else
             echo "$BRANCHES" | column;
@@ -510,6 +510,8 @@ function device_info() # D 3,4
         CNF="vendor/${ROMNIS}/config";
     elif [ -d ${CALL_ME_ROOT}vendor/${ROMNIS}/configs ]; then
         CNF="vendor/${ROMNIS}/configs";
+    elif [ -d ${CALL_ME_ROOT}vendor/${ROMNIS}/products ]; then
+        CNF="vendor/${ROMNIS}/products";
     else
         CNF="vendor/${ROMNIS}";
     fi
@@ -737,7 +739,7 @@ function pre_build() # 3
     function find_ddc() # For Finding Default Device Configuration file
     {
         # Get all the ROMNIS values - Duplicates doesn't matter
-        ROMC=( $(for CT in {1..39}; do rom_names "${SBRN}"; echo "${ROMNIS}"; done) );
+        ROMC=( $(for CT in {1..42}; do rom_names "${SBRN}"; echo "${ROMNIS}"; done) );
         for ROM in ${ROMC[*]}; do
             # Possible Default Device Configuration (DDC) Files
             DDCS=( "${ROM}_${SBDEV}.mk" "full_${SBDEV}.mk" "aosp_${SBDEV}.mk" "${ROM}.mk" );
@@ -833,7 +835,7 @@ function pre_build() # 3
     NOINT=$(echo -e "${SCS} Interactive Makefile Unneeded, continuing");
 
     case "$ROMNIS" in
-        aosp|eos|omni|zos) # AOSP-CAF/RRO|Euphoria|F-AOSP|Flayr|OmniROM|Parallax|Zephyr
+        aosp|eos|nitrogen|omni|zos) # AEX|AOSP-CAF/RRO|Euphoria|F-AOSP|Flayr|OmniROM|Parallax|Zephyr
             VNF="common";
             if [[ "$ROMNIS" == "eos" ]]; then
                 INTF="${ROMNIS}.mk";
