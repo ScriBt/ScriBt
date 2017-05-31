@@ -185,26 +185,16 @@ function manifest_gen() # D 1,5
     } # listremotes
 
     if [[ ! -d .repo ]]; then
-        echo -e "\n${FLD} ROM Source not synced";
-        echo -e "\n${INF} You need to have a ROM source synced\n";
+        echo -e "\n${FLD} ROM Source not initialized\n";
         quick_menu;
     else
-        echo -e "${QN} Specify the path under which Manifest has to be made\n";
-        prompt LMPATH;
+        FILE=".repo/local_manifests/file.xml";
         while read line; do
             eval $line;
             REMN=( ${REMN} $name );
             REMF=( ${REMF} $fetch );
         done <<< $(repo manifest | grep '<remote' | sed -e 's/<remote//g' -e 's/\/>//g' -e 's/<//g');
-        echo -e "${INF} Creating folder(s) if doesn't exist\n";
-        if [ ! -f "${LMPATH}" ]; then
-            if mkdir -pv ${LMPATH} && touch ${LMPATH}/file.xml; then
-                echo -e "${FLD} Error occurred trying to create ${LMPATH}";
-                echo -e "${INF} Try again\n";
-                manifest_gen;
-            fi
-            echo -e "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<manifest>" > file.xml;
-        fi
+        echo -e "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<manifest>" > "${FILE}";
         echo -e "===============${CL_LGN}[!]${NONE} Manifest Generator ${CL_LGN}[!]${NONE}==============";
         echo -e "1) Add a repository";
         echo -e "2) Remove a repository";
@@ -213,6 +203,9 @@ function manifest_gen() # D 1,5
         echo -e "\nReplacing a repo ? Remove the repo, then add it's replacement";
         echo -e "=======================================================\n";
         prompt OP;
+        unset CT repo_path;
+        unset {repo,remote}_{name,revision,remote};
+        unset line{,Start,End};
         case "${OP}" in
             1)
                 export lineStart="<project" lineEnd="/>";
@@ -227,7 +220,7 @@ function manifest_gen() # D 1,5
                 [ ! -z "${repo_revision}" ] && line="${line} revision=\"${repo_revision}\"";
                 [ ! -z "${repo_remote}" ] && line="${line} remote=\"${repo_remote}\"";
                 line="${lineStart} ${line} ${lineEnd}";
-                echo "${line}" >> ${CALL_ME_ROOT}${LMPATH}/file.xml;
+                echo "${line}" >> "${CALL_ME_ROOT}${FILE}";
                 ;;
             2)
                 export lineStart="<remove-project" lineEnd="/>";
@@ -235,7 +228,7 @@ function manifest_gen() # D 1,5
                 prompt repo_name;
                 if grep -q "${repo_name}" .repo/manifest.xml; then
                     line="${lineStart} name=\"${repo_name}\" ${lineEnd}";
-                    echo "${line}" >> ${LMPATH}/file.xml;
+                    echo "${line}" >> "${CALL_ME_ROOT}${FILE}";
                 else
                     echo -e "${FLD} Project ${name} not found. Bailing out.";
                 fi
@@ -257,14 +250,18 @@ function manifest_gen() # D 1,5
                 line="name=\"${remote_name}\" fetch=\"${remote_url}\"";
                 [ ! -z "${remote_revision}" ] || line="${line} revision=\"${remote_revision}\"";
                 line="${lineStart} ${line} ${lineEnd}";
-                echo "${line}" >> ${LMPATH}/file.xml;
+                echo "${line}" >> "${CALL_ME_ROOT}${FILE}";
                 ;;
             4)
                 echo -e "${QN} Provide a name for this manifest [Just the name]\n";
                 prompt NAME;
                 echo -e "</manifest>" >> file.xml;
-                cp -rf file.xml ${NAME}.xml;
+                mv -f "${FILE}" ".repo/local_manifests/${NAME}.xml";
                 echo -e "${SCS} Custom Manifest successfully saved\n";
+                unset CT repo_path;
+                unset {repo,remote}_{name,revision,remote};
+                unset line{,Start,End};
+                quick_menu;
                 ;;
         esac
     fi
