@@ -235,11 +235,11 @@ function color_my_life()
     for NO in 0 1; do
         CT=0; CLR="CLR_${NO}[*]";
         for COLOR in ${!CLR}; do
-            read "CL_${COLOR}" <<< "$(echo -e "\\033[${NO};3${CT}m")";
+            read -r "CL_${COLOR}" <<< "\\033[${NO};3${CT}m";
             (( CT++ ));
         done
     done
-    unset CT CLR COLOR; # To be safe
+    unset CT CLR COLOR CLR_0 CLR_1; # To be safe
     NONE="\033[0m";
 } # color_my_life
 

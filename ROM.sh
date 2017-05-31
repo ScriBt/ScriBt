@@ -54,7 +54,7 @@ function cmdprex() # D ALL
     [[ "$1" =~ --out=* ]] && TEE="2>&1 | tee -a ${1/*=/}";
     CMD=$(echo "${ARG[*]} ${TEE}" | sed -e 's/NULL//g' -e 's/#/ /g');
     # Execute the command
-    if eval ${CMD}; then
+    if eval "${CMD}"; then
         echo -e "\n${SCS} Command Execution Successful\n";
         unset STS;
     else
@@ -129,7 +129,7 @@ function exitScriBt() # ID
     set -o posix;
     set > "${TV2}";
     diff "${TV1}" "${TV2}" | grep SB | sed -e 's/[<>] //g' > varlist;
-    while read line; do
+    while read -r line; do
         VARS="${VARS}${line//=*/} ";
     done <<< "$(cat varlist)";
 
@@ -189,7 +189,7 @@ function manifest_gen() # D 1,5
         quick_menu;
     else
         FILE=".repo/local_manifests/file.xml";
-        while read line; do
+        while read -r line; do
             eval $line;
             REMN=( ${REMN} $name );
             REMF=( ${REMF} $fetch );
@@ -335,7 +335,7 @@ function shut_my_mouth() # ID
     else
         prompt SB2;
         if [ -z "$3" ]; then
-            read "SB$1" <<< "${SB2}";
+            read -r "SB$1" <<< "${SB2}";
         else
             eval SB$1="${SB2}";
         fi
@@ -983,7 +983,7 @@ function build() # 4
             esac
         else
             echo -e "${INF} Do either of these two actions:\n1. Google it (Easier)\n2. Run this command in terminal : grep \"LOCAL_MODULE := <Insert_MODULE_NAME_Here> \".\n\n Press ENTER after it's Done..\n";
-            read;
+            read -r;
             make_it;
         fi
     } # make_module
@@ -1161,13 +1161,22 @@ function build() # 4
         function apply_patch()
         {
             case $(check_patch "$1") in
-                0) echo -en "\n${EXE} Patch is being applied\n";
-                   patch -p1 -N < "$1" > /dev/null;
-                   ([ "$?" == 0 ] && echo -e "${SCS} Patch Successfully Applied") || echo -e "${FLD} Patch Application Failed";; # Patch is being applied
-                1) echo -en "\n${EXE} Patch is being reversed\n";
-                   patch -p1 -R < "$1" > /dev/null;
-                   ([ "$?" == 0 ] && echo -e "${SCS} Patch Successfully Reversed") || echo -e "${FLD} Patch Reverse Failed";  # Patch is being reversed
-                   ;;
+                0)
+                    echo -en "\n${EXE} Patch is being applied\n";
+                    if patch -p1 -N < "$1" > /dev/null; then # Patch is being applied
+                        echo -e "${SCS} Patch Successfully Applied";
+                    else
+                        echo -e "${FLD} Patch Application Failed";
+                    fi
+                    ;;
+                1)
+                    echo -en "\n${EXE} Patch is being reversed\n";
+                    if patch -p1 -R < "$1" > /dev/null; then # Patch is being reversed
+                        echo -e "${SCS} Patch Successfully Reversed";
+                    else
+                        echo -e "${FLD} Patch Reverse Failed";
+                    fi
+                    ;;
                 2) echo -e "\n${EXE} Patch can't be applied." ;; # Patch can not be applied
             esac
         } # apply_patch
@@ -1194,7 +1203,7 @@ function build() # 4
             CT=2;
             for PATCHDIR in "${PATCHDIRS[@]}"; do
                 if find "${PATCHDIR}"/* 1> /dev/null 2>&1; then
-                    while read PATCH; do
+                    while read -r PATCH; do
                         if [ -s "$PATCH" ]; then
                             PATCHES[$CT]="$PATCH";
                             echo -e "${CT}. $(visual_check_patch "$PATCH") $PATCH";
@@ -1221,7 +1230,7 @@ function build() # 4
                     [ -f "${CALL_ME_ROOT}${PATCH_PATH}" ] && rm -rf "${CALL_ME_ROOT}${PATCH_PATH}"; # Delete existing patch
                     CT=1;
                     echo;
-                    while read PROJECT; do # repo foreach does not work, as it seems to spawn a subshell
+                    while read -r PROJECT; do # repo foreach does not work, as it seems to spawn a subshell
                         cd "${CALL_ME_ROOT}${PROJECT}";
                         git diff |
                           sed -e "s@ a/@ a/${PROJECT}/@g" |
@@ -1912,7 +1921,7 @@ function tools() # 5
                 CORRECT="n";
                 while [[ ! "$CORRECT" =~ (y|yes) ]]; do
                     echo -e "\n${INF} Please enter the update message [Press ENTER]";
-                    read;
+                    read -r;
                     nano "${PATHDIR}update_message.txt";
                     echo -e "\n${INF} The new update message is\n";
                     cat "${PATHDIR}update_message.txt";
@@ -2163,7 +2172,7 @@ function automator()
     else
         NO=1;
         # Adapted from lunch selection menu
-        while read CT; do
+        while read -r CT; do
             CMB[$NO]="$CT";
             (( NO++ ));
         done <<< "$(cat "${TMP}")";
@@ -2182,10 +2191,10 @@ function automator()
 
 # Some Essentials
 
-# 'read' command with custom prompt '[>]' in Cyan
+# 'read -r' command with custom prompt '[>]' in Cyan
 function prompt()
 {
-    read -p $'\033[1;36m[>]\033[0m ' "$1";
+    read -r -p $'\033[1;36m[>]\033[0m ' "$1";
     if [[ -z "$(eval "echo \$$1")" ]] && [[ -z "$2" ]]; then
         echo -e "\n${FLD} No response provided\n";
         prompt "$1";
