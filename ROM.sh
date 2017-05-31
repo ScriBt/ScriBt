@@ -832,7 +832,7 @@ function pre_build() # 3
     NOINT=$(echo -e "${SCS} Interactive Makefile Unneeded, continuing");
 
     case "$ROMNIS" in
-        aosp|eos|nitrogen|omni|zos) # AEX|AOSP-CAF/RRO|Euphoria|F-AOSP|Flayr|OmniROM|Parallax|Zephyr
+        aosp|eos|nitrogen|omni|zos) # AEX|AOSP-CAF/RRO|Euphoria|F-AOSP|Flayr|Nitrogen|OmniROM|Parallax|Zephyr
             VNF="common";
             if [[ "$ROMNIS" == "eos" ]]; then
                 INTF="${ROMNIS}.mk";
@@ -861,7 +861,7 @@ function pre_build() # 3
                 echo "$NOINT";
             fi
             ;;
-        aicp|krexus|pa|pure|krexus|nitrogen|pure) # AICP|Krexus-CAF|AOSPA|Non-CAFs except DU
+        aicp|krexus|pa|pure|krexus|pure) # AICP|Krexus-CAF|AOSPA|Non-CAFs except DU
             echo "$NOINT";
             ;;
         *) # Rest of the ROMs
