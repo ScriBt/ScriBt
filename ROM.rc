@@ -1,6 +1,14 @@
+#!/bin/bash
 #========================< Projekt ScriBt >============================#
 #=========< Copyright 2016-2017, Arvindraj Thangaraj - "a7r3" >========#
 #===============< ROM Information Database aka RIDb >==================#
+# ShellCheck notes:                                                    #
+# ROM.rc is a companion script for ROM.sh which can be associated with #
+# a database. It runs in the same shell in which ROM.sh runs           #
+# Most of the variables are set in ROM.sh, so the following warning    #
+# codes are ignored                                                    #
+# SC2034, SC2153, SC2154                                               #
+#======================================================================#
 
 function rom_names()
 {
@@ -26,177 +34,189 @@ function rom_names()
             ROMNIS="aosp";
             ;;
         5)
-            ROM_NAME=( AOSP-RRO );
+            ROM_NAME=( AospExtended );
             MAN=( manifest.git );
             ROMNIS="aosp";
             ;;
         6)
+            ROM_NAME=( AOSP-RRO );
+            MAN=( manifest.git );
+            ROMNIS="aosp";
+            ;;
+        7)
             ROM_NAME=( BlissRoms );
             MAN=( platform_manifest.git );
             ROMNIS="bliss";
             ;;
-        7)
+        8)
             ROM_NAME=( CandyKat CandyRoms );
             MAN=( candykat.git candy.git );
             ROMNIS="candy";
             ;;
-        8)
+        9)
             ROM_NAME=( CarbonROM CarbonDev );
             MAN=( android.git android.git );
             ROMNIS="carbon";
             ;;
-        9)
+        10)
             ROM_NAME=( crdroidandroid );
             MAN=( android.git );
             ROMNIS="crdroid";
             ;;
-        10)
+        11)
             ROM_NAME=( CyanideL );
             MAN=( cyanide_manifest.git );
             ROMNIS="cyanide";
             ;;
-        11)
+        12)
             ROM_NAME=( CyanogenMod );
             MAN=( android.git );
             ROMNIS="cm";
             ;;
-        12|36)
+        13|38)
             ROM_NAME=( DirtyUnicorns );
             MAN=( android_manifest.git );
             ROMNIS="du";
             CNS="y";
             ;;
-        13)
+        14)
             ROM_NAME=( Euphoria-OS );
             MAN=( android_manifest.git );
             ROMNIS="eos";
             ;;
-        14)
+        15)
             ROM_NAME=( F-AOSP );
             MAN=( manifest.git );
             ROMNIS="aosp";
             ;;
-        15)
+        16)
             ROM_NAME=( FlayrOS );
             MAN=( manifest.git );
             ROMNIS="full";
             ROMV="flayr";
             ;;
-        16)
+        17)
             ROM_NAME=( krexus-caf );
             MAN=( manifest.git );
             ROMNIS="krexus";
             ;;
-        17)
+        18)
             ROM_NAME=( LineageOS );
             MAN=( android.git );
             ROMNIS="lineage";
             ROMV="cm";
             ;;
-        18)
+        19|40)
+            ROM_NAME=( nitrogen-project );
+            MAN=( android_manifest.git );
+            ROMNIS="nitrogen";
+            CNS="y";
+            ;;
+        20)
             ROM_NAME=( Team-OctOS );
             MAN=( platform_manifest.git );
             ROMNIS="to";
             ;;
-        19)
+        21)
             ROM_NAME=( OmniROM );
             MAN=( manifest.git );
             ROMNIS="omni";
             ;;
-        20)
+        22)
             ROM_NAME=( TeamOrion );
             MAN=( platform_manifest.git );
             ROMNIS="orion";
             ;;
-        21)
+        23)
             ROM_NAME=( OwnROM );
             MAN=( manifest.git );
             ROMNIS="ownrom";
             ;;
-        22)
+        24)
             ROM_NAME=( PAC-ROM );
             MAN=( pac-rom.git );
             ROMNIS="pac";
             ;;
-        23)
+        25)
             ROM_NAME=( Parallax-OS );
             MAN=( manifest.git );
             ROMNIS="aosp";
             ;;
-        24)
+        26)
             ROM_NAME=( AOSPA );
             MAN=( manifest.git );
             ROMNIS="pa";
             ;;
-        25)
+        27)
             ROM_NAME=( ResurrectionRemix );
             MAN=( platform_manifest.git );
             ROMNIS="cm";
             ;;
-        26)
+        28)
             ROM_NAME=( SlimRoms );
             MAN=( platform_manifest.git );
             ROMNIS="slim";
             ;;
-        27)
+        29)
             ROM_NAME=( temasek );
             MAN=( android.git );
             ROMNIS="cm";
             ;;
-        28)
+        30)
             ROM_NAME=( Tesla-M TeslaRom-N );
             MAN=( manifest.git manifest.git );
             ROMNIS="tesla";
             ;;
-        29)
+        31)
             ROM_NAME=( TipsyOs );
             MAN=( platform_manifest.git );
             ROMNIS="tipsy";
             ;;
-        30)
+        32)
             ROM_NAME=( TV-LP51 ValidusOs-M GZR-ValidusOS );
             MAN=( android.git manifest.git manifest.git );
             ROMNIS="validus";
             ;;
-        31)
+        33)
             ROM_NAME=( VanirAOSP );
             MAN=( platform_manifest.git );
             ROMNIS="vanir";
             ;;
-        32)
+        34)
             ROM_NAME=( TeamHorizon );
             MAN=( platform_manifest.git );
             ROMNIS="xenonhd";
             ;;
-        33)
+        35)
             ROM_NAME=( XOSP-Project );
             MAN=( platform_manifest.git );
             ROMNIS="xosp";
             ;;
-        34)
+        36)
             ROM_NAME=( Zephyr-Os );
             MAN=( manifest.git );
             ROMNIS="aosp";
             ROMV="zos";
             ;;
         # Nexus Only ROMs
-        35)
+        37)
             ROM_NAME=( ezio84 );
             MAN=( abc-n_manifest.git );
             ROMNIS="pure";
             ;;
-        # 36 - DU; See above
-        37)
+        # 38 - DU; See above
+        39)
+            ROM_NAME=( CopperheadOS );
+            MAN=( platform_manifest );
+            ROMNIS="aosp";
+            ;;
+        40)
             ROM_NAME=( krexus );
             MAN=( manifest.git );
             ROMNIS="krexus";
             ;;
-        38)
-            ROM_NAME=( nitrogen-project );
-            MAN=( android_manifest.git );
-            ROMNIS="nitrogen";
-            ;;
-        39)
+        # 41 - Nitrogen-Project
+        42)
             ROM_NAME=( PureNexusProject );
             MAN=( manifest.git );
             ROMNIS="pure";
@@ -215,10 +235,11 @@ function color_my_life()
     for NO in 0 1; do
         CT=0; CLR="CLR_${NO}[*]";
         for COLOR in ${!CLR}; do
-            export CL_${COLOR}="\033[${NO};3${CT}m"; ((CT++));
+            read -r "CL_${COLOR}" <<< "\\033[${NO};3${CT}m";
+            (( CT++ ));
         done
     done
-    unset CT CLR COLOR; # To be safe
+    unset CT CLR COLOR CLR_0 CLR_1; # To be safe
     NONE="\033[0m";
 } # color_my_life
 
@@ -284,6 +305,7 @@ function dist_db()
                 14.04|14.10) DYR="D14" ;; # Distro(s) released in 2014
                 15.04|15.10) DYR="D15" ;; # Distro(s) released in 2015
                 16.04|16.10) DYR="D16" ;; # Distro(s) released in 2016
+                17.04) DYR="D17" ;; # Distro(s) released in 2017
             esac
             ;;
         debian)
