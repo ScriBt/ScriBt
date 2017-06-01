@@ -1550,14 +1550,14 @@ function tools() # 5
             for item in ${PKGS_CONFLICT}; do
                 if pacman -Qq "${item}" &> /dev/null; then
                     cmdprex \
-                    "Command Execution as 'root'<->execroot" \
-                    "Arch Package Mgr<->pacman" \
-                    "Remove<->-R" \
-                    "Skip all Dependency Checks<->-dd" \
-                    "WiP<->-n" \
-                    "WiP<->-s" \
-                    "Answer 'yes' to prompts<->--noconfirm" \
-                    "Conflicting Packages list<->${item}";
+                        "Command Execution as 'root'<->execroot" \
+                        "Arch Package Mgr<->pacman" \
+                        "Remove<->-R" \
+                        "Skip all Dependency Checks<->-dd" \
+                        "remove config files<->-n" \
+                        "remove unnecessary dependencies<->-s" \
+                        "Answer 'yes' to prompts<->--noconfirm" \
+                        "Conflicting Packages list<->${item}";
                     sleep 3;
                 fi
             done
@@ -1595,10 +1595,16 @@ function tools() # 5
                     "Command to Configure<->javac";
                 ;;
             "pacman")
-                archlinux-java status;
+                cmdprex \
+                    "Arch Linux Java Mgr.<->archlinux-java" \
+                    "Shows list of Java Pkgs.<->status";
                 echo -e "\n${QN} Please enter desired version [eg. \"java-7-openjdk\"]\n";
                 prompt ARCHJA;
-                execroot archlinux-java set "${ARCHJA}";
+                cmdprex \
+                    "Execute command as 'root'<->execroot" \
+                    "Arch Linux Java Mgr.<->archlinux-java" \
+                    "Set Default Environment<->set" \
+                    "Java Environment Name<->${ARCHJA}";
                 ;;
         esac
         echo -e "\n${CL_WYT}=======================================================${NONE}";
