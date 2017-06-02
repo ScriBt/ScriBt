@@ -176,12 +176,13 @@ function manifest_gen() # D 1,5
     function listremotes()
     {
         echo -en "\n${INF} Following are the list of Remotes\n";
-        echo -en "\n${INF} Format : ${CL_WYT}Name${NONE}\t${CL_DGR}(Fetch URL)\n";
+        echo -en "\n${INF} ${CL_WYT}Name${NONE}\t${CL_DGR}(Fetch URL)${NONE}\n";
         for (( CT=0; CT<"${#REMN[*]}"; CT++ )); do
-            eval echo "\${CL_WYT}\${REMN[$CT]} \${CL_DGR}(\${REMF[$CT]})";
+            eval "echo -e \${CL_WYT}\${REMN[$CT]} \${CL_DGR}\(\${REMF[$CT]}\)";
             echo -e "${NONE}";
         done
-        echo -e "\n${QN} Enter the desired remote name\n";
+        echo -e "\n${QN} Enter the desired remote ${CL_WYT}name${NONE}";
+        echo -e "\n${INF} Enter ${CL_WYT}github${NONE} if the repo is in GitHub\n"; # HotFix
     } # listremotes
 
     if [[ ! -d .repo ]]; then
@@ -190,10 +191,11 @@ function manifest_gen() # D 1,5
     else
         FILE=".repo/local_manifests/file.xml";
         while read -r line; do
-            eval $line;
+            eval "$line";
             REMN=( ${REMN} $name );
             REMF=( ${REMF} $fetch );
         done <<< $(repo manifest | grep '<remote' | sed -e 's/<remote//g' -e 's/\/>//g' -e 's/<//g');
+        mkdir -p .repo/local_manifests/; touch file.xml;
         echo -e "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<manifest>" > "${FILE}";
         echo -e "===============${CL_LGN}[!]${NONE} Manifest Generator ${CL_LGN}[!]${NONE}==============";
         echo -e "1) Add a repository";
@@ -337,7 +339,7 @@ function shut_my_mouth() # ID
         if [ -z "$3" ]; then
             read -r "SB$1" <<< "${SB2}";
         else
-            eval SB$1="${SB2}";
+            eval "SB$1=${SB2}";
         fi
         export "SB$1";
         unset SB2;
@@ -378,7 +380,7 @@ function init() # 1
     sleep 1;
     echo -e "${EXE} Detecting Available Branches in ${ROM_FN} Repository";
     RCT=$(( ${#ROM_NAME[*]} - 1 ));
-    for CT in $(eval echo "{0..$RCT}"); do
+    for CT in $(eval "echo {0..$RCT}"); do
         echo -e "\nOn ${ROM_NAME[$CT]} (ID->$CT)\n";
         BRANCHES=$(git ls-remote -h "https://github.com/${ROM_NAME[$CT]}/${MAN[$CT]}" |\
             awk '{print $2}' | awk -F "/" '{if (length($4) != 0) {print $3"/"$4} else {print $3}}');
@@ -1029,8 +1031,8 @@ function build() # 4
             echo -e "\n${QN} Select the one according to the CPU Architecture\n";
             if [ -z "$automate" ]; then
                 prompt CT;
-                SBKD=$(eval echo "\${KDEFS[$(( CT - 1 ))]}" | awk -F "/" '{print $4}');
-                SBKA=$(eval echo "\${KDEFS[$(( CT - 1 ))]}" | awk -F "/" '{print $2}');
+                SBKD=$(eval "echo \${KDEFS[$(( CT - 1 ))]}" | awk -F "/" '{print $4}');
+                SBKA=$(eval "echo \${KDEFS[$(( CT - 1 ))]}" | awk -F "/" '{print $2}');
             fi
             echo -e "\n${INF} Arch : ${SBKA}";
             echo -e "\n${QN} Number of Jobs / Threads\n";
@@ -2169,10 +2171,10 @@ function automator()
 {
     echo -e "\n${EXE} Searching for Automatable Configs\n";
     for AF in *.rc; do
-        grep 'AUTOMATOR\=\"true_dat\"' --color=never "$AF" -l >> "${TMP}";
+        grep 'AUTOMATOR="true_dat"' --color=never "$AF" -l >> "${TMP}";
         sed -i -e 's/.rc//g' "${TMP}"; # Remove the file format
     done
-    if [[ -s "${TMP}" ]]; then
+    if [[ ! -s "${TMP}" ]]; then
         echo -e "\n${FLD} No Automation Configs found\n";
         exitScriBt 1;
     else
@@ -2183,7 +2185,7 @@ function automator()
             (( NO++ ));
         done <<< "$(cat "${TMP}")";
         unset CT NO;
-        for CT in $(eval echo "{1..${#CMB[*]}}"); do
+        for CT in $(eval "echo {1..${#CMB[*]}}"); do
             echo -e " $CT. ${CMB[$CT]} ";
         done | column
         unset CT;
