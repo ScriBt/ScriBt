@@ -298,7 +298,7 @@ function dist_db()
     # Allots Distro Release Year w.r.t Distro Name and Version
     # Based on Collective Information from the Internet
     case "$1" in
-        [Uu]buntu)
+        neon|[Uu]buntu)
             case "$2" in
                 12.04|12.10) DYR="D12" ;; # Distro(s) released in 2012
                 13.04|13.10) DYR="D13" ;; # Distro(s) released in 2013

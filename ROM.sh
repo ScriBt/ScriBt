@@ -1995,7 +1995,7 @@ function tools() # 5
         case "$TOOL" in
             0) quick_menu ;;
             1) case "${PKGMGR}" in
-                   apt{,get}) installdeps ;;
+                   "apt"|"apt-get") installdeps ;;
                    "pacman") installdeps_arch ;;
                esac
                ;;
