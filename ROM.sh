@@ -420,22 +420,22 @@ function init() # 1
             "Tool/Lib to transfer data with URL syntax<->curl" \
             "repo dwnld URL<->https://storage.googleapis.com/git-repo-downloads/repo" \
             "Output Redirection Operator<->>" \
-            "Redirection file<->~/bin/repo";
+            "Redirection file<->${HOME}/bin/repo";
         cmdprex \
             "Change Permissions on an Entity<->chmod" \
             "Add executable permission<->a+x" \
-            "File to be chmod-ed<->~/bin/repo";
+            "File to be chmod-ed<->${HOME}/bin/repo";
         echo -e "${SCS} Repo Binary Installed";
-        echo -e "\n${EXE} Adding ~/bin to PATH\n";
-        if [[ $(grep 'PATH=["]*' ~/.profile | grep -c '$HOME/bin') != "0" ]]; then
+        echo -e "\n${EXE} Adding ${HOME}/bin to PATH\n";
+        if [[ $(grep 'PATH=["]*' ${HOME}/.profile | grep -c '$HOME/bin') != "0" ]]; then
             echo -e "${SCS} $HOME/bin is in PATH";
         else
             {
                 echo -e "\n# set PATH so it includes user's private bin if it exists";
                 echo -e "if [ -d \"\$HOME/bin\" ]; then\n\tPATH=\"\$HOME/bin:\$PATH\"\nfi";
-            } >> ~/.profile;
-            source ~/.profile;
-            echo -e "${SCS} $HOME/bin added to PATH";
+            } >> ${HOME}/.profile;
+            source ${HOME}/.profile;
+            echo -e "\n${SCS} $HOME/bin added to PATH";
         fi
         echo -e "${SCS} Done. Ready to Init Repo.\n";
     fi
@@ -1396,12 +1396,12 @@ function build() # 4
                         export ANDROID_JACK_VM_ARGS="-Dfile.encoding=UTF-8 -XX:+TieredCompilation -Xmx3G";
                         if [[ -f "${HOME}/.jack-server/config.properties" ]]; then
                             if [[ "$(grep -c 'jack.server.max-service=1' ${HOME}/.jack-server/config.properties)" == "0" ]]; then
-                                sed -i "/jack.server.max-service=*/c\jack.server.max-service=1" ~/.jack-server/config.properties;
+                                sed -i "/jack.server.max-service=*/c\jack.server.max-service=1" ${HOME}/.jack-server/config.properties;
                             fi
                         fi
                         if [[ -f "${HOME}/.jack" ]]; then
                             if [[ "$(grep -c 'SERVER_NB_COMPILE=1' ${HOME}/.jack)" == "0" ]]; then
-                                sed -i "/SERVER_NB_COMPILE=*/c\SERVER_NB_COMPILE=1" ~/.jack;
+                                sed -i "/SERVER_NB_COMPILE=*/c\SERVER_NB_COMPILE=1" ${HOME}/.jack;
                             fi
                         fi
                         echo "${EXE} Cleaning old JACK Session";
@@ -1458,16 +1458,14 @@ function tools() # 5
     function installdeps()
     {
         echo -e "\n${EXE} Analyzing Distro";
-        for REL in lsb-release os-release debian-release; do
-            if [ -f "/etc/${REL}" ]; then
-                source "/etc/${REL}";
-                case "$REL" in
-                    "lsb-release") DID="${DISTRIB_ID}"; VER="${DISTRIB_RELEASE}" ;;
-                    "os-release") DID="${ID}"; VER="${VERSION_ID}" ;; # Most of the Newer Distros
-                    "debian-release") DID="debian" VER=$(cat /etc/debian-release) ;;
-#                   "other-release") DID="Distro Name (Single Worded)"; VER="Version (Single numbered)" ;;
-                esac
-            fi
+        for REL in lsb-release os-release debian_version; do
+            [ -f "/etc/${REL}" ] && source "/etc/${REL}";
+              case "$REL" in
+                  "lsb-release") DID="${DISTRIB_ID}"; VER="${DISTRIB_RELEASE}" ;;
+                  "os-release") DID="${ID}"; VER="${VERSION_ID}" ;; # Most of the Newer Distros
+                  "debian_version") DID="debian" VER=$(cat /etc/debian_version) ;;
+#                 "other-release") DID="Distro Name (Single Worded)"; VER="Version (Single numbered)" ;;
+              esac
         done
         dist_db "$DID" "$VER"; # Determination of Distro by a Database
         if [[ ! -z "$DID" && ! -z "$VER" ]]; then
@@ -1480,8 +1478,8 @@ function tools() # 5
         echo -e "\n${EXE} Installing Build Dependencies\n";
         # Common Packages
         COMMON_PKGS=( git-core git gnupg flex bison gperf build-essential zip curl \
-        libxml2-utils xsltproc g++-multilib squashfs-tools zlib1g-dev \
-        pngcrush schedtool python lib32z1-dev lib32z-dev lib32z1 \
+        libxml2-utils xsltproc g++-multilib squashfs-tools zlib1g-dev bc \
+        pngcrush schedtool python lib32z1-dev lib32z-dev lib32z1 imagemagick\
         libxml2 optipng python-networkx python-markdown make unzip );
         case "$DYR" in
             D12)
@@ -1504,7 +1502,7 @@ function tools() # 5
             D15)
                 DISTRO_PKGS=( libesd0-dev liblz4-tool libncurses5-dev \
                 libsdl1.2-dev libwxgtk2.8-dev lzop maven maven2 \
-                lib32ncurses5-dev lib32readline6-dev liblz4-tool ) ;;
+                lib32ncurses5-dev liblz4-tool ) ;;
             D16|D17)
                 # Seperate D17 list when testing other Distros
                 # Ubuntu 17.04 installed these packages successfully
@@ -1847,7 +1845,7 @@ function tools() # 5
 
     function installer()
     {
-        echo -e "\n${EXE}Checking presence of ~/bin folder\n";
+        echo -e "\n${EXE}Checking presence of ${HOME}/bin folder\n";
         if [ -d "${HOME}/bin" ]; then
             echo -e "${SCS} ${HOME}/bin present";
         else
@@ -1892,8 +1890,8 @@ function tools() # 5
                     echo -e "\n${EXE} Adding ScriBt to PATH";
                     echo -e "# ScriBtofy\nexport PATH=\"${CALL_ME_ROOT}:\$PATH\";" > "${HOME}/.scribt";
                     grep -q 'source ${HOME}/.scribt' ${HOME}/.bashrc || echo -e "\n#ScriBtofy\nsource \${HOME}/.scribt;" >> "${HOME}/.bashrc";
-                    echo -e "\n${EXE} Executing ~/.bashrc";
-                    source ~/.bashrc;
+                    echo -e "\n${EXE} Executing ${HOME}/.bashrc";
+                    source ${HOME}/.bashrc;
                     echo -e "\n${SCS} Done\n\n${INF} Now you can ${CL_WYT}bash ROM.sh${NONE} under any directory";
                 ;;
             [Nn])
