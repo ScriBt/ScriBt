@@ -1,0 +1,3 @@
+ROM_NAME=( AOSPA );
+MAN=( manifest.git );
+ROMNIS="pa";

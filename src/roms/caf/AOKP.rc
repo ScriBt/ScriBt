@@ -1,0 +1,3 @@
+ROM_NAME=( AOKP );
+MAN=( platform_manifest.git );
+ROMNIS="aokp";

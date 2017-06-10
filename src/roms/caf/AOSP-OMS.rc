@@ -1,0 +1,3 @@
+ROM_NAME=( AOSP-RRO );
+MAN=( manifest.git );
+ROMNIS="aosp";

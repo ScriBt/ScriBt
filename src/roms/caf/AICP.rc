@@ -1,0 +1,3 @@
+ROM_NAME=( AICP );
+MAN=( platform_manifest.git );
+ROMNIS="aicp";

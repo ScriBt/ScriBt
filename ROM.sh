@@ -298,35 +298,41 @@ function quick_menu()
     teh_action $ACTION "qm";
 } # quick_menu
 
+function rom_check() # D 1,2,3
+{
+    if ! echo $1 | grep -q 'A'; then
+        FILE="$(eval echo \${CAFR[$1]} | sed 's/ /_/g')";
+    else
+        FILE="$(eval echo \${AOSPR[${1//A/}]} | sed 's/ /_/g')";
+    fi
+    if [ -f "${FILE}" ]; then
+        source ${FILE};
+    else
+        echo -e "\n${FLD} Invalid Selection\n";
+        rom_select;
+    fi
+} # rom_check
+
 function rom_select() # D 1,2
 {
-    export ROMS=( "NullROM" "AICP" "AOKP" "AOSiP" "AOSP-CAF" "AOSP-Extended" "AOSP-OMS" \
-        "BlissRoms" "CandyRoms" "CarbonROM" "crDroid" "Cyanide" "CyanogenMod" "DirtyUnicorns" \
-        "Euphoria" "F-AOSP" "FlayrOS" "Krexus" "Lineage Android" "Nitrogen OS" "OctOs" \
-        "OmniROM" "OrionOS" "OwnROM" "PAC ROM" "Parallax OS" "Paranoid Android"\
-        "Resurrection Remix" "SlimRoms" "Temasek" "GZR Tesla" "TipsyOs" \
-        "GZR Validus" "VanirAOSP" "XenonHD" "XOSP" "Zephyr-OS" "ABC ROM" \
-        "Copperhead OS" "DirtyUnicorns" "Krexus" "Nitrogen OS" "PureNexus" );
     echo -e "\n${CL_WYT}=======================================================${NONE}\n";
     echo -e "${CL_YEL}[?]${NONE} ${CL_WYT}Which ROM are you trying to build\nChoose among these (Number Selection)\n";
-    for CT in {1..36}; do
-        echo -e "${CT}. ${ROMS[$CT]}";
-    done | pr -t -2
+    for (( CT=1; CT<"${#CAFR[*]}"; CT++ )); do
+        echo -n "${CT}. ";
+        eval "echo -en \${CAFR[$CT]//.rc/}" | awk -F "/" '{print $NF}' | sed -e 's/_/ /g';
+    done | pr -t -2;
     echo -e "\n${INF} ${CL_WYT}Non-CAF / Google-Family ROMs${NONE}";
-    echo -e "${INF} ${CL_WYT}Choose among these ONLY if you're building for a Nexus/Pixel Device\n"
-    for CT in {37..42}; do
-        echo -e "${CT}. ${ROMS[$CT]}";
-    done | pr -t -2
+    echo -e "${INF} ${CL_WYT}Choose among these ONLY if you're building for a Nexus/Pixel Device\n";
+    for (( CT=1; CT<"${#AOSPR[*]}"; CT++ )); do
+        echo -n "A${CT}. ";
+        eval "echo -en \${AOSPR[$CT]//.rc/}" | awk -F "/" '{print $NF}' | sed -e 's/_/ /g';
+    done | pr -t -2;
     echo -e "\n=======================================================${NONE}\n";
     [ -z "$automate" ] && unset SBRN && prompt SBRN;
-    rom_names "$SBRN";
-    if [[ "${SBRN}" == "Invalid" ]]; then
-        echo -e "\n${LRED}Invalid Selection.${NONE} Going back.";
-        rom_select;
-    else
-        echo -e "\n${INF} You have chosen -> ${ROM_FN}\n";
-    fi
-    unset CT; # Unset these
+    rom_check "$SBRN";
+    ROM_FN="$(echo ${FILE//.rc/} | awk -F "/" '{print $NF}' | sed -e 's/_/ /g')";
+    echo -e "\n${INF} You have chosen -> ${ROM_FN}\n";
+    unset CT;
 } # rom_select
 
 function shut_my_mouth() # ID
@@ -398,14 +404,14 @@ function init() # 1
     SBBR="${SBNBR/* /}"; # Branch
     MNF="${MAN[$CT]}"; # Orgn manifest name at count
     RNM="${ROM_NAME[$CT]}"; # Orgn name at count
-    echo -e "${QN} Any Source you have already synced ${CL_WYT}[y/n]${NONE}\n"; gimme_info "refer";
+    echo -e "${QN} Any Source you have already synced ${CL_WYT}[y/n]${NONE}\n"; source ${PATHDIR}src/info/refer.rc;
     ST="Use Reference Source"; shut_my_mouth RF "$ST";
     if [[ "$SBRF" == [Yy] ]]; then
         echo -e "\n${QN} Provide me the Synced Source's Location from /\n";
         ST="Reference Location"; shut_my_mouth RFL "$ST";
         REF="--reference=\"${SBRFL}\"";
     fi
-    echo -e "${QN} Set clone-depth ${CL_WYT}[y/n]${NONE}\n"; gimme_info "cldp";
+    echo -e "${QN} Set clone-depth ${CL_WYT}[y/n]${NONE}\n"; source ${PATHDIR}src/info/cldp.rc;
     ST="Use clone-depth"; shut_my_mouth CD "$ST";
     if [[ "$SBCD" == [Yy] ]]; then
         echo -e "${QN} Depth Value ${CL_WYT}[Default - 1]${NONE}\n";
@@ -470,15 +476,15 @@ function sync() # 2
     [ ! -z "$automate" ] && teh_action 2;
     if [ ! -f .repo/manifest.xml ]; then init; elif [ -z "$action_1" ]; then rom_select; fi;
     echo -e "\n${EXE} Preparing for Sync\n";
-    echo -e "${QN} Number of Threads for Sync \n"; gimme_info "jobs";
+    echo -e "${QN} Number of Threads for Sync \n"; source ${PATHDIR}src/info/jobs.rc;
     ST="Number of Threads"; shut_my_mouth JOBS "$ST";
-    echo -e "${QN} Force Sync needed ${CL_WYT}[y/n]${NONE}\n"; gimme_info "fsync";
+    echo -e "${QN} Force Sync needed ${CL_WYT}[y/n]${NONE}\n"; source ${PATHDIR}src/info/fsync.rc;
     ST="Force Sync"; shut_my_mouth F "$ST";
-    echo -e "${QN} Need some Silence in the Terminal ${CL_WYT}[y/n]${NONE}\n"; gimme_info "ssync";
+    echo -e "${QN} Need some Silence in the Terminal ${CL_WYT}[y/n]${NONE}\n"; source ${PATHDIR}src/info/ssync.rc;
     ST="Silent Sync"; shut_my_mouth S "$ST";
-    echo -e "${QN} Sync only Current Branch ${CL_WYT}[y/n]${NONE}\n"; gimme_info "syncrt";
+    echo -e "${QN} Sync only Current Branch ${CL_WYT}[y/n]${NONE}\n"; source ${PATHDIR}src/info/syncrt.rc;
     ST="Sync Current Branch"; shut_my_mouth C "$ST";
-    echo -e "${QN} Sync with clone-bundle ${CL_WYT}[y/n]${NONE}\n"; gimme_info "clnbun";
+    echo -e "${QN} Sync with clone-bundle ${CL_WYT}[y/n]${NONE}\n"; source ${PATHDIR}src/info/clnbun.rc;
     ST="Use clone-bundle"; shut_my_mouth B "$ST";
     echo -e "${CL_WYT}=======================================================${NONE}\n";
     #Sync-Options
@@ -514,7 +520,7 @@ function device_info() # D 3,4
     else
         CNF="vendor/${ROMNIS}";
     fi
-    rom_names "$SBRN"; # Restore ROMNIS
+    rom_check "$SBRN"; # Restore ROMNIS
     echo -e "${CL_WYT}=====================${NONE} ${CL_PRP}Device Info${NONE} ${CL_WYT}=====================${NONE}\n";
     echo -e "${QN} What's your Device's CodeName \n${INF} Refer Device Tree - All Lowercases\n";
     ST="Your Device Name is"; shut_my_mouth DEV "$ST";
@@ -523,7 +529,7 @@ function device_info() # D 3,4
     echo -e "${QN} Build type \n${INF} [userdebug/user/eng]\n";
     ST="Build type"; shut_my_mouth BT "$ST";
     if [ -z "$SBBT" ]; then SBBT="userdebug"; fi;
-    echo -e "${QN} Choose your Device type among these. Explainations of each file given in README.md\n"; gimme_info "device-type";
+    echo -e "${QN} Choose your Device type among these. Explainations of each file given in README.md\n"; source ${PATHDIR}src/info/device-type.rc;
     TYPES=( common_full_phone common_mini_phone common_full_hybrid_wifionly \
     common_full_tablet_lte common_full_tablet_wifionly common_mini_tablet_wifionly common_tablet \
     common_full_tv common_mini_tv );
@@ -668,7 +674,7 @@ function pre_build() # 3
         {
             echo -e "${INF} Device Resolution\n";
             if [ ! -z "$automate" ]; then
-                gimme_info "bootres";
+                source ${PATHDIR}src/info"bootres";
                 echo -e "\n${QN} Enter the Desired Highlighted Number\n";
                 prompt SBBTR;
             else
@@ -738,7 +744,7 @@ function pre_build() # 3
     function find_ddc() # For Finding Default Device Configuration file
     {
         # Get all the ROMNIS values - Duplicates doesn't matter
-        ROMC=( $(for CT in {1..42}; do rom_names "${SBRN}"; echo "${ROMNIS}"; done) );
+        ROMC=( $(for file in ${CAFR[*]} ${AOSPR[*]}; do source $file; echo "${ROMNIS}"; done) );
         for ROM in ${ROMC[*]}; do
             # Possible Default Device Configuration (DDC) Files
             DDCS=( "${ROM}_${SBDEV}.mk" "full_${SBDEV}.mk" "aosp_${SBDEV}.mk" "${ROM}.mk" );
@@ -1302,7 +1308,7 @@ function build() # 4
             fi
             init_bld;
             choose_target;
-            echo -e "\n${QN} Should i use 'make' or 'mka'\n"; gimme_info "make";
+            echo -e "\n${QN} Should i use 'make' or 'mka'\n"; source ${PATHDIR}src/info"make";
             ST="Selected Method"; shut_my_mouth MK "$ST";
             case "$SBMK" in
                 "make")
@@ -1323,7 +1329,7 @@ function build() # 4
                     SBMK="mka"; BCORES="";
                     ;;
             esac
-            echo -e "${QN} Want to keep /out in another directory ${CL_WYT}[y/n]${NONE}\n"; gimme_info "outdir";
+            echo -e "${QN} Want to keep /out in another directory ${CL_WYT}[y/n]${NONE}\n"; source ${PATHDIR}src/info"outdir";
             ST="Another /out dir ?"; shut_my_mouth OD "$ST";
             case "$SBOD" in
                 [Yy])
@@ -1342,10 +1348,10 @@ function build() # 4
                     echo -e "${INF} /out location is unchanged";
                     ;;
             esac
-            echo -e "${QN} Want to Clean the /out before Building\n"; gimme_info "outcln";
+            echo -e "${QN} Want to Clean the /out before Building\n"; source ${PATHDIR}src/info"outcln";
             ST="Option Selected"; shut_my_mouth CL "$ST";
             if [[ $(grep -c 'BUILD_ID=M' "${CALL_ME_ROOT}build/core/build_id.mk") == "1" ]]; then
-                echo -e "${QN} Use Jack Toolchain ${CL_WYT}[y/n]${NONE}\n"; gimme_info "jack";
+                echo -e "${QN} Use Jack Toolchain ${CL_WYT}[y/n]${NONE}\n"; source ${PATHDIR}src/info"jack";
                 ST="Use Jacky"; shut_my_mouth JK "$ST";
                 case "$SBJK" in
                     [yY])
@@ -1361,7 +1367,7 @@ function build() # 4
                 esac
             fi
             if [[ $(grep -c 'BUILD_ID=N' "${CALL_ME_ROOT}build/core/build_id.mk") == "1" ]]; then
-                echo -e "${QN} Use Ninja to build Android ${CL_WYT}[y/n]${NONE}\n"; gimme_info "ninja";
+                echo -e "${QN} Use Ninja to build Android ${CL_WYT}[y/n]${NONE}\n"; source ${PATHDIR}src/info"ninja";
                 ST="Use Ninja"; shut_my_mouth NJ "$ST";
                 case "$SBNJ" in
                     [yY])
@@ -2076,14 +2082,10 @@ function the_start() # 0
     rm -f "$TMP" "$STMP" "$RMTMP" "$TV1" "$TV2";
     touch "$TMP" "$STMP" "$RMTMP" "$TV1" "$TV2";
 
-    # Load RIDb and Colors
-    if ! source "${CALL_ME_ROOT}ROM.rc" &> /dev/null; then # Load Local ROM.rc
-        if ! source "${PATHDIR}ROM.rc" &> /dev/null; then # Load ROM.rc from PATHDIR
-            echo "[F] ROM.rc isn't present in ${CALL_ME_ROOT} OR PATH. Please make sure repo is cloned correctly";
-            exitScriBt 1;
-        fi
-    fi
-    color_my_life;
+    # Load Companion Scripts
+    source ${PATHDIR}src/color_my_life.rc;
+    source ${PATHDIR}src/dist_db.rc;
+    source ${PATHDIR}src/usage.rc
 
     # Relevant_Coloring
     if [[ $(tput colors) -lt 2 ]]; then
@@ -2103,13 +2105,11 @@ function the_start() # 0
         echo -e "${FLD} Update-Check Cancelled\n\n${INF} No modifications have been done\n";
     else
         [ ! -z "${PATHDIR}" ] && cd "${PATHDIR}";
-
         cd "${CALL_ME_ROOT}";
-
         if [[ "${BRANCH}" == "master" ]]; then
             # Download the Remote Version of Updater, determine the Internet Connectivity by working of this command
-            curl -fs -o "${PATHDIR}upScriBt.sh" https://raw.githubusercontent.com/ScriBt/ScriBt/${BRANCH}/upScriBt.sh && \
-                (echo -e "\n${SCS} Internet Connectivity : ONLINE"; bash "${PATHDIR}upScriBt.sh" "$0" "$1") || \
+            curl -fs -o "${PATHDIR}upScriBt.sh" https://raw.githubusercontent.com/ScriBt/ScriBt/${BRANCH}/src/upScriBt.sh && \
+                (echo -e "\n${SCS} Internet Connectivity : ONLINE"; bash "${PATHDIR}src/upScriBt.sh" "$0" "$1") || \
                 echo -e "\n${FLD} Internet Connectivity : OFFINE\n\n${INF} Please connect to the Internet for complete functioning of ScriBt";
         else
             echo -e "\n${INF} Current working branch is not ${CL_WYT}master${NONE} [${BRANCH}]";
@@ -2132,6 +2132,10 @@ function the_start() # 0
 
     # AutoBot
     ATBT="${CL_WYT}*${NONE}${CL_LRD}AutoBot${NONE}${CL_WYT}*${NONE}";
+
+    # The ROMs
+    export CAFR=( $(ls ${PATHDIR}src/roms/caf/*.rc) );
+    export AOSPR=( $(ls ${PATHDIR}src/roms/aosp/*.rc) );
 
     # CHEAT CHEAT CHEAT!
     if [ -z "$automate" ]; then
@@ -2209,24 +2213,6 @@ function prompt()
 
 # 'sudo' command with custom prompt '[#]' in Pink
 function execroot(){ sudo -p $'\033[1;35m[#]\033[0m ' "$@"; };
-
-function usage()
-{
-    [ ! -z "$1" ] && echo -e "\n\033[1;31m[!]\033[0m Incorrect Parameter : \"$1\"";
-    echo -e "\n\033[1;34m[!]\033[0m Usage:\n";
-    ZEROP=( ./ROM.sh ROM.sh );
-    CT="0";
-        for presence in "Current Directory" "PATH"; do
-            echo -e "To use ScriBt situated in ${presence}\n";
-            echo -e "\tbash ${ZEROP[$CT]} (Interactive Usage)";
-            echo -e "\tbash ${ZEROP[$CT]} automate (Automated Usage)";
-            echo -e "\tbash ${ZEROP[$CT]} version (For showing Version of ScriBt)";
-            echo -e "\tbash ${ZEROP[$CT]} usage (To get these usage statements)\n";
-            (( CT++ ));
-        done
-    unset CT ZEROP;
-    [ ! -z "$1" ] && exitScriBt 1;
-} # usage
 
 # Point of Execution
 

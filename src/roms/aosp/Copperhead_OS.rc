@@ -1,0 +1,3 @@
+ROM_NAME=( CopperheadOS );
+MAN=( platform_manifest );
+ROMNIS="aosp";

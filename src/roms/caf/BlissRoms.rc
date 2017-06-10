@@ -1,0 +1,3 @@
+ROM_NAME=( BlissRoms );
+MAN=( platform_manifest.git );
+ROMNIS="bliss";

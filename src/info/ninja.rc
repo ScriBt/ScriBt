@@ -1,0 +1,3 @@
+#!/bin/bash
+
+echo -e "${INF} Ninja is a Build-System, which is a new implementation on Building Android, Introduced from Nougat\n";

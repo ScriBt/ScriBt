@@ -1,0 +1,5 @@
+#!/bin/bash
+
+echo -e "${INF} make/mka is a GNU/Linux utility for building any GNU/Linux System. Android in this case";
+echo -e "${INF} ${CL_WYT}make${NONE} needs number of threads as an argument. If not Specified, it'd use max threads";
+echo -e "${INF} ${CL_WYT}mka${NONE} is a high-performance version of the make binary which ensures COMPLETE use of Available resources";

@@ -1,0 +1,21 @@
+#!/bin/bash
+
+echo -e "${INF} Among these Values - Select the one which is nearest or almost Equal to that of your Device";
+echo -e "${INF} Resolutions which are available for a ROM is shown by it's name. All Res are available for PAC-5.1";
+echo -e "${CL_PNK}240${NONE}x400";
+echo -e "${CL_PNK}320${NONE}x480 (AOKP)";
+echo -e "${CL_PNK}480${NONE}x800 and ${CL_PNK}480${NONE}x854 (AOKP & PA)";
+echo -e "${CL_PNK}540${NONE}x960 (AOKP)";
+echo -e "${CL_PNK}600${NONE}x1024";
+echo -e "${CL_PNK}720${NONE}x1280 (AOKP & PA)";
+echo -e "${CL_PNK}768${NONE}x1024 and ${CL_PNK}768${NONE}x1280 (AOKP)";
+echo -e "${CL_PNK}800${NONE}x1280 (AOKP)";
+echo -e "${CL_PNK}960${NONE}x540";
+echo -e "${CL_PNK}1080${NONE}x1920 (AOKP & PA)";
+echo -e "${CL_PNK}1200${NONE}x1920";
+echo -e "${CL_PNK}1280${NONE}x800";
+echo -e "${CL_PNK}1440${NONE}x2560 (PA)";
+echo -e "${CL_PNK}1536${NONE}x2048";
+echo -e "${CL_PNK}1600${NONE}x2560";
+echo -e "${CL_PNK}1920${NONE}x1200";
+echo -e "${CL_PNK}2560${NONE}x1600\n";

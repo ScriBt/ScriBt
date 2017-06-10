@@ -1,0 +1,3 @@
+ROM_NAME=( SlimRoms );
+MAN=( platform_manifest.git );
+ROMNIS="slim";

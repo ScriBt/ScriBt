@@ -1,0 +1,3 @@
+#!/bin/bash
+
+echo -e "${INF} Checkout output will appear\n";

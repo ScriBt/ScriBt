@@ -1,0 +1,3 @@
+ROM_NAME=( temasek );
+MAN=( android.git );
+ROMNIS="cm";

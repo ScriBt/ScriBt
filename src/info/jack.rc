@@ -1,0 +1,3 @@
+#!/bin/bash
+
+echo -e "${INF} Jack is a Toolchain for building Android Apps and Frameworks with the Help of a Java VM, Introduced from Marshmallow\n";

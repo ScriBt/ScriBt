@@ -1,0 +1,3 @@
+ROM_NAME=( TeamHorizon );
+MAN=( platform_manifest.git );
+ROMNIS="xenonhd";

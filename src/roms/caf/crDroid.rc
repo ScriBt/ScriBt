@@ -1,0 +1,3 @@
+ROM_NAME=( crdroidandroid );
+MAN=( android.git );
+ROMNIS="crdroid";

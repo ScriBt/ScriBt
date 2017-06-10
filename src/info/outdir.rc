@@ -1,0 +1,4 @@
+#!/bin/bash
+
+echo -e "${INF} Keeping /out in another drive ensures faster builds";
+echo -e "\n${INF} It is ${CL_WYT}not a compulsion${NONE}\n";

@@ -1,0 +1,3 @@
+ROM_NAME=( TV-LP51 ValidusOs-M GZR-ValidusOS );
+MAN=( android.git manifest.git manifest.git );
+ROMNIS="validus";

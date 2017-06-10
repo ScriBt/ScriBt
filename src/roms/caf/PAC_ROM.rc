@@ -1,0 +1,3 @@
+ROM_NAME=( PAC-ROM );
+MAN=( pac-rom.git );
+ROMNIS="pac";
