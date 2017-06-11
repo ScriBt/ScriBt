@@ -1581,7 +1581,7 @@ function tools() # 5
         echo -e "${INF} You may now select the Version of Java which is to be used BY-DEFAULT\n";
         echo -e "${CL_WYT}=======================================================${NONE}\n";
         case "${PKGMGR}" in
-            apt{,-get})
+            "apt"|"apt-get")
                 cmdprex \
                     "Command Execution as 'root'<->execroot" \
                     "Maintains symlinks for default commands<->update-alternatives"
@@ -1629,7 +1629,7 @@ function tools() # 5
         case "$REMOJA" in
             [yY])
                 case "${PKGMGR}" in
-                    apt{,-get})
+                    "apt"|"apt-get")
                         cmdprex \
                             "Command Execution as 'root'<->execroot" \
                             "Commandline Package Manager<->${PKGMGR}" \
@@ -1672,7 +1672,7 @@ function tools() # 5
         esac
         echo -e "\n${CL_WYT}=======================================================${NONE}\n";
         case "${PKGMGR}" in
-            apt{,-get})
+            "apt"|"apt-get")
                 cmdprex \
                     "Command Execution as 'root'<->execroot" \
                     "Commandline Package Manager<->${PKGMGR}" \
