@@ -1,0 +1,12 @@
+#!/bin/bash
+# Packages for Distros released in 2013
+
+DISTRO_PKGS=( zlib1g-dev:i386 libc6-dev lib32ncurses5 \
+lib32bz2-1.0 lib32ncurses5-dev x11proto-core-dev \
+libx11-dev:i386 libreadline6-dev:i386 \
+libgl1-mesa-glx:i386 libgl1-mesa-dev libwxgtk2.8-dev \
+mingw32 tofrodos readline-common libreadline6-dev libreadline6 \
+lib32readline-gplv2-dev libncurses5-dev lib32readline5 \
+lib32readline6 libreadline-dev libreadline6-dev:i386 \
+libreadline6:i386 bzip2 libbz2-dev libbz2-1.0 libghc-bzlib-dev \
+lib32bz2-dev libsdl1.2-dev libesd0-dev );

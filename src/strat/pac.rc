@@ -1,0 +1,8 @@
+#!/bin/bash
+
+bootanim;
+VENF="${ROMNIS}_${SBDEV}.mk";
+{
+    echo -e "\$( call inherit-product, vendor/${ROMNIS}/products/pac_common.mk)";
+    echo -e "\nPAC_BOOTANIMATION_NAME := ${SBBTR};";
+} >> "${VENF}";

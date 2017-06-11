@@ -17,7 +17,7 @@ function dist_db()
             ;;
         debian) # And Deepin
             case "$2" in
-                8|8.1|8.2|8.3|8.4|8.5|8.6)
+                8.0|8.1|8.2|8.3|8.4|8.5|8.6)
                     DYR="D15" ;;
             esac
             ;;

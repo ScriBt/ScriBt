@@ -1,0 +1,6 @@
+#!/bin/bash
+# Device type makefile list
+
+TYPES=( common_full_phone common_mini_phone common_full_hybrid_wifionly \
+common_full_tablet_lte common_full_tablet_wifionly common_mini_tablet_wifionly common_tablet \
+common_full_tv common_mini_tv );

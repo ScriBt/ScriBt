@@ -1,0 +1,21 @@
+#!/bin/bash
+# Interactive Makefile content
+
+{
+    echo -e "#                ##### Interactive Makefile ######";
+    echo -e "#";
+    echo -e "# Licensed under the Apache License, Version 2.0 (the \"License\");";
+    echo -e "# you may not use this file except in compliance with the License.";
+    echo -e "# You may obtain a copy of the License at";
+    echo -e "#";
+    echo -e "#      http://www.apache.org/licenses/LICENSE-2.0";
+    echo -e "#";
+    echo -e "# Unless required by applicable law or agreed to in writing, software";
+    echo -e "# distributed under the License is distributed on an \"AS IS\" BASIS,";
+    echo -e "# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.";
+    echo -e "# See the License for the specific language governing permissions and";
+    echo -e "# limitations under the License.";
+    echo -e "\n# Inherit ${ROMNIS} common stuff\n\$(call inherit-product, ${CNF}/${VNF}.mk)";
+    echo -e "\n# Calling Default Device Configuration File";
+    echo -e "\$(call inherit-product, ${DEVDIR}/${DDC})";
+} >> "${INTF}";

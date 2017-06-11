@@ -404,14 +404,14 @@ function init() # 1
     SBBR="${SBNBR/* /}"; # Branch
     MNF="${MAN[$CT]}"; # Orgn manifest name at count
     RNM="${ROM_NAME[$CT]}"; # Orgn name at count
-    echo -e "${QN} Any Source you have already synced ${CL_WYT}[y/n]${NONE}\n"; source ${PATHDIR}src/info/refer.rc;
+    echo -e "${QN} Any Source you have already synced ${CL_WYT}[y/n]${NONE}\n"; get "info" "refer";
     ST="Use Reference Source"; shut_my_mouth RF "$ST";
     if [[ "$SBRF" == [Yy] ]]; then
         echo -e "\n${QN} Provide me the Synced Source's Location from /\n";
         ST="Reference Location"; shut_my_mouth RFL "$ST";
         REF="--reference=\"${SBRFL}\"";
     fi
-    echo -e "${QN} Set clone-depth ${CL_WYT}[y/n]${NONE}\n"; source ${PATHDIR}src/info/cldp.rc;
+    echo -e "${QN} Set clone-depth ${CL_WYT}[y/n]${NONE}\n"; get "info" "cldp";
     ST="Use clone-depth"; shut_my_mouth CD "$ST";
     if [[ "$SBCD" == [Yy] ]]; then
         echo -e "${QN} Depth Value ${CL_WYT}[Default - 1]${NONE}\n";
@@ -476,15 +476,15 @@ function sync() # 2
     [ ! -z "$automate" ] && teh_action 2;
     if [ ! -f .repo/manifest.xml ]; then init; elif [ -z "$action_1" ]; then rom_select; fi;
     echo -e "\n${EXE} Preparing for Sync\n";
-    echo -e "${QN} Number of Threads for Sync \n"; source ${PATHDIR}src/info/jobs.rc;
+    echo -e "${QN} Number of Threads for Sync \n"; get "info" "jobs";
     ST="Number of Threads"; shut_my_mouth JOBS "$ST";
-    echo -e "${QN} Force Sync needed ${CL_WYT}[y/n]${NONE}\n"; source ${PATHDIR}src/info/fsync.rc;
+    echo -e "${QN} Force Sync needed ${CL_WYT}[y/n]${NONE}\n"; get "info" "fsync";
     ST="Force Sync"; shut_my_mouth F "$ST";
-    echo -e "${QN} Need some Silence in the Terminal ${CL_WYT}[y/n]${NONE}\n"; source ${PATHDIR}src/info/ssync.rc;
+    echo -e "${QN} Need some Silence in the Terminal ${CL_WYT}[y/n]${NONE}\n"; get "info" "ssync";
     ST="Silent Sync"; shut_my_mouth S "$ST";
-    echo -e "${QN} Sync only Current Branch ${CL_WYT}[y/n]${NONE}\n"; source ${PATHDIR}src/info/syncrt.rc;
+    echo -e "${QN} Sync only Current Branch ${CL_WYT}[y/n]${NONE}\n"; get "info" "syncrt";
     ST="Sync Current Branch"; shut_my_mouth C "$ST";
-    echo -e "${QN} Sync with clone-bundle ${CL_WYT}[y/n]${NONE}\n"; source ${PATHDIR}src/info/clnbun.rc;
+    echo -e "${QN} Sync with clone-bundle ${CL_WYT}[y/n]${NONE}\n"; get "info" "clnbun";
     ST="Use clone-bundle"; shut_my_mouth B "$ST";
     echo -e "${CL_WYT}=======================================================${NONE}\n";
     #Sync-Options
@@ -529,10 +529,8 @@ function device_info() # D 3,4
     echo -e "${QN} Build type \n${INF} [userdebug/user/eng]\n";
     ST="Build type"; shut_my_mouth BT "$ST";
     if [ -z "$SBBT" ]; then SBBT="userdebug"; fi;
-    echo -e "${QN} Choose your Device type among these. Explainations of each file given in README.md\n"; source ${PATHDIR}src/info/device-type.rc;
-    TYPES=( common_full_phone common_mini_phone common_full_hybrid_wifionly \
-    common_full_tablet_lte common_full_tablet_wifionly common_mini_tablet_wifionly common_tablet \
-    common_full_tv common_mini_tv );
+    echo -e "${QN} Choose your Device type among these. Explainations of each file given in README.md\n"; get "info" "device-type";
+    get "misc" "device_types";
     CT=0;
     for TYP in ${TYPES[*]}; do
         if [ -f "${CNF}/${TYP}.mk" ]; then echo -e "${CT}. $TYP"; (( CT++ )); fi;
@@ -683,62 +681,8 @@ function pre_build() # 3
         } # bootanim
 
         #Vendor-Calls
-        case "$ROMNIS" in
-            "aicp")
-                VENF="${SBDEV}.mk";
-                echo -e "\t\$(LOCAL_DIR)/${VENF}" >> AndroidProducts.mk;
-                {
-                    echo -e "\n# Inherit telephony stuff\n\$(call inherit-product, vendor/${ROMNIS}/configs/telephony.mk)";
-                    echo -e "\$(call inherit-product, vendor/${ROMNIS}/configs/common.mk)";
-                } >> "${VENF}";
-                ;;
-            "aokp")
-                bootanim;
-                VENF="${SBDEV}.mk";
-                echo -e "\t\$(LOCAL_DIR)/${VENF}" >> AndroidProducts.mk;
-                {
-                    echo -e "\$(call inherit-product, vendor/${ROMNIS}/configs/common.mk)";
-                    echo -e "\nPRODUCT_COPY_FILES += \\ ";
-                    echo -e "\tvendor/${ROMNIS}/prebuilt/bootanimation/bootanimation_${SBBTR}.zip:system/media/bootanimation.zip";
-                } >> "${VENF}";
-                ;;
-            "krexus")
-                VENF="${ROMNIS}_${SBDEV}.mk";
-                {
-                    echo -e "\$( call inherit-product, vendor/${ROMNIS}/products/common.mk)";
-                    echo -e "\n\$( call inherit-product, vendor/${ROMNIS}/products/vendorless.mk)";
-                } >> "${VENF}";
-                ;;
-            "pa")
-                VENF="${SBDEV}/${ROMNIS}_${SBDEV}.mk";
-                {
-                    echo -e "# ${SBCM} ${SBDEV}";
-                    echo -e "\nifeq (${ROMNIS}_${SBDEV},\$(TARGET_PRODUCT))";
-                    echo -e "\tPRODUCT_MAKEFILES += \$(LOCAL_DIR)/${VENF}\nendif";
-                } >> AndroidProducts.mk;
-                echo -e "\ninclude vendor/${ROMNIS}/main.mk" >> "${VENF}";
-                mv -f "${CALL_ME_ROOT}${DEVDIR}"/*.dependencies "${SBDEV}/pa.dependencies";
-                ;;
-            "pac")
-                bootanim;
-                VENF="${ROMNIS}_${SBDEV}.mk";
-                {
-                    echo -e "\$( call inherit-product, vendor/${ROMNIS}/products/pac_common.mk)";
-                    echo -e "\nPAC_BOOTANIMATION_NAME := ${SBBTR};";
-                } >> "${VENF}";
-                ;;
-            "pure") # PureNexus and ABC rom
-                VENF="${SBDEV}.mk";
-                echo -e "# Include pure configuration\ninclude vendor/pure/configs/pure_phone.mk" >> "${VENF}";
-                ;;
-        esac
-        find_ddc "pb";
-        {
-            echo -e "\n# Inherit from ${DDC}";
-            echo -e "\$(call inherit-product, ${DEVDIR}/${DDC})";
-            # PRODUCT_NAME is the only ROM-specific Identifier, setting it here is better.
-            echo -e "\n# ROM Specific Identifier\nPRODUCT_NAME := ${ROMNIS}_${SBDEV}";
-        } >> "${VENF}";
+        get "strat" "${ROMNIS}";
+        get "strat" "common";
     } # vendor_strat_kpa
 
     function find_ddc() # For Finding Default Device Configuration file
@@ -780,24 +724,7 @@ function pre_build() # 3
             cd "${DEVDIR}";
             INTM="interact.mk";
             [ -z "$INTF" ] && INTF="${ROMNIS}.mk";
-            {
-                echo -e "#                ##### Interactive Makefile ######";
-                echo -e "#";
-                echo -e "# Licensed under the Apache License, Version 2.0 (the \"License\");";
-                echo -e "# you may not use this file except in compliance with the License.";
-                echo -e "# You may obtain a copy of the License at";
-                echo -e "#";
-                echo -e "#      http://www.apache.org/licenses/LICENSE-2.0";
-                echo -e "#";
-                echo -e "# Unless required by applicable law or agreed to in writing, software";
-                echo -e "# distributed under the License is distributed on an \"AS IS\" BASIS,";
-                echo -e "# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.";
-                echo -e "# See the License for the specific language governing permissions and";
-                echo -e "# limitations under the License.";
-                echo -e "\n# Inherit ${ROMNIS} common stuff\n\$(call inherit-product, ${CNF}/${VNF}.mk)";
-                echo -e "\n# Calling Default Device Configuration File";
-                echo -e "\$(call inherit-product, ${DEVDIR}/${DDC})";
-            } >> "${INTM}";
+            get "misc" "intmake";
             # To prevent Missing Vendor Calls in DDC-File
             sed -i -e 's/inherit-product, vendor\//inherit-product-if-exists, vendor\//g' "$DDC";
             # Add User-desired Makefile Calls
@@ -1465,7 +1392,7 @@ function tools() # 5
     {
         echo -e "\n${EXE} Analyzing Distro";
         for REL in lsb-release os-release debian_version; do
-            [ -f "/etc/${REL}" ] && source "/etc/${REL}";
+            [ -f "/etc/${REL}" ] && source "/etc/${REL}" &> /dev/null;
               case "$REL" in
                   "lsb-release") DID="${DISTRIB_ID}"; VER="${DISTRIB_RELEASE}" ;;
                   "os-release") DID="${ID}"; VER="${VERSION_ID}" ;; # Most of the Newer Distros
@@ -1474,49 +1401,15 @@ function tools() # 5
               esac
         done
         dist_db "$DID" "$VER"; # Determination of Distro by a Database
-        if [[ ! -z "$DID" && ! -z "$VER" ]]; then
+        if [[ ! -z "$DYR" ]]; then
             echo -e "\n${SCS} Distro Detected Successfully";
         else
             echo -e "\n${FLD} Distro not present in supported Distros\n\n${INF} Contact the Developer for Support\n";
             quick_menu;
         fi
-
         echo -e "\n${EXE} Installing Build Dependencies\n";
-        # Common Packages
-        COMMON_PKGS=( git-core git gnupg flex bison gperf build-essential zip curl \
-        libxml2-utils xsltproc g++-multilib squashfs-tools zlib1g-dev bc \
-        pngcrush schedtool python lib32z1-dev lib32z-dev lib32z1 imagemagick\
-        libxml2 optipng python-networkx python-markdown make unzip );
-        case "$DYR" in
-            D12)
-                DISTRO_PKGS=( libc6-dev libncurses5-dev:i386 x11proto-core-dev \
-                libx11-dev:i386 libreadline6-dev:i386 libgl1-mesa-glx:i386 \
-                libgl1-mesa-dev libwxgtk2.8-dev mingw32 tofrodos zlib1g-dev:i386 ) ;;
-            D13)
-                DISTRO_PKGS=( zlib1g-dev:i386 libc6-dev lib32ncurses5 \
-                lib32bz2-1.0 lib32ncurses5-dev x11proto-core-dev \
-                libx11-dev:i386 libreadline6-dev:i386 \
-                libgl1-mesa-glx:i386 libgl1-mesa-dev libwxgtk2.8-dev \
-                mingw32 tofrodos readline-common libreadline6-dev libreadline6 \
-                lib32readline-gplv2-dev libncurses5-dev lib32readline5 \
-                lib32readline6 libreadline-dev libreadline6-dev:i386 \
-                libreadline6:i386 bzip2 libbz2-dev libbz2-1.0 libghc-bzlib-dev \
-                lib32bz2-dev libsdl1.2-dev libesd0-dev ) ;;
-            D14)
-                DISTRO_PKGS=( libc6-dev-i386 lib32ncurses5-dev liblz4-tool \
-                x11proto-core-dev libx11-dev libgl1-mesa-dev maven maven2 libwxgtk2.8-dev) ;;
-            D15)
-                DISTRO_PKGS=( libesd0-dev liblz4-tool libncurses5-dev \
-                libsdl1.2-dev libwxgtk2.8-dev lzop maven maven2 \
-                lib32ncurses5-dev liblz4-tool ) ;;
-            D16|D17)
-                # Seperate D17 list when testing other Distros
-                # Ubuntu 17.04 installed these packages successfully
-                DISTRO_PKGS=( automake lzop libesd0-dev maven \
-                liblz4-tool libncurses5-dev libsdl1.2-dev libwxgtk3.0-dev \
-                lzop lib32ncurses5-dev lib32readline6-dev lib32z1-dev \
-                libbz2-dev libbz2-1.0 libghc-bzlib-dev ) ;;
-        esac
+        get "pkgs" "common";
+        get "pkgs" "$DYR";
         # Install 'em all
         cmdprex \
             "Command Execution as 'root'<->execroot" \
@@ -1529,11 +1422,7 @@ function tools() # 5
 
     function installdeps_arch()
     {
-        # common packages
-        PKGS="git gnupg flex bison gperf sdl wxgtk squashfs-tools curl ncurses zlib schedtool perl-switch zip unzip libxslt python2-virtualenv bc rsync maven";
-        PKGS64="$( pacman -Sgq multilib-devel ) lib32-zlib lib32-ncurses lib32-readline";
-        PKGSJAVA="jdk6 jdk7-openjdk";
-        PKGS_CONFLICT="gcc gcc-libs";
+        get "pkgs" "archcommon";
         # sort out already installed pkgs
         for item in ${PKGS} ${PKGS64} ${PKGSJAVA}; do
             if ! pacman -Qq "${item}" &> /dev/null; then
@@ -1832,7 +1721,7 @@ function tools() # 5
         CAT="cat ";
         [[ "$1" == "repo" ]] || unset CAT;
         case "$2" in
-            "utils") BIN="${CAT}utils/$1" ;; # Util Version that ScriBt has under utils folder
+            "utils") BIN="${CAT}src/utils/$1" ;; # Util Version that ScriBt has under utils folder
             "installed") BIN="${CAT}$(which $1)" ;; # Util Version that has been installed in the System
         esac
         case "$1" in # Installed Version
@@ -2149,15 +2038,7 @@ function the_start() # 0
     echo -e "\n${EXE} ./action${CL_LRD}.SHOW_LOGO${NONE}";
     sleep 2;
     clear;
-    echo -e "\n\n                 ${CL_LRD}╔═╗${NONE}${CL_YEL}╦═╗${NONE}${CL_LCN}╔═╗${NONE}${CL_LGN} ╦${NONE}${CL_LCN}╔═╗${NONE}${CL_YEL}╦╔═${NONE}${CL_LRD}╔╦╗${NONE}";
-    echo -e "                 ${CL_LRD}╠═╝${NONE}${CL_YEL}╠╦╝${NONE}${CL_LCN}║ ║${NONE}${CL_LGN} ║${NONE}${CL_LCN}║╣ ${NONE}${CL_YEL}╠╩╗${NONE}${CL_LRD} ║ ${NONE}";
-    echo -e "                 ${CL_LRD}╩  ${NONE}${CL_YEL}╩╚═${NONE}${CL_LCN}╚═╝${NONE}${CL_LGN}╚╝${NONE}${CL_LCN}╚═╝${NONE}${CL_YEL}╩ ╩${NONE}${CL_LRD} ╩${NONE}";
-    echo -e "      ${CL_LRD}███████${NONE}${CL_RED}╗${NONE} ${CL_LRD}██████${NONE}${CL_RED}╗${NONE}${CL_LRD}██████${NONE}${CL_RED}╗${NONE} ${CL_LRD}██${NONE}${CL_RED}╗${NONE}${CL_LRD}██████${NONE}${CL_RED}╗${NONE} ${CL_LRD}████████${NONE}${CL_RED}╗${NONE}";
-    echo -e "      ${CL_LRD}██${NONE}${CL_RED}╔════╝${NONE}${CL_LRD}██${NONE}${CL_RED}╔════╝${NONE}${CL_LRD}██${NONE}${CL_RED}╔══${NONE}${CL_LRD}██${NONE}${CL_RED}╗${NONE}${CL_LRD}██${NONE}${CL_RED}║${NONE}${CL_LRD}██${NONE}${CL_RED}╔══${NONE}${CL_LRD}██${NONE}${CL_RED}╗╚══${NONE}${CL_LRD}██${NONE}${CL_RED}╔══╝${NONE}";
-    echo -e "      ${CL_LRD}███████${NONE}${CL_RED}╗${NONE}${CL_LRD}██${NONE}${CL_RED}║${NONE}     ${CL_LRD}██████${NONE}${CL_RED}╔╝${NONE}${CL_LRD}██${NONE}${CL_RED}║${NONE}${CL_LRD}██████${NONE}${CL_RED}╔╝${NONE}   ${CL_LRD}██${NONE}${CL_RED}║${NONE}";
-    echo -e "      ${CL_RED}╚════${NONE}${CL_LRD}██${NONE}${CL_RED}║${NONE}${CL_LRD}██${NONE}${CL_RED}║${NONE}     ${CL_LRD}██${NONE}${CL_RED}╔══${NONE}${CL_LRD}██${NONE}${CL_RED}╗${NONE}${CL_LRD}██${NONE}${CL_RED}║${NONE}${CL_LRD}██${NONE}${CL_RED}╔══${NONE}${CL_LRD}██${NONE}${CL_RED}╗${NONE}   ${CL_LRD}██${NONE}${CL_RED}║${NONE}";
-    echo -e "      ${CL_LRD}███████${NONE}${CL_RED}║╚${NONE}${CL_LRD}██████${NONE}${CL_RED}╗${NONE}${CL_LRD}██${NONE}${CL_RED}║${NONE}  ${CL_LRD}██${NONE}${CL_RED}║${NONE}${CL_LRD}██${NONE}${CL_RED}║${NONE}${CL_LRD}██████${NONE}${CL_RED}╔╝${NONE}   ${CL_LRD}██${NONE}${CL_RED}║${NONE}";
-    echo -e "      ${CL_RED}╚══════╝ ╚═════╝╚═╝  ╚═╝╚═╝╚═════╝    ╚═╝${NONE}\n";
+    get "misc" "banner";
     sleep 1.5;
     cd "${PATHDIR}";
     # Spaces
@@ -2213,6 +2094,9 @@ function prompt()
 
 # 'sudo' command with custom prompt '[#]' in Pink
 function execroot(){ sudo -p $'\033[1;35m[#]\033[0m ' "$@"; };
+
+# Function to execute files under "src"
+function get(){ source "${PATHDIR}src/${1}/${2}.rc"; };
 
 # Point of Execution
 

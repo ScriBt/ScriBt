@@ -1,0 +1,9 @@
+#!/bin/bash
+
+find_ddc "pb";
+{
+    echo -e "\n# Inherit from ${DDC}";
+    echo -e "\$(call inherit-product, ${DEVDIR}/${DDC})";
+    # PRODUCT_NAME is the only ROM-specific Identifier, setting it here is better.
+    echo -e "\n# ROM Specific Identifier\nPRODUCT_NAME := ${ROMNIS}_${SBDEV}";
+} >> "${VENF}";

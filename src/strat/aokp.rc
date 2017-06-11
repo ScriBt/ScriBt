@@ -1,0 +1,10 @@
+#!/bin/bash
+
+bootanim;
+VENF="${SBDEV}.mk";
+echo -e "\t\$(LOCAL_DIR)/${VENF}" >> AndroidProducts.mk;
+{
+    echo -e "\$(call inherit-product, vendor/${ROMNIS}/configs/common.mk)";
+    echo -e "\nPRODUCT_COPY_FILES += \\ ";
+    echo -e "\tvendor/${ROMNIS}/prebuilt/bootanimation/bootanimation_${SBBTR}.zip:system/media/bootanimation.zip";
+} >> "${VENF}";
