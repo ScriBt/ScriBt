@@ -15,14 +15,14 @@ echo -e "\n${EXE} ${CL_WYT}Checking for Updates${NONE}\n";
 NEW=$(comm -13 <(git tag --merged master | sort) <(git tag --merged origin/master | sort));
 if [ -n "$NEW" ]; then
     while read -r TAG; do
-        if git rev-parse $TAG^'{tag}' -- &> /dev/null; then
-            MSG=$(git cat-file tag $TAG | tail -n+6);
+        if git rev-parse "$TAG"^'{tag}' -- &> /dev/null; then
+            MSG=$(git cat-file tag "$TAG" | tail -n+6);
             [ ! -z "$MSG" ] && echo -e "${CL_WYT}${MSG}${NONE}\n";
         fi
     done <<< "$NEW";
-    LHEAD="$(git rev-parse HEAD)";
+    LHEAD=$(git rev-parse HEAD);
     git fetch -q origin "${BRANCH}";
-    RHEAD="$(git rev-parse origin/${BRANCH})";
+    RHEAD=$(git rev-parse origin/"${BRANCH}");
     if [[ "$LHEAD" != "$RHEAD" ]]; then
         echo -e "${SCS} Update Detected. Version ${RVER}\n";
         echo -e "${QN} Do you want to Update\n";

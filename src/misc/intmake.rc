@@ -15,7 +15,4 @@
     echo -e "# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.";
     echo -e "# See the License for the specific language governing permissions and";
     echo -e "# limitations under the License.";
-    echo -e "\n# Inherit ${ROMNIS} common stuff\n\$(call inherit-product, ${CNF}/${VNF}.mk)";
-    echo -e "\n# Calling Default Device Configuration File";
-    echo -e "\$(call inherit-product, ${DEVDIR}/${DDC})";
 } >> "${INTF}";

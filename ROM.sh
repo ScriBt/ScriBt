@@ -301,12 +301,12 @@ function quick_menu()
 function rom_check() # D 1,2,3
 {
     if ! echo $1 | grep -q 'A'; then
-        FILE="$(eval echo \${CAFR[$1]} | sed 's/ /_/g')";
+        FILE=$(eval "echo \${CAFR[$1]}" | sed 's/ /_/g');
     else
-        FILE="$(eval echo \${AOSPR[${1//A/}]} | sed 's/ /_/g')";
+        FILE=$(eval "echo \${AOSPR[${1//A/}]}" | sed 's/ /_/g');
     fi
     if [ -f "${FILE}" ]; then
-        source ${FILE};
+        source "${FILE}";
     else
         echo -e "\n${FLD} Invalid Selection\n";
         rom_select;
@@ -725,6 +725,11 @@ function pre_build() # 3
             INTM="interact.mk";
             [ -z "$INTF" ] && INTF="${ROMNIS}.mk";
             get "misc" "intmake";
+            {
+                echo -e "\n# Inherit ${ROMNIS} common stuff\n\$(call inherit-product, ${CNF}/${VNF}.mk)";
+                echo -e "\n# Calling Default Device Configuration File";
+                echo -e "\$(call inherit-product, ${DEVDIR}/${DDC})";
+            } >> "${INTF}";
             # To prevent Missing Vendor Calls in DDC-File
             sed -i -e 's/inherit-product, vendor\//inherit-product-if-exists, vendor\//g' "$DDC";
             # Add User-desired Makefile Calls
