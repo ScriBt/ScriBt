@@ -480,7 +480,7 @@ function sync() # 2
     ST="Number of Threads"; shut_my_mouth JOBS "$ST";
     echo -e "${QN} Force Sync needed ${CL_WYT}[y/n]${NONE}\n"; get "info" "fsync";
     ST="Force Sync"; shut_my_mouth F "$ST";
-    echo -e "${QN} Need some Silence in the Terminal ${CL_WYT}[y/n]${NONE}\n"; get "info" "ssync";
+    echo -e "${QN} Need some Silence in the Terminal ${CL_WYT}[y/n]${NONE}\n"; get "info" "silsync";
     ST="Silent Sync"; shut_my_mouth S "$ST";
     echo -e "${QN} Sync only Current Branch ${CL_WYT}[y/n]${NONE}\n"; get "info" "syncrt";
     ST="Sync Current Branch"; shut_my_mouth C "$ST";
@@ -529,9 +529,9 @@ function device_info() # D 3,4
     echo -e "${QN} Build type \n${INF} [userdebug/user/eng]\n";
     ST="Build type"; shut_my_mouth BT "$ST";
     if [ -z "$SBBT" ]; then SBBT="userdebug"; fi;
-    echo -e "${QN} Choose your Device type among these. Explainations of each file given in README.md\n"; get "info" "device-type";
-    get "misc" "device_types";
+    echo -e "${QN} Choose your Device type among these. Explainations of each file given in README.md\n"; get "info" "devtype";
     CT=0;
+    get "misc" "device_types";
     for TYP in ${TYPES[*]}; do
         if [ -f "${CNF}/${TYP}.mk" ]; then echo -e "${CT}. $TYP"; (( CT++ )); fi;
     done
@@ -1976,11 +1976,6 @@ function the_start() # 0
     rm -f "$TMP" "$STMP" "$RMTMP" "$TV1" "$TV2";
     touch "$TMP" "$STMP" "$RMTMP" "$TV1" "$TV2";
 
-    # Load Companion Scripts
-    source ${PATHDIR}src/color_my_life.rc;
-    source ${PATHDIR}src/dist_db.rc;
-    source ${PATHDIR}src/usage.rc
-
     # Relevant_Coloring
     if [[ $(tput colors) -lt 2 ]]; then
         export INF="[I]" SCS="[S]" FLD="[F]" EXE="[!]" QN="[?]";
@@ -2113,6 +2108,11 @@ if [[ "$0" == "ROM.sh" ]] && [[ $(type -p ROM.sh) ]]; then
 else
     export PATHDIR="${CALL_ME_ROOT}";
 fi
+
+# Load Companion Scripts
+source ${PATHDIR}src/color_my_life.rc;
+source ${PATHDIR}src/dist_db.rc;
+source ${PATHDIR}src/usage.rc;
 
 # Show Interrupt Acknowledgement message on receiving SIGINT
 trap interrupt SIGINT;
