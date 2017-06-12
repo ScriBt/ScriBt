@@ -1395,17 +1395,8 @@ function tools() # 5
 
     function installdeps()
     {
-        echo -e "\n${EXE} Analyzing Distro";
-        for REL in lsb-release os-release debian_version; do
-            [ -f "/etc/${REL}" ] && source "/etc/${REL}" &> /dev/null;
-              case "$REL" in
-                  "lsb-release") DID="${DISTRIB_ID}"; VER="${DISTRIB_RELEASE}" ;;
-                  "os-release") DID="${ID}"; VER="${VERSION_ID}" ;; # Most of the Newer Distros
-                  "debian_version") DID="debian" VER=$(cat /etc/debian_version) ;;
-#                 "other-release") DID="Distro Name (Single Worded)"; VER="Version (Single numbered)" ;;
-              esac
-        done
-        dist_db "$DID" "$VER"; # Determination of Distro by a Database
+        echo -e "\n${EXE} Attempting to detect Distro";
+        dist_db;
         if [[ ! -z "$DYR" ]]; then
             echo -e "\n${SCS} Distro Detected Successfully";
         else

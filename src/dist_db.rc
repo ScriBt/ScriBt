@@ -2,11 +2,20 @@
 
 function dist_db()
 {
+    if [[ -f /etc/os-release ]]; then
+        source /etc/os-release;
+    elif [[ -f /usr/lib/os-release ]]; then
+        source /usr/lib/os-release;
+    fi
+
+    DID="${ID}"; # lowercased distro name
+    VER="${VERSION_ID}"; # distro version
+
     # Allots Distro Release Year w.r.t Distro Name and Version
     # Based on Collective Information from the Internet
-    case "$1" in
-        neon|[Uu]buntu)
-            case "$2" in
+    case "${DID}" in
+        "neon"|"ubuntu")
+            case "${VER}" in
                 12.04|12.10) DYR="D12" ;; # Distro(s) released in 2012
                 13.04|13.10) DYR="D13" ;; # Distro(s) released in 2013
                 14.04|14.10) DYR="D14" ;; # Distro(s) released in 2014
@@ -15,34 +24,38 @@ function dist_db()
                 17.04) DYR="D17" ;; # Distro(s) released in 2017
             esac
             ;;
-        debian) # And Deepin
-            case "$2" in
-                8.0|8.1|8.2|8.3|8.4|8.5|8.6)
-                    DYR="D15" ;;
+        "debian")
+            case "${VER}" in
+                8*) DYR="D15" ;;
             esac
             ;;
-        elementary)
-            case "$2" in
+        "deepin")
+            case "${VER}" in
+                15*) DYR="D15" ;;
+            esac
+            ;;
+        "elementary")
+            case "${VER}" in
                 0.2) DYR="D12" ;;
-                0.3|0.3.1|0.3.2) DYR="D14" ;;
+                0.3*) DYR="D14" ;;
                 0.4) DYR="D16" ;;
             esac
             ;;
-        [Ll]inux[Mm]int)
-            case "$2" in
+        "linuxmint")
+            case "${VER}" in
                 14) DYR="D12" ;;
                 15|16) DYR="D13" ;;
-                17|17.1|17.2|17.3) DYR="D14" ;;
-                18|18.1) DYR="D16" ;;
+                17*) DYR="D14" ;;
+                18*) DYR="D16" ;;
             esac
             ;;
-        "Zorin OS")
-            case "$2" in
+        "zorin")
+            case "${VER}" in
                 6) DYR="D12" ;;
                 7|8) DYR="D13" ;;
                 9) DYR="D14" ;;
                 10) DYR="D15" ;;
-                11|12) DYR="D16" ;;
+                11|12*) DYR="D16" ;;
             esac
             ;;
     esac
