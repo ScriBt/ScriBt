@@ -672,7 +672,7 @@ function pre_build() # 3
         {
             echo -e "${INF} Device Resolution\n";
             if [ ! -z "$automate" ]; then
-                source ${PATHDIR}src/info"bootres";
+                get "info" "bootres";
                 echo -e "\n${QN} Enter the Desired Highlighted Number\n";
                 prompt SBBTR;
             else
@@ -1240,7 +1240,7 @@ function build() # 4
             fi
             init_bld;
             choose_target;
-            echo -e "\n${QN} Should i use 'make' or 'mka'\n"; source ${PATHDIR}src/info"make";
+            echo -e "\n${QN} Should i use 'make' or 'mka'\n"; get "info" "make";
             ST="Selected Method"; shut_my_mouth MK "$ST";
             case "$SBMK" in
                 "make")
@@ -1261,7 +1261,7 @@ function build() # 4
                     SBMK="mka"; BCORES="";
                     ;;
             esac
-            echo -e "${QN} Want to keep /out in another directory ${CL_WYT}[y/n]${NONE}\n"; source ${PATHDIR}src/info"outdir";
+            echo -e "${QN} Want to keep /out in another directory ${CL_WYT}[y/n]${NONE}\n"; get "info" "outdir";
             ST="Another /out dir ?"; shut_my_mouth OD "$ST";
             case "$SBOD" in
                 [Yy])
@@ -1280,10 +1280,10 @@ function build() # 4
                     echo -e "${INF} /out location is unchanged";
                     ;;
             esac
-            echo -e "${QN} Want to Clean the /out before Building\n"; source ${PATHDIR}src/info"outcln";
+            echo -e "${QN} Want to Clean the /out before Building\n"; get "info" "outcln";
             ST="Option Selected"; shut_my_mouth CL "$ST";
             if [[ $(grep -c 'BUILD_ID=M' "${CALL_ME_ROOT}build/core/build_id.mk") == "1" ]]; then
-                echo -e "${QN} Use Jack Toolchain ${CL_WYT}[y/n]${NONE}\n"; source ${PATHDIR}src/info"jack";
+                echo -e "${QN} Use Jack Toolchain ${CL_WYT}[y/n]${NONE}\n"; get "info" "jack";
                 ST="Use Jacky"; shut_my_mouth JK "$ST";
                 case "$SBJK" in
                     [yY])
@@ -1299,7 +1299,7 @@ function build() # 4
                 esac
             fi
             if [[ $(grep -c 'BUILD_ID=N' "${CALL_ME_ROOT}build/core/build_id.mk") == "1" ]]; then
-                echo -e "${QN} Use Ninja to build Android ${CL_WYT}[y/n]${NONE}\n"; source ${PATHDIR}src/info"ninja";
+                echo -e "${QN} Use Ninja to build Android ${CL_WYT}[y/n]${NONE}\n"; get "info" "ninja";
                 ST="Use Ninja"; shut_my_mouth NJ "$ST";
                 case "$SBNJ" in
                     [yY])
@@ -2110,9 +2110,9 @@ else
 fi
 
 # Load Companion Scripts
-source ${PATHDIR}src/color_my_life.rc;
-source ${PATHDIR}src/dist_db.rc;
-source ${PATHDIR}src/usage.rc;
+source "${PATHDIR}src/color_my_life.rc";
+source "${PATHDIR}src/dist_db.rc";
+source "${PATHDIR}src/usage.rc";
 
 # Show Interrupt Acknowledgement message on receiving SIGINT
 trap interrupt SIGINT;
@@ -2120,8 +2120,8 @@ trap interrupt SIGINT;
 # Version
 if [ -d "${PATHDIR}.git" ]; then
     # Check Branch
-    export BRANCH=$(git rev-parse --abbrev-ref HEAD);
     cd "${PATHDIR}";
+    export BRANCH=$(git rev-parse --abbrev-ref HEAD);
     if [[ "${BRANCH}" == "master" ]]; then
         VERSION=$(git describe --tags $(git rev-list --max-count=1 HEAD));
     else
