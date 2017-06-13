@@ -1,0 +1,7 @@
+#!/bin/bash
+
+VENF="${ROMNIS}_${SBDEV}.mk";
+{
+    echo -e "\$( call inherit-product, vendor/${ROMNIS}/products/common.mk)";
+    echo -e "\n\$( call inherit-product, vendor/${ROMNIS}/products/vendorless.mk)";
+} >> "${VENF}";

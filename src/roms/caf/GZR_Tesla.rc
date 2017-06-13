@@ -1,0 +1,3 @@
+ROM_NAME=( Tesla-M TeslaRom-N );
+MAN=( manifest.git manifest.git );
+ROMNIS="tesla";

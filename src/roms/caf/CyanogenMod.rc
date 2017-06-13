@@ -1,0 +1,3 @@
+ROM_NAME=( CyanogenMod );
+MAN=( android.git );
+ROMNIS="cm";

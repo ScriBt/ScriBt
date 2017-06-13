@@ -1,0 +1,6 @@
+#!/bin/bash
+# Packages for Distros released in 2012
+
+DISTRO_PKGS=( libc6-dev libncurses5-dev:i386 x11proto-core-dev \
+libx11-dev:i386 libreadline6-dev:i386 libgl1-mesa-glx:i386 \
+libgl1-mesa-dev libwxgtk2.8-dev mingw32 tofrodos zlib1g-dev:i386 );

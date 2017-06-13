@@ -1,0 +1,4 @@
+ROM_NAME=( DirtyUnicorns );
+MAN=( android_manifest.git );
+ROMNIS="du";
+CNS="y"

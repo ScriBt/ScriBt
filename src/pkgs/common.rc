@@ -1,0 +1,7 @@
+#!/bin/bash
+# Common Packages
+
+COMMON_PKGS=( git-core git gnupg flex bison gperf build-essential zip curl \
+libxml2-utils xsltproc g++-multilib squashfs-tools zlib1g-dev bc \
+pngcrush schedtool python lib32z1-dev lib32z-dev lib32z1 imagemagick \
+libxml2 optipng python-networkx python-markdown make unzip );

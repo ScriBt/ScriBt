@@ -1,0 +1,9 @@
+#!/bin/bash
+# Linux Mint - based on Ubuntu
+
+case "${VER}" in
+    14) DYR="D12" ;;
+    15|16) DYR="D13" ;;
+    17*) DYR="D14" ;;
+    18*) DYR="D16" ;;
+esac

@@ -1,0 +1,3 @@
+ROM_NAME=( AOSP-CAF );
+MAN=( platform_manifest.git );
+ROMNIS="aosp";

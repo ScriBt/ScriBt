@@ -1,0 +1,3 @@
+ROM_NAME=( ScriBt );
+MAN=( nullrom.git );
+ROMNIS="null";

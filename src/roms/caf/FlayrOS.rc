@@ -1,0 +1,4 @@
+ROM_NAME=( FlayrOS );
+MAN=( manifest.git );
+ROMNIS="full";
+ROMV="flayr"

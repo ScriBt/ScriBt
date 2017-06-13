@@ -1,0 +1,3 @@
+ROM_NAME=( OwnROM );
+MAN=( manifest.git );
+ROMNIS="ownrom";

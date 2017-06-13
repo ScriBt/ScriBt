@@ -11,7 +11,7 @@ addons:
     - shellcheck
 
 script:
- - curl -o shellcheck.sh https://raw.githubusercontent.com/ScriBt/ScriBt-Examples/master/shellcheck.sh
+ - curl -o shellcheck.sh https://raw.githubusercontent.com/ScriBt/ScriBt-Examples/master/shellcheck_new.sh
  - bash shellcheck.sh
 
 matrix:

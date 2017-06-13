@@ -1,0 +1,5 @@
+#!/bin/bash
+
+echo -e "${INF} 1 - Remove Staging Directories";
+echo -e "\n${INF} 2 - Full Clean";
+echo -e "\n${INF} Others - No cleaning\n";

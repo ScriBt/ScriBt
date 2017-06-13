@@ -1,0 +1,3 @@
+ROM_NAME=( Euphoria-OS );
+MAN=( android_manifest.git );
+ROMNIS="eos";

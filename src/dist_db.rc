@@ -1,0 +1,18 @@
+#!/bin/bash
+# Based on Collective Information from the Internet
+
+function dist_db()
+{
+    # Obtain Distribution Info
+    if [[ -f /etc/os-release ]]; then
+        source /etc/os-release;
+    elif [[ -f /usr/lib/os-release ]]; then
+        source /usr/lib/os-release;
+    fi
+
+    DID="${ID}"; # lowercased distro name
+    VER="${VERSION_ID}"; # distro version
+
+    get "distros" "${DID}";
+
+} # dist_db
