@@ -1,0 +1,10 @@
+#!/bin/bash
+# Zorin OS
+
+case "${VER}" in
+    6) DYR="D12" ;;
+    7|8) DYR="D13" ;;
+    9) DYR="D14" ;;
+    10) DYR="D15" ;;
+    11|12*) DYR="D16" ;;
+esac

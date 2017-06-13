@@ -1,7 +1,9 @@
 #!/bin/bash
+# Based on Collective Information from the Internet
 
 function dist_db()
 {
+    # Obtain Distribution Info
     if [[ -f /etc/os-release ]]; then
         source /etc/os-release;
     elif [[ -f /usr/lib/os-release ]]; then
@@ -11,52 +13,6 @@ function dist_db()
     DID="${ID}"; # lowercased distro name
     VER="${VERSION_ID}"; # distro version
 
-    # Allots Distro Release Year w.r.t Distro Name and Version
-    # Based on Collective Information from the Internet
-    case "${DID}" in
-        "neon"|"ubuntu")
-            case "${VER}" in
-                12.04|12.10) DYR="D12" ;; # Distro(s) released in 2012
-                13.04|13.10) DYR="D13" ;; # Distro(s) released in 2013
-                14.04|14.10) DYR="D14" ;; # Distro(s) released in 2014
-                15.04|15.10) DYR="D15" ;; # Distro(s) released in 2015
-                16.04|16.10) DYR="D16" ;; # Distro(s) released in 2016
-                17.04) DYR="D17" ;; # Distro(s) released in 2017
-            esac
-            ;;
-        "debian")
-            case "${VER}" in
-                8*) DYR="D15" ;;
-            esac
-            ;;
-        "deepin")
-            case "${VER}" in
-                15*) DYR="D15" ;;
-            esac
-            ;;
-        "elementary")
-            case "${VER}" in
-                0.2) DYR="D12" ;;
-                0.3*) DYR="D14" ;;
-                0.4) DYR="D16" ;;
-            esac
-            ;;
-        "linuxmint")
-            case "${VER}" in
-                14) DYR="D12" ;;
-                15|16) DYR="D13" ;;
-                17*) DYR="D14" ;;
-                18*) DYR="D16" ;;
-            esac
-            ;;
-        "zorin")
-            case "${VER}" in
-                6) DYR="D12" ;;
-                7|8) DYR="D13" ;;
-                9) DYR="D14" ;;
-                10) DYR="D15" ;;
-                11|12*) DYR="D16" ;;
-            esac
-            ;;
-    esac
+    get "distros" "${DID}";
+
 } # dist_db

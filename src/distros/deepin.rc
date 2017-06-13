@@ -1,0 +1,6 @@
+#!/bin/bash
+# Deepin OS 15.x - based on Debian 8.x
+
+case "${VER}" in
+    15*) DYR="D15" ;;
+esac
