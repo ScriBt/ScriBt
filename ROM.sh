@@ -185,18 +185,9 @@ function manifest_gen() # D 1,5
         echo -e "\n${INF} Enter ${CL_WYT}github${NONE} if the repo is in GitHub\n"; # HotFix
     } # listremotes
 
-    if [[ ! -d .repo ]]; then
-        echo -e "\n${FLD} ROM Source not initialized\n";
-        quick_menu;
-    else
-        FILE=".repo/local_manifests/file.xml";
-        while read -r line; do
-            eval "$line";
-            REMN=( ${REMN} $name );
-            REMF=( ${REMF} $fetch );
-        done <<< $(repo manifest | grep '<remote' | sed -e 's/<remote//g' -e 's/\/>//g' -e 's/<//g');
-        mkdir -p .repo/local_manifests/; touch file.xml;
-        echo -e "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<manifest>" > "${FILE}";
+    function manifest_gen_menu()
+    {
+        unset OP;
         echo -e "===============${CL_LGN}[!]${NONE} Manifest Generator ${CL_LGN}[!]${NONE}==============";
         echo -e "1) Add a repository";
         echo -e "2) Remove a repository";
@@ -260,12 +251,29 @@ function manifest_gen() # D 1,5
                 echo -e "</manifest>" >> file.xml;
                 mv -f "${FILE}" ".repo/local_manifests/${NAME}.xml";
                 echo -e "${SCS} Custom Manifest successfully saved\n";
-                unset CT repo_path;
+                unset CT repo_path OP;
                 unset {repo,remote}_{name,revision,remote};
                 unset line{,Start,End};
                 quick_menu;
                 ;;
         esac
+    } # manifest_gen_menu
+
+    if [[ ! -d .repo ]]; then
+        echo -e "\n${FLD} ROM Source not initialized\n";
+        quick_menu;
+    else
+        FILE=".repo/local_manifests/file.xml";
+        rm -f "${FILE}";
+        while read -r line; do
+            eval "$line";
+            REMN=( ${REMN} "$name" );
+            REMF=( ${REMF} "$fetch" );
+        done <<< $(repo manifest | grep '<remote' | sed -e 's/<remote//g' -e 's/\/>//g' -e 's/<//g');
+        mkdir -p ${CALL_ME_ROOT}.repo/local_manifests/;
+        touch ${CALL_ME_ROOT}.repo/local_manifests/file.xml;
+        echo -e "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<manifest>" > "${FILE}";
+        [[ "$OP" != "4" ]] && manifest_gen_menu;
     fi
 } # manifest_gen
 
