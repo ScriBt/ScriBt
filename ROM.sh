@@ -997,10 +997,11 @@ function build() # 4
         function settc()
         {
             echo -e "\n${INF} Make sure you have downloaded (synced) a Toolchain for compiling the kernel";
-            echo -e "\n${QN} Point me to the location of the toolchain [ from \"/\" ]\n";
+            echo -e "\n${QN} Point me to the location of the toolchain [ from \"/\" ]";
+            echo -e "\n${INF} Example - ${CL_WYT}/home/foo/tc${NONE}\n"
             ST="Toolchain Location"; shut_my_mouth KTL "$ST";
             if [[ -d "${SBKTL}" ]]; then
-                KCCP=$(find bin/${SBKA}*gcc | grep -v 'androidkernel' | sed -e 's/gcc//g' -e 's/.*bin\///g');
+                KCCP=$(find ${SBKTL}/bin/${SBKA}*gcc | grep -v 'androidkernel' | sed -e 's/gcc//g' -e 's/.*bin\///g');
                 if [[ ! -z "${KCCP}" ]]; then
                     echo -e "\n${SCS} Toolchain Detected\n";
                     echo -e "${INF} Toolchain Prefix : ${KCCP}\n";
@@ -1009,6 +1010,7 @@ function build() # 4
                 fi
             else
                 echo -e "${FLD} Directory not found\n";
+                unset SBKTL;
             fi
             [ -z "$automate" ] && [ "$SBKO" != "5" ] && kbuild;
         } # settc
