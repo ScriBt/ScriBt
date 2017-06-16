@@ -2023,10 +2023,6 @@ function the_start() # 0
     # AutoBot
     ATBT="${CL_WYT}*${NONE}${CL_LRD}AutoBot${NONE}${CL_WYT}*${NONE}";
 
-    # The ROMs
-    export CAFR=( $(ls ${PATHDIR}src/roms/caf/*.rc) );
-    export AOSPR=( $(ls ${PATHDIR}src/roms/aosp/*.rc) );
-
     # CHEAT CHEAT CHEAT!
     if [ -z "$automate" ]; then
         echo -e "${QN} Remember Responses for Automation ${CL_WYT}[y/n]${NONE}\n";
@@ -2117,6 +2113,10 @@ source "${PATHDIR}src/usage.rc";
 
 # Show Interrupt Acknowledgement message on receiving SIGINT
 trap interrupt SIGINT;
+
+# The ROMs
+export CAFR=( $(ls ${PATHDIR}src/roms/caf/*.rc) );
+export AOSPR=( $(ls ${PATHDIR}src/roms/aosp/*.rc) );
 
 # Version
 if [ -d "${PATHDIR}.git" ]; then
