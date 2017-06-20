@@ -565,7 +565,7 @@ function start_venv()
                     "Arch Linux Package Mgr.<->${PKGMGR}" \
                     "Sync Pkgs.<->-S" \
                     "Answer 'yes' to prompts<->-y" \
-                    "Python2 package<->python2";
+                    "virtual env. (python2) package<->python2-virtualenv";
             fi
             echo -e "${EXE} Creating Python2 virtual environment\n";
             cmdprex \
