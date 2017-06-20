@@ -1430,6 +1430,18 @@ function tools() # 5
     {
         get "pkgs" "archcommon";
         echo -e "\n${EXE} Installing required packages";
+        if grep -q '#[multilib]' /etc/pacman.conf; then
+            echo -e "${EXE} Enabling usage of multilib repository";
+            sudo echo -e "[multilib]\nInclude = /etc/pacman.d/mirrorlist" >> /etc/pacman.conf;
+            echo -e "${EXE} Updating repository list\n";
+            cmdprex \
+                "Execute command as 'root'<->execroot" \
+                "Arch Package Mgr.<->${PKGMGR}" \
+                "Sync Pkgs<->-S" \
+                "fetch fresh pkg databases from server<->-y" \
+                "upgrade installed packages<->-u";
+                echo -e "\n${SCS} Done";
+        fi
         # Install packages from multilib-devel
         if ${PKGMGR} -Qq gcc gcc-libs &> /dev/null; then
             echo -e "\n${INF} i686 packages - gcc, gcc-libs might conflict with their 'multilib' counterpart";
