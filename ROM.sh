@@ -1430,9 +1430,9 @@ function tools() # 5
     {
         get "pkgs" "archcommon";
         echo -e "\n${EXE} Installing required packages";
-        if grep -q '#[multilib]' /etc/pacman.conf; then
-            echo -e "${EXE} Enabling usage of multilib repository";
-            sudo echo -e "[multilib]\nInclude = /etc/pacman.d/mirrorlist" >> /etc/pacman.conf;
+        if ! grep -q ".*\[multilib\]" /etc/pacman.conf; then
+            echo -e "\n${EXE} Enabling usage of multilib repository";
+            echo -e "[multilib]\nInclude = /etc/pacman.d/mirrorlist" | sudo tee -a /etc/pacman.conf;
             echo -e "${EXE} Updating repository list\n";
             cmdprex \
                 "Execute command as 'root'<->execroot" \
