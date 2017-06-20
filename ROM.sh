@@ -564,7 +564,7 @@ function start_venv()
                     "Execute command as 'root'<->execroot" \
                     "Arch Linux Package Mgr.<->${PKGMGR}" \
                     "Sync Pkgs.<->-S" \
-                    "Answer 'yes' to prompts<->-y" \
+                    "Answer 'yes' to prompts<->--noconfirm" \
                     "virtual env. (python2) package<->python2-virtualenv";
             fi
             echo -e "${EXE} Creating Python2 virtual environment\n";
@@ -1429,51 +1429,39 @@ function tools() # 5
     function installdeps_arch()
     {
         get "pkgs" "archcommon";
-        # sort out already installed pkgs
-        for item in ${PKGS} ${PKGS64} ${PKGSJAVA}; do
-            if ! pacman -Qq "${item}" &> /dev/null; then
-                PKGSREQ="${item} ${PKGSREQ}";
+        echo -e "\n${EXE} Installing required packages";
+        # Install packages from multilib-devel
+        if ${PKGMGR} -Qq gcc gcc-libs &> /dev/null; then
+            echo -e "\n${INF} i686 packages - gcc, gcc-libs might conflict with their 'multilib' counterpart";
+            echo -e "\n${INF} Answer ${CL_WYT}y${NONE} to the prompt for removal of the conflicting i686 packages\n";
+        fi
+        for item in ${GCC}; do
+            if ! pacman -Qq ${item}  &> /dev/null; then
+                cmdprex \
+                    "Command Execution as 'root'<->execroot" \
+                    "Arch Package Mgr.<->${PKGMGR}" \
+                    "Sync Pkgs<->-S" \
+                    "multilib package<->${item}";
             fi
         done
-        # if there are required packages, run the installer
-        if [ ${#PKGSREQ} -ge 4 ]; then
-            # choose an AUR package manager instead of pacman
-            for item in yaourt pacaur packer; do
-                if which "${item}" &> /dev/null; then
-                    AURMGR="${item}";
-                fi
-            done
-            if [ -z "${AURMGR}" ]; then
-                echo -e "\n${FLD} no AUR manager found\n";
-                exitScriBt 1;
+        # sort out already installed pkgs
+        for item in ${PKGS[*]}; do
+            if ! pacman -Qq "${item}" &> /dev/null; then
+                PKGSREQ=( ${item} ${PKGSREQ} );
             fi
-            # look for conflicting packages and uninstall them
-            for item in ${PKGS_CONFLICT}; do
-                if pacman -Qq "${item}" &> /dev/null; then
-                    cmdprex \
-                        "Command Execution as 'root'<->execroot" \
-                        "Arch Package Mgr<->pacman" \
-                        "Remove<->-R" \
-                        "Skip all Dependency Checks<->-dd" \
-                        "remove config files<->-n" \
-                        "remove unnecessary dependencies<->-s" \
-                        "Answer 'yes' to prompts<->--noconfirm" \
-                        "Conflicting Packages list<->${item}";
-                    sleep 3;
-                fi
-            done
-            # install required packages
-            for item in ${PKGSREQ}; do
-                cmdprex \
-                "Arch Package Mgr.<->${AURMGR}" \
+        done
+        if [[ ! -z "${PKGSREQ[*]}" ]]; then
+            # Install required packages
+            cmdprex \
+                "Command Execution as 'root'<->execroot" \
+                "Arch Package Mgr.<->${PKGMGR}" \
                 "Sync Pkgs<->-S" \
                 "Answer 'yes' to prompts<->--noconfirm" \
-                "Packages List<->${item}";
-            done
+                "Packages List<->${PKGSREQ[*]}";
         else
             echo -e "\n${SCS} You already have all required packages\n";
         fi
-        unset item AURMGR PKGSREQ;
+        unset item PKGSREQ;
     } # installdeps_arch
 
     function java_select()

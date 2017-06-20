@@ -1,7 +1,8 @@
 #!/bin/bash
 
 # Arch Linux - common packages
-PKGS="git gnupg flex bison gperf sdl wxgtk squashfs-tools curl ncurses zlib schedtool perl-switch zip unzip libxslt python2-virtualenv bc rsync maven";
-PKGS64="$( pacman -Sgq multilib-devel ) lib32-zlib lib32-ncurses lib32-readline";
-PKGSJAVA="jdk6 jdk7-openjdk";
-PKGS_CONFLICT="gcc gcc-libs";
+PKGS=( git gnupg flex bison gperf sdl wxgtk2 squashfs-tools curl ncurses zlib \
+       schedtool perl-switch zip unzip libxslt python2-virtualenv bc rsync \
+       maven xml2 lzop pngcrush imagemagick lib32-zlib lib32-ncurses \
+       lib32-readline jdk7-openjdk );
+GCC="$( pacman -Sgq multilib-devel )";
