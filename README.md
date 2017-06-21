@@ -9,9 +9,9 @@
 <p align="center">
 <a href="https://goo.gl/FmTy9k"><img src="https://img.shields.io/badge/Project-XDA--Developers-yellow.svg"></a>&nbsp;&nbsp;&nbsp;
 <a href="https://goo.gl/zMfsp3"><img src="https://img.shields.io/badge/License-GPLv3-blue.svg"></a>&nbsp;&nbsp;&nbsp;
-<a href="https://goo.gl/L2d2Xr"><img src="https://img.shields.io/badge/How--To-Wiki-red.svg"></a>&nbsp;&nbsp;&nbsp;
+<a href="https://scribt.github.io"><img src="https://img.shields.io/badge/ScriBt-Website-red.svg"></a>&nbsp;&nbsp;&nbsp;
 <a href="https://t.me/ScriBt"><img src="https://img.shields.io/badge/Public%20Group-Telegram-blue.svg"></a>&nbsp;&nbsp;&nbsp;
-<a href="https://goo.gl/9aPUc6"><img src="https://img.shields.io/badge/Development-Ongoing-brightgreen.svg">&nbsp;&nbsp;&nbsp;
+<a href="https://goo.gl/9aPUc6"><img src="https://img.shields.io/badge/Development-Ongoing-brightgreen.svg"></a>&nbsp;&nbsp;&nbsp;
 <hr>
 <p align="center">
 <b>Supports Ubuntu & Debian based distros, and Arch Linux</b>
