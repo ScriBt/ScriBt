@@ -188,13 +188,13 @@ function manifest_gen() # D 1,5
     function manifest_gen_menu()
     {
         unset OP;
-        echo -e "===============${CL_LGN}[!]${NONE} Manifest Generator ${CL_LGN}[!]${NONE}==============";
+        echo -e "\n${CL_WYT}===============${NONE}${CL_LGN}[!]${NONE} Manifest Generator ${CL_LGN}[!]${NONE}${CL_WYT}==============${NONE}";
         echo -e "1) Add a repository";
         echo -e "2) Remove a repository";
         echo -e "3) Add a remote";
         echo -e "4) Save Custom Manifest && Return to Quick-Menu";
         echo -e "\nReplacing a repo ? Remove the repo, then add it's replacement";
-        echo -e "=======================================================\n";
+        echo -e "${CL_WYT}=======================================================${NONE}\n";
         prompt OP;
         unset CT repo_path;
         unset {repo,remote}_{name,revision,remote};
@@ -223,7 +223,7 @@ function manifest_gen() # D 1,5
                     line="${lineStart} name=\"${repo_name}\" ${lineEnd}";
                     echo "${line}" >> "${CALL_ME_ROOT}${FILE}";
                 else
-                    echo -e "${FLD} Project ${name} not found. Bailing out.";
+                    echo -e "\n${FLD} Project ${name} not found. Bailing out.\n";
                 fi
                 ;;
             3)
@@ -248,7 +248,7 @@ function manifest_gen() # D 1,5
             4)
                 echo -e "${QN} Provide a name for this manifest [Just the name]\n";
                 prompt NAME;
-                echo -e "</manifest>" >> file.xml;
+                echo -e "</manifest>" >> "${CALL_ME_ROOT}${FILE}";
                 mv -f "${FILE}" ".repo/local_manifests/${NAME}.xml";
                 echo -e "${SCS} Custom Manifest successfully saved\n";
                 unset CT repo_path OP;
@@ -278,20 +278,33 @@ function manifest_gen() # D 1,5
     fi
 } # manifest_gen
 
+function it_is_apt()
+{
+    while read -r path; do
+        if ${path} | tail -1 | grep -q 'Super Cow Powers'; then
+            APTPATH="${path}";
+        fi
+    done <<< "$(which apt-get)
+    $(which apt)";
+    if [ -z "${APTPATH}" ]; then
+        return 1;
+    else
+        return 0;
+    fi
+} # it_is_apt
+
 function pkgmgr_check() # ID
 {
     if which pacman &> /dev/null; then
         PKGMGR="pacman";
-    elif which apt &> /dev/null; then
-        PKGMGR="apt";
-    elif which apt-get &> /dev/null; then
-        PKGMGR="apt-get";
+    elif it_is_apt; then
+        PKGMGR="${APTPATH}";
     else
         echo -e "${FLD} No supported package manager has been found.";
         echo -e "\n${INF} Arch Linux or a Debian/Ubuntu based Distribution is required to run ScriBt.";
         exitScriBt 1;
     fi
-    echo -e "\n${SCS} Package manager ${CL_WYT}${PKGMGR}${NONE} detected.\033[0m";
+    echo -e "\n${SCS} Package manager ${CL_WYT}${PKGMGR//*apt/apt}${NONE} detected.\033[0m";
 } # pkgmgr_check
 
 function quick_menu()
@@ -1895,7 +1908,7 @@ function tools() # 5
         case "$TOOL" in
             0) quick_menu ;;
             1) case "${PKGMGR}" in
-                   "apt"|"apt-get") installdeps ;;
+                   *apt*) installdeps ;;
                    "pacman") installdeps_arch ;;
                esac
                ;;
