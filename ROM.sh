@@ -237,7 +237,7 @@ function manifest_gen() # D 1,5
                     if [[ "${CT}" == "${remote_name}" ]]; then
                         echo -e "${FLD} Remote ${remote_name} already exists";
                         echo -e "${INF} Try again\n";
-                        break && manifest_gen;
+                        break && manifest_gen_menu;
                     fi
                 done
                 line="name=\"${remote_name}\" fetch=\"${remote_url}\"";
@@ -257,6 +257,7 @@ function manifest_gen() # D 1,5
                 quick_menu;
                 ;;
         esac
+        [[ "$OP" != "4" ]] && manifest_gen_menu;
     } # manifest_gen_menu
 
     if [[ ! -d .repo ]]; then
@@ -273,26 +274,24 @@ function manifest_gen() # D 1,5
         mkdir -p ${CALL_ME_ROOT}.repo/local_manifests/;
         touch ${CALL_ME_ROOT}.repo/local_manifests/file.xml;
         echo -e "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<manifest>" > "${FILE}";
-        [[ "$OP" != "4" ]] && manifest_gen_menu;
+        manifest_gen_menu;
     fi
 } # manifest_gen
 
 function pkgmgr_check() # ID
 {
-    if which apt &> /dev/null; then
-        echo -e "\n${SCS} Package manager ${CL_WYT}apt${NONE} detected.\033[0m";
+    if which pacman &> /dev/null; then
+        PKGMGR="pacman";
+    elif which apt &> /dev/null; then
         PKGMGR="apt";
     elif which apt-get &> /dev/null; then
-        echo -e "\n${SCS} Package manager ${CL_WYT}apt-get${NONE} detected.\033[0m";
         PKGMGR="apt-get";
-    elif which pacman &> /dev/null; then
-        echo -e "\n${SCS} Package manager ${CL_WYT}pacman${NONE} detected.\033[0m";
-        PKGMGR="pacman";
     else
         echo -e "${FLD} No supported package manager has been found.";
         echo -e "\n${INF} Arch Linux or a Debian/Ubuntu based Distribution is required to run ScriBt.";
         exitScriBt 1;
     fi
+    echo -e "\n${SCS} Package manager ${CL_WYT}${PKGMGR}${NONE} detected.\033[0m";
 } # pkgmgr_check
 
 function quick_menu()
@@ -457,11 +456,13 @@ function init() # 1
     MURL="https://github.com/${RNM}/${MNF}";
     cmdprex --out="${STMP}" \
         "repository management tool<->repo" \
-        "initialze in current dir<->init" \
-        "reference source dir<->${REF}" \
+        "initialze in current directory<->init" \
+        "reference source directory<->${REF}" \
         "clone depth<->${CDP}" \
-        "manifest URL<->-u ${MURL}" \
-        "manifest branch<->-b ${SBBR}";
+        "manifest URL specifier<->-u" \
+        "URL<->${MURL}" \
+        "manifest branch specifier<->-b" \
+        "branch<->${SBBR}";
     echo -e "${CL_WYT}=======================================================${NONE}\n";
     if [ -z "$STS" ]; then
         [ ! -f .repo/local_manifests ] && mkdir -pv .repo/local_manifests;
@@ -705,13 +706,13 @@ function pre_build() # 3
                     case "$1" in
                         "pb") export DDC="$ACTUAL_DDC" ;;
                         "intm") # Interactive Makefile not found -vv
-                            if [[ $(grep -c '##### Interactive' ${DEVDIR}/${ACTUAL_DDC}) == "0" ]] \
-                            && [[ "$ACTUAL_DDC" != "${ROMNIS}.mk" ]]; then # ROM Specific Makefile not Present
-                                export DDC="$ACTUAL_DDC"; # Interactive makefile not present for that particular ROMNIS
-                                continue; # searching for more relevant makefile
+                            if grep -q '##### Interactive' "${DEVDIR}/${ACTUAL_DDC}" \
+                            && [[ "$ACTUAL_DDC" != "${ROMNIS}.mk" ]]; then
+                                export DDC="$ACTUAL_DDC";
+                                continue;
                             else
-                                export DDC="NULL"; # Interactive Makefile already created, under ROMNIS name
-                                break; # What now ? Get out!
+                                export DDC="NULL";
+                                break;
                             fi
                             ;;
                     esac
@@ -855,19 +856,19 @@ function build() # 4
         case "$SBSLT" in
             "lunch")
                 cmdprex \
-                    "CommandName<->${SBSLT}" \
+                    "Setup Device-Specific BuildEnv<->${SBSLT}" \
                     "Target Name<->${TARGET}";
                 ;;
             "breakfast")
                 cmdprex \
-                    "CommandName<->${SBSLT}" \
+                    "Fetch dependencies and Setup Device-Specific BuildEnv<->${SBSLT}" \
                     "Device Codename<->${SBDEV}" \
                     "ROM BuildType<->${SBBT}";
                 ;;
             "brunch")
                 echo -e "\n${EXE} Starting Compilation - ${ROM_FN} for ${SBDEV}\n";
                 cmdprex \
-                    "CommandName<->${SBSLT}" \
+                    "Sync n Build<->${SBSLT}" \
                     "Device Codename<->${SBDEV}";
                 ;;
             *) echo -e "${FLD} Invalid Selection.\n"; hotel_menu ;;
@@ -1025,14 +1026,14 @@ function build() # 4
             case "${SBCK}" in
                 1)
                     cmdprex \
-                        "CommandName<->make" \
-                        "TargetName<->clean" \
+                        "GNU make<->make" \
+                        "Target name to clean objects, modules, and Kernel Configuration<->clean" \
                         "No. of Jobs<->-j${SBNT}" \
                     ;;
                 2)
                     cmdprex \
-                        "CommandName<->make" \
-                        "TargetName<->mrproper" \
+                        "GNU make<->make" \
+                        "Target name to clean objects and modules only<->mrproper" \
                         "No. of Jobs<->-j${SBNT}" \
                     ;;
             esac
@@ -1056,10 +1057,10 @@ function build() # 4
                 "Set Toolchain Location<->CROSS_COMPILE=\"${SBKTL}/bin/${KCCP}\"";
             [ ! -z "$SBNT" ] && SBNT="-j${SBNT}";
             cmdprex \
-                "CommandName<->make" \
+                "GNU make<->make" \
                 "Defconfig to be Initialized<->${SBKD}";
             cmdprex \
-                "CommandName<->make" \
+                "GNU make<->make" \
                 "No. of Jobs<->${SBNT}";
             if [[ ! -z "${STS}" ]]; then
                 echo -e "\n${SCS} Compiled Successfully\n";
@@ -1324,7 +1325,7 @@ function build() # 4
                             "Mark variable to be Inherited by child processes<->export" \
                             "Variable to Disable Ninja<->USE_NINJA=false";
                         cmdprex \
-                            "CommandName<->unset" \
+                            "Command to unset an entity<->unset" \
                             "Unsetting this Var removes Ninja temp files<->BUILDING_WITH_NINJA";
                         ;;
                     *) echo -e "${FLD} Invalid Selection.\n" ;;
@@ -1701,7 +1702,7 @@ function tools() # 5
         echo -e "\n${INF} Enter the Details with reference to your ${CL_WYT}GitHub account${NONE}\n\n";
         sleep 2;
         echo -e "${QN} Enter the Username";
-        echo -e "${INF} Username is the one which appears on the GitHub Account URL\n${INF} Ex. https://github.com/[ACCOUNT_NAME]\n";
+        echo -e "${INF} Enter a desired name (or GitHub username)";
         prompt GIT_U;
         echo -e "\n${QN} Enter the E-mail ID\n";
         prompt GIT_E;
@@ -2142,9 +2143,14 @@ elif [ -z "$1" ]; then
     main_menu;
 elif [[ "$1" == "version" ]]; then
     if [ -n "$VERSION" ]; then
-        echo -e "\n\033[1;34m[\033[1;31m~\033[1;34m]\033[0m Projekt ScriBt \033[1;34m[\033[1;31m~\033[1;34m]\033[0m\n     ${VERSION}\n";
+        SP=$(( 11 - $(( $(echo ${VERSION} | wc -L) / 2 ))));
+        SPCS=$(for ((i=0;i<"${SP}";i++)); do echo -en " "; done);
+        unset SP;
+        echo -e "\n\033[1;34m[\033[1;31m~\033[1;34m]\033[0m Projekt ScriBt \033[1;34m[\033[1;31m~\033[1;34m]\033[0m\n";
+        echo -e "${SPCS}\033[1;37m${VERSION}\033[0m\n";
+        unset SPCS;
     else
-        echo -e "Not available. Please resync ScriBt through Git";
+        echo -e "Not available. Please resync ScriBt through git";
         exit 1;
     fi
 elif [[ "$1" == "usage" ]]; then
