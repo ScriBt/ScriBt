@@ -294,7 +294,7 @@ function manifest_gen() # D 1,5
         echo -e "\n${FLD} ROM Source not initialized\n";
         quick_menu;
     else
-        FILE=".repo/local_manifests/file.xml";
+        FILE="file.xml";
         rm -f "${FILE}";
         while read -r line; do
             eval "$line";
@@ -302,7 +302,7 @@ function manifest_gen() # D 1,5
             REMF=( ${REMF} "$fetch" );
         done <<< $(repo manifest | grep '<remote' | sed -e 's/<remote//g' -e 's/\/>//g' -e 's/<//g');
         mkdir -p ${CALL_ME_ROOT}.repo/local_manifests/;
-        touch ${CALL_ME_ROOT}.repo/local_manifests/file.xml;
+        touch ${CALL_ME_ROOT}${FILE};
         echo -e "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<manifest>" > "${FILE}";
         manifest_gen_menu;
     fi
