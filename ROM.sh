@@ -210,12 +210,12 @@ function manifest_gen() # D 1,5
                 echo -en "\n${QN} Branch : "; prompt repo_revision --no-repeat;
                 listremotes;
                 prompt repo_remote --no-repeat;
-                line="name=\"${repo_name}\" path=\"${repo_path}\"";
-                [ ! -z "${repo_revision}" ] && line="${line} revision=\"${repo_revision}\"";
-                [ ! -z "${repo_remote}" ] && line="${line} remote=\"${repo_remote}\"";
+                line=( "name=\"${repo_name}\"" "path=\"${repo_path}\"" );
+                [ ! -z "${repo_revision}" ] && line=( "${line[*]}" "revision=\"${repo_revision}\"" );
+                [ ! -z "${repo_remote}" ] && line=( "${line[*]}" "remote=\"${repo_remote}\"" );
                 if ! repo manifest | grep -q "${repo_path}"; then
-                    line="${lineStart} ${line} ${lineEnd}";
-                    echo "${line}" >> "${CALL_ME_ROOT}${FILE}";
+                    line=( "${lineStart}" "${line[*]}" "${lineEnd}" );
+                    echo -e "${line[*]}" >> "${CALL_ME_ROOT}${FILE}";
                     echo -e "\n${SCS} Repository added";
                 else
                     echo -e "${FLD} Another repo has the same checkout path ${CL_WYT}${repo_path}${NONE}\n";
@@ -227,8 +227,8 @@ function manifest_gen() # D 1,5
                 echo -e "${QN} Please enter the Repository Name";
                 prompt repo_name;
                 if repo manifest | grep -q "${repo_name}"; then
-                    line="${lineStart} name=\"${repo_name}\" ${lineEnd}";
-                    echo "${line}" >> "${CALL_ME_ROOT}${FILE}";
+                    line=( "${lineStart}" "name=\"${repo_name}\"" "${lineEnd}" );
+                    echo -e "${line[*]}" >> "${CALL_ME_ROOT}${FILE}";
                 else
                     echo -e "\n${FLD} Project ${name} not found. Bailing out.\n";
                 fi
@@ -247,10 +247,10 @@ function manifest_gen() # D 1,5
                         break && manifest_gen_menu;
                     fi
                 done
-                line="name=\"${remote_name}\" fetch=\"${remote_url}\"";
-                [ ! -z "${remote_revision}" ] || line="${line} revision=\"${remote_revision}\"";
-                line="${lineStart} ${line} ${lineEnd}";
-                echo "${line}" >> "${CALL_ME_ROOT}${FILE}";
+                line=( "name=\"${remote_name}\"" "fetch=\"${remote_url}\"" );
+                [ ! -z "${remote_revision}" ] || line=( "${line[*]}" "revision=\"${remote_revision}\"");
+                line=( "${lineStart}" "${line[*]}" "${lineEnd}" );
+                echo -e "${line[*]}" >> "${CALL_ME_ROOT}${FILE}";
                 ;;
             4)
                 echo -e "\n${INF} Operations Performed";
@@ -273,14 +273,18 @@ function manifest_gen() # D 1,5
                             ;;
                     esac
                     unset name path remote revision fetch;
-                done <<< "$(cat ${CALL_ME_ROOT}${FILE} | awk 'f;/<manifest>/{f=1}')";
+                done <<< "$(awk 'f;/<manifest>/{f=1}' ${CALL_ME_ROOT}${FILE})";
                 ;;
             5)
                 echo -e "${QN} Provide a name for this manifest [Just the name]\n";
                 prompt NAME;
                 echo -e "</manifest>" >> "${CALL_ME_ROOT}${FILE}";
-                mv -f "${CALL_ME_ROOT}${FILE}" ".repo/local_manifests/${NAME}.xml";
-                echo -e "${SCS} Custom Manifest successfully saved at \n";
+                if mv -f "${CALL_ME_ROOT}${FILE}" ".repo/local_manifests/${NAME}.xml"; then
+                    echo -e "\n${SCS} Custom Manifest successfully saved\n";
+                else
+                    echo -e "\n${FLD} Couldn't save the manifest";
+                    echo -e "\n${INF} Manually copy ${CL_WYT}file.xml${NONE} to .repo/local_manifests/${NAME}.xml\n";
+                fi
                 unset CT repo_path OP;
                 unset {repo,remote}_{name,revision,remote};
                 unset line{,Start,End};
