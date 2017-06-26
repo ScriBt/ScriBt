@@ -213,13 +213,13 @@ function manifest_gen() # D 1,5
                 line=( "name=\"${repo_name}\"" "path=\"${repo_path}\"" );
                 [ ! -z "${repo_revision}" ] && line=( "${line[*]}" "revision=\"${repo_revision}\"" );
                 [ ! -z "${repo_remote}" ] && line=( "${line[*]}" "remote=\"${repo_remote}\"" );
-                if ! repo manifest | grep -q "${repo_path}"; then
+                if repo manifest | grep -q "${repo_path}"; then
+                    echo -e "${FLD} Another repo has the same checkout path ${CL_WYT}${repo_path}${NONE}\n";
+                    echo -e "${INF} Please try again";
+                else
                     line=( "${lineStart}" "${line[*]}" "${lineEnd}" );
                     echo -e "${line[*]}" >> "${CALL_ME_ROOT}${FILE}";
                     echo -e "\n${SCS} Repository added";
-                else
-                    echo -e "${FLD} Another repo has the same checkout path ${CL_WYT}${repo_path}${NONE}\n";
-                    echo -e "${INF} Please try again";
                 fi
                 ;;
             2)
@@ -304,8 +304,8 @@ function manifest_gen() # D 1,5
             eval "$line";
             if [[ "${fetch}" == ".." ]]; then
                 cd "${CALL_ME_ROOT}/.repo/manifests";
-                # Poor awk logic ://, won't burn down the world tho :)
-                fetch=$(git config --get remote.origin.url | awk -F "/" '{print $1"://"$3}');
+                # Poor awk logic :/, won't burn down the world tho :)
+                fetch=$(git config --get remote.origin.url | awk -F "/" '{print $1"//"$3}');
                 cd "${CALL_ME_ROOT}";
             fi
             REMN+=( "$name" );
