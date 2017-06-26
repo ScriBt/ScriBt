@@ -302,8 +302,8 @@ function manifest_gen() # D 1,5
         rm -f "${FILE}";
         while read -r line; do
             eval "$line";
-            REMN=( ${REMN} "$name" );
-            REMF=( ${REMF} "$fetch" );
+            REMN+=( "$name" );
+            REMF+=( "$fetch" );
         done <<< $(repo manifest | grep '<remote' | sed -e 's/<remote//g' -e 's/\/>//g');
         mkdir -p ${CALL_ME_ROOT}.repo/local_manifests/;
         touch "${CALL_ME_ROOT}${FILE}";
