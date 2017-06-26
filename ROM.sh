@@ -281,7 +281,7 @@ function manifest_gen() # D 1,5
 function it_is_apt()
 {
     while read -r path; do
-        if ${path} | tail -1 | grep -q 'Super Cow Powers'; then
+        if apt moo; then
             APTPATH="${path}";
         fi
     done <<< "$(which apt-get)
