@@ -302,6 +302,12 @@ function manifest_gen() # D 1,5
         rm -f "${FILE}";
         while read -r line; do
             eval "$line";
+            if [[ "${fetch}" == ".." ]]; then
+                cd "${CALL_ME_ROOT}/.repo/manifests";
+                # Poor awk logic ://, won't burn down the world tho :)
+                fetch=$(git config --get remote.origin.url | awk -F "/" '{print $1"://"$3}');
+                cd "${CALL_ME_ROOT}";
+            fi
             REMN+=( "$name" );
             REMF+=( "$fetch" );
         done <<< $(repo manifest | grep '<remote' | sed -e 's/<remote//g' -e 's/\/>//g');
