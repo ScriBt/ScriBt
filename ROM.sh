@@ -352,7 +352,7 @@ function manifest_gen() # D 1,5
 function it_is_apt()
 {
     while read -r path; do
-        if apt moo; then
+        if apt moo &> /dev/null; then
             APTPATH="${path}";
         fi
     done <<< "$(which apt-get)
@@ -819,7 +819,7 @@ function pre_build() # 3
             [ -z "$INTF" ] && INTF="${ROMNIS}.mk";
             get "misc" "intmake";
             {
-                echo -e "\n# Inherit ${ROMNIS} common stuff\n\$(call inherit-product, ${CNF}/${VNF}.mk)";
+                echo -e "\n# Inherit ${ROMNIS} common stuff\n\$(call inherit-product, ${CNF}/${SBDEV}.mk)";
                 echo -e "\n# Calling Default Device Configuration File";
                 echo -e "\$(call inherit-product, ${DEVDIR}${DDC})";
             } >> "${INTF}";
@@ -843,7 +843,7 @@ function pre_build() # 3
             unset CT;
             echo -e "\n# ROM Specific Identifier\nPRODUCT_NAME := ${ROMNIS}_${SBDEV}" >> "${INTF}";
             echo -e "${EXE} Renaming .dependencies file (if exists)\n";
-            [ -f *.dependencies ] && mv -f *.dependencies "${ROMNIS}.dependencies";
+            find . -name '*.dependencies' -exec cp -f {} ./${ROMNIS}.dependencies \;
             echo -e "${SCS} Done.";
             cd "${CALL_ME_ROOT}";
         } # create_imk
