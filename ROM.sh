@@ -622,7 +622,9 @@ function device_info() # D 3,4
     echo -e "${QN} Build type \n${INF} [userdebug/user/eng]\n";
     ST="Build type"; shut_my_mouth BT "$ST";
     if [ -z "$SBBT" ]; then SBBT="userdebug"; fi;
-    echo -e "${QN} Choose your Device type among these. Explainations of each file given in README.md\n"; get "info" "devtype";
+    echo -e "${QN} Choose your Device type among these";
+    echo -e "\n${INF} Explainations of each file given in";
+    echo -e "\nhttps://scribt.github.io/wiki/pre-build.html - 'Device Types' section\n"; get "info" "devtype";
     CT=0;
     get "misc" "device_types";
     for TYP in ${TYPES[*]}; do
@@ -631,7 +633,7 @@ function device_info() # D 3,4
     unset CT;
     echo;
     ST="Device Type"; shut_my_mouth DTP "$ST";
-    if [ -z "${SBDTP}" ]; then SBDTP="common"; else SBDTP="${TYPES[${SBDTP}]}"; fi;
+    if [ "${SBDTP}" != "common" ]; then SBDTP="${TYPES[${SBDTP}]}"; fi;
     echo -e "${CL_WYT}=======================================================${NONE}\n";
 } # device_info
 

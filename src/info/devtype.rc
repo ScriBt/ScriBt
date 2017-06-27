@@ -1,4 +1,4 @@
 #!/bin/bash
 
-echo -e "${INF} For Phones : If you don't find common_full_phone / common_mini_phone then leave this field blank";
-echo -e "\nBuildSystem would consider the Device as a Phone\n";
+echo -e "${INF} For Phones : If you don't find common_full_phone / common_mini_phone then answer ${CL_WYT}common${NONE}";
+echo -e "\n${INF} BuildSystem would use common properties\n";
