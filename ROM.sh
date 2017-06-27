@@ -819,7 +819,7 @@ function pre_build() # 3
             [ -z "$INTF" ] && INTF="${ROMNIS}.mk";
             get "misc" "intmake";
             {
-                echo -e "\n# Inherit ${ROMNIS} common stuff\n\$(call inherit-product, ${CNF}/${SBDEV}.mk)";
+                echo -e "\n# Inherit ${ROMNIS} common stuff\n\$(call inherit-product, ${CNF}/${SBDTP}.mk)";
                 echo -e "\n# Calling Default Device Configuration File";
                 echo -e "\$(call inherit-product, ${DEVDIR}${DDC})";
             } >> "${INTF}";
@@ -1334,7 +1334,7 @@ function build() # 4
             fi
             init_bld;
             choose_target;
-            echo -e "\n${QN} Should i use 'make' or 'mka'\n"; get "info" "make";
+            echo -e "\n${QN} Should I use 'make' or 'mka'"; get "info" "make";
             ST="Selected Method"; shut_my_mouth MK "$ST";
             case "$SBMK" in
                 "make")
@@ -1464,7 +1464,7 @@ function build() # 4
                     ;;
                 *) echo -e "${INF} No Clean Option Selected.\n" ;;
             esac
-            echo -e "${QN} Set a custom user/host ${CL_WYT}[y/n]${NONE}";
+            echo -e "\n${QN} Set a custom user/host ${CL_WYT}[y/n]${NONE}\n";
             ST="Custom user@host"; shut_my_mouth CUH "$ST";
             [[ "$SBCUH" =~ (Y|y) ]] && custuserhost;
             hotel_menu;
