@@ -816,41 +816,40 @@ function pre_build() # 3
         function create_imk()
         {
             cd "${DEVDIR}";
-            INTM="interact.mk";
             [ -z "$INTF" ] && INTF="${ROMNIS}.mk";
             get "misc" "intmake";
             {
-                echo -e "\n# Inherit ${ROMNIS} common stuff\n\$(call inherit-product, ${CNF}/${SBDTP}.mk)";
+                echo -e "\n# Inherit ${ROMNIS} common stuff\n\$(call inherit-product, ${CNF}/${VNF}.mk)";
                 echo -e "\n# Calling Default Device Configuration File";
-                echo -e "\$(call inherit-product, ${DEVDIR}${DDC})";
+                echo -e "\$(call inherit-product, ${DEVDIR}/${DDC})";
             } >> "${INTF}";
             # To prevent Missing Vendor Calls in DDC-File
             sed -i -e 's/inherit-product, vendor\//inherit-product-if-exists, vendor\//g' "$DDC";
             # Add User-desired Makefile Calls
-            echo -e "${QN} Missed some Makefile calls\n${INF} Enter number of Desired Makefile calls\n${INF} Enter 0 if none";
+            echo -e "${QN} Missed some Makefile calls";
+            echo -e "\n${INF} Enter number of Desired Makefile calls";
+            echo -e "\n${INF} Enter 0 if none\n";
             ST="No of Makefile Calls"; shut_my_mouth NMK "$ST";
             for (( CT=0; CT<"${SBNMK}"; CT++ )); do
                 echo -e "\n${QN} Enter Makefile location from Root of BuildSystem";
                 ST="Makefile"; shut_my_mouth LOC[$CT] "$ST" array;
                 if [ -f "${CALL_ME_ROOT}${SBLOC[$CT]}" ]; then
                     echo -e "\n${EXE} Adding Makefile $(( CT + 1 ))";
-                    echo -e "\n\$(call inherit-product, ${SBLOC[$CT]})" >> "${INTM}";
+                    echo -e "\n\$(call inherit-product, ${SBLOC[$CT]})" >> "${INTF}";
                 else
                     echo -e "${FLD} Makefile ${SBLOC[$CT]} not Found. Aborting";
                 fi
             done
             unset CT;
-            echo -e "\n# ROM Specific Identifier\nPRODUCT_NAME := ${ROMNIS}_${SBDEV}" >> "${INTM}";
-            # Make it Identifiable
-            mv "${INTM}" "${INTF}";
-            echo -e "${EXE} Renaming .dependencies file\n";
-            [ ! -f "${ROMNIS}.dependencies" ] && mv -f ./*.dependencies "${ROMNIS}.dependencies";
+            echo -e "\n# ROM Specific Identifier\nPRODUCT_NAME := ${ROMNIS}_${SBDEV}" >> "${INTF}";
+            echo -e "${EXE} Renaming .dependencies file (if exists)\n";
+            [ -f *.dependencies ] && mv -f *.dependencies "${ROMNIS}.dependencies";
             echo -e "${SCS} Done.";
             cd "${CALL_ME_ROOT}";
         } # create_imk
 
         find_ddc "intm";
-        if [[ "$DDC" == "NULL" ]]; then echo "$NOINT"; else create_imk; fi;
+        if [[ "$DDC" != "NULL" ]]; then create_imk; else echo "$NOINT"; fi;
     } # interactive_mk
 
     function need_for_int()
