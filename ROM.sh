@@ -173,106 +173,177 @@ function main_menu()
 
 function manifest_gen() # D 1,5
 {
+    function add_repo()
+    {
+        export lineStart="<project" lineEnd="/>";
+        echo -e "\n${INF} Please enter the following one by one\n";
+        echo -e "${INF} Hit Enter if no answer is to be provided (repository name & path CANNOT be blank).";
+        echo -en "\n${QN} Repository Name : "; prompt repo_name;
+        echo -en "\n${QN} Repository Path : "; prompt repo_path;
+        echo -en "\n${QN} Branch : "; prompt repo_revision --no-repeat;
+        listremotes;
+        prompt repo_remote --no-repeat;
+        line=( "name=\"${repo_name}\"" "path=\"${repo_path}\"" );
+        [ ! -z "${repo_revision}" ] && line=( "${line[*]}" "revision=\"${repo_revision}\"" );
+        [ ! -z "${repo_remote}" ] && line=( "${line[*]}" "remote=\"${repo_remote}\"" );
+        if cat "${MANIFEST}" | grep -q "${repo_path}"; then
+            echo -e "\n${FLD} Another repo has the same checkout path ${CL_WYT}${repo_path}${NONE}";
+            echo -e "\n${INF} Please try again";
+        else
+            line=( "${lineStart}" "${line[*]}" "${lineEnd}" );
+            echo -e "${line[*]}" >> "${FILE}";
+            echo -e "\n${SCS} Repository added";
+        fi
+        unset repo_{name,path,revision,remote};
+        unset line{,Start,End};
+    } # add_repo
+
+    function remove_repo()
+    {
+        export lineStart="<remove-project" lineEnd="/>";
+        echo -e "\n${QN} Please enter the Repository Name\n";
+        prompt repo_name;
+        if cat "${MANIFEST}" | grep -q "${repo_name}"; then
+            line=( "${lineStart}" "name=\"${repo_name}\"" "${lineEnd}" );
+            echo -e "${line[*]}" >> "${FILE}";
+            echo -e "\n${SCS} Project ${repo_name} removed from manifest";
+        else
+            echo -e "\n${FLD} Project ${repo_name} not found. Bailing out.\n";
+        fi
+        unset repo_name;
+        unset line{,Start,End};
+    } # remove_repo
+
+    function add_remote()
+    {
+        export lineStart="<remote"; export lineEnd="/>";
+        echo -e "\n${INF} Please enter the following one by one\n";
+        echo -e "${INF} If some of them are not needed, hit ENTER key [remote name and remote URL CANNOT be blank]";
+        echo -en "\n${QN} Remote Name : "; prompt remote_name;
+        echo -en "\n${QN} Remote Fetch URL : "; prompt remote_url;
+        echo -en "\n${QN} Revision : "; prompt remote_revision;
+        for CT in ${REMN[*]}; do
+            if [[ "${CT}" == "${remote_name}" ]]; then
+                echo -e "${FLD} Remote ${remote_name} already exists\n";
+                echo -e "${INF} Try again\n";
+                break && manifest_gen_menu;
+            fi
+        done
+        line=( "name=\"${remote_name}\"" "fetch=\"${remote_url}\"" );
+        [ ! -z "${remote_revision}" ] && line=( "${line[*]}" "revision=\"${remote_revision}\"" );
+        line=( "${lineStart}" "${line[*]}" "${lineEnd}" );
+        echo -e "${line[*]}" >> "${FILE}";
+        echo -e "\n${SCS} Remote ${remote_name} added";
+        unset remote_{name,revision,url};
+        unset line{,Start,End};
+        unset CT;
+    } # add_remote
+
     function listremotes()
     {
         echo -en "\n${INF} Following are the list of Remotes\n";
-        echo -en "\n${INF} ${CL_WYT}Name${NONE}\t${CL_DGR}(Fetch URL)${NONE}\n";
+        echo -en "\n${INF} ${CL_WYT}Name${NONE}\t${CL_DGR}(Fetch URL)${NONE}\n\n";
         for (( CT=0; CT<"${#REMN[*]}"; CT++ )); do
             eval "echo -e \${CL_WYT}\${REMN[$CT]} \${CL_DGR}\(\${REMF[$CT]}\)";
             echo -e "${NONE}";
         done
-        echo -e "\n${QN} Enter the desired remote ${CL_WYT}name${NONE}";
-        echo -e "\n${INF} Enter ${CL_WYT}github${NONE} if the repo is in GitHub\n"; # HotFix
+        echo -e "\n${QN} Enter the desired remote ${CL_WYT}name${NONE}\n";
     } # listremotes
+
+    function listops()
+    {
+        echo -e "\n${INF} Operations Performed\n";
+        while read -r line; do
+            eval $(echo $line | sed -e 's/^<.* n/n/g' -e 's/\/>//g');
+            case "$(echo $line | awk '{print $1}')" in
+                "<project")
+                    echo -e "${INF} ${CL_LGN}Add${NONE} Project ${CL_WYT}${name}${NONE}\n"
+                    echo -e "    Checkout Path : $path";
+                    echo -e "    Revision (Branch) : $revision";
+                    echo -e "    Remote : $remote\n";
+                    ;;
+                "<remove-project")
+                    echo -e "${INF} ${CL_LRD}Remove${NONE} Project ${CL_WYT}${name}${NONE}\n";
+                    ;;
+                "<remote")
+                    echo -e "${INF} ${CL_WYT}Add${NONE} remote ${CL_WYT}${name}${NONE}";
+                    echo -e "    Fetch URL : $fetch";
+                    echo -e "    Default Revision (branch) : $revision\n";
+                    ;;
+            esac
+            unset name path remote revision fetch;
+        done <<< "$(awk 'f;/<manifest>/{f=1}' ${FILE})";
+    } # listops
+
+    function save_me()
+    {
+        echo -e "${QN} Provide a name for this manifest [Just the name]\n";
+        prompt NAME;
+        echo -e "</manifest>" >> "${FILE}";
+        if mv -f "${FILE}" ".repo/local_manifests/${NAME}.xml"; then
+            echo -e "\n${SCS} Custom Manifest successfully saved\n";
+        else
+            echo -e "\n${FLD} Couldn't save the manifest";
+            echo -e "\n${INF} Manually copy ${CL_WYT}file.xml${NONE} to .repo/local_manifests/${NAME}.xml\n";
+        fi
+        unset CT OP NAME;
+        # Delete intermediate manifest
+        rm -f "${MANIFEST}";
+        quick_menu;
+    } # save_me
 
     function manifest_gen_menu()
     {
         unset OP;
-        echo -e "\n${CL_WYT}===============${NONE}${CL_LGN}[!]${NONE} Manifest Generator ${CL_LGN}[!]${NONE}${CL_WYT}==============${NONE}";
-        echo -e "1) Add a repository";
-        echo -e "2) Remove a repository";
+        echo -e "\n${CL_WYT}===============${NONE}${CL_LGN}[!]${NONE} ${CL_WYT}Manifest Generator${NONE} ${CL_LGN}[!]${NONE}${CL_WYT}==============${NONE}";
+        echo -e "1) Add a repository/project";
+        echo -e "2) Remove a repository/project";
         echo -e "3) Add a remote";
-        echo -e "4) Save Custom Manifest && Return to Quick-Menu";
-        echo -e "\nReplacing a repo ? Remove the repo, then add it's replacement";
+        echo -e "4) List remotes";
+        echo -e "5) List performed operations";
+        echo -e "6) Save Custom Manifest && Return to Quick-Menu";
+        echo -e "\nTo ${CL_WYT}Replace${NONE} a Repo -> Remove the repo, then add it's replacement";
         echo -e "${CL_WYT}=======================================================${NONE}\n";
         prompt OP;
         unset CT repo_path;
         unset {repo,remote}_{name,revision,remote};
         unset line{,Start,End};
         case "${OP}" in
-            1)
-                export lineStart="<project" lineEnd="/>";
-                echo -e "Please enter the following one by one\n";
-                echo -e "If any of them are not needed, please just enter a blank value (repository name and repository path CANNOT be blank).";
-                echo -en "\n${QN} Repository Name : "; prompt repo_name;
-                echo -en "\n${QN} Repository Path : "; prompt repo_path;
-                echo -en "\n${QN} Branch : "; prompt repo_revision --no-repeat;
-                listremotes;
-                prompt repo_remote --no-repeat;
-                line="name=\"${repo_name}\" path=\"${repo_path}\"";
-                [ ! -z "${repo_revision}" ] && line="${line} revision=\"${repo_revision}\"";
-                [ ! -z "${repo_remote}" ] && line="${line} remote=\"${repo_remote}\"";
-                line="${lineStart} ${line} ${lineEnd}";
-                echo "${line}" >> "${CALL_ME_ROOT}${FILE}";
-                ;;
-            2)
-                export lineStart="<remove-project" lineEnd="/>";
-                echo -e "${QN} Please enter the Repository Name";
-                prompt repo_name;
-                if grep -q "${repo_name}" .repo/manifest.xml; then
-                    line="${lineStart} name=\"${repo_name}\" ${lineEnd}";
-                    echo "${line}" >> "${CALL_ME_ROOT}${FILE}";
-                else
-                    echo -e "\n${FLD} Project ${name} not found. Bailing out.\n";
-                fi
-                ;;
-            3)
-                export lineStart="<remote"; export lineEnd="/>";
-                echo -e "${INF} Please enter the following one by one\n";
-                echo -e "${INF} If some of them are not needed, hit ENTER key [remote name and remote URL CANNOT be blank]\n";
-                echo -en "\n${QN} Remote Name : "; prompt remote_name;
-                echo -en "\n${QN} Remote URL : "; prompt remote_url;
-                echo -en "\n${QN} Revision : "; prompt remote_revision;
-                for CT in ${REMN[*]}; do
-                    if [[ "${CT}" == "${remote_name}" ]]; then
-                        echo -e "${FLD} Remote ${remote_name} already exists";
-                        echo -e "${INF} Try again\n";
-                        break && manifest_gen_menu;
-                    fi
-                done
-                line="name=\"${remote_name}\" fetch=\"${remote_url}\"";
-                [ ! -z "${remote_revision}" ] || line="${line} revision=\"${remote_revision}\"";
-                line="${lineStart} ${line} ${lineEnd}";
-                echo "${line}" >> "${CALL_ME_ROOT}${FILE}";
-                ;;
-            4)
-                echo -e "${QN} Provide a name for this manifest [Just the name]\n";
-                prompt NAME;
-                echo -e "</manifest>" >> "${CALL_ME_ROOT}${FILE}";
-                mv -f "${FILE}" ".repo/local_manifests/${NAME}.xml";
-                echo -e "${SCS} Custom Manifest successfully saved\n";
-                unset CT repo_path OP;
-                unset {repo,remote}_{name,revision,remote};
-                unset line{,Start,End};
-                quick_menu;
-                ;;
+            1) add_repo ;;
+            2) remove_repo ;;
+            3) add_remote ;;
+            4) listremotes ;;
+            5) listops ;;
+            6) save_me ;;
         esac
-        [[ "$OP" != "4" ]] && manifest_gen_menu;
+        [[ "$OP" != "6" ]] && manifest_gen_menu;
     } # manifest_gen_menu
 
     if [[ ! -d .repo ]]; then
         echo -e "\n${FLD} ROM Source not initialized\n";
         quick_menu;
     else
-        FILE=".repo/local_manifests/file.xml";
+        # Grab the manifest
+        MANIFEST="${CALL_ME_ROOT}manifest.xml";
+        rm -f "${MANIFEST}";
+        repo manifest > "${MANIFEST}";
+        # Our file
+        FILE="${CALL_ME_ROOT}file.xml";
         rm -f "${FILE}";
         while read -r line; do
             eval "$line";
-            REMN=( ${REMN} "$name" );
-            REMF=( ${REMF} "$fetch" );
-        done <<< $(repo manifest | grep '<remote' | sed -e 's/<remote//g' -e 's/\/>//g' -e 's/<//g');
-        mkdir -p ${CALL_ME_ROOT}.repo/local_manifests/;
-        touch ${CALL_ME_ROOT}.repo/local_manifests/file.xml;
+            if [[ "${fetch}" == ".." ]]; then
+                cd "${CALL_ME_ROOT}.repo/manifests";
+                # Poor awk logic :/, won't burn down the world tho :)
+                fetch=$(git config --get remote.origin.url | awk -F "/" '{print $1"//"$3}');
+                cd "${CALL_ME_ROOT}";
+            fi
+            REMN+=( "$name" );
+            REMF+=( "$fetch" );
+        done <<< $(cat "${MANIFEST}" | grep '<remote' | sed -e 's/<remote//g' -e 's/\/>//g');
+        unset line fetch name review revision;
+        mkdir -p "${CALL_ME_ROOT}.repo/local_manifests/";
+        touch "${FILE}";
         echo -e "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<manifest>" > "${FILE}";
         manifest_gen_menu;
     fi
