@@ -206,6 +206,7 @@ function manifest_gen() # D 1,5
         if cat "${MANIFEST}" | grep -q "${repo_name}"; then
             line=( "${lineStart}" "name=\"${repo_name}\"" "${lineEnd}" );
             echo -e "${line[*]}" >> "${FILE}";
+            echo -e "\n${SCS} Project ${repo_name} removed from manifest";
         else
             echo -e "\n${FLD} Project ${repo_name} not found. Bailing out.\n";
         fi
@@ -217,9 +218,9 @@ function manifest_gen() # D 1,5
     {
         export lineStart="<remote"; export lineEnd="/>";
         echo -e "\n${INF} Please enter the following one by one\n";
-        echo -e "${INF} If some of them are not needed, hit ENTER key [remote name and remote URL CANNOT be blank]\n";
+        echo -e "${INF} If some of them are not needed, hit ENTER key [remote name and remote URL CANNOT be blank]";
         echo -en "\n${QN} Remote Name : "; prompt remote_name;
-        echo -en "\n${QN} Remote URL : "; prompt remote_url;
+        echo -en "\n${QN} Remote Fetch URL : "; prompt remote_url;
         echo -en "\n${QN} Revision : "; prompt remote_revision;
         for CT in ${REMN[*]}; do
             if [[ "${CT}" == "${remote_name}" ]]; then
@@ -229,9 +230,10 @@ function manifest_gen() # D 1,5
             fi
         done
         line=( "name=\"${remote_name}\"" "fetch=\"${remote_url}\"" );
-        [ ! -z "${remote_revision}" ] || line=( "${line[*]}" "revision=\"${remote_revision}\"");
+        [ ! -z "${remote_revision}" ] && line=( "${line[*]}" "revision=\"${remote_revision}\"" );
         line=( "${lineStart}" "${line[*]}" "${lineEnd}" );
         echo -e "${line[*]}" >> "${FILE}";
+        echo -e "\n${SCS} Remote ${remote_name} added";
         unset remote_{name,revision,url};
         unset line{,Start,End};
         unset CT;
@@ -314,7 +316,7 @@ function manifest_gen() # D 1,5
             5) listops ;;
             6) save_me ;;
         esac
-        [[ "$OP" != "5" ]] && manifest_gen_menu;
+        [[ "$OP" != "6" ]] && manifest_gen_menu;
     } # manifest_gen_menu
 
     if [[ ! -d .repo ]]; then
