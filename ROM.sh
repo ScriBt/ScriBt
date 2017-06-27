@@ -711,7 +711,7 @@ function pre_build() # 3
     device_info;
     # Change terminal title
     [ ! -z "$automate" ] && teh_action 3;
-    DEVDIR="device/${SBCM}/${SBDEV}";
+    DEVDIR="device/${SBCM}/${SBDEV}/";
 
     function vendor_strat_all()
     {
@@ -722,7 +722,7 @@ function pre_build() # 3
         {   # AOSP-CAF|RRO|F-AOSP|Flayr|OmniROM|Zephyr
             echo -e "\n${EXE} Adding Lunch Combo in Device Tree";
             [ ! -f vendorsetup.sh ] && touch vendorsetup.sh;
-            if [[ $(grep -c "${ROMNIS}_${SBDEV}" ${DEVDIR}/vendorsetup.sh ) == "0" ]]; then
+            if [[ $(grep -c "${ROMNIS}_${SBDEV}" "${DEVDIR}vendorsetup.sh" ) == "0" ]]; then
                 echo -e "add_lunch_combo ${ROMNIS}_${SBDEV}-${SBBT}" >> vendorsetup.sh;
             else
                 echo -e "\n${SCS} Lunch combo already added to vendorsetup.sh";
@@ -788,12 +788,11 @@ function pre_build() # 3
             # Possible Default Device Configuration (DDC) Files
             DDCS=( "${ROM}_${SBDEV}.mk" "full_${SBDEV}.mk" "aosp_${SBDEV}.mk" "${ROM}.mk" );
             for ACTUAL_DDC in ${DDCS[*]}; do
-                if [ -f "${DEVDIR}/${ACTUAL_DDC}" ]; then
+                if [ -f "${DEVDIR}${ACTUAL_DDC}" ]; then
                     case "$1" in
                         "pb") export DDC="$ACTUAL_DDC" ;;
                         "intm") # Interactive Makefile not found -vv
-                            if grep -q '##### Interactive' "${DEVDIR}/${ACTUAL_DDC}" \
-                            && [[ "$ACTUAL_DDC" != "${ROMNIS}.mk" ]]; then
+                            if grep -q '##### Interactive' "${DEVDIR}${ACTUAL_DDC}" && [[ "$ACTUAL_DDC" != "${INTF}" ]]; then
                                 export DDC="$ACTUAL_DDC";
                                 continue;
                             else
@@ -821,9 +820,9 @@ function pre_build() # 3
             [ -z "$INTF" ] && INTF="${ROMNIS}.mk";
             get "misc" "intmake";
             {
-                echo -e "\n# Inherit ${ROMNIS} common stuff\n\$(call inherit-product, ${CNF}/${VNF}.mk)";
+                echo -e "\n# Inherit ${ROMNIS} common stuff\n\$(call inherit-product, ${CNF}/${SBDTP}.mk)";
                 echo -e "\n# Calling Default Device Configuration File";
-                echo -e "\$(call inherit-product, ${DEVDIR}/${DDC})";
+                echo -e "\$(call inherit-product, ${DEVDIR}${DDC})";
             } >> "${INTF}";
             # To prevent Missing Vendor Calls in DDC-File
             sed -i -e 's/inherit-product, vendor\//inherit-product-if-exists, vendor\//g' "$DDC";
@@ -856,7 +855,7 @@ function pre_build() # 3
 
     function need_for_int()
     {
-        if [ -f "${CALL_ME_ROOT}${DEVDIR}/${INTF}" ]; then
+        if [ -f "${CALL_ME_ROOT}${DEVDIR}${INTF}" ]; then
             echo "$NOINT";
         else
             interactive_mk "$SBRN";
@@ -867,19 +866,18 @@ function pre_build() # 3
     NOINT=$(echo -e "${SCS} Interactive Makefile Unneeded, continuing");
 
     case "$ROMNIS" in
-        aosp|carbon|eos|nitrogen|omni|zos) # AEX|AOSP-CAF/RRO|Carbon|Euphoria|F-AOSP|Flayr|Nitrogen|OmniROM|Parallax|Zephyr
-            VNF="common";
-            if [[ "$ROMNIS" == "eos" ]]; then
-                INTF="${ROMNIS}.mk";
-            else
-                INTF="${ROMNIS}_${SBDEV}.mk";
-            fi
+        aosp|carbon|nitrogen|omni|zos) # AEX|AOSP-CAF/RRO|Carbon|F-AOSP|Flayr|Nitrogen|OmniROM|Parallax|Zephyr
+            INTF="${ROMNIS}_${SBDEV}.mk";
+            need_for_int;
+            echo -e "\nPRODUCT_MAKEFILES +=  \\ \n\t\$(LOCAL_DIR)/${INTF}" >> AndroidProducts.mk;
+            ;;
+        eos)
+            INTF="${ROMNIS}.mk";
             need_for_int;
             echo -e "\nPRODUCT_MAKEFILES +=  \\ \n\t\$(LOCAL_DIR)/${INTF}" >> AndroidProducts.mk;
             ;;
         aosip) # AOSiP-CAF
             if [ ! -f "vendor/${ROMNIS}/products" ]; then
-                VNF="common";
                 INTF="${ROMNIS}.mk";
                 need_for_int;
             else
@@ -888,7 +886,6 @@ function pre_build() # 3
             ;;
         aokp|pac) # AOKP-4.4|PAC-5.1
             if [ ! -f "vendor/${ROMNIS}/products" ]; then
-                VNF="$SBDTP";
                 INTF="${ROMNIS}.mk";
                 need_for_int;
             else
@@ -899,7 +896,6 @@ function pre_build() # 3
             echo "$NOINT";
             ;;
         *) # Rest of the ROMs
-            VNF="$SBDTP";
             INTF="${ROMNIS}.mk";
             need_for_int;
             ;;
