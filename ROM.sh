@@ -720,12 +720,12 @@ function pre_build() # 3
 
         function dtree_add()
         {   # AOSP-CAF|RRO|F-AOSP|Flayr|OmniROM|Zephyr
-            echo -e "${EXE} Adding Lunch Combo in Device Tree";
+            echo -e "\n${EXE} Adding Lunch Combo in Device Tree";
             [ ! -f vendorsetup.sh ] && touch vendorsetup.sh;
             if [[ $(grep -c "${ROMNIS}_${SBDEV}" ${DEVDIR}/vendorsetup.sh ) == "0" ]]; then
                 echo -e "add_lunch_combo ${ROMNIS}_${SBDEV}-${SBBT}" >> vendorsetup.sh;
             else
-                echo -e "${SCS} Lunch combo already added to vendorsetup.sh\n";
+                echo -e "\n${SCS} Lunch combo already added to vendorsetup.sh";
             fi
         } # dtree_add
 
@@ -734,7 +734,7 @@ function pre_build() # 3
         else
             VSTP="vendorsetup.sh";
         fi
-        echo -e "${EXE} Adding Device to ROM Vendor";
+        echo -e "\n${EXE} Adding Device to ROM Vendor";
         for STRT in "${ROMNIS}.devices" "${ROMNIS}-device-targets" "${VSTP}"; do
             #    Found file   &&  Strat Not Performed
             if [ -f "${STRT}" ] && [ -z "$STDN" ]; then
@@ -748,13 +748,13 @@ function pre_build() # 3
                             echo -e "add_lunch_combo ${TARGET}" >> "${STRT}" ;;
                     esac
                 else
-                    echo -e "${INF} Device already added to ${STRT}";
+                    echo -e "\n${INF} Device already added to ${STRT}";
                 fi
                 export STDN="y"; # File Found, Strat Performed
             fi
         done
         [ -z "$STDN" ] && dtree_add; # If none of the Strats Worked
-        echo -e "${SCS} Done.\n";
+        echo -e "\n${SCS} Done.\n";
         cd "${CALL_ME_ROOT}";
         echo -e "${CL_WYT}=======================================================${NONE}";
     } # vendor_strat
@@ -867,7 +867,7 @@ function pre_build() # 3
     NOINT=$(echo -e "${SCS} Interactive Makefile Unneeded, continuing");
 
     case "$ROMNIS" in
-        aosp|eos|nitrogen|omni|zos) # AEX|AOSP-CAF/RRO|Euphoria|F-AOSP|Flayr|Nitrogen|OmniROM|Parallax|Zephyr
+        aosp|carbon|eos|nitrogen|omni|zos) # AEX|AOSP-CAF/RRO|Carbon|Euphoria|F-AOSP|Flayr|Nitrogen|OmniROM|Parallax|Zephyr
             VNF="common";
             if [[ "$ROMNIS" == "eos" ]]; then
                 INTF="${ROMNIS}.mk";
@@ -875,8 +875,7 @@ function pre_build() # 3
                 INTF="${ROMNIS}_${SBDEV}.mk";
             fi
             need_for_int;
-            rm -rf "${DEVDIR}/AndroidProducts.mk";
-            echo -e "PRODUCT_MAKEFILES :=  \\ \n\t\$(LOCAL_DIR)/${INTF}" >> AndroidProducts.mk;
+            echo -e "\nPRODUCT_MAKEFILES +=  \\ \n\t\$(LOCAL_DIR)/${INTF}" >> AndroidProducts.mk;
             ;;
         aosip) # AOSiP-CAF
             if [ ! -f "vendor/${ROMNIS}/products" ]; then
