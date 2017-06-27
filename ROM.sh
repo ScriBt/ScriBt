@@ -207,7 +207,7 @@ function manifest_gen() # D 1,5
             line=( "${lineStart}" "name=\"${repo_name}\"" "${lineEnd}" );
             echo -e "${line[*]}" >> "${FILE}";
         else
-            echo -e "\n${FLD} Project ${name} not found. Bailing out.\n";
+            echo -e "\n${FLD} Project ${repo_name} not found. Bailing out.\n";
         fi
         unset repo_name;
         unset line{,Start,End};
