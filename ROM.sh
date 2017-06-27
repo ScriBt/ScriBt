@@ -186,7 +186,7 @@ function manifest_gen() # D 1,5
         line=( "name=\"${repo_name}\"" "path=\"${repo_path}\"" );
         [ ! -z "${repo_revision}" ] && line=( "${line[*]}" "revision=\"${repo_revision}\"" );
         [ ! -z "${repo_remote}" ] && line=( "${line[*]}" "remote=\"${repo_remote}\"" );
-        if cat "${MANIFEST}" | grep -q "${repo_path}"; then
+        if grep -q "${repo_path}" "${MANIFEST}"; then
             echo -e "\n${FLD} Another repo has the same checkout path ${CL_WYT}${repo_path}${NONE}";
             echo -e "\n${INF} Please try again";
         else
@@ -203,7 +203,7 @@ function manifest_gen() # D 1,5
         export lineStart="<remove-project" lineEnd="/>";
         echo -e "\n${QN} Please enter the Repository Name\n";
         prompt repo_name;
-        if cat "${MANIFEST}" | grep -q "${repo_name}"; then
+        if grep -q "${repo_name}" "${MANIFEST}"; then
             line=( "${lineStart}" "name=\"${repo_name}\"" "${lineEnd}" );
             echo -e "${line[*]}" >> "${FILE}";
             echo -e "\n${SCS} Project ${repo_name} removed from manifest";
@@ -340,7 +340,7 @@ function manifest_gen() # D 1,5
             fi
             REMN+=( "$name" );
             REMF+=( "$fetch" );
-        done <<< $(cat "${MANIFEST}" | grep '<remote' | sed -e 's/<remote//g' -e 's/\/>//g');
+        done <<< $(grep '<remote' "${MANIFEST}" | sed -e 's/<remote//g' -e 's/\/>//g');
         unset line fetch name review revision;
         mkdir -p "${CALL_ME_ROOT}.repo/local_manifests/";
         touch "${FILE}";
