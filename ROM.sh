@@ -791,19 +791,19 @@ function pre_build() # 3
                 if [ -f "${DEVDIR}${ACTUAL_DDC}" ]; then
                     case "$1" in
                         "pb") export DDC="$ACTUAL_DDC" ;;
-                        "intm") # Interactive Makefile not found -vv
-                            if grep -q '##### Interactive' "${DEVDIR}${ACTUAL_DDC}" && [[ "$ACTUAL_DDC" != "${INTF}" ]]; then
-                                export DDC="$ACTUAL_DDC";
-                                continue;
+                        "intm")
+                            if [[ "$ACTUAL_DDC" != "${INTF}" ]]; then
+                                export DDC="$ACTUAL_DDC"; # Interactive Makefile Needed
+                                continue; # ^ Point interactive_mk to the Actual DDC
                             else
-                                export DDC="NULL";
-                                break;
+                                export DDC="NULL"; # Interactive Makefile not needed
+                                break; # Since the ROM Specific edits are already present
                             fi
                             ;;
                     esac
                 fi
             done
-            [[ "$DDC" == "NULL" ]] && break; # It's Done, Get out!
+            [[ "$DDC" == "NULL" ]] && break;
         done
     } # find_ddc
 
@@ -850,7 +850,7 @@ function pre_build() # 3
         } # create_imk
 
         find_ddc "intm";
-        if [[ "$DDC" != "NULL" ]]; then create_imk; else echo "$NOINT"; fi;
+        if [[ "$DDC" == "NULL" ]]; then echo "$NOINT"; else create_imk; fi;
     } # interactive_mk
 
     function need_for_int()
@@ -858,11 +858,12 @@ function pre_build() # 3
         if [ -f "${CALL_ME_ROOT}${DEVDIR}${INTF}" ]; then
             echo "$NOINT";
         else
-            interactive_mk "$SBRN";
+            interactive_mk;
         fi
     } # need_for_int
 
     echo -e "\n${EXE} ${ROMNIS}-fying Device Tree\n";
+
     NOINT=$(echo -e "${SCS} Interactive Makefile Unneeded, continuing");
 
     case "$ROMNIS" in
