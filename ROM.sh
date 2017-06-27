@@ -821,7 +821,7 @@ function pre_build() # 3
             {
                 echo -e "\n# Inherit ${ROMNIS} common stuff\n\$(call inherit-product, ${CNF}/${VNF}.mk)";
                 echo -e "\n# Calling Default Device Configuration File";
-                echo -e "\$(call inherit-product, ${DEVDIR}/${DDC})";
+                echo -e "\$(call inherit-product, ${DEVDIR}${DDC})";
             } >> "${INTF}";
             # To prevent Missing Vendor Calls in DDC-File
             sed -i -e 's/inherit-product, vendor\//inherit-product-if-exists, vendor\//g' "$DDC";
@@ -864,17 +864,19 @@ function pre_build() # 3
     echo -e "\n${EXE} ${ROMNIS}-fying Device Tree\n";
 
     NOINT=$(echo -e "${SCS} Interactive Makefile Unneeded, continuing");
+    APMK="${CALL_ME_ROOT}${DEVDIR}AndroidProducts.mk";
+    if [ -f "$APMK" ]; then SIGN="+="; else SIGN=":="; fi;
 
     case "$ROMNIS" in
         aosp|carbon|nitrogen|omni|zos) # AEX|AOSP-CAF/RRO|Carbon|F-AOSP|Flayr|Nitrogen|OmniROM|Parallax|Zephyr
             INTF="${ROMNIS}_${SBDEV}.mk";
             need_for_int;
-            echo -e "\nPRODUCT_MAKEFILES +=  \\ \n\t\$(LOCAL_DIR)/${INTF}" >> AndroidProducts.mk;
+            echo -e "\nPRODUCT_MAKEFILES ${SIGN}  \\\n\t\$(LOCAL_DIR)/${INTF}" >> "${APMK}";
             ;;
         eos)
             INTF="${ROMNIS}.mk";
             need_for_int;
-            echo -e "\nPRODUCT_MAKEFILES +=  \\ \n\t\$(LOCAL_DIR)/${INTF}" >> AndroidProducts.mk;
+            echo -e "\nPRODUCT_MAKEFILES ${SIGN}  \\\n\t\$(LOCAL_DIR)/${INTF}" >> "${APMK}";
             ;;
         aosip) # AOSiP-CAF
             if [ ! -f "vendor/${ROMNIS}/products" ]; then
