@@ -44,6 +44,7 @@ function cmdprex() # D ALL
     # Argument Description Array
     ARGD=( ${ARGS[*]/<->*/} );
     # Splash some colors!
+    center_it "${CL_YEL}[!]${NONE} Command Execution ${CL_YEL}[!]${NONE}" "1eq1";
     for (( CT=0; CT<${#ARG[*]}; CT++ )); do
         echo -en "\033[1;3${CT}m$(eval "echo \${ARG[${CT}]}") " | sed -e 's/NULL//g' -e 's/execroot/sudo/g' -e 's/#/ /g';
     done
@@ -52,19 +53,22 @@ function cmdprex() # D ALL
         [[ $(eval "echo \${ARG[${CT}]}") != "NULL" ]] && \
          echo -en "\033[1;3${CT}m$(eval "echo \${ARGD[${CT}]}")\033[0m\n" | sed 's/#/ /g';
     done
+    # Give some time for the user to read it
+    for i in {1..4}; do echo -en "\033[1;3${i}m\u25C9 $(sleep 0.5)${NONE}"; done;
+    echo -en "$(sleep 0.5)\r        \r";
     echo;
-    sleep 2; # Give some time for the user to read it
     [[ "$1" =~ --out=* ]] && TEE="2>&1 | tee -a ${1/*=/}";
     CMD=$(echo "${ARG[*]} ${TEE}" | sed -e 's/NULL//g' -e 's/#/ /g');
     # Execute the command
     if eval "${CMD}"; then
-        echo -e "\n${SCS} Command Execution Successful\n";
+        echo -e "\n${SCS} Command Execution Successful";
         unset STS;
     else
-        echo -e "\n${FLD} Command Execution Failed\n";
+        echo -e "\n${FLD} Command Execution Failed";
         STS="1";
     fi
-    unset -v CMD CT ARG{,S,D};
+    unset -v CMD CT ARG{,S,D} i;
+    dash_it;
 } # cmdprex
 
 function cherrypick() # Automated Use only
@@ -484,7 +488,7 @@ function init() # 1
     for CT in $(eval "echo {0..$RCT}"); do
         echo -e "\nOn ${ROM_NAME[$CT]} (ID->$CT)\n";
         BRANCHES=$(git ls-remote -h "https://github.com/${ROM_NAME[$CT]}/${MAN[$CT]}" |\
-            awk '{print $2}' | awk -F "/" '{if (length($4) != 0) {print $3"/"$4} else {print $3}}');
+            awk -F "/" '{if (length($4) != 0) {print $3"/"$4} else {print $3}}');
         if [[ ! -z "$CNS" && "$SBRN" -lt "37" ]]; then
             echo "$BRANCHES" | grep --color=never 'caf' | column;
         else
@@ -493,7 +497,7 @@ function init() # 1
     done
     unset CT;
     echo -e "\n${INF} These Branches are available at the moment\n${QN} Specify the ID and Branch you're going to sync";
-    echo -e "\n${INF} Format : [ID] [BRANCH]\n";
+    echo -e "\n    Format : [ID] [BRANCH]\n";
     ST="Branch"; shut_my_mouth NBR "$ST";
     CT="${SBNBR/ */}"; # Count
     SBBR="${SBNBR/* /}"; # Branch
@@ -515,7 +519,8 @@ function init() # 1
     fi
     # Check for Presence of Repo Binary
     if [[ ! $(which repo) ]]; then
-        echo -e "${FLD} ${CL_WYT}repo${NONE} binary isn't installed\n\n${EXE} Installing ${CL_WYT}repo${CL_WYT}\n";
+        echo -e "${FLD} ${CL_WYT}repo${NONE} binary isn't installed";
+        echo -e "\n${EXE} Installing ${CL_WYT}repo${CL_WYT}";
         [ ! -d "${HOME}/bin" ] && mkdir -pv ${HOME}/bin;
         cmdprex \
             "Tool/Lib to transfer data with URL syntax<->curl" \
@@ -538,9 +543,8 @@ function init() # 1
             source ${HOME}/.profile;
             echo -e "\n${SCS} $HOME/bin added to PATH";
         fi
-        echo -e "${SCS} Done. Ready to Init Repo.\n";
+        echo -e "${SCS} Done. Ready to Init Repo";
     fi
-    dash_it;
     MURL="https://github.com/${RNM}/${MNF}";
     cmdprex --out="${STMP}" \
         "repository management tool<->repo" \
@@ -551,7 +555,6 @@ function init() # 1
         "URL<->${MURL}" \
         "manifest branch specifier<->-b" \
         "branch<->${SBBR}";
-    dash_it;
     unset BRANCHES MURL CDP REF MNF CT;
     if [ -z "$STS" ]; then
         [ ! -f .repo/local_manifests ] && mkdir -pv .repo/local_manifests;
@@ -589,7 +592,7 @@ function sync() # 2
     [[ "$SBF" == "y" ]] && FORCE="--force-sync";
     [[ "$SBC" == "y" ]] && SYNC_CRNT="-c";
     [[ "$SBB" == "y" ]] || CLN_BUN="--no-clone-bundle";
-    echo -e "${EXE} Let's Sync!\n";
+    echo -e "${EXE} Let's Sync!";
     cmdprex --out="${STMP}" \
         "repository management tool<->repo" \
         "update working tree<->sync" \
@@ -598,8 +601,6 @@ function sync() # 2
         "force sync<->${FORCE}" \
         "sync current branch only<->${SYNC_CRNT}" \
         "use clone.bundle<->${CLN_BUN}";
-    echo -e "\n${SCS} Done.\n";
-    dash_it;
     unset SILENT FORCE SYNC_CRNT CLN_BUN;
     [ -z "$automate" ] && quick_menu;
 } # sync
@@ -646,11 +647,11 @@ function start_venv()
     # Create a Virtual Python2 Environment
     if [[ "${PKGMGR}" == "pacman" ]] && [[ -z "${ACTIVE_VENV}" ]]; then
         if python -V | grep -i -q "Python 3."; then
-            echo -e "${INF} Python 3 is detected, looking for Python 2 fallback\n";
-            echo -e "${INF} Android BuildSystem requires a Python 2.x Environment to function properly\n";
+            echo -e "${INF} Python 3 Detected";
+            echo -e "\n${INF} Android BuildSystem requires a Python 2.x Environment to function properly";
             if ! which virtualenv2 &> /dev/null; then
-                echo -e "${FLD} Python2 not found\n";
-                echo -e "${EXE} Attempting to install Python2\n";
+                echo -e "\n${FLD} Python2 not found";
+                echo -e "\n${EXE} Attempting to install Python2\n";
                 cmdprex \
                     "Execute command as 'root'<->execroot" \
                     "Arch Linux Package Mgr.<->${PKGMGR}" \
@@ -658,7 +659,7 @@ function start_venv()
                     "Answer 'yes' to prompts<->--noconfirm" \
                     "virtual env. (python2) package<->python2-virtualenv";
             fi
-            echo -e "${EXE} Creating Python2 virtual environment\n";
+            echo -e "\n${EXE} Creating Python2 virtual environment";
             cmdprex \
                 "Python2 Virtual EnvSetup<->virtualenv2" \
                 "Location of Virtual Env<->${HOME}/venv";
@@ -666,11 +667,11 @@ function start_venv()
                 cmdprex \
                     "Execute in current shell<->source" \
                     "Shell script to activate Virtual Env<->${HOME}/venv/bin/activate";
-                 echo -e "\n${SCS} Python2 environment created\n";
+                 echo -e "${SCS} Python2 environment created\n";
                  ACTIVE_VENV="true";
             else
-                echo -e "${FLD} An error occured while trying to start the Environment\n";
-                echo -e "${EXE} Aborting\n";
+                echo -e "${FLD} An error occured while trying to start the Environment";
+                echo -e "\n${EXE} Aborting\n";
                 exitScriBt 1;
             fi
         fi
@@ -691,11 +692,10 @@ function stop_venv()
 function init_bld() # D 3,4
 {
     dash_it;
-    echo -e "${EXE} Initializing Build Environment\n";
+    echo -e "${EXE} Initializing Build Environment";
     cmdprex \
         "Execute in current shell<->source" \
         "EnvSetup Script<->build/envsetup.sh";
-    dash_it;
     echo -e "${SCS} Done\n";
 } # init_bld
 
@@ -1038,8 +1038,8 @@ function build() # 4
         cmdprex \
             "Mark variable to be Inherited by child processes<->export" \
             "Variable to Set Custom Host<->KBUILD_BUILD_HOST=${SBCH:-$(hostname)}";
-        echo -e "\n${INF} You're building on ${CL_WYT}${KBUILD_BUILD_USER}@${KBUILD_BUILD_HOST}${NONE}";
-        echo -e "\n${SCS} Done\n";
+        echo -e "${INF} You're building on ${CL_WYT}${KBUILD_BUILD_USER}@${KBUILD_BUILD_HOST}${NONE}";
+        echo -e "\n${SCS} Done";
     } # custuserhost
 
     function kbuild()
@@ -1094,10 +1094,10 @@ function build() # 4
                     echo -e "\n${SCS} Toolchain Detected";
                     echo -e "\n${INF} Toolchain Prefix : ${KCCP}\n";
                 else
-                    echo -e "\n${FLD} Toolchain Binaries not found\n";
+                    echo -e "\n${FLD} Toolchain Binaries not found";
                 fi
             else
-                echo -e "\n${FLD} Directory not found\n";
+                echo -e "\n${FLD} Directory not found";
                 unset SBKTL;
             fi
         } # settc
@@ -1123,7 +1123,8 @@ function build() # 4
                         "No. of Jobs<->-j${SBNT}" \
                     ;;
             esac
-            echo -e "\n${SCS} Kernel Cleaning done\n\n${INF} Check output for details\n";
+            echo -e "\n${SCS} Kernel Cleaning done";
+            echo -e "\n${INF} Check output for details";
             export action_kcl="done";
         } # kclean
 
@@ -1135,7 +1136,7 @@ function build() # 4
             [ -z "${action_kcl}" ] && kclean;
             [ ! -z "${SBCUH}" ] && custuserhost;
 
-            echo -e "\n${EXE} Compiling the Kernel\n";
+            echo -e "\n${EXE} Compiling the Kernel";
             cmdprex \
                 "Mark variable to be Inherited by child processes<->export" \
                 "Set CPU Architecture<->ARCH=\"${SBKA}\"" \
@@ -1148,9 +1149,9 @@ function build() # 4
                 "GNU make<->make" \
                 "No. of Jobs<->${SBNT}";
             if [[ ! -z "${STS}" ]]; then
-                echo -e "\n${SCS} Compiled Successfully\n";
+                echo -e "\n${SCS} Compiled Successfully";
             else
-                echo -e "\n${FLD} Compilation failed\n";
+                echo -e "\n${FLD} Compilation failed";
             fi
         } # mkkernel
 
@@ -1379,7 +1380,7 @@ function build() # 4
             echo -e "\n${QN} Want to Clean Intermediate Output (/out) directory before Building\n"; get "info" "outcln";
             ST="Option Selected"; shut_my_mouth CL "$ST";
             if [[ $(grep -c 'BUILD_ID=M' "${CALL_ME_ROOT}build/core/build_id.mk") == "1" ]]; then
-                echo -e "${QN} Use Jack Toolchain ${CL_WYT}[y/n]${NONE}\n"; get "info" "jack";
+                echo -e "\n${QN} Use Jack Toolchain ${CL_WYT}[y/n]${NONE}\n"; get "info" "jack";
                 ST="Use Jacky"; shut_my_mouth JK "$ST";
                 case "$SBJK" in
                     [yY])
@@ -1395,7 +1396,7 @@ function build() # 4
                 esac
             fi
             if [[ $(grep -c 'BUILD_ID=N' "${CALL_ME_ROOT}build/core/build_id.mk") == "1" ]]; then
-                echo -e "${QN} Use Ninja to build Android ${CL_WYT}[y/n]${NONE}\n"; get "info" "ninja";
+                echo -e "\n${QN} Use Ninja to build Android ${CL_WYT}[y/n]${NONE}\n"; get "info" "ninja";
                 ST="Use Ninja"; shut_my_mouth NJ "$ST";
                 case "$SBNJ" in
                     [yY])
@@ -1405,7 +1406,7 @@ function build() # 4
                             "Variable to Use Ninja<->USE_NINJA=true";
                         ;;
                     [nN])
-                        echo -e "\n${INF} Building Android with the Non-Ninja BuildSystem\n";
+                        echo -e "\n${INF} Building Android with the Non-Ninja BuildSystem";
                         cmdprex \
                             "Mark variable to be Inherited by child processes<->export" \
                             "Variable to Disable Ninja<->USE_NINJA=false";
@@ -1477,7 +1478,7 @@ function build() # 4
         4) kbuild ;;
         5) patchmgr ;;
         *)
-            echo -e "${FLD} Invalid Selection.\n";
+            echo -e "\n${FLD} Invalid Selection\n";
             build;
             ;;
     esac
@@ -1519,19 +1520,18 @@ function tools() # 5
         if ! grep -q ".*\[multilib\]" /etc/pacman.conf; then
             echo -e "\n${EXE} Enabling usage of multilib repository";
             echo -e "[multilib]\nInclude = /etc/pacman.d/mirrorlist" | sudo tee -a /etc/pacman.conf;
-            echo -e "${EXE} Updating repository list\n";
+            echo -e "\n${EXE} Updating repository list";
             cmdprex \
                 "Execute command as 'root'<->execroot" \
                 "Arch Package Mgr.<->${PKGMGR}" \
                 "Sync Pkgs<->-S" \
                 "fetch fresh pkg databases from server<->-y" \
                 "upgrade installed packages<->-u";
-                echo -e "\n${SCS} Done";
         fi
         # Install packages from multilib-devel
         if ${PKGMGR} -Qq gcc gcc-libs &> /dev/null; then
             echo -e "\n${INF} i686 packages - gcc, gcc-libs might conflict with their 'multilib' counterpart";
-            echo -e "\n${INF} Answer ${CL_WYT}y${NONE} to the prompt for removal of the conflicting i686 packages\n";
+            echo -e "\n${INF} Answer ${CL_WYT}y${NONE} to the prompt for removal of the conflicting i686 packages";
         fi
         for item in ${GCC}; do
             if ! pacman -Qq ${item}  &> /dev/null; then
@@ -1545,7 +1545,7 @@ function tools() # 5
         # sort out already installed pkgs
         for item in ${PKGS[*]}; do
             if ! pacman -Qq "${item}" &> /dev/null; then
-                PKGSREQ=( ${item} ${PKGSREQ} );
+                PKGSREQ+=( "${item}" );
             fi
         done
         if [[ ! -z "${PKGSREQ[*]}" ]]; then
@@ -1556,8 +1556,13 @@ function tools() # 5
                 "Sync Pkgs<->-S" \
                 "Answer 'yes' to prompts<->--noconfirm" \
                 "Packages List<->${PKGSREQ[*]}";
+            if [ -z "$STS" ]; then
+                echo -e "${SCS} Packages were installed successfully";
+            else
+                echo -e "${SCS} An Error occured while installing some of the packages";
+            fi
         else
-            echo -e "\n${SCS} You already have all required packages\n";
+            echo -e "\n${SCS} You already have all required packages";
         fi
         unset item PKGSREQ;
     } # installdeps_arch
@@ -1574,7 +1579,6 @@ function tools() # 5
                     "Maintains symlinks for default commands<->update-alternatives"
                     "Configure command symlink<->--config" \
                     "Command to Configure<->java";
-                dash_it;
                 cmdprex \
                     "Command Execution as 'root'<->execroot" \
                     "Maintains symlinks for default commands<->update-alternatives"
@@ -1594,7 +1598,6 @@ function tools() # 5
                     "Java Environment Name<->${ARCHJA}";
                 ;;
         esac
-        dash_it;
     } # java_select
 
     function java_check()
@@ -1641,7 +1644,6 @@ function tools() # 5
                 java_install "$1";
                 ;;
         esac
-        dash_it;
         case "${PKGMGR}" in
             "apt"|"apt-get")
                 cmdprex \
@@ -1657,7 +1659,6 @@ function tools() # 5
                     "Sync Pkgs<->-S" \
                     "Answer 'yes' to prompts<->-y" ;;
         esac
-        dash_it;
         case "${PKGMGR}" in
             "apt"|"apt-get")
                 cmdprex \
@@ -1777,7 +1778,7 @@ function tools() # 5
                 "Perform Operation with udev daemon<->control" \
                 "Reload udev rules<->--reload-rules";
         fi
-        echo -e "\n${SCS} Done";
+        echo -e "${SCS} Done";
         dash_it;
     } # udev_rules
 
@@ -1803,7 +1804,7 @@ function tools() # 5
             "Apply changes to all local repositories<->--global" \
             "Configuration<->user.email" \
             "Value<->${GIT_E}";
-        echo -e "\n${SCS} Done.\n"
+        echo -e "${SCS} Done";
         quick_menu;
     } # git_creds
 
@@ -1861,25 +1862,25 @@ function tools() # 5
             echo -e "https://github.com/CyanogenMod/android_build/commit/e572919037726eff75fddd68c5f18668c6d24b30";
             echo -e "\n${INF} Cherry-Pick this commit under the ${CL_WYT}build${NONE} folder/repo of the ROM you're building";
         fi
-        echo -e "\n${SCS} Done\n";
+        echo -e "\n${SCS} Done";
         unset VER IDIR UIC;
     } # installer
 
     function scribtofy()
     {
         echo -e "\n${INF} This Function allows ScriBt to be executed under any directory";
-        echo -e "${INF} Temporary Files would be present at working directory itself";
-        echo -e "${INF} Older ScriBtofications, if present, would be overwritten";
+        echo -e "    Temporary Files would be present at working directory itself";
+        echo -e "    Older ScriBtofications, if present, would be overwritten";
         echo -e "\n${QN} Shall I ScriBtofy ${CL_WYT}[y/n]${NONE}\n";
         prompt SBFY;
         case "$SBFY" in
             [Yy])
                     echo -e "\n${EXE} Adding ScriBt to PATH";
                     echo -e "# ScriBtofy\nexport PATH=\"${CALL_ME_ROOT}:\$PATH\";" > "${HOME}/.scribt";
-                    grep -q 'source ${HOME}/.scribt' ${HOME}/.bashrc || echo -e "\n#ScriBtofy\nsource \${HOME}/.scribt;" >> "${HOME}/.bashrc";
-                    echo -e "\n${EXE} Executing ${HOME}/.bashrc";
-                    source ${HOME}/.bashrc;
-                    echo -e "\n${SCS} Done\n\n${INF} Now you can ${CL_WYT}bash ROM.sh${NONE} under any directory";
+                    grep -q 'source ${HOME}/.scribt' "${HOME}/.bashrc" || echo -e "\n#ScriBtofy\nsource \${HOME}/.scribt;" >> "${HOME}/.bashrc";
+                    echo -e "\n${SCS} Done";
+                    echo -e "\n${INF} Either enter ${CL_WYT}source ${HOME}/.bashrc${NONE} OR ${CL_WYT}Open a new Terminal for changes to take effect";
+                    echo -e "\n${INF} ${CL_WYT}bash ROM.sh${NONE} under any directory";
                 ;;
             [Nn])
                 echo -e "${FLD} ScriBtofication cancelled";
@@ -1963,7 +1964,7 @@ function tools() # 5
         center_it "2. Install Java (OpenJDK 6/7/8)" "sp";
         center_it "3. Setup ccache (After installing it)" "sp";
         center_it "4. Install/Update ADB udev rules" "sp";
-        center_it "5. Add/Update Git Credentials${CL_WYT}*${NONE}" "sp";
+        center_it "5. Add/Update Git Credentials" "sp";
         center_it "6. Install make ${CL_WYT}~${NONE}" "sp";
         center_it "7. Install ninja ${CL_WYT}~${NONE}" "sp";
         center_it "8. Install ccache ${CL_WYT}~${NONE}" "sp";
@@ -1972,9 +1973,9 @@ function tools() # 5
         center_it "11. Create a ScriBt Update [DEV]" "sp";
         center_it "12. Generate a Custom Manifest" "sp";
 # TODO: center_it "X. Find an Android Module's Directory" "sp";
-center_it "0. Quick Menu" "sp";
-        echo -e "\n${CL_WYT}*${NONE} Create a GitHub account before using this option";
-        echo -e "${CL_WYT}~${NONE} These versions are recommended to use...\n...If you have any issue in higher versions";
+        center_it "0. Quick Menu" "sp";
+        echo -e "${CL_WYT}~${NONE} These versions are recommended to use";
+        echo -e "  If you have any issue in higher versions";
         dash_it;
         prompt TOOL;
         case "$TOOL" in
@@ -1996,7 +1997,7 @@ center_it "0. Quick Menu" "sp";
             11) update_creator ;;
             12) manifest_gen ;;
 # TODO:     X) find_mod ;;
-            *) echo -e "${FLD} Invalid Selection.\n"; tool_menu ;;
+            *) echo -e "\n${FLD} Invalid Selection\n"; tool_menu ;;
         esac
         unset TOOL;
         [ -z "$automate" ] && quick_menu;
@@ -2113,7 +2114,7 @@ function the_start() # 0
         exitScriBt 1;
     fi
 
-    # Start a python2 virtualenv
+    # Start a python2 virtualenv for some Arch Linux systems
     start_venv;
 
     # AutoBot
@@ -2134,7 +2135,7 @@ function the_start() # 0
     get "misc" "banner";
     sleep 1.5;
     cd "${PATHDIR}";
-    center_it "${CL_WYT}${VERSION}${NONE}" "1sp1";
+    center_it "${CL_WYT}${VERSION:-NULL}${NONE}" "1sp1";
     cd "${CALL_ME_ROOT}";
 } # the_start
 
@@ -2262,7 +2263,7 @@ function prompt()
         echo -e "\n${FLD} No response provided\n";
         prompt "$1";
     fi
-}
+} # prompt
 
 # 'sudo' command with custom prompt '[#]' in Pink
 function execroot(){ sudo -p $'\033[1;35m[#]\033[0m ' "$@"; };
@@ -2276,7 +2277,7 @@ function get(){ source "${PATHDIR}src/${1}/${2}.rc"; };
 export CALL_ME_ROOT=$(echo "$(pwd)/" | sed -e 's#//$#/#g');
 
 if [[ "$0" == "ROM.sh" ]] && [[ $(type -p ROM.sh) ]]; then
-    export PATHDIR="$(type -p ROM.sh | sed 's/ROM.sh//g')";
+    export PATHDIR="$(type -p ROM.sh | sed 's/ROM\.sh//g')";
 else
     export PATHDIR="${CALL_ME_ROOT}";
 fi
