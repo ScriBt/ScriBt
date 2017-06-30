@@ -150,7 +150,8 @@ function exitScriBt() # ID
     fi
     echo -e "\n${SCS:-[:)]} Thanks for using ScriBt.\n";
     if [[ "$1" == "0" ]]; then
-        echo -e "${CL_LGN}[${NONE}${CL_LRD}\u2764${NONE}${CL_LGN}]${NONE} Peace! :)\n";
+        if ! sign_exists "\u2764"; then SIGN="<3"; fi;
+        echo -e "${CL_LGN}[${NONE}${CL_LRD}${SIGN}${NONE}${CL_LGN}]${NONE} Peace! :)\n";
     else
         echo -e "${CL_LRD}[${NONE}${CL_RED}<${NONE}${CL_LGR}/${NONE}${CL_RED}3${NONE}${CL_LRD}]${NONE} Failed somewhere :(\n";
     fi
@@ -2172,6 +2173,17 @@ function automator()
 # Some Essentials #
 ###################
 
+function sign_exists()
+{
+    if [[ $(echo -e "$1") == "$1" ]]; then
+        return 1; # Invalid ASCII
+        # Dev has to set alternate SIGN
+    else
+        SIGN=$(echo -e "$1");
+        return 0; # Valid ASCII
+    fi
+} # sign_exists
+
 function center_it()
 {
     # Function to center a statement
@@ -2195,7 +2207,9 @@ function center_it()
     fi
     case "$2" in
         *eq*)
-            SIGN="=";
+            if ! sign_exists "\u2550"; then
+                SIGN="=";
+            fi
             SP=" ";
             NOCHARS="$(( NOCHARS - 2 ))";
             ;;
@@ -2246,10 +2260,13 @@ function dash_it()
 
     NOCHARS="${2:-${NOCHARS_DEF}}";
     NB="$1";
+    if ! sign_exists "\u2550"; then
+        SIGN="=";
+    fi
     for (( i=0; i<${NB:-1}; i++ )); do echo; done;
     echo -en "${CL_WYT}";
     for i in $(eval "echo {1..$NOCHARS}"); do
-        echo -en "=";
+        echo -en "${SIGN}";
     done
     echo -en "${NONE}";
     echo -e "\n";
@@ -2271,18 +2288,23 @@ function pause()
 
     TIME="${1:-4}";
     i=1;
-    while [[ "$i" -lt "$TIME" ]];; do
-        echo -en "\033[1;3${i}m\u25C9 $(sleep 0.5)${NONE}";
-        CLEAR+=( " " );
+    if ! sign_exists "\u25C9"; then
+        SIGN=".";
+    fi
+    while [[ "$i" -le "$TIME" ]]; do
+        echo -en "\033[1;3${i}m${SIGN} $(sleep 0.5)${NONE}";
+        CLEAR+=( "  " );
         (( i++ ));
+        # Limit to 7 colors
         if [[ "$i" == "8" ]]; then
-            i=0;
+            i=1;
             TIME=$(( TIME - 8 ));
         fi
     done
-    echo -en "$(sleep 0.5)\r${CLEAR}\r";
-    unset i TIME CLEAR;
+    echo -en "$(sleep 0.5)\r${CLEAR[*]}\r";
+    unset i TIME CLEAR SIGN;
 } # pause
+
 
 # 'read -r' command with custom prompt '[>]' in Cyan
 function prompt()
