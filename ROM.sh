@@ -2208,13 +2208,15 @@ function center_it()
     case "$2" in
         *eq*)
             if ! sign_exists "\u2550"; then
-                SIGN="=";
+                CHAR="="; # To avoid name conflict with "SIGN"
+            else
+                CHAR="$SIGN";
             fi
             SP=" ";
             NOCHARS="$(( NOCHARS - 2 ))";
             ;;
         *sp*)
-            SIGN=$(echo -en " ");
+            CHAR=$(echo -en " ");
             ;;
     esac
     # Newlines before statement
@@ -2233,12 +2235,12 @@ function center_it()
     SL=$(( NSP / 2 ));
     # Right Spacing
     SR=$(( NSP - SL ));
-    SPACEL="$(for (( i=0; i<${SL:-0}; i++ )); do echo -en "${SIGN}"; done;)";
-    SPACER="$(for (( i=0; i<${SR:-0}; i++ )); do echo -en "${SIGN}"; done;)";
+    SPACEL="$(for (( i=0; i<${SL:-0}; i++ )); do echo -en "${CHAR}"; done;)";
+    SPACER="$(for (( i=0; i<${SR:-0}; i++ )); do echo -en "${CHAR}"; done;)";
     for (( i=0; i<${NB:-0}; i++ )); do echo; done;
     echo -e "${CL_WYT}${SPACEL}${NONE}${SP}$1${SP}${CL_WYT}${SPACER}${NONE}";
     for (( i=0; i<${NA:-0}; i++ )); do echo; done;
-    unset S{L,P,R} SPACE{L,R} N{A,B,SP} NO{CHARS,_NOASCII} i;
+    unset S{L,P,R} SPACE{L,R} N{A,B,SP} NO{CHARS,_NOASCII} CHAR i;
 } # center_it
 
 function dash_it()
