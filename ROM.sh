@@ -2168,9 +2168,11 @@ function automator()
     fi
 } # automator
 
-# Some Essentials
+###################
+# Some Essentials #
+###################
 
-function center_it() # D ALL
+function center_it()
 {
     # Function to center a statement
     # Usage :
@@ -2225,7 +2227,7 @@ function center_it() # D ALL
     unset S{L,P,R} SPACE{L,R} N{A,B,SP} NO{CHARS,_NOASCII} i;
 } # center_it
 
-function dash_it() # D ALL
+function dash_it()
 {
     # Function to create <hr> like borders
     # Usage:
@@ -2253,6 +2255,12 @@ function dash_it() # D ALL
     echo -e "\n";
     unset N{A,B} NOCHARS;
 } # dash_it
+
+# 'sudo' command with custom prompt '[#]' in Pink
+function execroot(){ sudo -p $'\033[1;35m[#]\033[0m ' "$@"; };
+
+# Function to execute files under "src"
+function get(){ source "${PATHDIR}src/${1}/${2}.rc"; };
 
 function pause()
 {
@@ -2285,12 +2293,6 @@ function prompt()
         prompt "$1";
     fi
 } # prompt
-
-# 'sudo' command with custom prompt '[#]' in Pink
-function execroot(){ sudo -p $'\033[1;35m[#]\033[0m ' "$@"; };
-
-# Function to execute files under "src"
-function get(){ source "${PATHDIR}src/${1}/${2}.rc"; };
 
 # Point of Execution
 
