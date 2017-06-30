@@ -1936,8 +1936,8 @@ function tools() # 5
                 fi
 
                 if git tag -a"${RESULT_SIGN}" -F "${PATHDIR}update_message.txt" "v${UPDATE_VERSION}" &> /dev/null; then
-                    echo -e "\n${INF} Tag was created successfully";
-                    echo -e "${QN} Do you want to upload it to the server (origin)?\n";
+                    echo -e "\n${SCS} Tag was created successfully";
+                    echo -e "\n${QN} Do you want to upload it to the server (origin)?\n";
                     prompt QN_UPLOAD;
                     if [[ "${QN_UPLOAD}" =~ (y|yes) ]]; then
                         if git push origin master && git push origin v"${UPDATE_VERSION}"; then
@@ -1947,7 +1947,7 @@ function tools() # 5
                         fi
                     fi
                 else
-                    echo -e "${FLD} Failed to create the tag";
+                    echo -e "\n${FLD} Failed to create the tag";
                 fi
             fi
         fi
@@ -2094,7 +2094,7 @@ function the_start() # 0
                 echo -e "\n${SCS} Internet Connectivity : ONLINE";
                 bash "${PATHDIR}src/upScriBt.sh" "$0" "$1";
             else
-                echo -e "\n${FLD} Internet Connectivity : OFFINE";
+                echo -e "\n${FLD} Internet Connectivity : OFFLINE";
                 echo -e "\n${INF} Please connect to the Internet for complete functioning of ScriBt";
             fi
         else
