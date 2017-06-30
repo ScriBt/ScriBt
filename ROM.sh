@@ -54,8 +54,7 @@ function cmdprex() # D ALL
          echo -en "\033[1;3${CT}m$(eval "echo \${ARGD[${CT}]}")\033[0m\n" | sed 's/#/ /g';
     done
     # Give some time for the user to read it
-    for i in {1..4}; do echo -en "\033[1;3${i}m\u25C9 $(sleep 0.5)${NONE}"; done;
-    echo -en "$(sleep 0.5)\r        \r";
+    pause "4";
     echo;
     [[ "$1" =~ --out=* ]] && TEE="2>&1 | tee -a ${1/*=/}";
     CMD=$(echo "${ARG[*]} ${TEE}" | sed -e 's/NULL//g' -e 's/#/ /g');
@@ -482,7 +481,7 @@ function init() # 1
     # change terminal title
     [ ! -z "$automate" ] && teh_action 1;
     rom_select;
-    sleep 1;
+    pause "4";
     echo -e "${EXE} Detecting Available Branches in ${ROM_FN} Repository";
     RCT=$(( ${#ROM_NAME[*]} - 1 ));
     for CT in $(eval "echo {0..$RCT}"); do
@@ -816,7 +815,7 @@ function pre_build() # 3
         init_bld;
         dash_it;
         echo -e "\n${EXE} Creating Interactive Makefile for getting Identified by the ROM's BuildSystem\n";
-        sleep 2;
+        pause "4";
 
         function create_imk()
         {
@@ -922,7 +921,7 @@ function pre_build() # 3
         vendor_strat_all; # if not found, normal strategies
     fi
     cd "${CALL_ME_ROOT}";
-    sleep 2;
+    pause "4";
     export action_1="init" action_2="pre_build";
     [ -z "$automate" ] && quick_menu;
 } # pre_build
@@ -1786,7 +1785,7 @@ function tools() # 5
     function git_creds()
     {
         echo -e "\n${INF} Enter the Details with reference to your ${CL_WYT}GitHub account${NONE}\n\n";
-        sleep 2;
+        pause "4";
         echo -e "${QN} Enter the Username";
         echo -e "${INF} Enter a desired name (or GitHub username)";
         prompt GIT_U;
@@ -2130,10 +2129,10 @@ function the_start() # 0
         echo -e "\n${CL_LRD}[${NONE}${CL_YEL}!${NONE}${CL_LRD}]${NONE} ${ATBT} Cheat Code shut_my_mouth applied. I won't ask questions anymore";
     fi
     echo -e "\n${EXE} ./action${CL_LRD}.SHOW_LOGO${NONE}";
-    sleep 2;
+    pause "4";
     clear;
     get "misc" "banner";
-    sleep 1.5;
+    pause "4";
     cd "${PATHDIR}";
     center_it "${CL_WYT}${VERSION:-NULL}${NONE}" "1sp1";
     cd "${CALL_ME_ROOT}";
@@ -2164,7 +2163,7 @@ function automator()
         echo -e "\n${QN} Which would you like\n";
         prompt ANO;
         echo -e "\n${EXE} Running ScriBt on Automation Config ${CMB[$ANO]}\n";
-        sleep 2;
+        pause "4";
         source "${CMB[${ANO}]}.rc";
     fi
 } # automator
@@ -2254,6 +2253,28 @@ function dash_it() # D ALL
     echo -e "\n";
     unset N{A,B} NOCHARS;
 } # dash_it
+
+function pause()
+{
+    # Function to create a pause timer
+    # with ProgressBar indicating the pause time
+    # Usage:
+    # pause <no-of-0.5-sec-pauses>
+
+    TIME="${1:-4}";
+    i=1;
+    while [[ "$i" -lt "$TIME" ]];; do
+        echo -en "\033[1;3${i}m\u25C9 $(sleep 0.5)${NONE}";
+        CLEAR+=( " " );
+        (( i++ ));
+        if [[ "$i" == "8" ]]; then
+            i=0;
+            TIME=$(( TIME - 8 ));
+        fi
+    done
+    echo -en "$(sleep 0.5)\r${CLEAR}\r";
+    unset i TIME CLEAR;
+} # pause
 
 # 'read -r' command with custom prompt '[>]' in Cyan
 function prompt()
