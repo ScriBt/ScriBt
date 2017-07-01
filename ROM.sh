@@ -1576,12 +1576,12 @@ function tools() # 5
             *apt*)
                 cmdprex \
                     "Command Execution as 'root'<->execroot" \
-                    "Maintains symlinks for default commands<->update-alternatives"
+                    "Maintains symlinks for default commands<->update-alternatives" \
                     "Configure command symlink<->--config" \
                     "Command to Configure<->java";
                 cmdprex \
                     "Command Execution as 'root'<->execroot" \
-                    "Maintains symlinks for default commands<->update-alternatives"
+                    "Maintains symlinks for default commands<->update-alternatives" \
                     "Configure command symlink<->--config" \
                     "Command to Configure<->javac";
                 ;;
