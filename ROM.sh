@@ -1573,7 +1573,7 @@ function tools() # 5
         echo -e "${INF} You may now select the Version of Java which is to be used BY-DEFAULT\n";
         dash_it;
         case "${PKGMGR}" in
-            "apt"|"apt-get")
+            *apt*)
                 cmdprex \
                     "Command Execution as 'root'<->execroot" \
                     "Maintains symlinks for default commands<->update-alternatives"
@@ -1619,7 +1619,7 @@ function tools() # 5
         case "$REMOJA" in
             [yY])
                 case "${PKGMGR}" in
-                    "apt"|"apt-get")
+                    *apt*)
                         cmdprex \
                             "Command Execution as 'root'<->execroot" \
                             "Commandline Package Manager<->${PKGMGR}" \
@@ -1645,7 +1645,7 @@ function tools() # 5
                 ;;
         esac
         case "${PKGMGR}" in
-            "apt"|"apt-get")
+            *apt*)
                 cmdprex \
                     "Command Execution as 'root'<->execroot" \
                     "Commandline Package Manager<->${PKGMGR}" \
@@ -1660,7 +1660,7 @@ function tools() # 5
                     "Answer 'yes' to prompts<->-y" ;;
         esac
         case "${PKGMGR}" in
-            "apt"|"apt-get")
+            *apt*)
                 cmdprex \
                     "Command Execution as 'root'<->execroot" \
                     "Commandline Package Manager<->${PKGMGR}" \
