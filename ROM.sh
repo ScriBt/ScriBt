@@ -877,18 +877,24 @@ function pre_build() # 3
 
     NOINT=$(echo -e "${SCS} Interactive Makefile Unneeded, continuing");
     APMK="${CALL_ME_ROOT}${DEVDIR}AndroidProducts.mk";
-    if [ -f "$APMK" ]; then SIGN="+="; else SIGN=":="; fi;
+    if [ -f "$APMK" ]; then S="+="; else S=":="; fi;
 
     case "$ROMNIS" in
         aosp|carbon|nitrogen|omni|zos) # AEX|AOSP-CAF/RRO|Carbon|F-AOSP|Flayr|Nitrogen|OmniROM|Parallax|Zephyr
             INTF="${ROMNIS}_${SBDEV}.mk";
             need_for_int;
-            echo -e "\nPRODUCT_MAKEFILES ${SIGN}  \\\n\t\$(LOCAL_DIR)/${INTF}" >> "${APMK}";
+            {
+                echo -e "\nPRODUCT_MAKEFILES $S \\";
+                echo -e "\t\$(LOCAL_DIR)/${INTF}";
+            } >> "${APMK}";
             ;;
         eos)
             INTF="${ROMNIS}.mk";
             need_for_int;
-            echo -e "\nPRODUCT_MAKEFILES ${SIGN}  \\\n\t\$(LOCAL_DIR)/${INTF}" >> "${APMK}";
+            {
+                echo -e "\nPRODUCT_MAKEFILES $S \\";
+                echo -e "\t\$(LOCAL_DIR)/${INTF}";
+            } >> "${APMK}";
             ;;
         aosip) # AOSiP-CAF
             if [ ! -f "vendor/${ROMNIS}/products" ]; then
@@ -914,6 +920,7 @@ function pre_build() # 3
             need_for_int;
             ;;
     esac
+    unset S;
 
     choose_target;
     if [ -d vendor/${ROMNIS}/products ]; then # [ -d vendor/aosip ] <- Temporarily commented
