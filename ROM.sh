@@ -338,8 +338,12 @@ function manifest_gen() # D 1,5
         # Our file
         FILE="${CALL_ME_ROOT}file.xml";
         rm -f "${FILE}";
+        # `while' equivalent of this loop brings all test cases in ONE line
+        # And additionally distinguishes each test case by a newline between them
+        # Not what I wanted (seperate lines), So...
+        # shellcheck disable=SC2013
         for line in $(grep '<remote' "${MANIFEST}" | sed -e 's/<remote//g' -e 's/ /X/g' -e 's/\/>//g'); do
-            line=$(echo $line | sed 's/X/ /g');
+            line="${line//X/ }";
             eval "$line";
             if [[ "${fetch}" == ".." ]]; then
                 cd "${CALL_ME_ROOT}.repo/manifests";
