@@ -1765,7 +1765,7 @@ function tools() # 5
             "Change Permissions on an Entity<->chmod" \
             "Add read Permissions<->a+r" \
             "file to be chmod-ed<->/etc/udev/rules.d/51-android.rules";
-        if [[ "$PKGMGR" =~ apt(|-get) ]]; then
+        if [[ "$PKGMGR" == *apt* ]]; then
             cmdprex \
                 "Execute command as 'root'<->execroot" \
                 "Service mgmt tool<->service" \
@@ -1974,7 +1974,7 @@ function tools() # 5
         center_it "12. Generate a Custom Manifest" "sp";
 # TODO: center_it "X. Find an Android Module's Directory" "sp";
         center_it "0. Quick Menu" "sp";
-        echo -e "${CL_WYT}~${NONE} These versions are recommended to use";
+        echo -e "\n${CL_WYT}~${NONE} These versions are recommended to use";
         echo -e "  If you have any issue in higher versions";
         dash_it;
         prompt TOOL;
