@@ -1,4 +1,4 @@
 #!/bin/bash
 
 echo -e "${INF} Jack is a Toolchain for building Android Apps and Frameworks with the Help of a Java VM";
-echo -e "    Introduced from Marshmallow\n";
+echo -e "${INDENT}Introduced from Marshmallow\n";

@@ -2,7 +2,7 @@
 # Interactive Makefile content
 
 {
-    echo -e "#                ##### Interactive Makefile ######";
+    echo -e "# Automatically Generated file (from ScriBt)";
     echo -e "#";
     echo -e "# Licensed under the Apache License, Version 2.0 (the \"License\");";
     echo -e "# you may not use this file except in compliance with the License.";

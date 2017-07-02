@@ -266,17 +266,17 @@ function manifest_gen() # D 1,5
             case "$(echo $line | awk '{print $1}')" in
                 "<project")
                     echo -e "${INF} ${CL_LGN}Add${NONE} Project ${CL_WYT}${name}${NONE}\n"
-                    echo -e "    Checkout Path : $path";
-                    echo -e "    Revision (Branch) : $revision";
-                    echo -e "    Remote : $remote\n";
+                    echo -e "${INDENT}Checkout Path : $path";
+                    echo -e "${INDENT}Revision (Branch) : $revision";
+                    echo -e "${INDENT}Remote : $remote\n";
                     ;;
                 "<remove-project")
                     echo -e "${INF} ${CL_LRD}Remove${NONE} Project ${CL_WYT}${name}${NONE}\n";
                     ;;
                 "<remote")
                     echo -e "${INF} ${CL_WYT}Add${NONE} remote ${CL_WYT}${name}${NONE}";
-                    echo -e "    Fetch URL : $fetch";
-                    echo -e "    Default Revision (branch) : $revision\n";
+                    echo -e "${INDENT}Fetch URL : $fetch";
+                    echo -e "${INDENT}Default Revision (branch) : $revision\n";
                     ;;
             esac
             unset name path remote revision fetch;
@@ -815,7 +815,8 @@ function pre_build() # 3
     {
         init_bld;
         dash_it;
-        echo -e "\n${EXE} Creating Interactive Makefile for getting Identified by the ROM's BuildSystem\n";
+        echo -e "\n${EXE} Creating Interactive Makefile";
+        echo -e "${INDENT}So that device source(s) are identified by the ROM's BuildSystem\n";
         pause "4";
 
         function create_imk()
@@ -1613,7 +1614,7 @@ function tools() # 5
     {
         echo -ne "\033]0;ScriBt : Java $1\007";
         echo -e "\n${EXE} Installing OpenJDK-$1 (Java 1.$1.0)";
-        echo -e "\n${INF} Remove other Versions of Java ${CL_WYT}[y/n]${NONE}? : \n";
+        echo -e "\n${QN} Remove other Versions of Java ${CL_WYT}[y/n]${NONE}\n";
         prompt REMOJA;
         echo;
         case "$REMOJA" in
@@ -1632,8 +1633,8 @@ function tools() # 5
                             "Arch Package Mgr.<->pacman" \
                             "Remove Package<->-R" \
                             "Skip all Dependency Checks<->-dd" \
-                            "WiP<->-n" \
-                            "WiP<->-s" \
+                            "remove configuration files<->-n" \
+                            "remove unnecessary dependencies<->-s" \
                             "PackageName<->$( pacman -Qqs ^jdk )" ;;
                 esac
                 echo -e "\n${SCS} Removed Other Versions successfully";
@@ -1657,7 +1658,8 @@ function tools() # 5
                     "Execute command as 'root'<->execroot" \
                     "Arch Package Mgr.<->pacman" \
                     "Sync Pkgs<->-S" \
-                    "Answer 'yes' to prompts<->-y" ;;
+                    "download fresh package databases<->-y";
+                ;;
         esac
         case "${PKGMGR}" in
             *apt*)
@@ -1666,15 +1668,15 @@ function tools() # 5
                     "Commandline Package Manager<->${PKGMGR}" \
                     "Keyword for Installing Package<->install" \
                     "Answer 'yes' to prompts<->-y" \
-                    "OpenJDK PackageName<->openjdk-$1-jdk";
+                    "OpenJDK $1 Package Name<->openjdk-$1-jdk";
                 ;;
             "pacman")
                 cmdprex \
                     "Execute command as 'root'<->execroot" \
                     "Arch Package Mgr.<->pacman" \
                     "Sync Pkgs<->-S" \
-                    "Answer 'yes' to prompts<->-y"
-                    "OpenJDK PackageName<->jdk$1-openjdk" ;;
+                    "download fresh package databases<->-y"
+                    "OpenJDK $1 Package Name<->jdk$1-openjdk" ;;
         esac
         java_check "$1";
     } # java_install
@@ -1725,7 +1727,10 @@ function tools() # 5
                 echo -e "1. Java 1.6.0 (4.4.x Kitkat)";
                 echo -e "2. Java 1.7.0 (5.x.x Lollipop && 6.x.x Marshmallow)";
                 echo -e "3. Java 1.8.0 (7.x.x Nougat)\n";
-                [[ "${PKGMGR}" =~ apt(|-get) ]] && echo -e "4. Ubuntu 16.04 & Want to install Java 7\n5. Ubuntu 14.04 & Want to install Java 8\n";
+                if [[ "${PKGMGR}" == *apt* ]]; then
+                    echo -e "4. Ubuntu 16.04 & Want to install Java 7";
+                    echo -e "5. Ubuntu 14.04 & Want to install Java 8\n";
+                fi
                 prompt JAVER;
                 case "$JAVER" in
                     1) java_install 6 ;;
@@ -1750,7 +1755,7 @@ function tools() # 5
     function udev_rules()
     {
         dash_it;
-        echo -e "${EXE} Updating / Creating Android USB udev rules (51-android)\n";
+        echo -e "${EXE} Updating / Creating Android USB udev rules (51-android)";
         cmdprex \
             "Execute Command as 'root'<->execroot" \
             "Tool/Lib to transfer data with URL syntax<->curl" \
@@ -1785,10 +1790,11 @@ function tools() # 5
 
     function git_creds()
     {
-        echo -e "\n${INF} Enter the Details with reference to your ${CL_WYT}GitHub account${NONE}\n\n";
+        echo -e "\n${INF} Enter the Details with reference to your ${CL_WYT}GitHub account${NONE}";
+        echo -e "${INDENT}If you have one";
         pause "4";
-        echo -e "${QN} Enter the Username";
-        echo -e "${INF} Enter a desired name (or GitHub username)";
+        echo -e "\n${QN} Enter the Username";
+        echo -e "${INF} Enter a desired name (or GitHub username)\n";
         prompt GIT_U;
         echo -e "\n${QN} Enter the E-mail ID\n";
         prompt GIT_E;
@@ -1797,13 +1803,13 @@ function tools() # 5
             "Configure git<->config" \
             "Apply changes to all local repositories<->--global" \
             "Configuration<->user.name" \
-            "Value<->${GIT_U}";
+            "Value of specified configuration<->${GIT_U}";
         cmdprex \
             "git commandline<->git" \
             "Configure git<->config" \
             "Apply changes to all local repositories<->--global" \
             "Configuration<->user.email" \
-            "Value<->${GIT_E}";
+            "Value of specified configuration<->${GIT_E}";
         echo -e "${SCS} Done";
         quick_menu;
     } # git_creds
@@ -1869,8 +1875,8 @@ function tools() # 5
     function scribtofy()
     {
         echo -e "\n${INF} This Function allows ScriBt to be executed under any directory";
-        echo -e "    Temporary Files would be present at working directory itself";
-        echo -e "    Older ScriBtofications, if present, would be overwritten";
+        echo -e "${INDENT}Temporary Files would be present at working directory itself";
+        echo -e "${INDENT}Older ScriBtofications, if present, would be overwritten";
         echo -e "\n${QN} Shall I ScriBtofy ${CL_WYT}[y/n]${NONE}\n";
         prompt SBFY;
         case "$SBFY" in
@@ -2134,9 +2140,7 @@ function the_start() # 0
     clear;
     get "misc" "banner";
     pause "4";
-    cd "${PATHDIR}";
     center_it "${CL_WYT}${VERSION:-NULL}${NONE}" "1sp1";
-    cd "${CALL_ME_ROOT}";
 } # the_start
 
 function automator()
@@ -2328,6 +2332,8 @@ if [[ "$0" == "ROM.sh" ]] && [[ $(type -p ROM.sh) ]]; then
 else
     export PATHDIR="${CALL_ME_ROOT}";
 fi
+
+export INDENT="    ";
 
 # Load Companion Scripts
 source "${PATHDIR}src/color_my_life.rc";

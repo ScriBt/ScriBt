@@ -1,4 +1,4 @@
 #!/bin/bash
 
 echo -e "${INF} Ninja is a Build-System, which is a new implementation on Building Android";
-echo -e "    Introduced from Nougat\n";
+echo -e "${INDENT}Introduced from Nougat\n";

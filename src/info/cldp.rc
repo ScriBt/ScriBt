@@ -1,4 +1,4 @@
 #!/bin/bash
 
 echo -e "${INF} If unset, Syncs the Entire commit history of any repo which is better for future syncs";
-echo -e "\n${INF} Unless you know what you're doing,${NONE} ${CL_LRD}Answer n${NONE}\n";
+echo -e "${INDENT}Unless you know what you're doing,${NONE} ${CL_LRD}Answer n${NONE}\n";
