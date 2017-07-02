@@ -451,7 +451,7 @@ function shut_my_mouth() # ID
         else
             eval "SB$1=${SB2}";
         fi
-        export "SB$1";
+        export "SB${1//\[*\]}";
         unset SB2;
     fi
     echo;
