@@ -338,7 +338,8 @@ function manifest_gen() # D 1,5
         # Our file
         FILE="${CALL_ME_ROOT}file.xml";
         rm -f "${FILE}";
-        while read -r line; do
+        for line in $(grep '<remote' "${MANIFEST}" | sed -e 's/<remote//g' -e 's/ /X/g' -e 's/\/>//g'); do
+            line=$(echo $line | sed 's/X/ /g');
             eval "$line";
             if [[ "${fetch}" == ".." ]]; then
                 cd "${CALL_ME_ROOT}.repo/manifests";
@@ -348,7 +349,7 @@ function manifest_gen() # D 1,5
             fi
             REMN+=( "$name" );
             REMF+=( "$fetch" );
-        done <<< $(grep '<remote' "${MANIFEST}" | sed -e 's/<remote//g' -e 's/\/>//g');
+        done
         unset line fetch name review revision;
         mkdir -p "${CALL_ME_ROOT}.repo/local_manifests/";
         touch "${FILE}";
