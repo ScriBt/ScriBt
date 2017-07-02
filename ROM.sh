@@ -190,6 +190,7 @@ function manifest_gen() # D 1,5
         echo -en "\n${QN} Repository Path : "; prompt repo_path;
         echo -en "\n${QN} Branch : "; prompt repo_revision --no-repeat;
         listremotes;
+        echo -e "\n${QN} Enter the desired remote ${CL_WYT}name${NONE}\n";
         prompt repo_remote --no-repeat;
         line=( "name=\"${repo_name}\"" "path=\"${repo_path}\"" );
         [ ! -z "${repo_revision}" ] && line=( "${line[*]}" "revision=\"${repo_revision}\"" );
@@ -255,7 +256,6 @@ function manifest_gen() # D 1,5
             eval "echo -e \${CL_WYT}\${REMN[$CT]} \${CL_DGR}\(\${REMF[$CT]}\)";
             echo -e "${NONE}";
         done
-        echo -e "\n${QN} Enter the desired remote ${CL_WYT}name${NONE}\n";
     } # listremotes
 
     function listops()
