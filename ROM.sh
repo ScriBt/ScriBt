@@ -165,15 +165,18 @@ function exitScriBt() # ID
 function get_rom_info()
 {
     # Get ROM's info, if user directly starts sync
+    cd "${CALL_ME_ROOT}.repo/manifests";
     _RNM=$(git config --get remote.origin.url | awk -F "/" '{print $4}');
-    while read -r FILE; do
+    cd  ${CALL_ME_ROOT};
+    FILES=$(find "${CALL_ME_ROOT}src/roms" -name "*.rc");
+    for FILE in ${FILES}; do
         if grep -q "${_RNM}" "${FILE}"; then
             source "${FILE}";
             ROM_FN="$(echo ${FILE//.rc/} | awk -F "/" '{print $NF}' | sed -e 's/_/ /g')";
             break;
         fi
-    done <<< $(find "${CALL_ME_ROOT}/src/roms" -name "*.rc");
-    unset _RNM FILE;
+    done;
+    unset _RNM FILE FILES;
 } # get_rom_info
 
 function main_menu()
@@ -646,7 +649,7 @@ function device_info() # D 3,4
     echo -e "${QN} What's your Device's CodeName";
     echo -e "\n${INF} Refer Device Tree - All Lowercases\n";
     ST="Device CodeName"; shut_my_mouth DEV "$ST";
-    SBCM=$(find "device/*/${SBDEV}" | awk -F "/" '{print $2}')
+    SBCM=$(find device/*/"${SBDEV}" | awk -F "/" '{print $2}')
     if [ -z "${SBCM}" ]; then
         echo -e "\n${FLD} Device Tree not found";
         echo -e "${INDENT}Invalid Details OR Missing Source";
