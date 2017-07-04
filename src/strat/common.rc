@@ -1,6 +1,7 @@
 #!/bin/bash
 
 find_ddc "pb";
+print_makefile_addition "${DEVDIR}${DDC}" "${VENF}";
 {
     echo -e "\n# Inherit from ${DDC}";
     echo -e "\$(call inherit-product, ${DEVDIR}/${DDC})";

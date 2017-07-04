@@ -3,6 +3,7 @@
 bootanim;
 VENF="${SBDEV}.mk";
 echo -e "\t\$(LOCAL_DIR)/${VENF}" >> AndroidProducts.mk;
+print_makefile_addition "vendor/${ROMNIS}/configs/common.mk" "${VENF}";
 {
     echo -e "\$(call inherit-product, vendor/${ROMNIS}/configs/common.mk)";
     echo -e "\nPRODUCT_COPY_FILES += \\ ";

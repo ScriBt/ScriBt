@@ -5,6 +5,6 @@ VENF="${SBDEV}/${ROMNIS}_${SBDEV}.mk";
     echo -e "# ${SBCM} ${SBDEV}";
     echo -e "\nifeq (${ROMNIS}_${SBDEV},\$(TARGET_PRODUCT))";
     echo -e "\tPRODUCT_MAKEFILES += \$(LOCAL_DIR)/${VENF}\nendif";
-} >> AndroidProducts.mk;
+} >> "${APMK}";
 echo -e "\ninclude vendor/${ROMNIS}/main.mk" >> "${VENF}";
-mv -f "${CALL_ME_ROOT}${DEVDIR}"/*.dependencies "${SBDEV}/pa.dependencies";
+touch "${SBDEV}/pa.dependencies";

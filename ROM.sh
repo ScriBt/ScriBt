@@ -162,6 +162,20 @@ function exitScriBt() # ID
     exit "$1";
 } # exitScriBt
 
+function get_rom_info()
+{
+    # Get ROM's info, if user directly starts sync
+    _RNM=$(git config --get remote.origin.url | awk -F "/" '{print $4}');
+    while read -r FILE; do
+        if grep -q "${_RNM}" "${FILE}"; then
+            source "${FILE}";
+            ROM_FN="$(echo ${FILE//.rc/} | awk -F "/" '{print $NF}' | sed -e 's/_/ /g')";
+            break;
+        fi
+    done <<< $(find "${CALL_ME_ROOT}/src/roms" -name "*.rc");
+    unset _RNM FILE;
+} # get_rom_info
+
 function main_menu()
 {
     echo -ne '\033]0;ScriBt : Main Menu\007';
@@ -494,15 +508,16 @@ function init() # 1
         echo -e "\nOn ${ROM_NAME[$CT]} (ID->$CT)\n";
         BRANCHES=$(git ls-remote -h "https://github.com/${ROM_NAME[$CT]}/${MAN[$CT]}" |\
             awk -F "/" '{if (length($4) != 0) {print $3"/"$4} else {print $3}}');
-        if [[ ! -z "$CNS" && "$SBRN" -lt "37" ]]; then
+        if [[ ! -z "$CNS" && "$SBRN" != A* ]]; then
             echo "$BRANCHES" | grep --color=never 'caf' | column;
         else
             echo "$BRANCHES" | column;
         fi
     done
     unset CT;
-    echo -e "\n${INF} These Branches are available at the moment\n${QN} Specify the ID and Branch you're going to sync";
-    echo -e "\n    Format : [ID] [BRANCH]\n";
+    echo -e "\n${INF} These Branches are available at the moment";
+    echo -e "\n${QN} Specify the ID and Branch you're going to sync";
+    echo -e "\n${INDENT}Format : [ID] [BRANCH]\n";
     ST="Branch"; shut_my_mouth NBR "$ST";
     CT="${SBNBR/ */}"; # Count
     SBBR="${SBNBR/* /}"; # Branch
@@ -523,7 +538,7 @@ function init() # 1
         CDP="--depth\=${SBDEP:-1}";
     fi
     # Check for Presence of Repo Binary
-    if [[ ! $(which repo) ]]; then
+    if ! which repo; then
         echo -e "${FLD} ${CL_WYT}repo${NONE} binary isn't installed";
         echo -e "\n${EXE} Installing ${CL_WYT}repo${CL_WYT}";
         [ ! -d "${HOME}/bin" ] && mkdir -pv ${HOME}/bin;
@@ -543,12 +558,12 @@ function init() # 1
         else
             {
                 echo -e "\n# set PATH so it includes user's private bin if it exists";
-                echo -e "if [ -d \"\$HOME/bin\" ]; then\n\tPATH=\"\$HOME/bin:\$PATH\"\nfi";
-            } >> ${HOME}/.profile;
+                echo -e "if [ -d \"\$HOME/bin\" ]; then\n${INDENT}PATH=\"\$HOME/bin:\$PATH\"\nfi";
+            } >> "${HOME}/.profile";
             source ${HOME}/.profile;
             echo -e "\n${SCS} $HOME/bin added to PATH";
         fi
-        echo -e "${SCS} Done. Ready to Init Repo";
+        echo -e "${SCS} Done. Ready to Initialize Repo";
     fi
     MURL="https://github.com/${RNM}/${MNF}";
     cmdprex --out="${STMP}" \
@@ -562,13 +577,14 @@ function init() # 1
         "branch<->${SBBR}";
     unset BRANCHES MURL CDP REF MNF CT;
     if [ -z "$STS" ]; then
-        [ ! -f .repo/local_manifests ] && mkdir -pv .repo/local_manifests;
+        if [ ! -f "${CALL_ME_ROOT}.repo/local_manifests" ]; then
+            mkdir -pv "${CALL_ME_ROOT}.repo/local_manifests";
+        fi
         if [ -z "$automate" ]; then
             echo -e "\n${QN} Generate a Custom manifest ${CL_WYT}[y/n]${NONE}\n";
             prompt SBGCM;
             [[ "$SBGCM" == [Yy] ]] && manifest_gen;
         fi
-        export action_1="init";
     else
         unset STS;
     fi
@@ -579,7 +595,8 @@ function sync() # 2
 {
     # Change terminal title
     [ ! -z "$automate" ] && teh_action 2;
-    if [ ! -f .repo/manifest.xml ]; then init; elif [ -z "$action_1" ]; then rom_select; fi;
+    if [ ! -f .repo/manifest.xml ]; then init; fi;
+    get_rom_info;
     echo -e "\n${EXE} Preparing for Sync\n";
     echo -e "${QN} Number of Threads for Sync \n"; get "info" "jobs";
     ST="Number of Threads"; shut_my_mouth JOBS "$ST";
@@ -597,7 +614,7 @@ function sync() # 2
     [[ "$SBF" == "y" ]] && FORCE="--force-sync";
     [[ "$SBC" == "y" ]] && SYNC_CRNT="-c";
     [[ "$SBB" == "y" ]] || CLN_BUN="--no-clone-bundle";
-    echo -e "${EXE} Let's Sync!";
+    echo -e "${EXE} Starting Sync for ${ROM_FN}";
     cmdprex --out="${STMP}" \
         "repository management tool<->repo" \
         "update working tree<->sync" \
@@ -613,37 +630,54 @@ function sync() # 2
 function device_info() # D 3,4
 {
     echo -ne "\033]0;ScriBt : Device Info\007";
-    [[ ! -z ${ROMV} ]] && export ROMNIS="${ROMV}"; # Change ROMNIS to ROMV if ROMV is non-zero
-    if [ -d ${CALL_ME_ROOT}vendor/${ROMNIS}/config ]; then
+    # Change ROMNIS to ROMV if ROMV is non-zero
+    [ ! -z "${ROMV}" ] && export ROMNIS="${ROMV}";
+    if [ -d "${CALL_ME_ROOT}vendor/${ROMNIS}/config" ]; then
         CNF="vendor/${ROMNIS}/config";
-    elif [ -d ${CALL_ME_ROOT}vendor/${ROMNIS}/configs ]; then
+    elif [ -d "${CALL_ME_ROOT}vendor/${ROMNIS}/configs" ]; then
         CNF="vendor/${ROMNIS}/configs";
-    elif [ -d ${CALL_ME_ROOT}vendor/${ROMNIS}/products ]; then
+    elif [ -d "${CALL_ME_ROOT}vendor/${ROMNIS}/products" ]; then
         CNF="vendor/${ROMNIS}/products";
     else
         CNF="vendor/${ROMNIS}";
     fi
-    rom_check "$SBRN"; # Restore ROMNIS
+    get_rom_info; # Restore ROMNIS
     center_it "${CL_PRP}Device Info${NONE}" "1eq1";
-    echo -e "${QN} What's your Device's CodeName \n${INF} Refer Device Tree - All Lowercases\n";
-    ST="Your Device Name is"; shut_my_mouth DEV "$ST";
-    echo -e "${QN} Your Device's Company/Vendor \n${INF} All Lowercases\n";
-    ST="Device's Vendor"; shut_my_mouth CM "$ST";
-    echo -e "${QN} Build type \n${INF} [userdebug/user/eng]\n";
+    echo -e "${QN} What's your Device's CodeName";
+    echo -e "\n${INF} Refer Device Tree - All Lowercases\n";
+    ST="Device CodeName"; shut_my_mouth DEV "$ST";
+    SBCM=$(find "device/*/${SBDEV}" | awk -F "/" '{print $2}')
+    if [ -z "${SBCM}" ]; then
+        echo -e "\n${FLD} Device Tree not found";
+        echo -e "${INDENT}Invalid Details OR Missing Source";
+        echo -e "\n${QN} Correct the provided details ${CL_WYT}[y/n]${NONE}";
+        prompt PD;
+        case "$PD" in
+            [Yy])
+                unset PD;
+                device_info;
+                ;;
+            *)
+                quick_menu;
+                ;;
+        esac
+    fi
+    echo -e "${QN} Build type \n${INF} Valid types : userdebug, user, eng\n";
     ST="Build type"; shut_my_mouth BT "$ST";
-    if [ -z "$SBBT" ]; then SBBT="userdebug"; fi;
-    echo -e "${QN} Choose your Device type among these";
-    echo -e "\n${INF} Explainations of each file given in";
-    echo -e "\nhttps://scribt.github.io/wiki/pre-build.html - 'Device Types' section\n"; get "info" "devtype";
-    CT=0;
+    if ! [[ "$SBBT" =~ userdebug\|user\|eng ]]; then
+        echo -e "\n${FLD} Invalid build type specified";
+        echo -e "\n${EXE} Falling back to ${CL_WYT}userdebug${NONE}";
+        SBBT="userdebug";
+    fi
+    echo -e "\n${QN} Choose your Device type among these";
+    get "info" "devtype";
     get "misc" "device_types";
     for TYP in ${TYPES[*]}; do
-        if [ -f "${CNF}/${TYP}.mk" ]; then echo -e "${CT}. $TYP"; (( CT++ )); fi;
-    done
+        if [ -f "${CNF}/${TYP}.mk" ]; then echo -e "$TYP"; fi;
+    done | pr -t -2;
     unset CT;
     echo;
     ST="Device Type"; shut_my_mouth DTP "$ST";
-    if [ "${SBDTP}" != "common" ]; then SBDTP="${TYPES[${SBDTP}]}"; fi;
     dash_it;
 } # device_info
 
@@ -687,10 +721,7 @@ function stop_venv()
 {
     if [[ "${ACTIVE_VENV}" == "true" ]]; then
         echo -e "\n${EXE} Exiting virtual environment\n";
-        deactivate && rm -rf ${HOME}/venv;
-        if [[ ! -d "${HOME}/venv" ]]; then
-            echo -e "${SCS} Python2 virtual environment deactivated";
-        fi
+        deactivate && rm -rf ${HOME}/venv && echo -e "${SCS} Python2 virtual environment deleted";
     fi
 } # stop_venv
 
@@ -700,8 +731,7 @@ function init_bld() # D 3,4
     echo -e "${EXE} Initializing Build Environment";
     cmdprex \
         "Execute in current shell<->source" \
-        "EnvSetup Script<->build/envsetup.sh";
-    echo -e "${SCS} Done\n";
+        "Environment Setup Script<->build/envsetup.sh";
 } # init_bld
 
 function choose_target() # D 3,4
@@ -715,9 +745,9 @@ function choose_target() # D 3,4
 function pre_build() # 3
 {
     # To prevent missing information, if user starts directly from here
-    [ -z "$action_1" ] && rom_select;
+    get_rom_info;
     init_bld;
-    device_info;
+    [ -z "${SBDEV}" ] && device_info;
     # Change terminal title
     [ ! -z "$automate" ] && teh_action 3;
     DEVDIR="device/${SBCM}/${SBDEV}/";
@@ -730,9 +760,9 @@ function pre_build() # 3
         function dtree_add()
         {   # AOSP-CAF|RRO|F-AOSP|Flayr|OmniROM|Zephyr
             echo -e "\n${EXE} Adding Lunch Combo in Device Tree";
-            [ ! -f vendorsetup.sh ] && touch vendorsetup.sh;
-            if [[ $(grep -c "${ROMNIS}_${SBDEV}" "${DEVDIR}vendorsetup.sh" ) == "0" ]]; then
-                echo -e "add_lunch_combo ${ROMNIS}_${SBDEV}-${SBBT}" >> vendorsetup.sh;
+            [ ! -f "${DEVDIR}vendorsetup.sh" ] && touch "${DEVDIR}vendorsetup.sh";
+            if ! grep -q "${ROMNIS}_${SBDEV}" "${DEVDIR}vendorsetup.sh"; then
+                echo -e "add_lunch_combo ${TARGET}" >> ${DEVDIR}vendorsetup.sh;
             else
                 echo -e "\n${SCS} Lunch combo already added to vendorsetup.sh";
             fi
@@ -744,25 +774,25 @@ function pre_build() # 3
             VSTP="vendorsetup.sh";
         fi
         echo -e "\n${EXE} Adding Device to ROM Vendor";
-        for STRT in "${ROMNIS}.devices" "${ROMNIS}-device-targets" "${VSTP}"; do
-            #    Found file   &&  Strat Not Performed
-            if [ -f "${STRT}" ] && [ -z "$STDN" ]; then
-                if [[ $(grep -c "${SBDEV}" "${STRT}") == "0" ]]; then
-                    case "${STRT}" in
+        for STRAT_FILE in "${ROMNIS}.devices" "${ROMNIS}-device-targets" "${VSTP}"; do
+            #          Found file     &&    Strat Not Performed
+            if [ -f "${STRAT_FILE}" ] && [ -z "${STRAT_DONE}" ]; then
+                if ! grep -q "${SBDEV}" "${STRAT_FILE}"; then
+                    case "${STRAT_FILE}" in
                         "${ROMNIS}.devices")
-                            echo -e "${SBDEV}" >> "${STRT}" ;;
+                            echo -e "${SBDEV}" >> "${STRAT_FILE}" ;;
                         "${ROMNIS}-device-targets")
-                            echo -e "${TARGET}" >> "${STRT}" ;;
+                            echo -e "${TARGET}" >> "${STRAT_FILE}" ;;
                         "${VSTP}")
-                            echo -e "add_lunch_combo ${TARGET}" >> "${STRT}" ;;
+                            echo -e "add_lunch_combo ${TARGET}" >> "${STRAT_FILE}" ;;
                     esac
                 else
-                    echo -e "\n${INF} Device already added to ${STRT}";
+                    echo -e "\n${INF} Device already added to ${STRAT_FILE}";
                 fi
-                export STDN="y"; # File Found, Strat Performed
+                export STRAT_DONE="y"; # File Found, Strat Performed
             fi
         done
-        [ -z "$STDN" ] && dtree_add; # If none of the Strats Worked
+        [ -z "${STRAT_DONE}" ] && dtree_add; # If none of the Strats Worked
         echo -e "\n${SCS} Done";
         cd "${CALL_ME_ROOT}";
         dash_it;
@@ -816,12 +846,22 @@ function pre_build() # 3
         done
     } # find_ddc
 
+    function print_makefile_addition()
+    {
+        echo -e "\n${INF} Adding the following makefile call under ${2}";
+        echo -e "\n\$(${CL_LRD}call${NONE} ${CL_YEL}inherit-product${NONE}, ${CL_LGN}${1}${NONE})";
+        echo -e "\n${CL_LRD}call a function${NONE}";
+        echo -e "${CL_YEL}function which inherits a product's makefile${NONE}";
+        echo -e "${CL_LGN}makefile to be called${NONE}\n";
+        pause "1";
+    } # print_makefile_addition
+
     function interactive_mk()
     {
         init_bld;
         dash_it;
-        echo -e "\n${EXE} Creating Interactive Makefile";
-        echo -e "${INDENT}So that device source(s) are identified by the ROM's BuildSystem\n";
+        echo -e "${EXE} Creating Interactive Makefile";
+        echo -e "${INDENT}So that device tree gets identified by the ROM's BuildSystem\n";
         pause "4";
 
         function create_imk()
@@ -829,33 +869,46 @@ function pre_build() # 3
             cd "${DEVDIR}";
             [ -z "$INTF" ] && INTF="${ROMNIS}.mk";
             get "misc" "intmake";
+            print_makefile_addition "${CNF}/${SBDTP}.mk" "${INTF}";
+            print_makefile_addition "${DEVDIR}${DDC}" "${INTF}";
             {
-                echo -e "\n# Inherit ${ROMNIS} common stuff\n\$(call inherit-product, ${CNF}/${SBDTP}.mk)";
+                echo -e "\n# Inherit ${ROMNIS} common stuff";
+                echo -e "\n\$(call inherit-product, ${CNF}/${SBDTP}.mk)";
                 echo -e "\n# Calling Default Device Configuration File";
+                echo -e "\n# This is the file which contains Device Information";
+                echo -e "\n# And calls all other device makefiles";
                 echo -e "\$(call inherit-product, ${DEVDIR}${DDC})";
             } >> "${INTF}";
             # To prevent Missing Vendor Calls in DDC-File
+            echo -e "\n${INF} In file ${DDC}";
+            echo -e "${INDENT}${CL_WYT}inherit-product${NONE} is replaced by ${CL_WYT}inherit-product-if-exists${NONE}"
+            echo -e "${INDENT}Since ${CL_WYT}${DDC}${NONE} may inherit makefiles ${CL_WYT}from a different ROM${NONE} that might not exist";
+            echo -e "\n${INF} This is being done so that the build won't fail even when these makefile(s) go missing\n";
+            pause "4";
             sed -i -e 's/inherit-product, vendor\//inherit-product-if-exists, vendor\//g' "$DDC";
             # Add User-desired Makefile Calls
-            echo -e "${QN} Missed some Makefile calls";
-            echo -e "\n${INF} Enter number of Desired Makefile calls";
-            echo -e "\n${INF} Enter 0 if none\n";
+            echo -e "\n${INF} Enter number of desired Makefile calls";
+            echo -e "\n${INF} Enter 0 if you don't want to add any\n";
             ST="No of Makefile Calls"; shut_my_mouth NMK "$ST";
             for (( CT=0; CT<"${SBNMK}"; CT++ )); do
                 echo -e "\n${QN} Enter Makefile location from Root of BuildSystem\n";
                 ST="Makefile"; shut_my_mouth LOC[$CT] "$ST" array;
                 if [ -f "${CALL_ME_ROOT}${SBLOC[$CT]}" ]; then
                     echo -e "\n${EXE} Adding Makefile $(( CT + 1 ))";
+                    print_makefile_addition "${SBLOC[$CT]}" "${INTF}";
                     echo -e "\n\$(call inherit-product, ${SBLOC[$CT]})" >> "${INTF}";
                 else
                     echo -e "\n${FLD} Makefile ${SBLOC[$CT]} not Found. Aborting";
                 fi
             done
             unset CT;
-            echo -e "\n# ROM Specific Identifier\nPRODUCT_NAME := ${ROMNIS}_${SBDEV}" >> "${INTF}";
-            echo -e "${EXE} Copying .dependencies file (if exists)\n";
-            find . -name '*.dependencies' -exec cp -f {} ./${ROMNIS}.dependencies \;
-            echo -e "\n${SCS} Done";
+            echo -e "\n${INF} Adding ROM specific identification variable";
+            {
+                echo -e "\n# ROM Specific Identifier";
+                echo -e "PRODUCT_NAME := ${ROMNIS}_${SBDEV}";
+            } >> "${INTF}";
+            echo -e "\n${SCS} Interactive Makefile ${CL_WYT}${INTF}${NONE} created successfully";
+            echo -e "${INF} Please take a look at ${CL_WYT}${DEVDIR}${INTF}${NONE} later on how it was made";
             cd "${CALL_ME_ROOT}";
             dash_it;
         } # create_imk
@@ -879,24 +932,29 @@ function pre_build() # 3
     APMK="${CALL_ME_ROOT}${DEVDIR}AndroidProducts.mk";
     if [ -f "$APMK" ]; then S="+="; else S=":="; fi;
 
+    function add_prdt_makefile_to_apmk()
+    {
+        echo -e "${INF} Adding line under ${CL_WYT}${APMK}${NONE} to include makefile ${CL_WYT}${INTF}${NONE}";
+        {
+            echo -e "\nPRODUCT_MAKEFILES $S \\";
+            echo -e "\t\$(LOCAL_DIR)/${INTF}";
+        } >> "${APMK}";
+    } # add_prdt_makefile_to_apmk
+
     case "$ROMNIS" in
-        aosp|carbon|nitrogen|omni|zos) # AEX|AOSP-CAF/RRO|Carbon|F-AOSP|Flayr|Nitrogen|OmniROM|Parallax|Zephyr
+        aosp|carbon|nitrogen|omni|zos)
+            # AEX|AOSP-CAF/RRO|Carbon|F-AOSP|Flayr|Nitrogen|OmniROM|Parallax|Zephyr
             INTF="${ROMNIS}_${SBDEV}.mk";
             need_for_int;
-            {
-                echo -e "\nPRODUCT_MAKEFILES $S \\";
-                echo -e "\t\$(LOCAL_DIR)/${INTF}";
-            } >> "${APMK}";
+            add_prdt_makefile_to_apmk;
             ;;
         eos)
             INTF="${ROMNIS}.mk";
             need_for_int;
-            {
-                echo -e "\nPRODUCT_MAKEFILES $S \\";
-                echo -e "\t\$(LOCAL_DIR)/${INTF}";
-            } >> "${APMK}";
+            add_prdt_makefile_to_apmk;
             ;;
-        aosip) # AOSiP-CAF
+        aosip)
+            # AOSiP-CAF
             if [ ! -f "vendor/${ROMNIS}/products" ]; then
                 INTF="${ROMNIS}.mk";
                 need_for_int;
@@ -904,7 +962,8 @@ function pre_build() # 3
                 echo "$NOINT";
             fi
             ;;
-        aokp|pac) # AOKP-4.4|PAC-5.1
+        aokp|pac)
+            # AOKP-4.4|PAC-5.1
             if [ ! -f "vendor/${ROMNIS}/products" ]; then
                 INTF="${ROMNIS}.mk";
                 need_for_int;
@@ -912,10 +971,12 @@ function pre_build() # 3
                 echo "$NOINT";
             fi
             ;;
-        aicp|krexus|pa|pure|krexus|pure) # AICP|Krexus-CAF|AOSPA|Non-CAFs except DU
+        aicp|krexus|pa|pure|krexus|pure)
+            # AICP|Krexus-CAF|AOSPA|Non-CAFs except DU
             echo "$NOINT";
             ;;
-        *) # Rest of the ROMs
+        *)
+            # Rest of the ROMs
             INTF="${ROMNIS}.mk";
             need_for_int;
             ;;
@@ -936,7 +997,6 @@ function pre_build() # 3
     fi
     cd "${CALL_ME_ROOT}";
     pause "4";
-    export action_1="init" action_2="pre_build";
     [ -z "$automate" ] && quick_menu;
 } # pre_build
 
@@ -948,9 +1008,9 @@ function build() # 4
     function hotel_menu()
     {
         center_it "${CL_LBL}Hotel Menu${NONE}" "1eq1";
-        echo -e "[*] ${CL_WYT}lunch${NONE} - Setup Build Environment for the Device";
-        echo -e "[*] ${CL_WYT}breakfast${NONE} - Download Device Dependencies and lunch";
-        echo -e "[*] ${CL_WYT}brunch${NONE} - breakfast + lunch then Start Build\n";
+        echo -e "[*] ${CL_WYT}lunch${NONE} > Setup Build Environment for the Device";
+        echo -e "[*] ${CL_WYT}breakfast${NONE} > Download Device Dependencies and ${CL_WYT}lunch${NONE}";
+        echo -e "[*] ${CL_WYT}brunch${NONE} > ${CL_WYT}breakfast${NONE} + ${CL_WYT}lunch${NONE} then Start Build\n";
         echo -e "${QN} Type in the desired option\n";
         echo -e "${INF} Building for a new Device ? select ${CL_WYT}lunch${NONE}";
         dash_it;
@@ -958,12 +1018,12 @@ function build() # 4
         case "$SBSLT" in
             "lunch")
                 cmdprex \
-                    "Setup Device-Specific BuildEnv<->${SBSLT}" \
+                    "Setup Device-Specific Build Environment<->${SBSLT}" \
                     "Target Name<->${TARGET}";
                 ;;
             "breakfast")
                 cmdprex \
-                    "Fetch dependencies and Setup Device-Specific BuildEnv<->${SBSLT}" \
+                    "Fetch dependencies and Setup Device-Specific Build Environment<->${SBSLT}" \
                     "Device Codename<->${SBDEV}" \
                     "ROM BuildType<->${SBBT}";
                 ;;
@@ -981,27 +1041,30 @@ function build() # 4
     function build_make()
     {
         if [[ "$1" != "brunch" ]]; then
-            START=$(date +"%s"); # Build start time
             # Showtime!
-            [[ "$SBMK" != "mka" ]] && BCORES="-j${BCORES}";
-            # Sequence - GZRs | AOKP | AOSiP | A lot of ROMs | All ROMs
+            [[ "$SBMK" != "mka" ]] && BCORES="-j${BCORES:-1}";
+            # Sequence ->  GZRs & CarbonROM | AOKP | AOSiP | A lot of ROMs | All ROMs
             for MAKECOMMAND in ${ROMNIS} rainbowfarts kronic bacon otapackage; do
                 if [[ $(grep -c "^${MAKECOMMAND}:" "${CALL_ME_ROOT}build/core/Makefile") == "1" ]]; then
+                    START=$(date +"%s"); # Build start time
                     cmdprex --out="${RMTMP}" \
-                    "Command<->${SBMK}" \
-                    "Zip target name<->${MAKECOMMAND}" \
-                    "No. of cores<->${BCORES}";
+                        "GNU make<->${SBMK}" \
+                        "Target name to build ROM<->${MAKECOMMAND}" \
+                        "No. of cores<->${BCORES}";
+                    END=$(date +"%s"); # Build end time
                     break;  # Building one target is enough
                 fi
             done
-            END=$(date +"%s"); # Build end time
             SEC=$(( END - START )); # Difference gives Build Time
             if [ -z "$STS" ]; then
                 echo -e "\n${FLD} Build Status : Failed";
             else
                 echo -e "\n${SCS} Build Status : Success";
             fi
-            echo -e "\n${INF} ${CL_WYT}Build took $(( SEC / 3600 )) hour(s), $(( SEC / 60 % 60 )) minute(s) and $(( SEC % 60 )) second(s).${NONE}" | tee -a rom_compile.txt;
+            echo -e "\n${INF} ${CL_WYT}Build took $(( SEC / 3600 )) hour(s), $(( SEC / 60 % 60 )) minute(s) and $(( SEC % 60 )) second(s).${NONE}" | tee -a "${RMTMP}";
+            echo -e "\n${INF} Build log stored in ${CL_WYT}${RMTMP}${NONE}";
+            dash_it;
+            quick_menu;
         fi
     } # build_make
 
@@ -1337,10 +1400,10 @@ function build() # 4
     case "$SBBO" in
         0) quick_menu ;;
         1)
-            if [ -d ".repo" ]; then
+            if [ -d "${CALL_ME_ROOT}.repo" ]; then
                 # Get Missing Information
-                [ -z "$action_1" ] && rom_select;
-                [ -z "$action_2" ] && device_info;
+                get_rom_info;
+                [ -z "$SBDEV" ] && device_info;
                 # Change terminal title
                 [ ! -z "$automate" ] && teh_action 4;
             else
@@ -1360,8 +1423,8 @@ function build() # 4
                     ST="Number of Jobs"; shut_my_mouth NT "$ST";
                     if [[ "$SBNT" > "$BCORES" ]]; then # Y u do dis
                         echo -e "\n${FLD} Invalid Response";
-                        echo -e "\n${INF} Restart ScriBt from here";
-                        exitScriBt 1;
+                        echo -e "\n${EXE} Setting no. of threads to maximum - ${CL_WYT}${BCORES}${NONE}";
+                        BCORES="${SBNT}";
                     fi
                     ;;
                 "mka") BCORES="" ;; # mka utilizes max resources
@@ -1371,26 +1434,28 @@ function build() # 4
                     SBMK="mka"; BCORES="";
                     ;;
             esac
-            echo -e "${QN} Want to keep /out in another directory ${CL_WYT}[y/n]${NONE}\n"; get "info" "outdir";
-            ST="Another /out dir ?"; shut_my_mouth OD "$ST";
+            echo -e "${QN} Keep build output in another directory ${CL_WYT}[y/n]${NONE}\n"; get "info" "outdir";
+            ST="Another /out dir"; shut_my_mouth OD "$ST";
             case "$SBOD" in
                 [Yy])
-                    echo -e "${INF} Enter the Directory location from /  -  an ${CL_WYT}out${NONE} folder will be created under that directory\n";
+                    echo -e "${INF} Enter the Directory location from / (root)\n";
                     ST="/out location"; shut_my_mouth OL "$ST";
                     if [ -d "$SBOL" ]; then
-                        [ ! -d out ] && mkdir -pv out;
                         cmdprex \
                             "Mark variable to be Inherited by child processes<->export" \
-                            "Variable to Set Custom Output Directory<->OUT_DIR=\"${SBOL}/out\"";
+                            "Variable to Set Custom Output Directory<->OUT_DIR=\"${SBOL}\"";
                     else
-                        echo -e "${INF} /out location is unchanged";
+                        echo -e "\n${INF} /out location is unchanged";
                     fi
                     ;;
                 [Nn])
                     echo -e "${INF} /out location is unchanged";
                     ;;
             esac
-            echo -e "\n${QN} Want to Clean Intermediate Output (/out) directory before Building\n"; get "info" "outcln";
+            # Set SBOL to default OUT_DIR value
+            [ -z "${SBOL}" ] && SBOL="${CALL_ME_ROOT}out";
+            echo -e "\n${QN} Clean output directory before Building";
+            echo -e "\n${INF} Output directory - ${CL_WYT}${SBOL}${NONE}"; get "info" "outcln";
             ST="Option Selected"; shut_my_mouth CL "$ST";
             if [[ $(grep -c 'BUILD_ID=M' "${CALL_ME_ROOT}build/core/build_id.mk") == "1" ]]; then
                 echo -e "\n${QN} Use Jack Toolchain ${CL_WYT}[y/n]${NONE}\n"; get "info" "jack";
@@ -1463,20 +1528,19 @@ function build() # 4
             fi
             case "$SBCL" in
                 1)
+                    echo -e "\n${INF} Cleaning staging directories requires device-specific build environment";
+                    echo -e "\n${INF} ${CL_WYT}lunch${NONE}ing device ${SDDEV}";
                     cmdprex \
-                        "Setup Device-Specific BuildEnv<->lunch" \
+                        "Setup Device-Specific Build Environment<->lunch" \
                         "Build Target Name<->${TARGET}";
                     cmdprex \
                         "GNU make<->$SBMK" \
-                        "TargetName to Remove Staging Files<->installclean";
+                        "Target Name to remove staging files<->installclean";
                     ;;
                 2)
                     cmdprex \
-                        "Setup Device-Specific BuildEnv<->lunch" \
-                        "Build Target Name<->${TARGET}";
-                    cmdprex \
                         "GNU make<->$SBMK" \
-                        "TargetName to Remove Entire Build Output<->clean";
+                        "Target Name to remove entire build output<->clean";
                     ;;
                 *) echo -e "${INF} No Clean Option Selected.\n" ;;
             esac
@@ -1495,7 +1559,6 @@ function build() # 4
             build;
             ;;
     esac
-    export action_3="build";
 } # build
 
 function tools() # 5
