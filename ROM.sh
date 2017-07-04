@@ -168,8 +168,7 @@ function get_rom_info()
     cd "${CALL_ME_ROOT}.repo/manifests";
     _RNM=$(git config --get remote.origin.url | awk -F "/" '{print $4}');
     cd  ${CALL_ME_ROOT};
-    FILES=$(find "${CALL_ME_ROOT}src/roms" -name "*.rc");
-    for FILE in ${FILES}; do
+    for FILE in ${CAFR[*]} ${AOSPR[*]}; do
         if grep -q "${_RNM}" "${FILE}"; then
             source "${FILE}";
             ROM_FN="$(echo ${FILE//.rc/} | awk -F "/" '{print $NF}' | sed -e 's/_/ /g')";
@@ -649,7 +648,7 @@ function device_info() # D 3,4
     echo -e "${QN} What's your Device's CodeName";
     echo -e "\n${INF} Refer Device Tree - All Lowercases\n";
     ST="Device CodeName"; shut_my_mouth DEV "$ST";
-    SBCM=$(find device/*/"${SBDEV}" | awk -F "/" '{print $2}')
+    SBCM=$(ls -d device/*/"${SBDEV}" | awk -F "/" '{print $2}')
     if [ -z "${SBCM}" ]; then
         echo -e "\n${FLD} Device Tree not found";
         echo -e "${INDENT}Invalid Details OR Missing Source";
@@ -667,7 +666,7 @@ function device_info() # D 3,4
     fi
     echo -e "${QN} Build type \n${INF} Valid types : userdebug, user, eng\n";
     ST="Build type"; shut_my_mouth BT "$ST";
-    if ! [[ "$SBBT" =~ userdebug\|user\|eng ]]; then
+    if [[ "$SBBT" =~ userdebug\|user\|eng ]]; then
         echo -e "\n${FLD} Invalid build type specified";
         echo -e "\n${EXE} Falling back to ${CL_WYT}userdebug${NONE}";
         SBBT="userdebug";
