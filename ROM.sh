@@ -648,7 +648,7 @@ function device_info() # D 3,4
     echo -e "${QN} What's your Device's CodeName";
     echo -e "\n${INF} Refer Device Tree - All Lowercases\n";
     ST="Device CodeName"; shut_my_mouth DEV "$ST";
-    SBCM=$(ls -d device/*/"${SBDEV}" | awk -F "/" '{print $2}')
+    SBCM=$(find device/*/"${SBDEV}" -maxdepth 0 -type d | awk -F "/" '{print $2}');
     if [ -z "${SBCM}" ]; then
         echo -e "\n${FLD} Device Tree not found";
         echo -e "${INDENT}Invalid Details OR Missing Source";
