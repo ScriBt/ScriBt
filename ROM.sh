@@ -823,29 +823,31 @@ function pre_build() # 3
 
     function find_ddc() # For Finding Default Device Configuration file
     {
-        # Get all the ROMNIS values - Duplicates doesn't matter
-        ROMC=( $(for file in ${CAFR[*]} ${AOSPR[*]}; do source $file; echo "${ROMNIS}"; done) );
-        for ROM in ${ROMC[*]}; do
-            # Possible Default Device Configuration (DDC) Files
-            DDCS=( "${ROM}_${SBDEV}.mk" "full_${SBDEV}.mk" "aosp_${SBDEV}.mk" "${ROM}.mk" );
-            for ACTUAL_DDC in ${DDCS[*]}; do
-                if [ -f "${DEVDIR}${ACTUAL_DDC}" ]; then
-                    case "$1" in
-                        "pb") export DDC="$ACTUAL_DDC" ;;
-                        "intm")
-                            if [[ "$ACTUAL_DDC" != "${INTF}" ]]; then
-                                export DDC="$ACTUAL_DDC"; # Interactive Makefile Needed
-                                continue; # ^ Point interactive_mk to the Actual DDC
-                            else
-                                export DDC="NULL"; # Interactive Makefile not needed
-                                break; # Since the ROM Specific edits are already present
-                            fi
-                            ;;
-                    esac
+        # used by :- interactive_mk, src/strat/common.rc
+        # Collect a list of makefiles containing the string PRODUCT_NAME
+        DDCS=( $(grep -rl "PRODUCT_NAME" | sed -e 's/.mk//g') );
+        # If required file is present && function was called by 'interactive_mk'; then
+        if (echo "${DDCS[*]}" | grep -q "${INTF}") && [[ $1 == "intm" ]]; then
+            DDC="NULL";
+        else
+            # Add grep expression entries
+            for file in ${DDCS[*]}; do
+                GREP+=( "-e $file " );
+            done
+            # Get a count of other DDCs inherited by the makefile
+            for file in ${DDCS[*]}; do
+                read -r "C_${file}" <<< $(grep -c "${GREP[*]}" "${file}.mk");
+            done
+            max=0;
+            # DDC should be the file inheriting maximum product makefiles
+            for file in ${DDCS[*]}; do
+                if [[ $(eval "echo \${C_${file}}") -ge "$max" ]]; then
+                     DDC="${file}.mk";
+                     max=$(eval "echo \${C_${file}}");
                 fi
             done
-            [[ "$DDC" == "NULL" ]] && break;
-        done
+        fi
+        unset file max GREP DDCS;
     } # find_ddc
 
     function print_makefile_addition()
@@ -875,19 +877,24 @@ function pre_build() # 3
             print_makefile_addition "${DEVDIR}${DDC}" "${INTF}";
             {
                 echo -e "\n# Inherit ${ROMNIS} common stuff";
-                echo -e "\n\$(call inherit-product, ${CNF}/${SBDTP}.mk)";
+                echo -e "\$(call inherit-product, ${CNF}/${SBDTP}.mk)";
                 echo -e "\n# Calling Default Device Configuration File";
-                echo -e "\n# This is the file which contains Device Information";
-                echo -e "\n# And calls all other device makefiles";
+                echo -e "# File which contains ROM Identifiers, Vital Device info";
+                echo -e "# And inherits from other product makefiles";
                 echo -e "\$(call inherit-product, ${DEVDIR}${DDC})";
             } >> "${INTF}";
             # To prevent Missing Vendor Calls in DDC-File
-            echo -e "\n${INF} In file ${DDC}";
+            echo -e "\n${INF} In file ${CL_WYT}${DDC}${NONE}";
             echo -e "${INDENT}${CL_WYT}inherit-product${NONE} is replaced by ${CL_WYT}inherit-product-if-exists${NONE}"
             echo -e "${INDENT}Since ${CL_WYT}${DDC}${NONE} may inherit makefiles ${CL_WYT}from a different ROM${NONE} that might not exist";
-            echo -e "\n${INF} This is being done so that the build won't fail even when these makefile(s) go missing\n";
+            echo -e "\n${INF} This is being done so that the build won't fail even when other ROM's makefile(s) go missing\n";
             pause "4";
-            sed -i -e 's/inherit-product, vendor\//inherit-product-if-exists, vendor\//g' "$DDC";
+            # Search for makefile calls |\
+            #     Invert match 'vendor/${name-of-vendor}' |\
+            #         Perform the replacement on remaining matches;
+            grep 'call inherit-product' "${DEVDIR}${DDC}" |\
+                grep -v "vendor/${SBCM}" |\
+                    sed -i 's/inherit-product, vendor/inherit-product-if-exists, vendor/g' "${DDC}";
             # Add User-desired Makefile Calls
             echo -e "\n${INF} Enter number of desired Makefile calls";
             echo -e "\n${INF} Enter 0 if you don't want to add any\n";
