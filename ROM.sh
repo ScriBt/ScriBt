@@ -832,7 +832,7 @@ function pre_build() # 3
         else
             # Add grep expression entries
             for file in ${DDCS[*]}; do
-                GREP+=( "-e $file " );
+                GREP+=( "-e ${file}.mk " );
             done
             # Get a count of other DDCs inherited by the makefile
             for file in ${DDCS[*]}; do
@@ -867,10 +867,10 @@ function pre_build() # 3
         echo -e "${EXE} Creating Interactive Makefile";
         echo -e "${INDENT}So that device tree gets identified by the ROM's BuildSystem\n";
         pause "4";
+        cd "${DEVDIR}";
 
         function create_imk()
         {
-            cd "${DEVDIR}";
             [ -z "$INTF" ] && INTF="${ROMNIS}.mk";
             get "misc" "intmake";
             print_makefile_addition "${CNF}/${SBDTP}.mk" "${INTF}";
@@ -892,7 +892,7 @@ function pre_build() # 3
             # Search for makefile calls |\
             #     Invert match 'vendor/${name-of-vendor}' |\
             #         Perform the replacement on remaining matches;
-            grep 'call inherit-product' "${DEVDIR}${DDC}" |\
+            grep 'call inherit-product' "${DDC}" |\
                 grep -v "vendor/${SBCM}" |\
                     sed -i 's/inherit-product, vendor/inherit-product-if-exists, vendor/g' "${DDC}";
             # Add User-desired Makefile Calls
@@ -924,6 +924,7 @@ function pre_build() # 3
 
         find_ddc "intm";
         if [[ "$DDC" != "NULL" ]]; then create_imk; else echo "$NOINT"; fi;
+        cd "${CALL_ME_ROOT}";
     } # interactive_mk
 
     function need_for_int()
