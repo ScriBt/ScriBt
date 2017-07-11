@@ -853,7 +853,7 @@ function pre_build() # 3
 
     function print_makefile_addition()
     {
-        echo -e "\n${INF} Adding the following makefile call under ${CL_WYT}${2}${NONE}";
+        echo -e "\n${EXE} Adding the following makefile call under ${CL_WYT}${2}${NONE}";
         echo -e "\n\$(${CL_LRD}call${NONE} ${CL_YEL}inherit-product${NONE}, ${CL_LGN}${1}${NONE})";
         echo -e "\n${CL_LRD}call a function${NONE}";
         echo -e "${CL_YEL}function which inherits a product's makefile${NONE}";
@@ -866,7 +866,7 @@ function pre_build() # 3
         init_bld;
         dash_it;
         echo -e "${EXE} Creating Interactive Makefile";
-        echo -e "${INDENT}So that device tree gets identified by the ROM's BuildSystem\n";
+        echo -e "${INDENT}So that device tree gets identified by the ROM's BuildSystem";
         pause "4";
         cd "${DEVDIR}";
 
@@ -937,12 +937,6 @@ function pre_build() # 3
         fi
     } # need_for_int
 
-    echo -e "\n${EXE} ${ROMNIS}-fying Device Tree\n";
-
-    NOINT=$(echo -e "${SCS} Interactive Makefile Unneeded, continuing");
-    APMK="${CALL_ME_ROOT}${DEVDIR}AndroidProducts.mk";
-    if [ -f "$APMK" ]; then S="+="; else S=":="; fi;
-
     function add_prdt_makefile_to_apmk()
     {
         echo -e "${INF} Adding line under ${CL_WYT}${APMK}${NONE} to include makefile ${CL_WYT}${INTF}${NONE}";
@@ -951,6 +945,12 @@ function pre_build() # 3
             echo -e "\t\$(LOCAL_DIR)/${INTF}";
         } >> "${APMK}";
     } # add_prdt_makefile_to_apmk
+
+    echo -e "\n${EXE} ${ROMNIS}-fying Device Tree";
+
+    NOINT=$(echo -e "\n${SCS} Interactive Makefile Unneeded, continuing\n");
+    APMK="${CALL_ME_ROOT}${DEVDIR}AndroidProducts.mk";
+    if [ -f "$APMK" ]; then S="+="; else S=":="; fi;
 
     case "$ROMNIS" in
         aosp|carbon|nitrogen|omni|zos)
@@ -995,7 +995,7 @@ function pre_build() # 3
     unset S;
 
     choose_target;
-    if [ -d vendor/${ROMNIS}/products ]; then # [ -d vendor/aosip ] <- Temporarily commented
+    if [ -d "vendor/${ROMNIS}/products" ]; then
         if [ ! -f "vendor/${ROMNIS}/products/${ROMNIS}_${SBDEV}.mk" ] ||
             [ ! -f "vendor/${ROMNIS}/products/${SBDEV}.mk" ] ||
              [ ! -f "vendor/${ROMNIS}/products/${SBDEV}/${ROMNIS}_${SBDEV}.mk" ]; then

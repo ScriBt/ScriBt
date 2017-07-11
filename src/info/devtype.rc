@@ -2,5 +2,5 @@
 
 echo -e "\n${INF} Explanations of each file given in";
 echo -e "${INDENT}https://scribt.github.io/wiki/pre-build.html - 'Device Types' section";
-echo -e "\n${INF}For Phones : If you don't find ${CL_WYT}common_full_phone${NONE} / ${CL_WYT}common_mini_phone${NONE} then answer ${CL_WYT}common${NONE}";
+echo -e "\n${INF} For Phones : If you don't find ${CL_WYT}common_full_phone${NONE} / ${CL_WYT}common_mini_phone${NONE} then answer ${CL_WYT}common${NONE}";
 echo -e "${INDENT}BuildSystem would use ${CL_WYT}common${NONE} properties\n";
