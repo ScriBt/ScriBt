@@ -664,7 +664,8 @@ function device_info() # D 3,4
                 ;;
         esac
     fi
-    echo -e "${QN} Build type \n${INF} Valid types : userdebug, user, eng\n";
+    echo -e "${QN} Build type";
+    echo -e "\n${INF} Valid types : userdebug, user, eng\n";
     ST="Build type"; shut_my_mouth BT "$ST";
     if [[ "$SBBT" =~ userdebug\|user\|eng ]]; then
         echo -e "\n${FLD} Invalid build type specified";
@@ -825,7 +826,7 @@ function pre_build() # 3
     {
         # used by :- interactive_mk, src/strat/common.rc
         # Collect a list of makefiles containing the string PRODUCT_NAME
-        DDCS=( $(grep -rl "PRODUCT_NAME" | sed -e 's/.mk//g') );
+        DDCS=( $(grep -rl "PRODUCT_NAME" | sed 's/.mk//g') );
         # If required file is present && function was called by 'interactive_mk'; then
         if (echo "${DDCS[*]}" | grep -q "${INTF}") && [[ $1 == "intm" ]]; then
             DDC="NULL";
@@ -836,7 +837,7 @@ function pre_build() # 3
             done
             # Get a count of other DDCs inherited by the makefile
             for file in ${DDCS[*]}; do
-                read -r "C_${file}" <<< $(grep -c "${GREP[*]}" "${file}.mk");
+                read -r "C_${file}" <<< $(grep -c ${GREP[*]} "${file}".mk);
             done
             max=0;
             # DDC should be the file inheriting maximum product makefiles
@@ -852,7 +853,7 @@ function pre_build() # 3
 
     function print_makefile_addition()
     {
-        echo -e "\n${INF} Adding the following makefile call under ${2}";
+        echo -e "\n${INF} Adding the following makefile call under ${CL_WYT}${2}${NONE}";
         echo -e "\n\$(${CL_LRD}call${NONE} ${CL_YEL}inherit-product${NONE}, ${CL_LGN}${1}${NONE})";
         echo -e "\n${CL_LRD}call a function${NONE}";
         echo -e "${CL_YEL}function which inherits a product's makefile${NONE}";
@@ -896,7 +897,7 @@ function pre_build() # 3
                 grep -v "vendor/${SBCM}" |\
                     sed -i 's/inherit-product, vendor/inherit-product-if-exists, vendor/g' "${DDC}";
             # Add User-desired Makefile Calls
-            echo -e "\n${INF} Enter number of desired Makefile calls";
+            echo -e "${QN} Enter number of desired Makefile calls";
             echo -e "\n${INF} Enter 0 if you don't want to add any\n";
             ST="No of Makefile Calls"; shut_my_mouth NMK "$ST";
             for (( CT=0; CT<"${SBNMK}"; CT++ )); do
