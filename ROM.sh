@@ -385,7 +385,7 @@ function it_is_apt() # D pkgmgr_check
         fi
     done <<< "$(which apt-get)
     $(which apt)";
-    if [ -z "${APTPATH}" ]; then
+    if [[ -z "${APTPATH}" ]]; then
         return 1;
     else
         return 0;
@@ -424,7 +424,7 @@ function rom_check() # D 1,2,3
     else
         FILE=$(eval "echo \${AOSPR[${1//A/}]}" | sed 's/ /_/g');
     fi
-    if [ -f "${FILE}" ]; then
+    if [[ -f "${FILE}" ]]; then
         source "${FILE}";
     else
         echo -e "\n${FLD} Invalid Selection\n";
@@ -461,7 +461,7 @@ function shut_my_mouth() # ID
         echo -e "${CL_PNK}[!]${NONE} ${ATBT} $2 : ${!RST}";
     else
         prompt SB2;
-        if [ -z "$3" ]; then
+        if [[ -z "$3" ]]; then
             read -r "SB$1" <<< "${SB2}";
         else
             eval "SB$1=${SB2}";
@@ -480,8 +480,8 @@ function set_ccvars() # D 4,5
     echo -e "\n${INF} Create a New Folder for CCACHE and Specify it's location from /\n";
     prompt CCDIR;
     for RC in .profile .bashrc; do
-        if [ -f "${HOME}/${RC}" ]; then
-            if [[ $(grep -c 'USE_CCACHE\|CCACHE_DIR' "${HOME}/${RC}") == 0 ]]; then
+        if [[ -f "${HOME}/${RC}" ]]; then
+            if grep -q 'USE_CCACHE\|CCACHE_DIR' "${HOME}/${RC}"; then
                 echo -e "export USE_CCACHE=1\nexport CCACHE_DIR=${CCDIR}" >> "${HOME}/${RC}";
                 source "${HOME}/${RC}";
                 echo -e "\n${SCS} CCACHE Specific exports added in ${CL_WYT}${RC}${NONE}";
@@ -554,7 +554,7 @@ function init() # 1
             "File to be chmod-ed<->${HOME}/bin/repo";
         echo -e "${SCS} Repo Binary Installed";
         echo -e "\n${EXE} Adding ${HOME}/bin to PATH\n";
-        if [[ $(grep 'PATH=["]*' ${HOME}/.profile | grep -c '$HOME/bin') != "0" ]]; then
+        if grep 'PATH=["]*' ${HOME}/.profile | grep -q '$HOME/bin'; then
             echo -e "${SCS} $HOME/bin is in PATH";
         else
             {
@@ -577,11 +577,11 @@ function init() # 1
         "manifest branch specifier<->-b" \
         "branch<->${SBBR}";
     unset BRANCHES MURL CDP REF MNF CT;
-    if [ -z "$STS" ]; then
+    if [[ -z "$STS" ]]; then
         if [ ! -f "${CALL_ME_ROOT}.repo/local_manifests" ]; then
             mkdir -pv "${CALL_ME_ROOT}.repo/local_manifests";
         fi
-        if [ -z "$automate" ]; then
+        if [[ -z "$automate" ]]; then
             echo -e "\n${QN} Generate a Custom manifest ${CL_WYT}[y/n]${NONE}\n";
             prompt SBGCM;
             [[ "$SBGCM" == [Yy] ]] && manifest_gen;
@@ -631,11 +631,11 @@ function device_info() # D 3,4
     echo -ne "\033]0;ScriBt : Device Info\007";
     # Change ROMNIS to ROMV if ROMV is non-zero
     [ ! -z "${ROMV}" ] && export ROMNIS="${ROMV}";
-    if [ -d "${CALL_ME_ROOT}vendor/${ROMNIS}/config" ]; then
+    if [[ -d "${CALL_ME_ROOT}vendor/${ROMNIS}/config" ]]; then
         CNF="vendor/${ROMNIS}/config";
-    elif [ -d "${CALL_ME_ROOT}vendor/${ROMNIS}/configs" ]; then
+    elif [[ -d "${CALL_ME_ROOT}vendor/${ROMNIS}/configs" ]]; then
         CNF="vendor/${ROMNIS}/configs";
-    elif [ -d "${CALL_ME_ROOT}vendor/${ROMNIS}/products" ]; then
+    elif [[ -d "${CALL_ME_ROOT}vendor/${ROMNIS}/products" ]]; then
         CNF="vendor/${ROMNIS}/products";
     else
         CNF="vendor/${ROMNIS}";
@@ -646,7 +646,7 @@ function device_info() # D 3,4
     echo -e "\n${INF} Refer Device Tree - All Lowercases\n";
     ST="Device CodeName"; shut_my_mouth DEV "$ST";
     SBCM=$(find device/*/"${SBDEV}" -maxdepth 0 -type d | awk -F "/" '{print $2}');
-    if [ -z "${SBCM}" ]; then
+    if [[ -z "${SBCM}" ]]; then
         echo -e "\n${FLD} Device Tree not found";
         echo -e "${INDENT}Invalid Details OR Missing Source";
         echo -e "\n${QN} Correct the provided details ${CL_WYT}[y/n]${NONE}";
@@ -673,7 +673,7 @@ function device_info() # D 3,4
     get "info" "devtype";
     get "misc" "device_types";
     for TYP in ${TYPES[*]}; do
-        if [ -f "${CNF}/${TYP}.mk" ]; then echo -e "$TYP"; fi;
+        if [[ -f "${CNF}/${TYP}.mk" ]]; then echo -e "$TYP"; fi;
     done | pr -t -2;
     unset CT;
     echo;
@@ -747,7 +747,7 @@ function pre_build() # 3
     # To prevent missing information, if user starts directly from here
     get_rom_info;
     init_bld;
-    if [ -z "${SBDEV}" ]; then
+    if [[ -z "${SBDEV}" ]]; then
         if ! device_info; then
             echo -e "${FLD} Failed to get Device Info";
             return 1;
@@ -781,7 +781,7 @@ function pre_build() # 3
         echo -e "\n${EXE} Adding Device to ROM Vendor";
         for STRAT_FILE in "${ROMNIS}.devices" "${ROMNIS}-device-targets" "${VSTP}"; do
             #          Found file     &&    Strat Not Performed
-            if [ -f "${STRAT_FILE}" ] && [ -z "${STRAT_DONE}" ]; then
+            if [[ -f "${STRAT_FILE}" ]] && [[ -z "${STRAT_DONE}" ]]; then
                 if ! grep -q "${SBDEV}" "${STRAT_FILE}"; then
                     case "${STRAT_FILE}" in
                         "${ROMNIS}.devices")
@@ -905,7 +905,7 @@ function pre_build() # 3
             for (( CT=0; CT<"${SBNMK}"; CT++ )); do
                 echo -e "\n${QN} Enter Makefile location from Root of BuildSystem\n";
                 ST="Makefile"; shut_my_mouth LOC[$CT] "$ST" array;
-                if [ -f "${CALL_ME_ROOT}${SBLOC[$CT]}" ]; then
+                if [[ -f "${CALL_ME_ROOT}${SBLOC[$CT]}" ]]; then
                     echo -e "\n${EXE} Adding Makefile $(( CT + 1 ))";
                     print_makefile_addition "${SBLOC[$CT]}" "${INTF}";
                     echo -e "\n\$(call inherit-product, ${SBLOC[$CT]})" >> "${INTF}";
@@ -932,7 +932,7 @@ function pre_build() # 3
 
     function need_for_int()
     {
-        if [ -f "${CALL_ME_ROOT}${DEVDIR}${INTF}" ]; then
+        if [[ -f "${CALL_ME_ROOT}${DEVDIR}${INTF}" ]]; then
             echo "$NOINT";
         else
             interactive_mk;
@@ -952,7 +952,7 @@ function pre_build() # 3
 
     NOINT=$(echo -e "\n${SCS} Interactive Makefile Unneeded, continuing\n");
     APMK="${CALL_ME_ROOT}${DEVDIR}AndroidProducts.mk";
-    if [ -f "$APMK" ]; then S="+="; else S=":="; fi;
+    if [[ -f "$APMK" ]]; then S="+="; else S=":="; fi;
 
     case "$ROMNIS" in
         aosp|carbon|nitrogen|omni|zos)
@@ -997,10 +997,10 @@ function pre_build() # 3
     unset S;
 
     choose_target;
-    if [ -d "vendor/${ROMNIS}/products" ]; then
-        if [ ! -f "vendor/${ROMNIS}/products/${ROMNIS}_${SBDEV}.mk" ] ||
-            [ ! -f "vendor/${ROMNIS}/products/${SBDEV}.mk" ] ||
-             [ ! -f "vendor/${ROMNIS}/products/${SBDEV}/${ROMNIS}_${SBDEV}.mk" ]; then
+    if [[ -d "vendor/${ROMNIS}/products" ]]; then
+        if [[ ! -f "vendor/${ROMNIS}/products/${ROMNIS}_${SBDEV}.mk" ]] ||
+            [[ ! -f "vendor/${ROMNIS}/products/${SBDEV}.mk" ]] ||
+             [[ ! -f "vendor/${ROMNIS}/products/${SBDEV}/${ROMNIS}_${SBDEV}.mk" ]]; then
             vendor_strat_kpa; # if found products folder, go ahead
         else
             echo -e "\n${SCS} Looks like ${SBDEV} has been already added to ${ROM_FN} vendor. Good to go\n";
@@ -1059,7 +1059,7 @@ function build() # 4
             [[ "$SBMK" != "mka" ]] && BCORES="-j${BCORES:-1}";
             # Sequence ->  GZRs & CarbonROM | AOKP | AOSiP | A lot of ROMs | All ROMs
             for MAKECOMMAND in ${ROMNIS} rainbowfarts kronic bacon otapackage; do
-                if [[ $(grep -c "^${MAKECOMMAND}:" "${CALL_ME_ROOT}build/core/Makefile") == "1" ]]; then
+                if grep -q "^${MAKECOMMAND}:" "${CALL_ME_ROOT}build/core/Makefile"; then
                     START=$(date +"%s"); # Build start time
                     cmdprex --out="${RMTMP}" \
                         "GNU make<->${SBMK}" \
@@ -1070,7 +1070,7 @@ function build() # 4
                 fi
             done
             SEC=$(( END - START )); # Difference gives Build Time
-            if [ -z "$STS" ]; then
+            if [[ -z "$STS" ]]; then
                 echo -e "\n${FLD} Build Status : Failed";
             else
                 echo -e "\n${SCS} Build Status : Success";
@@ -1080,41 +1080,6 @@ function build() # 4
             dash_it;
         fi
     } # build_make
-
-    function make_module()
-    {
-        if [ -z "$1" ]; then
-            echo -e "\n${QN} Know the Location of the Module\n";
-            prompt KNWLOC;
-        fi
-        if [[ "$KNWLOC" == "y" || "$1" == "y" ]]; then
-            echo -e "\n${QN} Specify the directory which builds the module\n";
-            prompt MODDIR;
-            echo -e "\n${QN} Push module to the Device (through ADB, running the same ROM) ${CL_WYT}[y/n]${NONE}\n";
-            prompt PMOD;
-            echo;
-            case "$PMOD" in
-                [Yy])
-                    cmdprex \
-                     "make module and push it to device<->mmmp" \
-                     "Force Rebuild the module<->-B" \
-                     "Module Directory<->${MODDIR}"
-                     ;;
-                [Nn])
-                    cmdprex \
-                     "make-module<->mmm" \
-                     "Force Rebuild the module<->-B" \
-                     "Module Directory<->${MODDIR}"
-                     ;;
-                *) echo -e "\n${FLD} Invalid Selection\n"; make_module ;;
-            esac
-        else
-            echo -e "\n${INF} Do either of these two actions";
-            echo -e "1. Google it (Easier)";
-            echo -e "2. Run this command in terminal : ${CL_WYT}mgrep \"LOCAL_MODULE := <Insert_MODULE_NAME_Here>${NONE}\"";
-            make_module;
-        fi
-    } # make_module
 
     function custuserhost()
     {
@@ -1138,7 +1103,7 @@ function build() # 4
         {
             echo -e "\n${QN} Enter the location of the Kernel source\n";
             ST="Kernel Location"; shut_my_mouth KL "$ST";
-            if [ -f ${SBKL}/Makefile ]; then
+            if [[ -f "${SBKL}/Makefile" ]]; then
                 echo -e "\n${SCS} Kernel Makefile found";
                 cd "${SBKL}";
             else
@@ -1154,7 +1119,7 @@ function build() # 4
             unset CT;
             echo -e "\n${INF} These are the available Kernel Configurations";
             echo -e "\n${QN} Select the one according to the CPU Architecture\n";
-            if [ -z "$automate" ]; then
+            if [[ -z "$automate" ]]; then
                 prompt CT;
                 SBKD=$(eval "echo \${KDEFS[$(( CT - 1 ))]}" | awk -F "/" '{print $4}');
                 SBKA=$(eval "echo \${KDEFS[$(( CT - 1 ))]}" | awk -F "/" '{print $2}');
@@ -1330,7 +1295,7 @@ function build() # 4
             for PATCHDIR in "${PATCHDIRS[@]}"; do
                 if find "${PATCHDIR}"/* 1> /dev/null 2>&1; then
                     while read -r PATCH; do
-                        if [ -s "$PATCH" ]; then
+                        if [[ -s "$PATCH" ]]; then
                             PATCHES[$CT]="$PATCH";
                             echo -e "${CT}. $(visual_check_patch "$PATCH") $PATCH";
                             (( CT++ ));
@@ -1400,10 +1365,9 @@ function build() # 4
         dash_it;
         echo -e "${QN} Select a Build Option:\n";
         echo -e "1. Start Building ROM (ZIP output) (Clean Options Available)";
-        echo -e "2. Make a Particular Module";
-        echo -e "3. Setup CCACHE for Faster Builds";
-        echo -e "4. Kernel Building";
-        echo -e "5. Patch Manager";
+        echo -e "2. Setup CCACHE for Faster Builds";
+        echo -e "3. Kernel Building";
+        echo -e "4. Patch Manager";
         echo -e "0. Quick Menu\n";
         dash_it;
         ST="Option Selected"; shut_my_mouth BO "$ST";
@@ -1413,7 +1377,7 @@ function build() # 4
     case "$SBBO" in
         0) echo ;;
         1)
-            if [ -d "${CALL_ME_ROOT}.repo" ]; then
+            if [[ -d "${CALL_ME_ROOT}.repo" ]]; then
                 # Get Missing Information
                 get_rom_info;
                 [ -z "$SBDEV" ] && device_info;
@@ -1451,7 +1415,7 @@ function build() # 4
                 [Yy])
                     echo -e "${INF} Enter the Directory location from / (root)\n";
                     ST="/out location"; shut_my_mouth OL "$ST";
-                    if [ -d "$SBOL" ]; then
+                    if [[ -d "$SBOL" ]]; then
                         cmdprex \
                             "Mark variable to be Inherited by child processes<->export" \
                             "Variable to Set Custom Output Directory<->OUT_DIR=\"${SBOL}\"";
@@ -1468,7 +1432,7 @@ function build() # 4
             echo -e "\n${QN} Clean output directory before Building";
             echo -e "\n${INF} Output directory - ${CL_WYT}${SBOL}${NONE}"; get "info" "outcln";
             ST="Option Selected"; shut_my_mouth CL "$ST";
-            if [[ $(grep -c 'BUILD_ID=M' "${CALL_ME_ROOT}build/core/build_id.mk") == "1" ]]; then
+            if grep -q 'BUILD_ID=M' "${CALL_ME_ROOT}build/core/build_id.mk"; then
                 echo -e "\n${QN} Use Jack Toolchain ${CL_WYT}[y/n]${NONE}\n"; get "info" "jack";
                 ST="Use Jacky"; shut_my_mouth JK "$ST";
                 case "$SBJK" in
@@ -1484,7 +1448,7 @@ function build() # 4
                         ;;
                 esac
             fi
-            if [[ $(grep -c 'BUILD_ID=N' "${CALL_ME_ROOT}build/core/build_id.mk") == "1" ]]; then
+            if grep -q 'BUILD_ID=N' "${CALL_ME_ROOT}build/core/build_id.mk"; then
                 echo -e "\n${QN} Use Ninja to build Android ${CL_WYT}[y/n]${NONE}\n"; get "info" "ninja";
                 ST="Use Ninja"; shut_my_mouth NJ "$ST";
                 case "$SBNJ" in
@@ -1519,12 +1483,12 @@ function build() # 4
                     [Yy])
                         export ANDROID_JACK_VM_ARGS="-Dfile.encoding=UTF-8 -XX:+TieredCompilation -Xmx3G";
                         if [[ -f "${HOME}/.jack-server/config.properties" ]]; then
-                            if [[ "$(grep -c 'jack.server.max-service=1' ${HOME}/.jack-server/config.properties)" == "0" ]]; then
+                            if grep -q 'jack.server.max-service=1' ${HOME}/.jack-server/config.properties; then
                                 sed -i "/jack.server.max-service=*/c\jack.server.max-service=1" ${HOME}/.jack-server/config.properties;
                             fi
                         fi
                         if [[ -f "${HOME}/.jack" ]]; then
-                            if [[ "$(grep -c 'SERVER_NB_COMPILE=1' ${HOME}/.jack)" == "0" ]]; then
+                            if grep -q 'SERVER_NB_COMPILE=1' ${HOME}/.jack; then
                                 sed -i "/SERVER_NB_COMPILE=*/c\SERVER_NB_COMPILE=1" ${HOME}/.jack;
                             fi
                         fi
@@ -1561,10 +1525,9 @@ function build() # 4
             hotel_menu;
             build_make "$SBSLT";
             ;;
-        2) make_module ;;
-        3) set_ccvars ;;
-        4) kbuild ;;
-        5) patchmgr ;;
+        2) set_ccvars ;;
+        3) kbuild ;;
+        4) patchmgr ;;
         *)
             echo -e "\n${FLD} Invalid Selection\n";
             build;
@@ -1643,7 +1606,7 @@ function tools() # 5
                 "Sync Pkgs<->-S" \
                 "Answer 'yes' to prompts<->--noconfirm" \
                 "Packages List<->${PKGSREQ[*]}";
-            if [ -z "$STS" ]; then
+            if [[ -z "$STS" ]]; then
                 echo -e "${SCS} Packages were installed successfully";
             else
                 echo -e "${SCS} An Error occured while installing some of the packages";
@@ -1689,11 +1652,12 @@ function tools() # 5
 
     function java_check()
     {
-      if [[ $( java -version &> "$TMP"; grep -c "version \"1.$1" "$TMP" ) == "1" ]]; then
-          dash_it;
-          echo -e "${SCS} OpenJDK-$1 or Java 1.$1.0 has been successfully installed";
-          dash_it;
-      fi
+        java -version > "${TMP}";
+        if grep -q "version \"1.$1" "$TMP"; then
+            dash_it;
+            echo -e "${SCS} OpenJDK-$1 or Java 1.$1.0 has been successfully installed";
+            dash_it;
+        fi
     } # java_check
 
     function java_install()
@@ -1925,7 +1889,7 @@ function tools() # 5
     function installer()
     {
         echo -e "\n${EXE}Checking presence of ${HOME}/bin folder\n";
-        if [ -d "${HOME}/bin" ]; then
+        if [[ -d "${HOME}/bin" ]]; then
             echo -e "${SCS} ${HOME}/bin present";
         else
             echo -e "${FLD} ${HOME}/bin absent\n${EXE} Creating folder ${HOME}/bin\n";
@@ -2099,7 +2063,7 @@ function teh_action()
 {
     # Takes ya Everywhere within ScriBt
     # Get your own ride when automating it though
-    if [ -z "$automate" ]; then
+    if [[ -z "$automate" ]]; then
         case "$1" in
         1) init ;;
         2) sync ;;
@@ -2186,7 +2150,7 @@ function the_start() # 0
     ATBT="${CL_WYT}*${NONE}${CL_LRD}AutoBot${NONE}${CL_WYT}*${NONE}";
 
     # CHEAT CHEAT CHEAT!
-    if [ -z "$automate" ]; then
+    if [[ -z "$automate" ]]; then
         echo -e "${QN} Remember Responses for Automation ${CL_WYT}[y/n]${NONE}\n";
         prompt RQ_PGN;
         set -o posix;
@@ -2263,7 +2227,7 @@ function center_it()
     #
     # [OutputEndsAbove]
 
-    if [ -z "$3" ]; then
+    if [[ -z "$3" ]]; then
         NOCHARS="${NOCHARS_DEF}";
     else
         NOCHARS="$3";
@@ -2407,7 +2371,7 @@ export CAFR=( $(ls ${PATHDIR}src/roms/caf/*.rc) );
 export AOSPR=( $(ls ${PATHDIR}src/roms/aosp/*.rc) );
 
 # Version
-if [ -d "${PATHDIR}.git" ]; then
+if [[ -d "${PATHDIR}.git" ]]; then
     # Check Branch
     cd "${PATHDIR}";
     export BRANCH=$(git rev-parse --abbrev-ref HEAD);
@@ -2426,11 +2390,11 @@ if [[ "$1" == "automate" ]]; then
     the_start; # Pre-Initial Stage
     echo -e "${INF} ${ATBT} Lem'me do your work";
     automator;
-elif [ -z "$1" ]; then
+elif [[ -z "$1" ]]; then
     the_start;
     main_menu;
 elif [[ "$1" == "version" ]]; then
-    if [ -n "$VERSION" ]; then
+    if [[ -n "$VERSION" ]]; then
         get "misc" "logo";
     else
         echo -e "Not available. Please resync ScriBt through git";
