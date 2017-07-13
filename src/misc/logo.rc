@@ -1,6 +1,9 @@
 #!/bin/bash
 # ScriBt Logo
 
+# Change terminal title
+echo -ne '\033]0;About ScriBt\007';
+
 if ! sign_exists "\u2764"; then
     SIGN="<3";
 fi

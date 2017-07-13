@@ -313,7 +313,6 @@ function manifest_gen() # D 1,5
         unset CT OP NAME;
         # Delete intermediate manifest
         rm -f "${MANIFEST}";
-        quick_menu;
     } # save_me
 
     function manifest_gen_menu()
@@ -345,7 +344,7 @@ function manifest_gen() # D 1,5
 
     if [[ ! -d .repo ]]; then
         echo -e "\n${FLD} ROM Source not initialized\n";
-        quick_menu;
+        return 1;
     else
         # Grab the manifest
         MANIFEST="${CALL_ME_ROOT}manifest.xml";
@@ -501,7 +500,7 @@ function set_ccvars() # D 4,5
 function init() # 1
 {
     # change terminal title
-    [ ! -z "$automate" ] && teh_action 1;
+    echo -ne '\033]0;ScriBt : Pre-Build\007';
     rom_select;
     pause "4";
     echo -e "${EXE} Detecting Available Branches in ${ROM_FN} Repository";
@@ -590,15 +589,14 @@ function init() # 1
     else
         unset STS;
     fi
-    [ -z "$automate" ] && quick_menu;
 } # init
 
 function sync() # 2
 {
     # Change terminal title
-    [ ! -z "$automate" ] && teh_action 2;
     if [ ! -f .repo/manifest.xml ]; then init; fi;
     get_rom_info;
+    echo -ne "\033]0;ScriBt : Syncing ${ROM_FN}\007";
     echo -e "\n${EXE} Preparing for Sync\n";
     echo -e "${QN} Number of Threads for Sync \n"; get "info" "jobs";
     ST="Number of Threads"; shut_my_mouth JOBS "$ST";
@@ -626,7 +624,6 @@ function sync() # 2
         "sync current branch only<->${SYNC_CRNT}" \
         "use clone.bundle<->${CLN_BUN}";
     unset SILENT FORCE SYNC_CRNT CLN_BUN;
-    [ -z "$automate" ] && quick_menu;
 } # sync
 
 function device_info() # D 3,4
@@ -660,7 +657,7 @@ function device_info() # D 3,4
                 device_info;
                 ;;
             *)
-                quick_menu;
+                return 1;
                 ;;
         esac
     fi
@@ -750,9 +747,14 @@ function pre_build() # 3
     # To prevent missing information, if user starts directly from here
     get_rom_info;
     init_bld;
-    [ -z "${SBDEV}" ] && device_info;
+    if [ -z "${SBDEV}" ]; then
+        if ! device_info; then
+            echo -e "${FLD} Failed to get Device Info";
+            return 1;
+        fi
+    fi
     # Change terminal title
-    [ ! -z "$automate" ] && teh_action 3;
+    echo -ne '\033]0;ScriBt : Pre-Build\007'
     DEVDIR="device/${SBCM}/${SBDEV}/";
 
     function vendor_strat_all()
@@ -1008,13 +1010,12 @@ function pre_build() # 3
     fi
     cd "${CALL_ME_ROOT}";
     pause "4";
-    [ -z "$automate" ] && quick_menu;
 } # pre_build
 
 function build() # 4
 {
     # Change terminal title
-    [ ! -z "$automate" ] && teh_action 4;
+    echo -ne "\033]0;ScriBt : Build\007";
 
     function hotel_menu()
     {
@@ -1051,6 +1052,8 @@ function build() # 4
 
     function build_make()
     {
+        # change terminal title
+        echo -ne "\033]0;${ROMNIS}_${SBDEV} : In Progress\007";
         if [[ "$1" != "brunch" ]]; then
             # Showtime!
             [[ "$SBMK" != "mka" ]] && BCORES="-j${BCORES:-1}";
@@ -1075,7 +1078,6 @@ function build() # 4
             echo -e "\n${INF} ${CL_WYT}Build took $(( SEC / 3600 )) hour(s), $(( SEC / 60 % 60 )) minute(s) and $(( SEC % 60 )) second(s).${NONE}" | tee -a "${RMTMP}";
             echo -e "\n${INF} Build log stored in ${CL_WYT}${RMTMP}${NONE}";
             dash_it;
-            quick_menu;
         fi
     } # build_make
 
@@ -1107,9 +1109,10 @@ function build() # 4
                 *) echo -e "\n${FLD} Invalid Selection\n"; make_module ;;
             esac
         else
-            echo -e "\n${INF} Do either of these two actions:\n1. Google it (Easier)\n2. Run this command in terminal : grep \"LOCAL_MODULE := <Insert_MODULE_NAME_Here> \".\n\n Press ENTER after it's Done..\n";
-            read -r;
-            make_it;
+            echo -e "\n${INF} Do either of these two actions";
+            echo -e "1. Google it (Easier)";
+            echo -e "2. Run this command in terminal : ${CL_WYT}mgrep \"LOCAL_MODULE := <Insert_MODULE_NAME_Here>${NONE}\"";
+            make_module;
         fi
     } # make_module
 
@@ -1140,7 +1143,7 @@ function build() # 4
                 cd "${SBKL}";
             else
                 echo -e "\n${FLD} Kernel Makefile not found. Aborting\n";
-                quick_menu;
+                return 1;
             fi
             echo -e "\n${QN} Enter the codename of your device\n";
             ST="Codename"; shut_my_mouth DEV "$ST";
@@ -1260,7 +1263,6 @@ function build() # 4
         case "$SBKO" in
             0)
                 cd "${CALL_ME_ROOT}";
-                quick_menu;
                 ;;
             1) kinit ;;
             2) settc ;;
@@ -1377,7 +1379,7 @@ function build() # 4
             dash_it;
             prompt PATCHNR;
             case "$PATCHNR" in # Process śpecial actions
-                0) quick_menu ;; # Exit the Patch Manager and return to Quick Menu
+                0) echo ;; # Exit the Patch Manager and return to Quick Menu
                 1)
                     patch_creator;
                     patcher;
@@ -1409,14 +1411,12 @@ function build() # 4
 
     build_menu;
     case "$SBBO" in
-        0) quick_menu ;;
+        0) echo ;;
         1)
             if [ -d "${CALL_ME_ROOT}.repo" ]; then
                 # Get Missing Information
                 get_rom_info;
                 [ -z "$SBDEV" ] && device_info;
-                # Change terminal title
-                [ ! -z "$automate" ] && teh_action 4;
             else
                 echo -e "\n${FLD} ROM Source Not Found (Synced)";
                 echo -e "\n${FLD} Please perform an init and sync before doing this";
@@ -1575,7 +1575,7 @@ function build() # 4
 function tools() # 5
 {
     # change terminal title
-    [ ! -z "$automate" ] && teh_action 5;
+    echo -ne '\033]0;ScriBt : Various Tools\007';
 
     function installdeps()
     {
@@ -1585,7 +1585,7 @@ function tools() # 5
             echo -e "\n${SCS} Distro Detected Successfully";
         else
             echo -e "\n${FLD} Distro not present in supported Distros\n\n${INF} Contact the Developer for Support\n";
-            quick_menu;
+            return 1;
         fi
         echo -e "\n${EXE} Installing Build Dependencies\n";
         get "pkgs" "common";
@@ -1806,7 +1806,7 @@ function tools() # 5
         dash_it;
         prompt JAVAS;
         case "$JAVAS" in
-            0)  quick_menu ;;
+            0) echo ;;
             1)
                 echo -ne '\033]0;ScriBt : Java\007';
                 echo -e "\n${QN} Android Version of the ROM you're building";
@@ -1897,7 +1897,6 @@ function tools() # 5
             "Configuration<->user.email" \
             "Value of specified configuration<->${GIT_E}";
         echo -e "${SCS} Done";
-        quick_menu;
     } # git_creds
 
     function check_utils_version()
@@ -2071,7 +2070,7 @@ function tools() # 5
         dash_it;
         prompt TOOL;
         case "$TOOL" in
-            0) quick_menu ;;
+            0) echo ;;
             1) case "${PKGMGR}" in
                    *apt*) installdeps ;;
                    "pacman") installdeps_arch ;;
@@ -2091,60 +2090,34 @@ function tools() # 5
 # TODO:     X) find_mod ;;
             *) echo -e "\n${FLD} Invalid Selection\n"; tool_menu ;;
         esac
-        unset TOOL;
-        [ -z "$automate" ] && quick_menu;
     } # tool_menu
 
     tool_menu;
 } # tools
 
-function teh_action() # Takes ya Everywhere within ScriBt
+function teh_action()
 {
-    case "$1" in
-    1)
-        echo -ne '\033]0;ScriBt : Init\007';
-        [ -z "$automate" ] && init;
-        ;;
-    2)
-        echo -ne "\033]0;ScriBt : Syncing ${ROM_FN}\007";
-        [ -z "$automate" ] && sync;
-        ;;
-    3)
-        echo -ne '\033]0;ScriBt : Pre-Build\007';
-        [ -z "$automate" ] && pre_build;
-        ;;
-    4)
-        if [[ -z "$ROMNIS" ]] || [[ -z "$SBDEV" ]]; then
-            echo -ne "\033]0;ScriBt : Build\007";
-        else
-            echo -ne "\033]0;${ROMNIS}_${SBDEV} : In Progress\007";
-        fi
-        [ -z "$automate" ] && build;
-        ;;
-    5)
-        echo -ne '\033]0;ScriBt : Various Tools\007';
-        [ -z "$automate" ] && tools;
-        ;;
-    6)  # NOT TO BE AUTOMATED
-        echo -ne '\033]0;About ScriBt\007';
-        get "misc" "logo";
+    # Takes ya Everywhere within ScriBt
+    # Get your own ride when automating it though
+    if [ -z "$automate" ]; then
+        case "$1" in
+        1) init ;;
+        2) sync ;;
+        3) pre_build ;;
+        4) build ;;
+        5) tools ;;
+        6) get "misc" "logo" ;;
+        7) exitScriBt 0 ;;
+        *)
+            echo -e "\n${FLD} Invalid Selection.\n";
+            case "$2" in
+                "qm") quick_menu ;;
+                "mm") main_menu ;;
+            esac
+            ;;
+        esac
         quick_menu;
-        ;;
-    7)
-        case "$2" in
-            "COOL") echo -ne "\033]0;${ROMNIS}_${SBDEV} : Success\007"; [ -z "$automate" ] && exitScriBt 0 ;;
-            "FAIL") echo -ne "\033]0;${ROMNIS}_${SBDEV} : Fail\007"; [ -z "$automate" ] && exitScriBt 1 ;;
-            [qm]m) exitScriBt 0 ;;
-        esac
-        ;;
-    *)
-        echo -e "\n${FLD} Invalid Selection.\n";
-        case "$2" in
-            "qm") quick_menu ;;
-            "mm") main_menu ;;
-        esac
-        ;;
-    esac
+    fi
 } # teh_action
 
 function the_start() # 0
