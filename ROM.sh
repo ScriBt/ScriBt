@@ -342,39 +342,38 @@ function manifest_gen() # D 1,5
         [[ "$OP" != "6" ]] && manifest_gen_menu;
     } # manifest_gen_menu
 
-    if [[ ! -d .repo ]]; then
+    if [[ ! -d "${CALL_ME_ROOT}.repo" ]]; then
         echo -e "\n${FLD} ROM Source not initialized\n";
         return 1;
-    else
-        # Grab the manifest
-        MANIFEST="${CALL_ME_ROOT}manifest.xml";
-        rm -f "${MANIFEST}";
-        repo manifest > "${MANIFEST}";
-        # Our file
-        FILE="${CALL_ME_ROOT}file.xml";
-        rm -f "${FILE}";
-        # `while' equivalent of this loop brings all test cases in ONE line
-        # And additionally distinguishes each test case by a newline between them
-        # Not what I wanted (seperate lines), So...
-        # shellcheck disable=SC2013
-        for line in $(grep '<remote' "${MANIFEST}" | sed -e 's/<remote//g' -e 's/ /X/g' -e 's/\/>//g'); do
-            line="${line//X/ }";
-            eval "$line";
-            if [[ "${fetch}" == ".." ]]; then
-                cd "${CALL_ME_ROOT}.repo/manifests";
-                # Poor awk logic :/, won't burn down the world tho :)
-                fetch=$(git config --get remote.origin.url | awk -F "/" '{print $1"//"$3}');
-                cd "${CALL_ME_ROOT}";
-            fi
-            REMN+=( "$name" );
-            REMF+=( "$fetch" );
-        done
-        unset line fetch name review revision;
-        mkdir -p "${CALL_ME_ROOT}.repo/local_manifests/";
-        touch "${FILE}";
-        echo -e "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<manifest>" > "${FILE}";
-        manifest_gen_menu;
     fi
+    # Grab the manifest
+    MANIFEST="${CALL_ME_ROOT}manifest.xml";
+    rm -f "${MANIFEST}";
+    repo manifest > "${MANIFEST}";
+    # Our file
+    FILE="${CALL_ME_ROOT}file.xml";
+    rm -f "${FILE}";
+    # `while' equivalent of this loop brings all test cases in ONE line
+    # And additionally distinguishes each test case by a newline between them
+    # Not what I wanted (seperate lines), So...
+    # shellcheck disable=SC2013
+    for line in $(grep '<remote' "${MANIFEST}" | sed -e 's/<remote//g' -e 's/ /X/g' -e 's/\/>//g'); do
+        line="${line//X/ }";
+        eval "$line";
+        if [[ "${fetch}" == ".." ]]; then
+            cd "${CALL_ME_ROOT}.repo/manifests";
+            # Poor awk logic :/, won't burn down the world tho :)
+            fetch=$(git config --get remote.origin.url | awk -F "/" '{print $1"//"$3}');
+            cd "${CALL_ME_ROOT}";
+        fi
+        REMN+=( "$name" );
+        REMF+=( "$fetch" );
+    done
+    unset line fetch name review revision;
+    mkdir -p "${CALL_ME_ROOT}.repo/local_manifests/";
+    touch "${FILE}";
+    echo -e "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<manifest>" > "${FILE}";
+    manifest_gen_menu;
 } # manifest_gen
 
 function it_is_apt() # D pkgmgr_check
@@ -542,7 +541,7 @@ function init() # 1
     if ! which repo; then
         echo -e "${FLD} ${CL_WYT}repo${NONE} binary isn't installed";
         echo -e "\n${EXE} Installing ${CL_WYT}repo${CL_WYT}";
-        [ ! -d "${HOME}/bin" ] && mkdir -pv ${HOME}/bin;
+        [[ ! -d "${HOME}/bin" ]] && mkdir -pv ${HOME}/bin;
         cmdprex \
             "Tool/Lib to transfer data with URL syntax<->curl" \
             "repo dwnld URL<->https://storage.googleapis.com/git-repo-downloads/repo" \
@@ -727,7 +726,6 @@ function stop_venv()
 
 function init_bld() # D 3,4
 {
-    dash_it;
     echo -e "${EXE} Initializing Build Environment";
     cmdprex \
         "Execute in current shell<->source" \
@@ -810,7 +808,7 @@ function pre_build() # 3
         function bootanim()
         {
             echo -e "\n${INF} Device Resolution\n";
-            if [ ! -z "$automate" ]; then
+            if [[ ! -z "$automate" ]]; then
                 get "info" "bootres";
                 echo -e "\n${QN} Enter the Desired Highlighted Number\n";
                 prompt SBBTR;
@@ -1054,31 +1052,29 @@ function build() # 4
     {
         # change terminal title
         echo -ne "\033]0;${ROMNIS}_${SBDEV} : In Progress\007";
-        if [[ "$1" != "brunch" ]]; then
-            # Showtime!
-            [[ "$SBMK" != "mka" ]] && BCORES="-j${BCORES:-1}";
-            # Sequence ->  GZRs & CarbonROM | AOKP | AOSiP | A lot of ROMs | All ROMs
-            for MAKECOMMAND in ${ROMNIS} rainbowfarts kronic bacon otapackage; do
-                if grep -q "^${MAKECOMMAND}:" "${CALL_ME_ROOT}build/core/Makefile"; then
-                    START=$(date +"%s"); # Build start time
-                    cmdprex --out="${RMTMP}" \
-                        "GNU make<->${SBMK}" \
-                        "Target name to build ROM<->${MAKECOMMAND}" \
-                        "No. of cores<->${BCORES}";
-                    END=$(date +"%s"); # Build end time
-                    break;  # Building one target is enough
-                fi
-            done
-            SEC=$(( END - START )); # Difference gives Build Time
-            if [[ -z "$STS" ]]; then
-                echo -e "\n${FLD} Build Status : Failed";
-            else
-                echo -e "\n${SCS} Build Status : Success";
+        # Showtime!
+        [[ "$SBMK" != "mka" ]] && BCORES="-j${BCORES:-1}";
+        # Sequence ->  GZRs & CarbonROM | AOKP | AOSiP | A lot of ROMs | All ROMs
+        for MAKECOMMAND in ${ROMNIS} rainbowfarts kronic bacon otapackage; do
+            if grep -q "^${MAKECOMMAND}:" "${CALL_ME_ROOT}build/core/Makefile"; then
+                START=$(date +"%s"); # Build start time
+                cmdprex --out="${RMTMP}" \
+                    "GNU make<->${SBMK}" \
+                    "Target name to build ROM<->${MAKECOMMAND}" \
+                    "No. of cores<->${BCORES}";
+                END=$(date +"%s"); # Build end time
+                break;  # Building one target is enough
             fi
-            echo -e "\n${INF} ${CL_WYT}Build took $(( SEC / 3600 )) hour(s), $(( SEC / 60 % 60 )) minute(s) and $(( SEC % 60 )) second(s).${NONE}" | tee -a "${RMTMP}";
-            echo -e "\n${INF} Build log stored in ${CL_WYT}${RMTMP}${NONE}";
-            dash_it;
+        done
+        SEC=$(( END - START )); # Difference gives Build Time
+        if [[ -z "$STS" ]]; then
+            echo -e "\n${FLD} Build Status : Failed";
+        else
+            echo -e "\n${SCS} Build Status : Success";
         fi
+        echo -e "\n${INF} ${CL_WYT}Build took $(( SEC / 3600 )) hour(s), $(( SEC / 60 % 60 )) minute(s) and $(( SEC % 60 )) second(s).${NONE}" | tee -a "${RMTMP}";
+        echo -e "\n${INF} Build log stored in ${CL_WYT}${RMTMP}${NONE}";
+        dash_it;
     } # build_make
 
     function custuserhost()
@@ -1154,6 +1150,7 @@ function build() # 4
             else
                 echo -e "\n${FLD} Directory not found";
                 unset SBKTL;
+                return 1;
             fi
         } # settc
 
@@ -1186,8 +1183,17 @@ function build() # 4
         function mkkernel()
         {
             # Execute these before building kernel
-            [ -z "${action_kinit}" ] && kinit;
-            [ -z "${KCCP}" ] && settc;
+            if [[ -z "${action_kinit}" ]]; then
+                if ! kinit; then
+                    echo -e "${FLD} Cannot initialize kernel source";
+                    return 1;
+                fi
+            fi
+            if [[  -z "${KCCP}" ]]; then
+                if ! settc; then
+                    return 1;
+                fi
+            fi
             [ -z "${action_kcl}" ] && kclean;
             [ ! -z "${SBCUH}" ] && custuserhost;
 
@@ -1307,35 +1313,36 @@ function build() # 4
 
         function patch_creator()
         {
-            if [ ! -d ".repo" ]; then # We are not inside a repo
+            if [[ ! -d ".repo" ]]; then # We are not inside a repo
                 echo -e "\n${FLD} You are not inside a repo (or the .repo folder was not found)";
-            else
-                echo -e "\n${QN} Do you want to generate a patch file out of unstaged changes (May take a long time)";
-                echo -e "${INF} WARNING: Changes outside of the repos listed in the manifest will NOT be recognized!\n";
-                prompt CREATE_PATCH;
-                if [[ "$CREATE_PATCH" =~ [Yy] ]]; then
-                    echo -e "\n${INF} Where do you want to save the patch?\n${INF} Make sure the directory exists\n\n";
-                    prompt PATCH_PATH;
-                    PROJECTS="$(repo list -p)"; # Get all teh projects
-                    PROJECT_COUNT=$(wc -l <<< "$PROJECTS"); # Count all teh projects
-                    [ -f "${CALL_ME_ROOT}${PATCH_PATH}" ] && rm -rf "${CALL_ME_ROOT}${PATCH_PATH}"; # Delete existing patch
-                    CT=1;
-                    echo;
-                    while read -r PROJECT; do # repo foreach does not work, as it seems to spawn a subshell
-                        cd "${CALL_ME_ROOT}${PROJECT}";
-                        git diff |
-                          sed -e "s@ a/@ a/${PROJECT}/@g" |
-                          sed -e "s@ b/@ b/${PROJECT}/@g" >> "${CALL_ME_ROOT}${PATCH_PATH}"; # Extend a/ and b/ with the project's path, as git diff only outputs the paths relative to the git repository's root
-                        echo -en "\033[KGenerated patch for repo $CT of $PROJECT_COUNT\r";  # Count teh processed repos
-                        (( CT++ ));
-                    done <<< "$PROJECTS";
-                    cd "${CALL_ME_ROOT}";
-                    echo -e "\n\n${SCS} Done.";
-                    [ ! -s "${CALL_ME_ROOT}${PATCH_PATH}" ] &&
-                      rm "${CALL_ME_ROOT}${PATCH_PATH}" &&
-                      echo -e "${INF} Patch was empty, so it was deleted";
-                fi
+                return 1;
             fi
+            echo -e "\n${QN} Do you want to generate a patch file out of unstaged changes (May take a long time)";
+            echo -e "${INF} WARNING: Changes outside of the repos listed in the manifest will NOT be recognized!\n";
+            prompt CREATE_PATCH;
+            if ! [[ "$CREATE_PATCH" =~ [Yy] ]]; then
+                return 1;
+            fi
+            echo -e "\n${INF} Where do you want to save the patch?\n${INF} Make sure the directory exists\n\n";
+            prompt PATCH_PATH;
+            PROJECTS="$(repo list -p)"; # Get all teh projects
+            PROJECT_COUNT=$(wc -l <<< "$PROJECTS"); # Count all teh projects
+            [ -f "${CALL_ME_ROOT}${PATCH_PATH}" ] && rm -rf "${CALL_ME_ROOT}${PATCH_PATH}"; # Delete existing patch
+            CT=1;
+            echo;
+            while read -r PROJECT; do # repo foreach does not work, as it seems to spawn a subshell
+                cd "${CALL_ME_ROOT}${PROJECT}";
+                git diff |
+                  sed -e "s@ a/@ a/${PROJECT}/@g" |
+                  sed -e "s@ b/@ b/${PROJECT}/@g" >> "${CALL_ME_ROOT}${PATCH_PATH}"; # Extend a/ and b/ with the project's path, as git diff only outputs the paths relative to the git repository's root
+                echo -en "\033[KGenerated patch for repo $CT of $PROJECT_COUNT\r";  # Count teh processed repos
+                (( CT++ ));
+            done <<< "$PROJECTS";
+            cd "${CALL_ME_ROOT}";
+            echo -e "\n\n${SCS} Done.";
+            [ ! -s "${CALL_ME_ROOT}${PATCH_PATH}" ] &&
+              rm "${CALL_ME_ROOT}${PATCH_PATH}" &&
+              echo -e "${INF} Patch was empty, so it was deleted";
         } # patch_creator
 
         function patcher()
@@ -1523,7 +1530,7 @@ function build() # 4
             ST="Custom user@host"; shut_my_mouth CUH "$ST";
             [[ "$SBCUH" =~ (Y|y) ]] && custuserhost;
             hotel_menu;
-            build_make "$SBSLT";
+            [[ "$SBSLT" != "brunch" ]] && build_make "$SBSLT";
             ;;
         2) set_ccvars ;;
         3) kbuild ;;
@@ -1547,7 +1554,8 @@ function tools() # 5
         if [[ ! -z "$DYR" ]]; then
             echo -e "\n${SCS} Distro Detected Successfully";
         else
-            echo -e "\n${FLD} Distro not present in supported Distros\n\n${INF} Contact the Developer for Support\n";
+            echo -e "\n${FLD} Distro not present in supported Distros";
+            echo -e "\n${INF} Contact the Developer for Support\n";
             return 1;
         fi
         echo -e "\n${EXE} Installing Build Dependencies\n";
@@ -1598,21 +1606,21 @@ function tools() # 5
                 PKGSREQ+=( "${item}" );
             fi
         done
-        if [[ ! -z "${PKGSREQ[*]}" ]]; then
-            # Install required packages
-            cmdprex \
-                "Command Execution as 'root'<->execroot" \
-                "Arch Package Mgr.<->${PKGMGR}" \
-                "Sync Pkgs<->-S" \
-                "Answer 'yes' to prompts<->--noconfirm" \
-                "Packages List<->${PKGSREQ[*]}";
-            if [[ -z "$STS" ]]; then
-                echo -e "${SCS} Packages were installed successfully";
-            else
-                echo -e "${SCS} An Error occured while installing some of the packages";
-            fi
-        else
+        if [[ -z "${PKGSREQ[*]}" ]]; then
             echo -e "\n${SCS} You already have all required packages";
+            return 0;
+        fi
+        # Install required packages
+        cmdprex \
+            "Command Execution as 'root'<->execroot" \
+            "Arch Package Mgr.<->${PKGMGR}" \
+            "Sync Pkgs<->-S" \
+            "Answer 'yes' to prompts<->--noconfirm" \
+            "Packages List<->${PKGSREQ[*]}";
+        if [[ -z "$STS" ]]; then
+            echo -e "${SCS} Packages were installed successfully";
+        else
+            echo -e "${SCS} An Error occured while installing some of the packages";
         fi
         unset item PKGSREQ;
     } # installdeps_arch
@@ -1667,52 +1675,18 @@ function tools() # 5
         echo -e "\n${QN} Remove other Versions of Java ${CL_WYT}[y/n]${NONE}\n";
         prompt REMOJA;
         echo;
-        case "$REMOJA" in
-            [yY])
-                case "${PKGMGR}" in
-                    *apt*)
-                        cmdprex \
-                            "Command Execution as 'root'<->execroot" \
-                            "Commandline Package Manager<->${PKGMGR}" \
-                            "Keyword to Remove Packages<->purge" \
-                            "Packages to be purged<->openjdk-* icedtea-* icedtea6-*"
-                            ;;
-                    "pacman")
-                        cmdprex \
-                            "Commad Execution as 'root'<->execroot" \
-                            "Arch Package Mgr.<->pacman" \
-                            "Remove Package<->-R" \
-                            "Skip all Dependency Checks<->-dd" \
-                            "remove configuration files<->-n" \
-                            "remove unnecessary dependencies<->-s" \
-                            "PackageName<->$( pacman -Qqs ^jdk )" ;;
-                esac
-                echo -e "\n${SCS} Removed Other Versions successfully";
-                ;;
-            [nN]) echo -e "${EXE} Keeping them Intact" ;;
-            *)
-                echo -e "${FLD} Invalid Selection.\n";
-                java_install "$1";
-                ;;
-        esac
         case "${PKGMGR}" in
             *apt*)
+                [[ "${REMOJA}" == [Yy] ]] && cmdprex \
+                    "Command Execution as 'root'<->execroot" \
+                    "Commandline Package Manager<->${PKGMGR}" \
+                    "Keyword to Remove Packages<->purge" \
+                    "Packages to be purged<->openjdk-* icedtea-* icedtea6-*";
                 cmdprex \
                     "Command Execution as 'root'<->execroot" \
                     "Commandline Package Manager<->${PKGMGR}" \
                     "Answer 'yes' to prompts<->-y" \
                     "Update Packages List<->update";
-                ;;
-            "pacman")
-                cmdprex \
-                    "Execute command as 'root'<->execroot" \
-                    "Arch Package Mgr.<->pacman" \
-                    "Sync Pkgs<->-S" \
-                    "download fresh package databases<->-y";
-                ;;
-        esac
-        case "${PKGMGR}" in
-            *apt*)
                 cmdprex \
                     "Command Execution as 'root'<->execroot" \
                     "Commandline Package Manager<->${PKGMGR}" \
@@ -1721,12 +1695,21 @@ function tools() # 5
                     "OpenJDK $1 Package Name<->openjdk-$1-jdk";
                 ;;
             "pacman")
+                [[ "${REMOJA}" == [Yy] ]] && cmdprex \
+                    "Commad Execution as 'root'<->execroot" \
+                    "Arch Package Mgr.<->pacman" \
+                    "Remove Package<->-R" \
+                    "Skip all Dependency Checks<->-dd" \
+                    "remove configuration files<->-n" \
+                    "remove unnecessary dependencies<->-s" \
+                    "PackageName<->$( pacman -Qqs ^jdk )";
                 cmdprex \
                     "Execute command as 'root'<->execroot" \
                     "Arch Package Mgr.<->pacman" \
                     "Sync Pkgs<->-S" \
                     "download fresh package databases<->-y"
-                    "OpenJDK $1 Package Name<->jdk$1-openjdk" ;;
+                    "OpenJDK $1 Package Name<->jdk$1-openjdk";
+                ;;
         esac
         java_check "$1";
     } # java_install
