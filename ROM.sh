@@ -180,6 +180,7 @@ function get_rom_info()
 
 function main_menu()
 {
+    unset ACTION;
     echo -ne '\033]0;ScriBt : Main Menu\007';
     center_it "${SCS} ${CL_LBL}Main Menu${NONE} ${SCS}" "eq1";
     echo -e "1$(center_it "Choose ROM & Init" "sp" "$(( NOCHARS_DEF - 2 ))")1";
@@ -192,7 +193,6 @@ function main_menu()
     dash_it;
     echo -e "\n${QN} Select the Option you want to start with\n";
     prompt ACTION;
-    teh_action "${ACTION}" "mm";
 } # main_menu
 
 function manifest_gen() # D 1,5
@@ -407,13 +407,13 @@ function pkgmgr_check() # ID
 
 function quick_menu()
 {
+    unset ACTION;
     echo -ne '\033]0;ScriBt : Quick Menu\007';
     center_it "${CL_PNK}Quick-Menu${NONE}" "1eq";
     center_it "1. Init | 2. Sync | 3. Pre-Build | 4. Build | 5. Tools" "sp";
     center_it "6. About ScriBt | 7. Exit" "sp";
     dash_it "0";
     prompt ACTION;
-    teh_action $ACTION "qm";
 } # quick_menu
 
 function rom_check() # D 1,2,3
@@ -1234,6 +1234,7 @@ function build() # 4
         case "$SBKO" in
             0)
                 cd "${CALL_ME_ROOT}";
+                return 0;
                 ;;
             1) kinit ;;
             2) settc ;;
@@ -1382,7 +1383,7 @@ function build() # 4
 
     build_menu;
     case "$SBBO" in
-        0) echo ;;
+        0) return 0 ;;
         1)
             if [[ -d "${CALL_ME_ROOT}.repo" ]]; then
                 # Get Missing Information
@@ -1753,7 +1754,7 @@ function tools() # 5
         dash_it;
         prompt JAVAS;
         case "$JAVAS" in
-            0) echo ;;
+            0) return 0 ;;
             1)
                 echo -ne '\033]0;ScriBt : Java\007';
                 echo -e "\n${QN} Android Version of the ROM you're building";
@@ -2017,7 +2018,7 @@ function tools() # 5
         dash_it;
         prompt TOOL;
         case "$TOOL" in
-            0) echo ;;
+            0) return 0 ;;
             1) case "${PKGMGR}" in
                    *apt*) installdeps ;;
                    "pacman") installdeps_arch ;;
@@ -2054,16 +2055,8 @@ function teh_action()
         4) build ;;
         5) tools ;;
         6) get "misc" "logo" ;;
-        7) exitScriBt 0 ;;
-        *)
-            echo -e "\n${FLD} Invalid Selection.\n";
-            case "$2" in
-                "qm") quick_menu ;;
-                "mm") main_menu ;;
-            esac
-            ;;
+        *) echo -e "\n${FLD} Invalid Selection.\n" ;;
         esac
-        quick_menu;
     fi
 } # teh_action
 
@@ -2375,7 +2368,21 @@ if [[ "$1" == "automate" ]]; then
     automator;
 elif [[ -z "$1" ]]; then
     the_start;
+    # Trying a do-while
     main_menu;
+    while [[ "$ACTION" != [1-7] ]]; do
+        echo -e "${FLD} Invalid Selection\n";
+        main_menu;
+    done
+    while [[ "$ACTION" != 7 ]]; do
+        teh_action "${ACTION}";
+        quick_menu;
+        while [[ "$ACTION" != [1-7] ]]; do
+            echo -e "${FLD} Invalid Selection\n";
+            quick_menu;
+        done
+    done
+    exitScriBt 0;
 elif [[ "$1" == "version" ]]; then
     if [[ -n "$VERSION" ]]; then
         get "misc" "logo";
