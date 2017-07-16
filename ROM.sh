@@ -38,26 +38,29 @@ export NOCHARS_DEF="54";                                               #
 function cmdprex() # D ALL
 {
     # shellcheck disable=SC2001
-    ARGS=( $(echo "${@// /#}" | sed -e 's/--out=.*txt//') );
+    local ARGS=( $(echo "${@// /#}" | sed -e 's/--out=.*txt//') );
     # Argument (Parameter) Array
-    ARG=( ${ARGS[*]/*<->/NULL} );
+    local ARG=( ${ARGS[*]/*<->/NULL} );
     # Argument Description Array
-    ARGD=( ${ARGS[*]/<->*/} );
+    local ARGD=( ${ARGS[*]/<->*/} );
     # Splash some colors!
     center_it "${CL_YEL}[!]${NONE} Command Execution ${CL_YEL}[!]${NONE}" "1eq1";
     for (( CT=0; CT<${#ARG[*]}; CT++ )); do
-        echo -en "\033[1;3${CT}m$(eval "echo \${ARG[${CT}]}") " | sed -e 's/NULL//g' -e 's/execroot/sudo/g' -e 's/#/ /g';
+        if [[ $(eval "echo \${ARG[${CT}]}") != "NULL" ]]; then
+            echo -en "\033[1;3${CT}m$(eval "echo \${ARG[${CT}]}") " | sed -e 's/NULL//g' -e 's/execroot/sudo/g' -e 's/#/ /g';
+        fi
     done
     echo -e "\n";
     for (( CT=0; CT<${#ARGD[*]}; CT++ )); do
-        [[ $(eval "echo \${ARG[${CT}]}") != "NULL" ]] && \
-         echo -en "\033[1;3${CT}m$(eval "echo \${ARGD[${CT}]}")\033[0m\n" | sed 's/#/ /g';
+        if [[ $(eval "echo \${ARG[${CT}]}") != "NULL" ]]; then
+            echo -en "\033[1;3${CT}m$(eval "echo \${ARGD[${CT}]}")\033[0m\n" | sed 's/#/ /g';
+        fi
     done
     # Give some time for the user to read it
     pause "4";
     echo;
-    [[ "$1" =~ --out=* ]] && TEE="2>&1 | tee -a ${1/*=/}";
-    CMD=$(echo "${ARG[*]} ${TEE}" | sed -e 's/NULL//g' -e 's/#/ /g');
+    [[ "$1" =~ --out=* ]] && local TEE="2>&1 | tee -a ${1/*=/}";
+    local CMD=$(echo "${ARG[*]} ${TEE}" | sed -e 's/NULL//g' -e 's/#/ /g');
     # Execute the command
     if eval "${CMD}"; then
         echo -e "\n${SCS} Command Execution Successful";
@@ -66,7 +69,7 @@ function cmdprex() # D ALL
         echo -e "\n${FLD} Command Execution Failed";
         STS="1";
     fi
-    unset -v CMD CT ARG{,S,D} i;
+    unset -v CT i;
     dash_it;
 } # cmdprex
 
@@ -139,12 +142,12 @@ function exitScriBt() # ID
         VARS="${VARS}${line//=*/} ";
     done <<< "$(cat varlist)";
 
-    if [[ "${RQ_PGN}" == [Yy] ]]; then
+    if [[ "${REQ_CONFIG_GEN}" == [Yy] ]]; then
          prefGen;
     fi
     rm -f varlist;
     echo -e "\n${EXE} Unsetting all variables";
-    unset ${VARS:-SB2} VARS RQ_PGN;
+    unset ${VARS:-SB2} VARS REQ_CONFIG_GEN;
     if [[ ! -z "${ACTIVE_VENV}" ]]; then
         stop_venv;
     fi
@@ -166,16 +169,16 @@ function get_rom_info()
 {
     # Get ROM's info, if user directly starts sync
     cd "${CALL_ME_ROOT}.repo/manifests";
-    _RNM=$(git config --get remote.origin.url | awk -F "/" '{print $4}');
+    local RNM=$(git config --get remote.origin.url | awk -F "/" '{print $4}');
     cd  ${CALL_ME_ROOT};
     for FILE in ${CAFR[*]} ${AOSPR[*]}; do
-        if grep -q "${_RNM}" "${FILE}"; then
+        if grep -q "${RNM}" "${FILE}"; then
             source "${FILE}";
             ROM_FN="$(echo ${FILE//.rc/} | awk -F "/" '{print $NF}' | sed -e 's/_/ /g')";
             break;
         fi
-    done;
-    unset _RNM FILE FILES;
+    done
+    unset FILE;
 } # get_rom_info
 
 function main_menu()
@@ -199,7 +202,8 @@ function manifest_gen() # D 1,5
 {
     function add_repo()
     {
-        export lineStart="<project" lineEnd="/>";
+        local lineStart="<project" lineEnd="/>";
+        local repo_name repo_path repo_revision repo_remote;
         echo -e "\n${INF} Please enter the following one by one\n";
         echo -e "${INF} Hit Enter if no answer is to be provided (repository name & path CANNOT be blank).";
         echo -en "\n${QN} Repository Name : "; prompt repo_name;
@@ -219,13 +223,12 @@ function manifest_gen() # D 1,5
             echo -e "${line[*]}" >> "${FILE}";
             echo -e "\n${SCS} Repository added";
         fi
-        unset repo_{name,path,revision,remote};
-        unset line{,Start,End};
     } # add_repo
 
     function remove_repo()
     {
-        export lineStart="<remove-project" lineEnd="/>";
+        local lineStart="<remove-project" lineEnd="/>";
+        local repo_name;
         echo -e "\n${QN} Please enter the Repository Name\n";
         prompt repo_name;
         if grep -q "${repo_name}" "${MANIFEST}"; then
@@ -235,13 +238,12 @@ function manifest_gen() # D 1,5
         else
             echo -e "\n${FLD} Project ${repo_name} not found. Bailing out.\n";
         fi
-        unset repo_name;
-        unset line{,Start,End};
     } # remove_repo
 
     function add_remote()
     {
-        export lineStart="<remote"; export lineEnd="/>";
+        local lineStart="<remote"; local lineEnd="/>";
+        local remote_name remote_url remote_revision;
         echo -e "\n${INF} Please enter the following one by one\n";
         echo -e "${INF} If some of them are not needed, hit ENTER key [remote name and remote URL CANNOT be blank]";
         echo -en "\n${QN} Remote Name : "; prompt remote_name;
@@ -259,8 +261,6 @@ function manifest_gen() # D 1,5
         line=( "${lineStart}" "${line[*]}" "${lineEnd}" );
         echo -e "${line[*]}" >> "${FILE}";
         echo -e "\n${SCS} Remote ${remote_name} added";
-        unset remote_{name,revision,url};
-        unset line{,Start,End};
         unset CT;
     } # add_remote
 
@@ -329,8 +329,6 @@ function manifest_gen() # D 1,5
         dash_it;
         prompt OP;
         unset CT repo_path;
-        unset {repo,remote}_{name,revision,remote};
-        unset line{,Start,End};
         case "${OP}" in
             1) add_repo ;;
             2) remove_repo ;;
@@ -456,7 +454,7 @@ function rom_select() # D 1,2
 function shut_my_mouth() # ID
 {
     if [[ ! -z "$automate" ]]; then
-        RST="SB$1";
+        local RST="SB$1";
         echo -e "${CL_PNK}[!]${NONE} ${ATBT} $2 : ${!RST}";
     else
         prompt SB2;
@@ -506,7 +504,7 @@ function init() # 1
     RCT=$(( ${#ROM_NAME[*]} - 1 ));
     for CT in $(eval "echo {0..$RCT}"); do
         echo -e "\nOn ${ROM_NAME[$CT]} (ID->$CT)\n";
-        BRANCHES=$(git ls-remote -h "https://github.com/${ROM_NAME[$CT]}/${MAN[$CT]}" |\
+        local BRANCHES=$(git ls-remote -h "https://github.com/${ROM_NAME[$CT]}/${MAN[$CT]}" |\
             awk -F "/" '{if (length($4) != 0) {print $3"/"$4} else {print $3}}');
         if [[ ! -z "$CNS" && "$SBRN" != A* ]]; then
             echo "$BRANCHES" | grep --color=never 'caf' | column;
@@ -519,10 +517,10 @@ function init() # 1
     echo -e "\n${QN} Specify the ID and Branch you're going to sync";
     echo -e "\n${INDENT}Format : [ID] [BRANCH]\n";
     ST="Branch"; shut_my_mouth NBR "$ST";
-    CT="${SBNBR/ */}"; # Count
-    SBBR="${SBNBR/* /}"; # Branch
-    MNF="${MAN[$CT]}"; # Orgn manifest name at count
-    RNM="${ROM_NAME[$CT]}"; # Orgn name at count
+    local CT="${SBNBR/ */}"; # Count
+    local SBBR="${SBNBR/* /}"; # Branch
+    local MNF="${MAN[$CT]}"; # Orgn manifest name at count
+    local RNM="${ROM_NAME[$CT]}"; # Orgn name at count
     echo -e "${QN} Any Source you have already synced ${CL_WYT}[y/n]${NONE}\n"; get "info" "refer";
     ST="Use Reference Source"; shut_my_mouth RF "$ST";
     if [[ "$SBRF" == [Yy] ]]; then
@@ -535,7 +533,7 @@ function init() # 1
     if [[ "$SBCD" == [Yy] ]]; then
         echo -e "${QN} Depth Value ${CL_WYT}[Default - 1]${NONE}\n";
         ST="clone-depth Value"; shut_my_mouth DEP "$ST";
-        CDP="--depth\=${SBDEP:-1}";
+        CDP="--depth=${SBDEP:-1}";
     fi
     # Check for Presence of Repo Binary
     if ! which repo; then
@@ -565,7 +563,7 @@ function init() # 1
         fi
         echo -e "${SCS} Done. Ready to Initialize Repo";
     fi
-    MURL="https://github.com/${RNM}/${MNF}";
+    local MURL="https://github.com/${RNM}/${MNF}";
     cmdprex --out="${STMP}" \
         "repository management tool<->repo" \
         "initialze in current directory<->init" \
@@ -575,7 +573,6 @@ function init() # 1
         "URL<->${MURL}" \
         "manifest branch specifier<->-b" \
         "branch<->${SBBR}";
-    unset BRANCHES MURL CDP REF MNF CT;
     if [[ -z "$STS" ]]; then
         if [[ ! -f "${CALL_ME_ROOT}.repo/local_manifests" ]]; then
             mkdir -pv "${CALL_ME_ROOT}.repo/local_manifests";
@@ -609,10 +606,10 @@ function sync() # 2
     ST="Use clone-bundle"; shut_my_mouth B "$ST";
     dash_it;
     #Sync-Options
-    [[ "$SBS" == "y" ]] && SILENT="-q";
-    [[ "$SBF" == "y" ]] && FORCE="--force-sync";
-    [[ "$SBC" == "y" ]] && SYNC_CRNT="-c";
-    [[ "$SBB" == "y" ]] || CLN_BUN="--no-clone-bundle";
+    [[ "$SBS" == "y" ]] && local SILENT="-q";
+    [[ "$SBF" == "y" ]] && local FORCE="--force-sync";
+    [[ "$SBC" == "y" ]] && local SYNC_CRNT="-c";
+    [[ "$SBB" == "y" ]] || local CLN_BUN="--no-clone-bundle";
     echo -e "${EXE} Starting Sync for ${ROM_FN}";
     cmdprex --out="${STMP}" \
         "repository management tool<->repo" \
@@ -622,7 +619,6 @@ function sync() # 2
         "force sync<->${FORCE}" \
         "sync current branch only<->${SYNC_CRNT}" \
         "use clone.bundle<->${CLN_BUN}";
-    unset SILENT FORCE SYNC_CRNT CLN_BUN;
 } # sync
 
 function device_info() # D 3,4
@@ -720,7 +716,7 @@ function stop_venv()
 {
     if [[ "${ACTIVE_VENV}" == "true" ]]; then
         echo -e "\n${EXE} Exiting virtual environment\n";
-        deactivate && rm -rf ${HOME}/venv && echo -e "${SCS} Python2 virtual environment deleted";
+        deactivate && rm -rf "${HOME}/venv" && echo -e "${SCS} Python2 virtual environment deleted";
     fi
 } # stop_venv
 
@@ -826,10 +822,10 @@ function pre_build() # 3
     {
         # used by :- interactive_mk, src/strat/common.rc
         # Collect a list of makefiles containing the string PRODUCT_NAME
-        DDCS=( $(grep -rl "PRODUCT_NAME" | sed 's/.mk//g') );
+        local DDCS=( $(grep -rl "PRODUCT_NAME" | sed 's/.mk//g') );
         # If required file is present && function was called by 'interactive_mk'; then
         if (echo "${DDCS[*]}" | grep -q "${INTF}") && [[ $1 == "intm" ]]; then
-            DDC="NULL";
+            export DDC="NULL";
         else
             # Add grep expression entries
             for file in ${DDCS[*]}; do
@@ -839,16 +835,16 @@ function pre_build() # 3
             for file in ${DDCS[*]}; do
                 read -r "C_${file}" <<< $(grep -c ${GREP[*]} "${file}".mk);
             done
-            max=0;
+            local max=0;
             # DDC should be the file inheriting maximum product makefiles
             for file in ${DDCS[*]}; do
                 if [[ $(eval "echo \${C_${file}}") -ge "$max" ]]; then
-                     DDC="${file}.mk";
-                     max=$(eval "echo \${C_${file}}");
+                    DDC="${file}.mk";
+                    max=$(eval "echo \${C_${file}}");
                 fi
             done
         fi
-        unset file max GREP DDCS;
+        unset file GREP;
     } # find_ddc
 
     function print_makefile_addition()
@@ -918,7 +914,7 @@ function pre_build() # 3
                 echo -e "PRODUCT_NAME := ${ROMNIS}_${SBDEV}";
             } >> "${INTF}";
             echo -e "\n${SCS} Interactive Makefile ${CL_WYT}${INTF}${NONE} created successfully";
-            echo -e "${INF} Please take a look at ${CL_WYT}${DEVDIR}${INTF}${NONE} later on how it was made";
+            echo -e "\n${INF} Please take a look at ${CL_WYT}${DEVDIR}${INTF}${NONE} later on how it was made";
             cd "${CALL_ME_ROOT}";
             dash_it;
         } # create_imk
@@ -939,7 +935,7 @@ function pre_build() # 3
 
     function add_prdt_makefile_to_apmk()
     {
-        echo -e "${INF} Adding line under ${CL_WYT}${APMK}${NONE} to include makefile ${CL_WYT}${INTF}${NONE}";
+        echo -e "\n${INF} Adding line under ${CL_WYT}${APMK}${NONE} to include makefile ${CL_WYT}${INTF}${NONE}";
         {
             echo -e "\nPRODUCT_MAKEFILES $S \\";
             echo -e "\t\$(LOCAL_DIR)/${INTF}";
@@ -1885,8 +1881,8 @@ function tools() # 5
         echo -e "\n1. This user only (${HOME}/bin)\n2. All users (/usr/bin)\n";
         prompt UIC; # utility installation choice
         case "$UIC" in
-            1) IDIR="${HOME}/bin/" ;;
-            2) IDIR="/usr/bin/" ;;
+            1) local IDIR="${HOME}/bin/" ;;
+            2) local IDIR="/usr/bin/" ;;
             *) echo -e "\n${FLD} Invalid Selection\n"; installer "$@" ;;
         esac
         cmdprex \
@@ -1902,7 +1898,7 @@ function tools() # 5
             echo -e "\n${INF} Cherry-Pick this commit under the ${CL_WYT}build${NONE} folder/repo of the ROM you're building";
         fi
         echo -e "\n${SCS} Done";
-        unset VER IDIR UIC;
+        unset VER UIC;
     } # installer
 
     function scribtofy()
@@ -1930,10 +1926,10 @@ function tools() # 5
 
     function update_creator() # Dev Only
     {
-        [ -f "${PATHDIR}update_message.txt" ] && rm "${PATHDIR}update_message.txt";
+        [[ -f "${PATHDIR}update_message.txt" ]] && rm "${PATHDIR}update_message.txt";
         cd "${PATHDIR}";
 
-        if [ ! -d "${PATHDIR}.git" ]; then # tell the user to re-clone ScriBt
+        if [[ ! -d "${PATHDIR}.git" ]]; then # tell the user to re-clone ScriBt
             echo -e "\n${FLD} Folder ${CL_WYT}.git${NONE} not found";
             echo -e "${INF} ${CL_WYT}Re-clone${NONE} ScriBt for the update creator to work properly\n";
         else
@@ -1992,7 +1988,7 @@ function tools() # 5
             fi
         fi
         unset CORRECT UPDATE_VERSION RESULT_SIGN QN_SIGN QN_UPLOAD;
-        [ -f "${PATHDIR}update_message.txt" ] && rm "${PATHDIR}update_message.txt";
+        [[ -f "${PATHDIR}update_message.txt" ]] && rm "${PATHDIR}update_message.txt";
         cd "${CALL_ME_ROOT}";
     } # update_creator
 
@@ -2086,13 +2082,13 @@ function the_start() # 0
     # is the distro supported ??
     pkgmgr_check;
 
-    if [ ! -d "${PATHDIR}.git" ]; then # tell the user to re-clone ScriBt
+    if [[ ! -d "${PATHDIR}.git" ]]; then # tell the user to re-clone ScriBt
         echo -e "\n${FLD} Folder ${CL_WYT}.git${NONE} not found";
         echo -e "\n${INF} ${CL_WYT}Re-clone${NONE} ScriBt for upScriBt to work properly";
         echo -e "\n${FLD} Update-Check Cancelled";
         echo -e "\n${INF} No modifications have been done\n";
     else
-        [ ! -z "${PATHDIR}" ] && cd "${PATHDIR}";
+        [[ ! -z "${PATHDIR}" ]] && cd "${PATHDIR}";
         cd "${CALL_ME_ROOT}";
         if [[ "${BRANCH}" == "master" ]]; then
             # Download the Remote Version of Updater, determine the Internet Connectivity by working of this command
@@ -2128,7 +2124,7 @@ function the_start() # 0
     # CHEAT CHEAT CHEAT!
     if [[ -z "$automate" ]]; then
         echo -e "${QN} Remember Responses for Automation ${CL_WYT}[y/n]${NONE}\n";
-        prompt RQ_PGN;
+        prompt REQ_CONFIG_GEN;
         set -o posix;
         set > "${TV1}";
     else
@@ -2139,7 +2135,7 @@ function the_start() # 0
     clear;
     get "misc" "banner";
     pause "4";
-    center_it "${CL_WYT}${VERSION:-NULL}${NONE}" "1sp1";
+    center_it "${CL_WYT}${VERSION:-NULL-life}${NONE}" "1sp1";
 } # the_start
 
 function automator()
@@ -2152,25 +2148,49 @@ function automator()
     if [[ ! -s "${TMP}" ]]; then
         echo -e "\n${FLD} No Automation Configs found\n";
         exitScriBt 1;
-    else
-        NO=1;
-        # Adapted from lunch selection menu
-        while read -r CT; do
-            CMB[$NO]="$CT";
-            (( NO++ ));
-        done <<< "$(cat "${TMP}")";
-        unset CT NO;
-        for CT in $(eval "echo {1..${#CMB[*]}}"); do
-            echo -e " $CT. ${CMB[$CT]} ";
-        done | column
-        unset CT;
-        echo -e "\n${QN} Which would you like\n";
-        prompt ANO;
-        echo -e "\n${EXE} Running ScriBt on Automation Config ${CMB[$ANO]}\n";
-        pause "4";
-        source "${CMB[${ANO}]}.rc";
     fi
+    local NO=1;
+    # Adapted from lunch selection menu
+    while read -r CT; do
+        CMB[$NO]="$CT";
+        (( NO++ ));
+    done <<< "$(cat "${TMP}")";
+    unset CT;
+    for CT in $(eval "echo {1..${#CMB[*]}}"); do
+        echo -e " $CT. ${CMB[$CT]} ";
+    done | column
+    unset CT;
+    echo -e "\n${QN} Which would you like\n";
+    prompt ANO;
+    echo -e "\n${EXE} Running ScriBt on Automation Config ${CMB[$ANO]}\n";
+    pause "4";
+    source "${CMB[${ANO}]}.rc";
+    unset ANO;
+    exitScriBt 0;
 } # automator
+
+function interactive_run()
+{
+    the_start;
+    # Trying a do-while :D
+    main_menu;
+    # Ask for a prompt until user enters a valid input
+    while [[ "$ACTION" != [1-7] ]]; do
+        echo -e "${FLD} Invalid Selection\n";
+        main_menu;
+    done
+    # while user doesn't want to exit ScriBt
+    while [[ "$ACTION" != 7 ]]; do
+        teh_action "${ACTION}";
+        quick_menu;
+        # Ask for a prompt until user enters a valid input
+        while [[ "$ACTION" != [1-7] ]]; do
+            echo -e "${FLD} Invalid Selection\n";
+            quick_menu;
+        done
+    done
+    exitScriBt 0;
+} # interactive_run
 
 ###################
 # Some Essentials #
@@ -2204,46 +2224,45 @@ function center_it()
     # [OutputEndsAbove]
 
     if [[ -z "$3" ]]; then
-        NOCHARS="${NOCHARS_DEF}";
+        local NOCHARS="${NOCHARS_DEF}";
     else
-        NOCHARS="$3";
+        local NOCHARS="$3";
     fi
     case "$2" in
         *eq*)
             if ! sign_exists "\u2550"; then
-                CHAR="="; # To avoid name conflict with "SIGN"
+                local CHAR="="; # To avoid name conflict with "SIGN"
             else
-                CHAR="$SIGN";
+                local CHAR="$SIGN";
             fi
-            SP=" ";
-            NOCHARS="$(( NOCHARS - 2 ))";
+            local SP=" ";
+            local NOCHARS="$(( NOCHARS - 2 ))";
             ;;
         *sp*)
-            CHAR=$(echo -en " ");
+            local CHAR=$(echo -en " ");
             ;;
     esac
     # Newlines before statement
-    NB="${2//[es][qp]*/}";
+    local NB="${2//[es][qp]*/}";
     # Newlines after statement
-    NA="${2//*[es][qp]/}";
+    local NA="${2//*[es][qp]/}";
     # No. of Remaining characters
     # Remove all ASCII Escape Sequences
-    NOC_NOASCII=$(echo "$1" |\
+    local NOC_NOASCII=$(echo "$1" |\
                 sed 's/\\u..../X/g' |\
                 sed 's/\\033\[0m//g' |\
                 sed 's/\\033\[[01];[34][1-9]m//g' |\
                 wc -L);
-    NSP=$(( NOCHARS - NOC_NOASCII ));
+    local NSP=$(( NOCHARS - NOC_NOASCII ));
     # Left-Spacing
-    SL=$(( NSP / 2 ));
+    local SL=$(( NSP / 2 ));
     # Right Spacing
-    SR=$(( NSP - SL ));
-    SPACEL="$(for (( i=0; i<${SL:-0}; i++ )); do echo -en "${CHAR}"; done;)";
-    SPACER="$(for (( i=0; i<${SR:-0}; i++ )); do echo -en "${CHAR}"; done;)";
+    local SR=$(( NSP - SL ));
+    local SPACEL="$(for (( i=0; i<${SL:-0}; i++ )); do echo -en "${CHAR}"; done;)";
+    local SPACER="$(for (( i=0; i<${SR:-0}; i++ )); do echo -en "${CHAR}"; done;)";
     for (( i=0; i<${NB:-0}; i++ )); do echo; done;
     echo -e "${CL_WYT}${SPACEL}${NONE}${SP}$1${SP}${CL_WYT}${SPACER}${NONE}";
     for (( i=0; i<${NA:-0}; i++ )); do echo; done;
-    unset S{L,P,R} SPACE{L,R} N{A,B,SP} NO{CHARS,_NOASCII} CHAR i;
 } # center_it
 
 function dash_it()
@@ -2263,8 +2282,9 @@ function dash_it()
     #
     # [OutputEndsAbove]
 
-    NOCHARS="${2:-${NOCHARS_DEF}}";
-    NB="$1";
+    local NOCHARS="${2:-${NOCHARS_DEF}}";
+    local NB="$1";
+    local i;
     if ! sign_exists "\u2550"; then
         SIGN="=";
     fi
@@ -2275,7 +2295,6 @@ function dash_it()
     done
     echo -en "${NONE}";
     echo -e "\n";
-    unset N{A,B} NOCHARS;
 } # dash_it
 
 # 'sudo' command with custom prompt '[#]' in Pink
@@ -2290,11 +2309,12 @@ function pause()
     # with ProgressBar indicating the pause time
     # Usage:
     # pause <no-of-0.5-sec-pauses>
+    # Default number of pauses : 4
 
-    TIME="${1:-4}";
-    i=1;
+    local TIME="${1:-4}";
+    local i=1;
     if ! sign_exists "\u25C9"; then
-        SIGN=".";
+        local SIGN=".";
     fi
     while [[ "$i" -le "$TIME" ]]; do
         echo -en "\033[1;3${i}m${SIGN} $(sleep 0.5)${NONE}";
@@ -2302,12 +2322,12 @@ function pause()
         (( i++ ));
         # Limit to 7 colors
         if [[ "$i" == "8" ]]; then
-            i=1;
-            TIME=$(( TIME - 8 ));
+            local i=1;
+            local TIME=$(( TIME - 8 ));
         fi
     done
     echo -en "$(sleep 0.5)\r${CLEAR[*]}\r";
-    unset i TIME CLEAR SIGN;
+    unset CLEAR;
 } # pause
 
 
@@ -2321,17 +2341,22 @@ function prompt()
     fi
 } # prompt
 
-# Point of Execution
+######################
+# Point of Execution #
+######################
 
-# I ez Root
+# I am Root
 export CALL_ME_ROOT=$(echo "$(pwd)/" | sed -e 's#//$#/#g');
 
-if [[ "$0" == "ROM.sh" ]] && [[ $(type -p ROM.sh) ]]; then
+# Determine if ScriBt is being run from PATH
+# Use ROM.sh under current directory if it doesn't exist in PAT
+if [[ "$0" == "ROM.sh" ]] && type -p ROM.sh; then
     export PATHDIR="$(type -p ROM.sh | sed 's/ROM\.sh//g')";
 else
     export PATHDIR="${CALL_ME_ROOT}";
 fi
 
+# 4 space variable, for indenting multiline information
 export INDENT="    ";
 
 # Load Companion Scripts
@@ -2342,11 +2367,17 @@ source "${PATHDIR}src/usage.rc";
 # Show Interrupt Acknowledgement message on receiving SIGINT
 trap interrupt SIGINT;
 
-# The ROMs
+############
+# The ROMs #
+############
+
 export CAFR=( $(ls ${PATHDIR}src/roms/caf/*.rc) );
 export AOSPR=( $(ls ${PATHDIR}src/roms/aosp/*.rc) );
 
-# Version
+##############
+# Versioning #
+##############
+
 if [[ -d "${PATHDIR}.git" ]]; then
     # Check Branch
     cd "${PATHDIR}";
@@ -2361,28 +2392,17 @@ else
     VERSION="";
 fi
 
+#########
+# START #
+#########
+
 if [[ "$1" == "automate" ]]; then
     export automate="yus_do_eet";
     the_start; # Pre-Initial Stage
     echo -e "${INF} ${ATBT} Lem'me do your work";
     automator;
 elif [[ -z "$1" ]]; then
-    the_start;
-    # Trying a do-while
-    main_menu;
-    while [[ "$ACTION" != [1-7] ]]; do
-        echo -e "${FLD} Invalid Selection\n";
-        main_menu;
-    done
-    while [[ "$ACTION" != 7 ]]; do
-        teh_action "${ACTION}";
-        quick_menu;
-        while [[ "$ACTION" != [1-7] ]]; do
-            echo -e "${FLD} Invalid Selection\n";
-            quick_menu;
-        done
-    done
-    exitScriBt 0;
+    interactive_run;
 elif [[ "$1" == "version" ]]; then
     if [[ -n "$VERSION" ]]; then
         get "misc" "logo";
