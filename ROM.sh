@@ -659,7 +659,7 @@ function device_info() # D 3,4
     echo -e "${QN} Build type";
     echo -e "\n${INF} Valid types : userdebug, user, eng\n";
     ST="Build type"; shut_my_mouth BT "$ST";
-    if [[ "$SBBT" != userdebug\|user\|eng ]]; then
+    if ! [[ "$SBBT" =~ (userdebug|user|eng) ]]; then
         echo -e "\n${FLD} Invalid build type specified";
         echo -e "\n${EXE} Falling back to ${CL_WYT}userdebug${NONE}";
         SBBT="userdebug";
