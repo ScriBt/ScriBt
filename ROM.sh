@@ -1624,8 +1624,7 @@ function tools() # 5
 
     function java_select()
     {
-        echo -e "${INF} Select the Version of Java which is to be used by-default\n";
-        dash_it;
+        echo -e "\n${INF} Select the Version of Java which is to be used by-default";
         case "${PKGMGR}" in
             *apt*)
                 cmdprex \
@@ -1714,7 +1713,7 @@ function tools() # 5
             echo -e "\n${INF} You can do this later too\n";
             prompt SBJAVADEF;
             if [[ "$SBJAVADEF" == [Yy] ]]; then
-                java_check "$1";
+                java_select "$1";
             fi
         fi
         java_check "$1";
