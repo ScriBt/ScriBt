@@ -103,7 +103,7 @@ function exitScriBt() # ID
         [[ -z "$NOC" ]] && NOC="${ROMNIS:-scribt}_${SBDEV:-config}";
         if [[ -f "${NOC}.rc" ]]; then
             echo -e "\n${FLD} Configuration ${NOC} exists";
-            echo -e "\n${QN} Overwrite it ${CL_WYT}[y/n]${NONE}";
+            echo -e "\n${QN} Overwrite it ${YES_NO}";
             prompt OVRT;
             case "$OVRT" in
                 [Yy]) echo -e "\n${EXE} Deleting ${NOC}"; rm -rf "${NOC}.rc" ;;
@@ -127,7 +127,7 @@ function exitScriBt() # ID
     if type patcher &>/dev/null; then # Assume the patchmgr was used if this function is loaded
         if show_patches | grep -q '[Y]'; then # Some patches are still applied
             echo -e "\n${SCS} Applied Patches detected";
-            echo -e "\n${QN} Do you want to reverse them ${CL_WYT}[y/n]${NONE}\n";
+            echo -e "\n${QN} Do you want to reverse them ${YES_NO}\n";
             prompt ANSWER;
             [[ "$ANSWER" == [Yy] ]] && patcher;
             unset ANSWER;
@@ -521,14 +521,14 @@ function init() # 1
     local SBBR="${SBNBR/* /}"; # Branch
     local MNF="${MAN[$CT]}"; # Orgn manifest name at count
     local RNM="${ROM_NAME[$CT]}"; # Orgn name at count
-    echo -e "${QN} Any Source you have already synced ${CL_WYT}[y/n]${NONE}\n"; get "info" "refer";
+    echo -e "${QN} Any Source you have already synced ${YES_NO}\n"; get "info" "refer";
     ST="Use Reference Source"; shut_my_mouth RF "$ST";
     if [[ "$SBRF" == [Yy] ]]; then
         echo -e "\n${QN} Provide me the Synced Source's Location from /\n";
         ST="Reference Location"; shut_my_mouth RFL "$ST";
         REF="--reference=\"${SBRFL}\"";
     fi
-    echo -e "${QN} Set clone-depth ${CL_WYT}[y/n]${NONE}\n"; get "info" "cldp";
+    echo -e "${QN} Set clone-depth ${YES_NO}\n"; get "info" "cldp";
     ST="Use clone-depth"; shut_my_mouth CD "$ST";
     if [[ "$SBCD" == [Yy] ]]; then
         echo -e "${QN} Depth Value ${CL_WYT}[Default - 1]${NONE}\n";
@@ -578,7 +578,7 @@ function init() # 1
             mkdir -pv "${CALL_ME_ROOT}.repo/local_manifests";
         fi
         if [[ -z "$automate" ]]; then
-            echo -e "\n${QN} Generate a Custom manifest ${CL_WYT}[y/n]${NONE}\n";
+            echo -e "\n${QN} Generate a Custom manifest ${YES_NO}\n";
             prompt SBGCM;
             [[ "$SBGCM" == [Yy] ]] && manifest_gen;
         fi
@@ -596,13 +596,13 @@ function sync() # 2
     echo -e "\n${EXE} Preparing for Sync\n";
     echo -e "${QN} Number of Threads for Sync \n"; get "info" "jobs";
     ST="Number of Threads"; shut_my_mouth JOBS "$ST";
-    echo -e "${QN} Force Sync needed ${CL_WYT}[y/n]${NONE}\n"; get "info" "fsync";
+    echo -e "${QN} Force Sync needed ${YES_NO}\n"; get "info" "fsync";
     ST="Force Sync"; shut_my_mouth F "$ST";
-    echo -e "${QN} Need some Silence in the Terminal ${CL_WYT}[y/n]${NONE}\n"; get "info" "silsync";
+    echo -e "${QN} Need some Silence in the Terminal ${YES_NO}\n"; get "info" "silsync";
     ST="Silent Sync"; shut_my_mouth S "$ST";
-    echo -e "${QN} Sync only Current Branch ${CL_WYT}[y/n]${NONE}\n"; get "info" "syncrt";
+    echo -e "${QN} Sync only Current Branch ${YES_NO}\n"; get "info" "syncrt";
     ST="Sync Current Branch"; shut_my_mouth C "$ST";
-    echo -e "${QN} Sync with clone-bundle ${CL_WYT}[y/n]${NONE}\n"; get "info" "clnbun";
+    echo -e "${QN} Sync with clone-bundle ${YES_NO}\n"; get "info" "clnbun";
     ST="Use clone-bundle"; shut_my_mouth B "$ST";
     dash_it;
     #Sync-Options
@@ -644,7 +644,7 @@ function device_info() # D 3,4
     if [[ -z "${SBCM}" ]]; then
         echo -e "\n${FLD} Device Tree not found";
         echo -e "${INDENT}Invalid Details OR Missing Source";
-        echo -e "\n${QN} Correct the provided details ${CL_WYT}[y/n]${NONE}";
+        echo -e "\n${QN} Correct the provided details ${YES_NO}";
         prompt PD;
         case "$PD" in
             [Yy])
@@ -1413,7 +1413,7 @@ function build() # 4
                     SBMK="mka"; BCORES="";
                     ;;
             esac
-            echo -e "${QN} Keep build output in another directory ${CL_WYT}[y/n]${NONE}\n"; get "info" "outdir";
+            echo -e "${QN} Keep build output in another directory ${YES_NO}\n"; get "info" "outdir";
             ST="Another /out dir"; shut_my_mouth OD "$ST";
             case "$SBOD" in
                 [Yy])
@@ -1437,7 +1437,7 @@ function build() # 4
             echo -e "\n${INF} Output directory - ${CL_WYT}${SBOL}${NONE}"; get "info" "outcln";
             ST="Option Selected"; shut_my_mouth CL "$ST";
             if grep -q 'BUILD_ID=M' "${CALL_ME_ROOT}build/core/build_id.mk"; then
-                echo -e "\n${QN} Use Jack Toolchain ${CL_WYT}[y/n]${NONE}\n"; get "info" "jack";
+                echo -e "\n${QN} Use Jack Toolchain ${YES_NO}\n"; get "info" "jack";
                 ST="Use Jacky"; shut_my_mouth JK "$ST";
                 case "$SBJK" in
                     [yY])
@@ -1453,7 +1453,7 @@ function build() # 4
                 esac
             fi
             if grep -q 'BUILD_ID=N' "${CALL_ME_ROOT}build/core/build_id.mk"; then
-                echo -e "\n${QN} Use Ninja to build Android ${CL_WYT}[y/n]${NONE}\n"; get "info" "ninja";
+                echo -e "\n${QN} Use Ninja to build Android ${YES_NO}\n"; get "info" "ninja";
                 ST="Use Ninja"; shut_my_mouth NJ "$ST";
                 case "$SBNJ" in
                     [yY])
@@ -1523,7 +1523,7 @@ function build() # 4
                     ;;
                 *) echo -e "${INF} No Clean Option Selected.\n" ;;
             esac
-            echo -e "\n${QN} Set a custom user/host ${CL_WYT}[y/n]${NONE}\n";
+            echo -e "\n${QN} Set a custom user/host ${YES_NO}\n";
             ST="Custom user@host"; shut_my_mouth CUH "$ST";
             [[ "$SBCUH" =~ (Y|y) ]] && custuserhost;
             hotel_menu;
@@ -1583,11 +1583,11 @@ function tools() # 5
                 "fetch fresh pkg databases from server<->-y" \
                 "upgrade installed packages<->-u";
         fi
-        # Install packages from multilib-devel
         if ${PKGMGR} -Qq gcc gcc-libs &> /dev/null; then
             echo -e "\n${INF} i686 packages - gcc, gcc-libs might conflict with their 'multilib' counterpart";
             echo -e "\n${INF} Answer ${CL_WYT}y${NONE} to the prompt for removal of the conflicting i686 packages";
         fi
+        # Install packages from multilib-devel
         for item in ${GCC}; do
             if ! pacman -Qq ${item}  &> /dev/null; then
                 cmdprex \
@@ -1624,8 +1624,7 @@ function tools() # 5
 
     function java_select()
     {
-        echo -e "${INF} If you have Installed Multiple Versions of Java or Installed Java from Different Providers (OpenJDK / Oracle)";
-        echo -e "${INF} You may now select the Version of Java which is to be used BY-DEFAULT\n";
+        echo -e "${INF} Select the Version of Java which is to be used by-default\n";
         dash_it;
         case "${PKGMGR}" in
             *apt*)
@@ -1644,7 +1643,7 @@ function tools() # 5
                 cmdprex \
                     "Arch Linux Java Mgr.<->archlinux-java" \
                     "Shows list of Java Pkgs.<->status";
-                echo -e "\n${QN} Please enter desired version [eg. \"java-7-openjdk\"]\n";
+                echo -e "\n${QN} Please type in the desired version [eg. \"java-${1:-8}-openjdk\"]\n";
                 prompt ARCHJA;
                 cmdprex \
                     "Execute command as 'root'<->execroot" \
@@ -1657,7 +1656,7 @@ function tools() # 5
 
     function java_check()
     {
-        java -version > "${TMP}";
+        java -version &> "${TMP}";
         if grep -q "version \"1.$1" "$TMP"; then
             dash_it;
             echo -e "${SCS} OpenJDK-$1 or Java 1.$1.0 has been successfully installed";
@@ -1669,7 +1668,7 @@ function tools() # 5
     {
         echo -ne "\033]0;ScriBt : Java $1\007";
         echo -e "\n${EXE} Installing OpenJDK-$1 (Java 1.$1.0)";
-        echo -e "\n${QN} Remove other Versions of Java ${CL_WYT}[y/n]${NONE}\n";
+        echo -e "\n${QN} Remove other Versions of Java ${YES_NO}\n";
         prompt REMOJA;
         echo;
         case "${PKGMGR}" in
@@ -1692,22 +1691,32 @@ function tools() # 5
                     "OpenJDK $1 Package Name<->openjdk-$1-jdk";
                 ;;
             "pacman")
-                [[ "${REMOJA}" == [Yy] ]] && cmdprex \
-                    "Commad Execution as 'root'<->execroot" \
-                    "Arch Package Mgr.<->pacman" \
-                    "Remove Package<->-R" \
-                    "Skip all Dependency Checks<->-dd" \
-                    "remove configuration files<->-n" \
-                    "remove unnecessary dependencies<->-s" \
-                    "PackageName<->$( pacman -Qqs ^jdk )";
+                if pacman -Qqs ^jdk &> /dev/null && [[ "${REMOJA}" == [Yy] ]]; then
+                    cmdprex \
+                        "Command Execution as 'root'<->execroot" \
+                        "Arch Package Mgr.<->pacman" \
+                        "Remove Package<->-R" \
+                        "Skip all Dependency Checks<->-dd" \
+                        "remove configuration files<->-n" \
+                        "remove unnecessary dependencies<->-s" \
+                        "PackageName<->$( pacman -Qqs ^jdk )";
+                fi
                 cmdprex \
                     "Execute command as 'root'<->execroot" \
                     "Arch Package Mgr.<->pacman" \
                     "Sync Pkgs<->-S" \
-                    "download fresh package databases<->-y"
+                    "download fresh package databases<->-y" \
                     "OpenJDK $1 Package Name<->jdk$1-openjdk";
                 ;;
         esac
+        if [[ -z "$STS" ]]; then
+            echo -e "${QN} Set this version (1.$1) as default ${YES_NO}";
+            echo -e "\n${INF} You can do this later too\n";
+            prompt SBJAVADEF;
+            if [[ "$SBJAVADEF" == [Yy] ]]; then
+                java_check "$1";
+            fi
+        fi
         java_check "$1";
     } # java_install
 
@@ -1906,7 +1915,7 @@ function tools() # 5
         echo -e "\n${INF} This Function allows ScriBt to be executed under any directory";
         echo -e "${INDENT}Temporary Files would be present at working directory itself";
         echo -e "${INDENT}Older ScriBtofications, if present, would be overwritten";
-        echo -e "\n${QN} Shall I ScriBtofy ${CL_WYT}[y/n]${NONE}\n";
+        echo -e "\n${QN} Shall I ScriBtofy ${YES_NO}\n";
         prompt SBFY;
         case "$SBFY" in
             [Yy])
@@ -2123,7 +2132,7 @@ function the_start() # 0
 
     # CHEAT CHEAT CHEAT!
     if [[ -z "$automate" ]]; then
-        echo -e "${QN} Remember Responses for Automation ${CL_WYT}[y/n]${NONE}\n";
+        echo -e "${QN} Remember Responses for Automation ${YES_NO}\n";
         prompt REQ_CONFIG_GEN;
         set -o posix;
         set > "${TV1}";
@@ -2349,7 +2358,7 @@ function prompt()
 export CALL_ME_ROOT=$(echo "$(pwd)/" | sed -e 's#//$#/#g');
 
 # Determine if ScriBt is being run from PATH
-# Use ROM.sh under current directory if it doesn't exist in PAT
+# Use ROM.sh under current directory if it doesn't exist in PATH
 if [[ "$0" == "ROM.sh" ]] && type -p ROM.sh; then
     export PATHDIR="$(type -p ROM.sh | sed 's/ROM\.sh//g')";
 else
@@ -2363,6 +2372,9 @@ export INDENT="    ";
 source "${PATHDIR}src/color_my_life.rc";
 source "${PATHDIR}src/dist_db.rc";
 source "${PATHDIR}src/usage.rc";
+
+# Yes/No statement
+export YES_NO="${CL_WYT}[y/n]${NONE}";
 
 # Show Interrupt Acknowledgement message on receiving SIGINT
 trap interrupt SIGINT;
