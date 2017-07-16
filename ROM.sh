@@ -156,9 +156,9 @@ function exitScriBt() # ID
         echo -e "${CL_LRD}[${NONE}${CL_RED}<${NONE}${CL_LGR}/${NONE}${CL_RED}3${NONE}${CL_LRD}]${NONE} Failed somewhere :(\n";
     fi
     rm -f "${TV1}" "${TV2}" "${TEMP}";
-    [ -f "${PATHDIR}update_message.txt" ] && rm "${PATHDIR}update_message.txt";
-    [ -s "${STMP}" ] || rm "${STMP}"; # If temp_sync.txt is empty, delete it
-    [ -s "${RMTMP}" ] || rm "${RMTMP}"; # If temp_compile.txt is empty, delete it
+    [[ -f "${PATHDIR}update_message.txt" ]] && rm "${PATHDIR}update_message.txt";
+    [[ -s "${STMP}" ]] || rm "${STMP}"; # If temp_sync.txt is empty, delete it
+    [[ -s "${RMTMP}" ]] || rm "${RMTMP}"; # If temp_compile.txt is empty, delete it
     exit "$1";
 } # exitScriBt
 
@@ -209,8 +209,8 @@ function manifest_gen() # D 1,5
         echo -e "\n${QN} Enter the desired remote ${CL_WYT}name${NONE}\n";
         prompt repo_remote --no-repeat;
         line=( "name=\"${repo_name}\"" "path=\"${repo_path}\"" );
-        [ ! -z "${repo_revision}" ] && line=( "${line[*]}" "revision=\"${repo_revision}\"" );
-        [ ! -z "${repo_remote}" ] && line=( "${line[*]}" "remote=\"${repo_remote}\"" );
+        [[ ! -z "${repo_revision}" ]] && line=( "${line[*]}" "revision=\"${repo_revision}\"" );
+        [[ ! -z "${repo_remote}" ]] && line=( "${line[*]}" "remote=\"${repo_remote}\"" );
         if grep -q "${repo_path}" "${MANIFEST}"; then
             echo -e "\n${FLD} Another repo has the same checkout path ${CL_WYT}${repo_path}${NONE}";
             echo -e "\n${INF} Please try again";
@@ -255,7 +255,7 @@ function manifest_gen() # D 1,5
             fi
         done
         line=( "name=\"${remote_name}\"" "fetch=\"${remote_url}\"" );
-        [ ! -z "${remote_revision}" ] && line=( "${line[*]}" "revision=\"${remote_revision}\"" );
+        [[ ! -z "${remote_revision}" ]] && line=( "${line[*]}" "revision=\"${remote_revision}\"" );
         line=( "${lineStart}" "${line[*]}" "${lineEnd}" );
         echo -e "${line[*]}" >> "${FILE}";
         echo -e "\n${SCS} Remote ${remote_name} added";
@@ -446,7 +446,7 @@ function rom_select() # D 1,2
         eval "echo -en \${AOSPR[$CT]//.rc/}" | awk -F "/" '{print $NF}' | sed -e 's/_/ /g';
     done | pr -t -2;
     dash_it;
-    [ -z "$automate" ] && unset SBRN && prompt SBRN;
+    [[ -z "$automate" ]] && unset SBRN && prompt SBRN;
     rom_check "$SBRN";
     ROM_FN="$(echo ${FILE//.rc/} | awk -F "/" '{print $NF}' | sed -e 's/_/ /g')";
     echo -e "\n${INF} You have chosen -> ${CL_WYT}${ROM_FN}${NONE}\n";
@@ -455,7 +455,7 @@ function rom_select() # D 1,2
 
 function shut_my_mouth() # ID
 {
-    if [ ! -z "$automate" ]; then
+    if [[ ! -z "$automate" ]]; then
         RST="SB$1";
         echo -e "${CL_PNK}[!]${NONE} ${ATBT} $2 : ${!RST}";
     else
@@ -577,7 +577,7 @@ function init() # 1
         "branch<->${SBBR}";
     unset BRANCHES MURL CDP REF MNF CT;
     if [[ -z "$STS" ]]; then
-        if [ ! -f "${CALL_ME_ROOT}.repo/local_manifests" ]; then
+        if [[ ! -f "${CALL_ME_ROOT}.repo/local_manifests" ]]; then
             mkdir -pv "${CALL_ME_ROOT}.repo/local_manifests";
         fi
         if [[ -z "$automate" ]]; then
@@ -592,9 +592,9 @@ function init() # 1
 
 function sync() # 2
 {
-    # Change terminal title
-    if [ ! -f .repo/manifest.xml ]; then init; fi;
+    if [[ ! -f "${CALL_ME_ROOT}.repo/manifest.xml" ]]; then init; fi;
     get_rom_info;
+    # Change terminal title
     echo -ne "\033]0;ScriBt : Syncing ${ROM_FN}\007";
     echo -e "\n${EXE} Preparing for Sync\n";
     echo -e "${QN} Number of Threads for Sync \n"; get "info" "jobs";
@@ -629,7 +629,7 @@ function device_info() # D 3,4
 {
     echo -ne "\033]0;ScriBt : Device Info\007";
     # Change ROMNIS to ROMV if ROMV is non-zero
-    [ ! -z "${ROMV}" ] && export ROMNIS="${ROMV}";
+    [[ ! -z "${ROMV}" ]] && export ROMNIS="${ROMV}";
     if [[ -d "${CALL_ME_ROOT}vendor/${ROMNIS}/config" ]]; then
         CNF="vendor/${ROMNIS}/config";
     elif [[ -d "${CALL_ME_ROOT}vendor/${ROMNIS}/configs" ]]; then
@@ -763,7 +763,7 @@ function pre_build() # 3
         function dtree_add()
         {   # AOSP-CAF|RRO|F-AOSP|Flayr|OmniROM|Zephyr
             echo -e "\n${EXE} Adding Lunch Combo in Device Tree";
-            [ ! -f "${DEVDIR}vendorsetup.sh" ] && touch "${DEVDIR}vendorsetup.sh";
+            [[ ! -f "${DEVDIR}vendorsetup.sh" ]] && touch "${DEVDIR}vendorsetup.sh";
             if ! grep -q "${ROMNIS}_${SBDEV}" "${DEVDIR}vendorsetup.sh"; then
                 echo -e "add_lunch_combo ${TARGET}" >> ${DEVDIR}vendorsetup.sh;
             else
@@ -795,7 +795,7 @@ function pre_build() # 3
                 export STRAT_DONE="y"; # File Found, Strat Performed
             fi
         done
-        [ -z "${STRAT_DONE}" ] && dtree_add; # If none of the Strats Worked
+        [[ -z "${STRAT_DONE}" ]] && dtree_add; # If none of the Strats Worked
         echo -e "\n${SCS} Done";
         cd "${CALL_ME_ROOT}";
         dash_it;
@@ -872,7 +872,7 @@ function pre_build() # 3
 
         function create_imk()
         {
-            [ -z "$INTF" ] && INTF="${ROMNIS}.mk";
+            [[ -z "$INTF" ]] && INTF="${ROMNIS}.mk";
             get "misc" "intmake";
             print_makefile_addition "${CNF}/${SBDTP}.mk" "${INTF}";
             print_makefile_addition "${DEVDIR}${DDC}" "${INTF}";
@@ -966,7 +966,7 @@ function pre_build() # 3
             ;;
         aosip)
             # AOSiP-CAF
-            if [ ! -f "vendor/${ROMNIS}/products" ]; then
+            if [[ ! -f "vendor/${ROMNIS}/products" ]]; then
                 INTF="${ROMNIS}.mk";
                 need_for_int;
             else
@@ -975,7 +975,7 @@ function pre_build() # 3
             ;;
         aokp|pac)
             # AOKP-4.4|PAC-5.1
-            if [ ! -f "vendor/${ROMNIS}/products" ]; then
+            if [[ ! -f "vendor/${ROMNIS}/products" ]]; then
                 INTF="${ROMNIS}.mk";
                 need_for_int;
             else
@@ -1194,15 +1194,15 @@ function build() # 4
                     return 1;
                 fi
             fi
-            [ -z "${action_kcl}" ] && kclean;
-            [ ! -z "${SBCUH}" ] && custuserhost;
+            [[ -z "${action_kcl}" ]] && kclean;
+            [[ ! -z "${SBCUH}" ]] && custuserhost;
 
             echo -e "\n${EXE} Compiling the Kernel";
             cmdprex \
                 "Mark variable to be Inherited by child processes<->export" \
                 "Set CPU Architecture<->ARCH=\"${SBKA}\"" \
                 "Set Toolchain Location<->CROSS_COMPILE=\"${SBKTL}/bin/${KCCP}\"";
-            [ ! -z "$SBNT" ] && SBNT="-j${SBNT}";
+            [[ ! -z "$SBNT" ]] && SBNT="-j${SBNT}";
             cmdprex \
                 "GNU make<->make" \
                 "Defconfig to be Initialized<->${SBKD}";
