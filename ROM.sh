@@ -1896,7 +1896,7 @@ function tools() # 5
         cmdprex \
             "Command Execution as 'root'<->execroot" \
             "Install to directory<->install" \
-            "Source Directory<->utils/$1" \
+            "Source Directory<->src/utils/$1" \
             "Destination Directory<->${IDIR}";
         check_utils_version "$1" "installed"; # Check Installed Version
         echo -e "\n${INF} Installed Version of $1 : $VER";
