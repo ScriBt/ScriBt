@@ -539,7 +539,7 @@ function init() # 1
         CDP="--depth=${SBDEP:-1}";
     fi
     # Check for Presence of Repo Binary
-    if ! which repo; then
+    if [[ ! $(which repo) ]]; then
         echo -e "${FLD} ${CL_WYT}repo${NONE} binary isn't installed";
         echo -e "\n${EXE} Installing ${CL_WYT}repo${CL_WYT}";
         [[ ! -d "${HOME}/bin" ]] && mkdir -pv ${HOME}/bin;
@@ -725,7 +725,7 @@ function stop_venv()
 
 function init_bld() # D 3,4
 {
-    echo -e "${EXE} Initializing Build Environment";
+    echo -e "\n${EXE} Initializing Build Environment";
     cmdprex \
         "Execute in current shell<->source" \
         "Environment Setup Script<->build/envsetup.sh";
@@ -862,7 +862,6 @@ function pre_build() # 3
 
     function interactive_mk()
     {
-        init_bld;
         dash_it;
         echo -e "${EXE} Creating Interactive Makefile";
         echo -e "${INDENT}So that device tree gets identified by the ROM's BuildSystem";
@@ -1037,7 +1036,7 @@ function build() # 4
                     "ROM BuildType<->${SBBT}";
                 ;;
             "brunch")
-                echo -e "\n${EXE} Starting Compilation - ${ROM_FN} for ${SBDEV}\n";
+                echo -e "\n${EXE} ${CL_WYT}Starting Compilation : ${ROM_FN} for ${SBDEV}${NONE}\n";
                 cmdprex \
                     "Sync n Build<->${SBSLT}" \
                     "Device Codename<->${SBDEV}";
@@ -1056,6 +1055,8 @@ function build() # 4
         # Sequence ->  GZRs & CarbonROM | AOKP | AOSiP | A lot of ROMs | All ROMs
         for MAKECOMMAND in ${ROMNIS} rainbowfarts kronic bacon otapackage; do
             if grep -q "^${MAKECOMMAND}:" "${CALL_ME_ROOT}build/core/Makefile"; then
+                echo -e "\n${EXE} ${CL_WYT}Starting Compilation : ${ROM_FN} for ${SBDEV}${NONE}\n";
+                pause "4";
                 START=$(date +"%s"); # Build start time
                 cmdprex --out="${RMTMP}" \
                     "GNU make<->${SBMK}" \
@@ -1327,7 +1328,7 @@ function build() # 4
             prompt PATCH_PATH;
             PROJECTS="$(repo list -p)"; # Get all teh projects
             PROJECT_COUNT=$(wc -l <<< "$PROJECTS"); # Count all teh projects
-            [ -f "${CALL_ME_ROOT}${PATCH_PATH}" ] && rm -rf "${CALL_ME_ROOT}${PATCH_PATH}"; # Delete existing patch
+            [[ -f "${CALL_ME_ROOT}${PATCH_PATH}" ]] && rm -rf "${CALL_ME_ROOT}${PATCH_PATH}"; # Delete existing patch
             CT=1;
             echo;
             while read -r PROJECT; do # repo foreach does not work, as it seems to spawn a subshell
@@ -1340,7 +1341,7 @@ function build() # 4
             done <<< "$PROJECTS";
             cd "${CALL_ME_ROOT}";
             echo -e "\n\n${SCS} Done.";
-            [ ! -s "${CALL_ME_ROOT}${PATCH_PATH}" ] &&
+            [[ ! -s "${CALL_ME_ROOT}${PATCH_PATH}" ]] &&
               rm "${CALL_ME_ROOT}${PATCH_PATH}" &&
               echo -e "${INF} Patch was empty, so it was deleted";
         } # patch_creator
@@ -1357,7 +1358,7 @@ function build() # 4
                     patcher;
                     ;;
                 *)
-                    [ "${PATCHES[$PATCHNR]}" ] && apply_patch "${PATCHES[$PATCHNR]}" ||
+                    [[ "${PATCHES[$PATCHNR]}" ]] && apply_patch "${PATCHES[$PATCHNR]}" ||
                     echo -e "\n${FLD} Invalid selection: $PATCHNR";
                     patcher;
                     ;;
@@ -1387,7 +1388,7 @@ function build() # 4
             if [[ -d "${CALL_ME_ROOT}.repo" ]]; then
                 # Get Missing Information
                 get_rom_info;
-                [ -z "$SBDEV" ] && device_info;
+                [[ -z "$SBDEV" ]] && device_info;
             else
                 echo -e "\n${FLD} ROM Source Not Found (Synced)";
                 echo -e "\n${FLD} Please perform an init and sync before doing this";
@@ -1463,13 +1464,13 @@ function build() # 4
                         echo -e "\n${INF} Building Android with Ninja BuildSystem";
                         cmdprex \
                             "Mark variable to be Inherited by child processes<->export" \
-                            "Variable to Use Ninja<->USE_NINJA=true";
+                            "Variable which enables Ninja if set to True<->USE_NINJA=true";
                         ;;
                     [nN])
                         echo -e "\n${INF} Building Android with the Non-Ninja BuildSystem";
                         cmdprex \
                             "Mark variable to be Inherited by child processes<->export" \
-                            "Variable to Disable Ninja<->USE_NINJA=false";
+                            "Variable which disables Ninja if set to False<->USE_NINJA=false";
                         cmdprex \
                             "Command to unset an entity<->unset" \
                             "Unsetting this Var removes Ninja temp files<->BUILDING_WITH_NINJA";
@@ -1828,7 +1829,6 @@ function tools() # 5
         dash_it;
     } # udev_rules
 
-
     function git_creds()
     {
         echo -e "\n${INF} Enter the Details with reference to your ${CL_WYT}GitHub account${NONE}";
@@ -1914,7 +1914,7 @@ function tools() # 5
 
     function scribtofy()
     {
-        echo -e "\n${INF} This Function allows ScriBt to be executed under any directory";
+        echo -e "\n${INF} ${CL_WYT}ScriBtofy${NONE} allows ScriBt to be executed under any directory";
         echo -e "${INDENT}Temporary Files would be present at working directory itself";
         echo -e "${INDENT}Older ScriBtofications, if present, would be overwritten";
         echo -e "\n${QN} Shall I ScriBtofy ${YES_NO}\n";
@@ -1925,11 +1925,12 @@ function tools() # 5
                     echo -e "# ScriBtofy\nexport PATH=\"${CALL_ME_ROOT}:\$PATH\";" > "${HOME}/.scribt";
                     grep -q 'source ${HOME}/.scribt' "${HOME}/.bashrc" || echo -e "\n#ScriBtofy\nsource \${HOME}/.scribt;" >> "${HOME}/.bashrc";
                     echo -e "\n${SCS} Done";
-                    echo -e "\n${INF} Either enter ${CL_WYT}source ${HOME}/.bashrc${NONE} OR ${CL_WYT}Open a new Terminal for changes to take effect";
+                    echo -e "\n${INF} You may end this session if you want to run it in another directory"
+                    echo -e "\n${INF} So, either enter ${CL_WYT}source ${HOME}/.bashrc${NONE} OR ${CL_WYT}Open a new Terminal${NONE} for changes to take effect";
                     echo -e "\n${INF} ${CL_WYT}bash ROM.sh${NONE} under any directory";
                 ;;
             [Nn])
-                echo -e "${FLD} ScriBtofication cancelled";
+                echo -e "\n${FLD} ScriBtofication cancelled";
                 ;;
         esac
         unset SBFY;
@@ -2118,12 +2119,25 @@ function the_start() # 0
     fi
 
     # Where am I ?
-    echo -e "\n${INF} ${CL_WYT}I'm in ${CALL_ME_ROOT}${NONE}\n";
+    echo -e "\n${INF} ${CL_WYT}I'm in ${CALL_ME_ROOT}${NONE}";
 
     # are we 64-bit ??
     if ! [[ $(uname -m) =~ (x86_64|amd64) ]]; then
         echo -e "\n\033[0;31m[!]\033[0m Your Processor is not supported\n";
         exitScriBt 1;
+    fi
+
+    # Suggest user to add ScriBt to PATH
+    # And run it inside another directory
+    if [[ ! -z "${SUGGEST_SCRIBTOFY}" ]]; then
+        center_it "${CL_LBL}Suggestion${NONE}" "1eq0";
+        echo -e "\n${INF} ScriBt's existence in the source directory might cause a ${CL_LRD}Compilation Error${NONE}";
+        echo -e "\n${INF} We suggest installing ScriBt in ${CL_WYT}another${NONE} directory and run ${CL_WYT}ScriBtofy${NONE} [Recommended]";
+        echo -e "${INDENT}This ensures you that any compilation error is not caused by ScriBt";
+        echo -e "\n${INF} After you moved ScriBt, please run ${CL_WYT}ScriBtofy${NONE} from ${CL_WYT}Tools->ScriBtofy${NONE}";
+        unset SUGGEST_SCRIBTOFY;
+        pause "6";
+        dash_it;
     fi
 
     # Dear Computer, Speak English
@@ -2377,8 +2391,10 @@ export CALL_ME_ROOT=$(echo "$(pwd)/" | sed -e 's#//$#/#g');
 # Use ROM.sh under current directory if it doesn't exist in PATH
 if [[ "$0" == "ROM.sh" ]] && type -p ROM.sh; then
     export PATHDIR="$(type -p ROM.sh | sed 's/ROM\.sh//g')";
+    unset SUGGEST_SCRIBTOFY;
 else
     export PATHDIR="${CALL_ME_ROOT}";
+    SUGGEST_SCRIBTOFY="Y";
 fi
 
 # 4 space variable, for indenting multiline information
