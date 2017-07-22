@@ -310,9 +310,9 @@ function manifest_gen() # D 1,5
             echo -e "\n${FLD} Couldn't save the manifest";
             echo -e "\n${INF} Manually copy ${CL_WYT}file.xml${NONE} to .repo/local_manifests/${NAME}.xml\n";
         fi
-        unset CT OP NAME;
         # Delete intermediate manifest
         rm -f "${MANIFEST}";
+        unset CT NAME;
     } # save_me
 
     function manifest_gen_menu()
