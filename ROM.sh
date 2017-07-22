@@ -37,8 +37,6 @@ export NOCHARS_DEF="54";                                               #
 
 function cmdprex() # D ALL
 {
-    # For Unicode chars to appear
-    unset LC_ALL;
     # shellcheck disable=SC2001
     local ARGS=( $(echo "${@// /#}" | sed -e 's/--out=.*txt//') );
     # Argument (Parameter) Array
@@ -72,7 +70,6 @@ function cmdprex() # D ALL
         STS="1";
     fi
     unset -v CT i;
-    export LC_ALL=C;
     dash_it;
 } # cmdprex
 
@@ -161,7 +158,7 @@ function exitScriBt() # ID
     else
         echo -e "${CL_LRD}[${NONE}${CL_RED}<${NONE}${CL_LGR}/${NONE}${CL_RED}3${NONE}${CL_LRD}]${NONE} Failed somewhere :(\n";
     fi
-    rm -f "${TV1}" "${TV2}" "${TEMP}";
+    rm -f "${TV1}" "${TV2}" "${TMP}";
     [[ -f "${PATHDIR}update_message.txt" ]] && rm "${PATHDIR}update_message.txt";
     [[ -s "${STMP}" ]] || rm "${STMP}"; # If temp_sync.txt is empty, delete it
     [[ -s "${RMTMP}" ]] || rm "${RMTMP}"; # If temp_compile.txt is empty, delete it
@@ -2132,18 +2129,28 @@ function the_start() # 0
     if [[ ! -z "${SUGGEST_SCRIBTOFY}" ]]; then
         center_it "${CL_LBL}Suggestion${NONE}" "1eq0";
         echo -e "\n${INF} ScriBt's existence in the source directory might cause a ${CL_LRD}Compilation Error${NONE}";
-        echo -e "\n${INF} We suggest installing ScriBt in ${CL_WYT}another${NONE} directory and run ${CL_WYT}ScriBtofy${NONE} [Recommended]";
-        echo -e "${INDENT}This ensures you that any compilation error is not caused by ScriBt";
-        echo -e "\n${INF} After you moved ScriBt, please run ${CL_WYT}ScriBtofy${NONE} from ${CL_WYT}Tools->ScriBtofy${NONE}";
+        echo -e "\n${INF} We recommend installing ScriBt in ${CL_WYT}another${NONE} directory and running ${CL_WYT}ScriBtofy${NONE}";
+        echo -e "${INDENT}This ensures that no compilation errors are caused by ScriBt";
+        echo -e "\n${INF} After you moved ScriBt to another directory, please run ${CL_WYT}ScriBtofy${NONE} from ${CL_WYT}Tools->ScriBtofy${NONE}";
         unset SUGGEST_SCRIBTOFY;
         pause "6";
         dash_it;
     fi
 
     # Dear Computer, Speak English
-    cmdprex \
+    if locale -a | grep "C.UTF-8" -q; then
+        # C.UTF-8 supported
+        cmdprex \
         "Mark variable to be inherited by child processes<->export" \
-        "Variable which overrides Localization\nValue 'C' sets it to Default Language<->LC_ALL=C";
+        "Three variables which override the localization\n(Only LC_ALL isn't enough, because it is only honored when set to \"C\")\nValue 'C.UTF-8' sets it to the Default Language with the UTF-8 charset<->L{C_ALL,ANGUAGE,ANG}=C.UTF-8";
+    else
+        # C.UTF-8 not supported, fall back to just C
+        echo -e "${EXE} The locale ${CL_WYT}C.UTF-8${NONE} is not available. Unicode chars may or may not render correctly.";
+        cmdprex \
+        "Mark variable to be inherited by child processes<->export" \
+        "Variable which overrides the localization\nValue 'C' sets it to the Default Language<->LC_ALL=C";
+    fi
+    
 
     # Start a python2 virtualenv for some Arch Linux systems
     start_venv;
@@ -2253,8 +2260,6 @@ function center_it()
     #
     # [OutputEndsAbove]
 
-    # For Unicode chars to appear
-    unset LC_ALL;
     if [[ -z "$3" ]]; then
         local NOCHARS="${NOCHARS_DEF}";
     else
@@ -2295,7 +2300,6 @@ function center_it()
     for (( i=0; i<${NB:-0}; i++ )); do echo; done;
     echo -e "${CL_WYT}${SPACEL}${NONE}${SP}$1${SP}${CL_WYT}${SPACER}${NONE}";
     for (( i=0; i<${NA:-0}; i++ )); do echo; done;
-    export LC_ALL=C;
 } # center_it
 
 function dash_it()
@@ -2315,8 +2319,6 @@ function dash_it()
     #
     # [OutputEndsAbove]
 
-    # For Unicode chars to appear
-    unset LC_ALL;
     local NOCHARS="${2:-${NOCHARS_DEF}}";
     local NB="$1";
     local i;
@@ -2330,7 +2332,6 @@ function dash_it()
     done
     echo -en "${NONE}";
     echo -e "\n";
-    export LC_ALL=C;
 } # dash_it
 
 # 'sudo' command with custom prompt '[#]' in Pink
@@ -2347,8 +2348,6 @@ function pause()
     # pause <no-of-0.5-sec-pauses>
     # Default number of pauses : 4
 
-    # For Unicode chars to appear
-    unset LC_ALL;
     local TIME="${1:-4}";
     local i=1;
     if ! sign_exists "\u25C9"; then
@@ -2366,7 +2365,6 @@ function pause()
     done
     echo -en "$(sleep 0.5)\r${CLEAR[*]}\r";
     unset CLEAR;
-    export LC_ALL=C;
 } # pause
 
 
