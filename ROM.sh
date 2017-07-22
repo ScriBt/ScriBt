@@ -759,9 +759,9 @@ function pre_build() # 3
         function dtree_add()
         {   # AOSP-CAF|RRO|F-AOSP|Flayr|OmniROM|Zephyr
             echo -e "\n${EXE} Adding Lunch Combo in Device Tree";
-            [[ ! -f "${DEVDIR}vendorsetup.sh" ]] && touch "${DEVDIR}vendorsetup.sh";
-            if ! grep -q "${ROMNIS}_${SBDEV}" "${DEVDIR}vendorsetup.sh"; then
-                echo -e "add_lunch_combo ${TARGET}" >> ${DEVDIR}vendorsetup.sh;
+            [[ ! -f "${CALL_ME_ROOT}${DEVDIR}vendorsetup.sh" ]] && touch "${CALL_ME_ROOT}${DEVDIR}vendorsetup.sh";
+            if ! grep -q "${ROMNIS}_${SBDEV}" "${CALL_ME_ROOT}${DEVDIR}vendorsetup.sh"; then
+                echo -e "add_lunch_combo ${TARGET}" >> "${CALL_ME_ROOT}${DEVDIR}vendorsetup.sh";
             else
                 echo -e "\n${SCS} Lunch combo already added to vendorsetup.sh";
             fi
@@ -864,7 +864,7 @@ function pre_build() # 3
         echo -e "${EXE} Creating Interactive Makefile";
         echo -e "${INDENT}So that device tree gets identified by the ROM's BuildSystem";
         pause "4";
-        cd "${DEVDIR}";
+        cd "${CALL_ME_ROOT}${DEVDIR}";
 
         function create_imk()
         {
