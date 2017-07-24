@@ -3,7 +3,7 @@
 #========< Copyright 2016-2017, Arvindraj Thangaraj - "a7r3" >=========#
 #=============< Credits to Łukasz "JustArchi" Domeradzki >=============#
 
-[ ! -z "${PATHDIR}" ] && cd "${PATHDIR}";
+[[ ! -z "${PATHDIR}" ]] && cd "${PATHDIR}";
 # Update local
 git fetch -q --tags origin;
 # Remote VERSION Tag
@@ -13,11 +13,11 @@ LVER=$(git describe --tags "$(git rev-list --max-count=1 ${BRANCH})");
 echo -e "\n${EXE} ${CL_WYT}Checking for Updates${NONE}\n";
 # Get all new tags
 NEW=$(comm -13 <(git tag --merged master | sort) <(git tag --merged origin/master | sort));
-if [ -n "$NEW" ]; then
+if [[ -n "$NEW" ]]; then
     while read -r TAG; do
         if git rev-parse "$TAG"^'{tag}' -- &> /dev/null; then
             MSG=$(git cat-file tag "$TAG" | tail -n+6);
-            [ ! -z "$MSG" ] && echo -e "${CL_WYT}${MSG}${NONE}\n";
+            [[ ! -z "$MSG" ]] && echo -e "${CL_WYT}${MSG}${NONE}\n";
         fi
     done <<< "$NEW";
     LHEAD=$(git rev-parse HEAD);

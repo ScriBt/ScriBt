@@ -2091,6 +2091,21 @@ function the_start() # 0
     # is the distro supported ??
     pkgmgr_check;
 
+    # Dear Computer, Speak English
+    if locale -a | grep "C.UTF-8" -q; then
+        # 'C.UTF-8' supported
+        cmdprex \
+            "Mark variable to be inherited by child processes<->export" \
+            "Three variables which override the localization\n(Only LC_ALL isn't enough, because it is only honored when set to \"C\")\nValue 'C.UTF-8' sets it to the Default Language with the UTF-8 charset<->L{C_ALL,ANGUAGE,ANG}=C.UTF-8";
+    else
+        # 'C.UTF-8' not supported, fall back to 'C'
+        echo -e "${INF} The locale ${CL_WYT}C.UTF-8${NONE} is not available";
+        echo -e "${INDENT}Unicode chars may or may not render correctly";
+        cmdprex \
+            "Mark variable to be inherited by child processes<->export" \
+            "Variable which overrides the localization\nValue 'C' sets it to the Default Language<->LC_ALL=C";
+    fi
+
     if [[ ! -d "${PATHDIR}.git" ]]; then # tell the user to re-clone ScriBt
         echo -e "\n${FLD} Folder ${CL_WYT}.git${NONE} not found";
         echo -e "\n${INF} ${CL_WYT}Re-clone${NONE} ScriBt for upScriBt to work properly";
@@ -2136,21 +2151,6 @@ function the_start() # 0
         pause "6";
         dash_it;
     fi
-
-    # Dear Computer, Speak English
-    if locale -a | grep "C.UTF-8" -q; then
-        # C.UTF-8 supported
-        cmdprex \
-        "Mark variable to be inherited by child processes<->export" \
-        "Three variables which override the localization\n(Only LC_ALL isn't enough, because it is only honored when set to \"C\")\nValue 'C.UTF-8' sets it to the Default Language with the UTF-8 charset<->L{C_ALL,ANGUAGE,ANG}=C.UTF-8";
-    else
-        # C.UTF-8 not supported, fall back to just C
-        echo -e "${EXE} The locale ${CL_WYT}C.UTF-8${NONE} is not available. Unicode chars may or may not render correctly.";
-        cmdprex \
-        "Mark variable to be inherited by child processes<->export" \
-        "Variable which overrides the localization\nValue 'C' sets it to the Default Language<->LC_ALL=C";
-    fi
-    
 
     # Start a python2 virtualenv for some Arch Linux systems
     start_venv;
