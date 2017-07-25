@@ -1164,13 +1164,13 @@ function build() # 4
                 1)
                     cmdprex \
                         "GNU make<->make" \
-                        "Target name to clean objects, modules, and Kernel Configuration<->clean" \
+                        "Target name to clean objects and modules only<->clean" \
                         "No. of Jobs<->-j${SBNT}" \
                     ;;
                 2)
                     cmdprex \
                         "GNU make<->make" \
-                        "Target name to clean objects and modules only<->mrproper" \
+                        "Target name to clean objects, modules, and Kernel Configuration<->mrproper" \
                         "No. of Jobs<->-j${SBNT}" \
                     ;;
             esac
