@@ -2094,19 +2094,9 @@ function the_start() # 0
     pkgmgr_check;
 
     # Dear Computer, Speak English
-    if locale -a | grep "C.UTF-8" -q; then
-        # 'C.UTF-8' supported
-        cmdprex \
-            "Mark variable to be inherited by child processes<->export" \
-            "Three variables which override the localization\n(Only LC_ALL isn't enough, because it is only honored when set to \"C\")\nValue 'C.UTF-8' sets it to the Default Language with the UTF-8 charset<->L{C_ALL,ANGUAGE,ANG}=C.UTF-8";
-    else
-        # 'C.UTF-8' not supported, fall back to 'C'
-        echo -e "\n${INF} The locale ${CL_WYT}C.UTF-8${NONE} is not available";
-        echo -e "${INDENT}Unicode chars may or may not render correctly";
-        cmdprex \
-            "Mark variable to be inherited by child processes<->export" \
-            "Variable which overrides the localization\nValue 'C' sets it to the Default Language<->LC_ALL=C";
-    fi
+    cmdprex \
+        "Mark variable to be inherited by child processes<->export" \
+        "Variable which overrides the localization\nValue 'C' sets it to the Default Language<->LC_ALL=C";
 
     if [[ ! -d "${PATHDIR}.git" ]]; then # tell the user to re-clone ScriBt
         echo -e "\n${FLD} Folder ${CL_WYT}.git${NONE} not found";
@@ -2262,6 +2252,8 @@ function center_it()
     #
     # [OutputEndsAbove]
 
+    # Dear Computer, allow Unicode to speak
+    unset LC_ALL;
     if [[ -z "$3" ]]; then
         local NOCHARS="${NOCHARS_DEF}";
     else
@@ -2302,6 +2294,7 @@ function center_it()
     for (( i=0; i<${NB:-0}; i++ )); do echo; done;
     echo -e "${CL_WYT}${SPACEL}${NONE}${SP}$1${SP}${CL_WYT}${SPACER}${NONE}";
     for (( i=0; i<${NA:-0}; i++ )); do echo; done;
+    export LC_ALL="C";
 } # center_it
 
 function dash_it()
@@ -2321,6 +2314,8 @@ function dash_it()
     #
     # [OutputEndsAbove]
 
+    # Dear Computer, allow Unicode to speak
+    unset LC_ALL;
     local NOCHARS="${2:-${NOCHARS_DEF}}";
     local NB="$1";
     local i;
@@ -2334,6 +2329,7 @@ function dash_it()
     done
     echo -en "${NONE}";
     echo -e "\n";
+    export LC_ALL="C";
 } # dash_it
 
 # 'sudo' command with custom prompt '[#]' in Pink
@@ -2350,6 +2346,8 @@ function pause()
     # pause <no-of-0.5-sec-pauses>
     # Default number of pauses : 4
 
+    # Dear Computer, allow Unicode to speak
+    unset LC_ALL;
     local TIME="${1:-4}";
     local i=1;
     if ! sign_exists "\u25C9"; then
@@ -2367,6 +2365,7 @@ function pause()
     done
     echo -en "$(sleep 0.5)\r${CLEAR[*]}\r";
     unset CLEAR;
+    export LC_ALL="C";
 } # pause
 
 
