@@ -1117,6 +1117,8 @@ function build() # 4
                 SBKD=$(eval "echo \${KDEFS[$(( CT - 1 ))]}" | awk -F "/" '{print $4}');
                 SBKA=$(eval "echo \${KDEFS[$(( CT - 1 ))]}" | awk -F "/" '{print $2}');
             fi
+            # arm64 devices' toolchain prefix is aarch64
+            [[ "${SBKA}" == "arm64" ]] && SBKA="aarch64";
             echo -e "\n${INF} Arch : ${SBKA}";
             echo -e "\n${QN} Number of Jobs / Threads\n";
             BCORES=$(grep -c ^processor /proc/cpuinfo); # CPU Threads/Cores
@@ -2099,7 +2101,7 @@ function the_start() # 0
             "Three variables which override the localization\n(Only LC_ALL isn't enough, because it is only honored when set to \"C\")\nValue 'C.UTF-8' sets it to the Default Language with the UTF-8 charset<->L{C_ALL,ANGUAGE,ANG}=C.UTF-8";
     else
         # 'C.UTF-8' not supported, fall back to 'C'
-        echo -e "${INF} The locale ${CL_WYT}C.UTF-8${NONE} is not available";
+        echo -e "\n${INF} The locale ${CL_WYT}C.UTF-8${NONE} is not available";
         echo -e "${INDENT}Unicode chars may or may not render correctly";
         cmdprex \
             "Mark variable to be inherited by child processes<->export" \
