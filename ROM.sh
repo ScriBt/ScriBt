@@ -1129,6 +1129,10 @@ function build() # 4
                 SBNT="$BCORES";
                 echo -e "\n${INF} Using Maximum no of threads : $BCORES";
             fi
+            echo -e "${QN} Specify directory for kernel output files";
+            echo -e "\n${INF} You may specify it from ${CL_WYT}root${NONE} OR ${CL_WYT}inside this directory${NONE}";
+            echo -e "${INDENT}eg. ${CL_WYT}${HOME}/something/out${NONE} OR ${CL_WYT}out${NONE} respectively\n";
+            ST="Kernel Output Directory"; shut_my_mouth KOUT "$ST";
             export action_kinit="done";
         } # kinit
 
@@ -1165,12 +1169,14 @@ function build() # 4
                     cmdprex \
                         "GNU make<->make" \
                         "Target name to clean objects and modules only<->clean" \
+                        "Kernel Output directory<->O=${SBKOUT}" \
                         "No. of Jobs<->-j${SBNT}" \
                     ;;
                 2)
                     cmdprex \
                         "GNU make<->make" \
                         "Target name to clean objects, modules, and Kernel Configuration<->mrproper" \
+                        "Kernel Output directory<->O=${SBKOUT}" \
                         "No. of Jobs<->-j${SBNT}" \
                     ;;
             esac
@@ -1204,11 +1210,13 @@ function build() # 4
             [[ ! -z "$SBNT" ]] && SBNT="-j${SBNT}";
             cmdprex \
                 "GNU make<->make" \
+                "Kernel Output directory<->O=${SBKOUT}" \
                 "Defconfig to be Initialized<->${SBKD}";
             cmdprex \
                 "GNU make<->make" \
+                "Kernel Output directory<->O=${SBKOUT}" \
                 "No. of Jobs<->${SBNT}";
-            if [[ ! -z "${STS}" ]]; then
+            if [[ -z "${STS}" ]]; then
                 echo -e "\n${SCS} Compiled Successfully";
             else
                 echo -e "\n${FLD} Compilation failed";
