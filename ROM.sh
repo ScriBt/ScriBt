@@ -1118,7 +1118,7 @@ function build() # 4
                 SBKA=$(eval "echo \${KDEFS[$(( CT - 1 ))]}" | awk -F "/" '{print $2}');
             fi
             # arm64 devices' toolchain prefix is aarch64
-            [[ "${SBKA}" == "arm64" ]] && SBKA="aarch64";
+            if [[ "${SBKA}" == "arm64" ]]; then SBKPRFX="aarch64"; else SBKPRFX="${SBKA}"; fi;
             echo -e "\n${INF} Arch : ${SBKA}";
             echo -e "\n${QN} Number of Jobs / Threads\n";
             BCORES=$(grep -c ^processor /proc/cpuinfo); # CPU Threads/Cores
@@ -1139,7 +1139,7 @@ function build() # 4
             echo -e "\n${INF} Example - ${CL_WYT}/home/foo/tc${NONE}\n"
             ST="Toolchain Location"; shut_my_mouth KTL "$ST";
             if [[ -d "${SBKTL}" ]]; then
-                KCCP=$(find ${SBKTL}/bin/${SBKA}*gcc | grep -v 'androidkernel' | sed -e 's/gcc//g' -e 's/.*bin\///g');
+                KCCP=$(find ${SBKTL}/bin/${SBKPRFX}*gcc | grep -v 'androidkernel' | sed -e 's/gcc//g' -e 's/.*bin\///g');
                 if [[ ! -z "${KCCP}" ]]; then
                     echo -e "\n${SCS} Toolchain Detected";
                     echo -e "\n${INF} Toolchain Prefix : ${KCCP}\n";
@@ -2099,7 +2099,7 @@ function the_start() # 0
         "Variable which overrides the localization\nValue 'C' sets it to the Default Language<->LC_ALL=C";
 
     if [[ ! -d "${PATHDIR}.git" ]]; then # tell the user to re-clone ScriBt
-        echo -e "\n${FLD} Folder ${CL_WYT}.git${NONE} not found";
+        echo -e "${FLD} Folder ${CL_WYT}.git${NONE} not found";
         echo -e "\n${INF} ${CL_WYT}Re-clone${NONE} ScriBt for upScriBt to work properly";
         echo -e "\n${FLD} Update-Check Cancelled";
         echo -e "\n${INF} No modifications have been done\n";
@@ -2109,14 +2109,14 @@ function the_start() # 0
         if [[ "${BRANCH}" == "master" ]]; then
             # Download the Remote Version of Updater, determine the Internet Connectivity by working of this command
             if curl -fs -o "${PATHDIR}upScriBt.sh" "https://raw.githubusercontent.com/ScriBt/ScriBt/${BRANCH}/src/upScriBt.sh"; then
-                echo -e "\n${SCS} Internet Connectivity : ONLINE";
+                echo -e "${SCS} Internet Connectivity : ONLINE";
                 bash "${PATHDIR}src/upScriBt.sh" "$0" "$1";
             else
-                echo -e "\n${FLD} Internet Connectivity : OFFLINE";
+                echo -e "${FLD} Internet Connectivity : OFFLINE";
                 echo -e "\n${INF} Please connect to the Internet for complete functioning of ScriBt";
             fi
         else
-            echo -e "\n${INF} Current working branch is not ${CL_WYT}master${NONE} [${BRANCH}]";
+            echo -e "${INF} Current working branch is not ${CL_WYT}master${NONE} [${BRANCH}]";
             echo -e "\n${FLD} Update-Check Cancelled";
             echo -e "\n${INF} No modifications have been done";
         fi
