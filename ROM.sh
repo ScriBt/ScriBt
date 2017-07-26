@@ -1225,10 +1225,10 @@ function build() # 4
 
         echo -ne "\033]0;ScriBt : KernelBuilding\007";
         center_it "${CL_LCN}[!]${NONE} ${CL_WYT}Kernel Building${NONE} ${CL_LCN}[!]${NONE}" "1eq1";
-        echo -e "Building on : ${KBUILD_BUILD_USER:-$(whoami)}@${KBUILD_BUILD_HOST:-$(hostname)}";
-        echo -e "Arch : ${SBKA:-Not Set}";
-        echo -e "Definition Config : ${SBKD:-Not Set}";
-        echo -e "Toolchain : ${SBKTL:-Not Set}\n";
+        echo -e "${CL_WYT}Building on${NONE} : ${KBUILD_BUILD_USER:-$(whoami)}@${KBUILD_BUILD_HOST:-$(hostname)}";
+        echo -e "${CL_WYT}Arch${NONE} : ${SBKA:-Not Set}";
+        echo -e "${CL_WYT}Definition Config${NONE} : ${SBKD:-Not Set}";
+        echo -e "${CL_WYT}Toolchain${NONE} : $(echo ${SBKTL:-Not Set} | awk -F "/" '{print $NF}')\n";
         echo -e "1. Initialize the Kernel";
         echo -e "2. Setup Toolchain";
         echo -e "3. Clean Kernel output";
