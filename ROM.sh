@@ -2160,7 +2160,7 @@ function the_start() # 0
 
     # CHEAT CHEAT CHEAT!
     if [[ -z "$automate" ]]; then
-        echo -e "${QN} Remember Responses for Automation ${YES_NO}\n";
+        echo -e "\n${QN} Remember Responses for Automation ${YES_NO}\n";
         prompt REQ_CONFIG_GEN;
         set -o posix;
         set > "${TV1}";
@@ -2396,7 +2396,7 @@ export CALL_ME_ROOT=$(echo "$(pwd)/" | sed -e 's#//$#/#g');
 
 # Determine if ScriBt is being run from PATH
 # Use ROM.sh under current directory if it doesn't exist in PATH
-if [[ "$0" == "ROM.sh" ]] && type -p ROM.sh; then
+if [[ "$0" == "ROM.sh" ]] && [[ $(type -p ROM.sh) ]]; then
     export PATHDIR="$(type -p ROM.sh | sed 's/ROM\.sh//g')";
     unset SUGGEST_SCRIBTOFY;
 else
