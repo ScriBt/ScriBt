@@ -77,7 +77,7 @@ function cherrypick() # Automated Use only
 {
     echo -ne '\033]0;ScriBt : Picking Cherries\007';
     center_it "${CL_LRD}Pick those Cherries${NONE}" "1eq";
-    echo -e "\n${EXE} ${ATBT} Attempting to Cherry-Pick Provided Commits\n";
+    echo -e "\n${ATBT} Attempting to Cherry-Pick Provided Commits\n";
     cd "${CALL_ME_ROOT}$1" || exitScriBt 1;
     git fetch ${2/\/tree\// };
     git cherry-pick "$3";
@@ -455,7 +455,7 @@ function shut_my_mouth() # ID
 {
     if [[ ! -z "$automate" ]]; then
         local RST="SB$1";
-        echo -e "${CL_PNK}[!]${NONE} ${ATBT} $2 : ${!RST}";
+        echo -e "${ATBT} $2 : ${!RST}";
     else
         prompt SB2;
         if [[ -z "$3" ]]; then
@@ -809,7 +809,7 @@ function pre_build() # 3
                 echo -e "\n${QN} Enter the Desired Highlighted Number\n";
                 prompt SBBTR;
             else
-                echo -e "${INF} ${ATBT} Resolution Chosen : ${SBBTR}";
+                echo -e "${ATBT} Resolution Chosen : ${SBBTR}";
             fi
         } # bootanim
 
@@ -2156,7 +2156,7 @@ function the_start() # 0
     start_venv;
 
     # AutoBot
-    ATBT="${CL_WYT}*${NONE}${CL_LRD}AutoBot${NONE}${CL_WYT}*${NONE}";
+    ATBT="${CL_PNK}[!]${NONE}";
 
     # CHEAT CHEAT CHEAT!
     if [[ -z "$automate" ]]; then
@@ -2165,7 +2165,7 @@ function the_start() # 0
         set -o posix;
         set > "${TV1}";
     else
-        echo -e "\n${CL_LRD}[${NONE}${CL_YEL}!${NONE}${CL_LRD}]${NONE} ${ATBT} Cheat Code shut_my_mouth applied. I won't ask questions anymore";
+        echo -e "\n${ATBT} Cheat Code shut_my_mouth applied. I won't ask questions anymore";
     fi
     echo -e "\n${EXE} ./action${CL_LRD}.SHOW_LOGO${NONE}";
     pause "4";
@@ -2450,7 +2450,7 @@ fi
 if [[ "$1" == "automate" ]]; then
     export automate="yus_do_eet";
     the_start; # Pre-Initial Stage
-    echo -e "${INF} ${ATBT} Lem'me do your work";
+    echo -e "${ATBT} Lem'me do your work";
     automator;
 elif [[ -z "$1" ]]; then
     interactive_run;
