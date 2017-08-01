@@ -497,7 +497,7 @@ function set_ccvars() # D 4,5
 function init() # 1
 {
     # change terminal title
-    echo -ne '\033]0;ScriBt : Pre-Build\007';
+    echo -ne '\033]0;ScriBt : Init\007';
     rom_select;
     pause "4";
     echo -e "${EXE} Detecting Available Branches in ${ROM_FN} Repository";
