@@ -2023,7 +2023,7 @@ function tools() # 5
         center_it "7. Install ninja ${CL_WYT}~${NONE}" "sp";
         center_it "8. Install ccache ${CL_WYT}~${NONE}" "sp";
         center_it "9. Install repo ${CL_WYT}~${NONE}" "sp";
-        center_it "10. Add ScriBt to PATH" "sp";
+        center_it "10. ScriBtofy" "sp";
         center_it "11. Create a ScriBt Update [DEV]" "sp";
         center_it "12. Generate a Custom Manifest" "sp";
 # TODO: center_it "X. Find an Android Module's Directory" "sp";
