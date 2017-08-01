@@ -741,11 +741,9 @@ function pre_build() # 3
     # To prevent missing information, if user starts directly from here
     get_rom_info;
     init_bld;
-    if [[ -z "${SBDEV}" ]]; then
-        if ! device_info; then
-            echo -e "${FLD} Failed to get Device Info";
-            return 1;
-        fi
+    if ! device_info; then
+        echo -e "${FLD} Failed to get Device Info";
+        return 1;
     fi
     # Change terminal title
     echo -ne '\033]0;ScriBt : Pre-Build\007'
