@@ -1131,6 +1131,7 @@ function build() # 4
             echo -e "\n${INF} You may specify it from ${CL_WYT}root${NONE} OR ${CL_WYT}inside this directory${NONE}";
             echo -e "${INDENT}eg. ${CL_WYT}${HOME}/something/out${NONE} OR ${CL_WYT}out${NONE} respectively\n";
             ST="Kernel Output Directory"; shut_my_mouth KOUT "$ST";
+            [[ ! -d "${SBKOUT}" ]] && mkdir "${SBKOUT}";
             export action_kinit="done";
         } # kinit
 
@@ -1161,6 +1162,10 @@ function build() # 4
             echo -e "\n${INF} Cleaning Levels\n";
             echo -e "1. Clean Intermediate files";
             echo -e "2. 1 + Clean the Current Kernel Configuration\n";
+            if [[ $(ls -A "${SBKOUT}") ]]; then
+                echo -e "${INF} Directory ${CL_WYT}${SBKOUT}${NONE} Empty, Nothing to clean\n";
+                return 1;
+            fi
             ST="Clean Method"; shut_my_mouth CK "$ST";
             case "${SBCK}" in
                 1)
@@ -1226,7 +1231,7 @@ function build() # 4
         echo -e "${CL_WYT}Building on${NONE} : ${KBUILD_BUILD_USER:-$(whoami)}@${KBUILD_BUILD_HOST:-$(hostname)}";
         echo -e "${CL_WYT}Arch${NONE} : ${SBKA:-Not Set}";
         echo -e "${CL_WYT}Definition Config${NONE} : ${SBKD:-Not Set}";
-        echo -e "${CL_WYT}Toolchain${NONE} : $(echo ${SBKTL:-Not Set} | awk -F "/" '{print $NF}')\n";
+        echo -e "${CL_WYT}Toolchain Prefix${NONE} : ${KCCP:-Not Set}\n";
         echo -e "1. Initialize the Kernel";
         echo -e "2. Setup Toolchain";
         echo -e "3. Clean Kernel output";
