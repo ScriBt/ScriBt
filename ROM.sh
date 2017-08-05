@@ -1138,11 +1138,14 @@ function build() # 4
         function settc()
         {
             echo -e "\n${INF} Make sure you have downloaded (synced) a Toolchain for compiling the kernel";
-            echo -e "\n${QN} Point me to the location of the toolchain [ from \"/\" ]";
-            echo -e "\n${INF} Example - ${CL_WYT}/home/foo/tc${NONE}\n"
+            echo -e "\n${QN} Point me to the location of the toolchain from \"/\"";
+            echo -e "\n${INF} Example - ${CL_WYT}${HOME}/toolchain${NONE}\n";
             ST="Toolchain Location"; shut_my_mouth KTL "$ST";
             if [[ -d "${SBKTL}" ]]; then
-                KCCP=$(find ${SBKTL}/bin/${SBKPRFX}*gcc | grep -v 'androidkernel' | sed -e 's/gcc//g' -e 's/.*bin\///g');
+                KCCP=$(find ${SBKTL}/bin/${SBKPRFX}*gcc);
+                if [[ $(echo "$KCCP" | grep -q 'androidkernel') ]]; then
+                    KCCP="$(echo "$KCCP" | grep 'androidkernel')";
+                fi
                 if [[ ! -z "${KCCP}" ]]; then
                     echo -e "\n${SCS} Toolchain Detected";
                     echo -e "\n${INF} Toolchain Prefix : ${KCCP}\n";
@@ -1162,7 +1165,7 @@ function build() # 4
             echo -e "\n${INF} Cleaning Levels\n";
             echo -e "1. Clean Intermediate files";
             echo -e "2. 1 + Clean the Current Kernel Configuration\n";
-            if [[ $(ls -A "${SBKOUT}") ]]; then
+            if [[ ! $(ls -A "${SBKOUT}") ]]; then
                 echo -e "${INF} Directory ${CL_WYT}${SBKOUT}${NONE} Empty, Nothing to clean\n";
                 return 1;
             fi
