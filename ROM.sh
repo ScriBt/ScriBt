@@ -1142,8 +1142,9 @@ function build() # 4
             echo -e "\n${INF} Example - ${CL_WYT}${HOME}/toolchain${NONE}\n";
             ST="Toolchain Location"; shut_my_mouth KTL "$ST";
             if [[ -d "${SBKTL}" ]]; then
-                KCCP=$(find ${SBKTL}/bin/${SBKPRFX}*gcc);
-                if [[ $(echo "$KCCP" | grep -q 'androidkernel') ]]; then
+                KCCP=$(find ${SBKTL}/bin/${SBKPRFX}*gcc | sed -e 's/gcc//g' -e 's/.*bin\///g');
+                # Use 'androidkernel-' symlink'd prefix if exists
+                if echo "$KCCP" | grep -q 'androidkernel'; then
                     KCCP="$(echo "$KCCP" | grep 'androidkernel')";
                 fi
                 if [[ ! -z "${KCCP}" ]]; then
