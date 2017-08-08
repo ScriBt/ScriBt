@@ -1,0 +1,12 @@
+#!/bin/bash
+# Ubuntu
+# Includes official/unofficial "flavors"
+
+case "${VER}" in
+    12.04|12.10) DYR="D12" ;; # Distro(s) released in 2012
+    13.04|13.10) DYR="D13" ;; # Distro(s) released in 2013
+    14.04|14.10) DYR="D14" ;; # Distro(s) released in 2014
+    15.04|15.10) DYR="D15" ;; # Distro(s) released in 2015
+    16.04|16.10) DYR="D16" ;; # Distro(s) released in 2016
+    17.04) DYR="D17" ;; # Distro(s) released in 2017
+esac

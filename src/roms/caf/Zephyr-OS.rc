@@ -1,0 +1,4 @@
+ROM_NAME=( Zephyr-Os );
+MAN=( manifest.git );
+ROMNIS="aosp";
+ROMV="zos"

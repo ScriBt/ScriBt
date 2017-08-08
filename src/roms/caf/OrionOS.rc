@@ -1,0 +1,3 @@
+ROM_NAME=( TeamOrion );
+MAN=( platform_manifest.git );
+ROMNIS="orion";

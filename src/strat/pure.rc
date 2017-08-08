@@ -1,0 +1,4 @@
+#!/bin/bash
+
+VENF="${SBDEV}.mk";
+echo -e "# Include pure configuration\ninclude vendor/pure/configs/pure_phone.mk" >> "${VENF}";

@@ -1,0 +1,3 @@
+ROM_NAME=( OmniROM );
+MAN=( manifest.git );
+ROMNIS="omni";

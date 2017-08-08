@@ -1,0 +1,3 @@
+ROM_NAME=( VanirAOSP );
+MAN=( platform_manifest.git );
+ROMNIS="vanir";

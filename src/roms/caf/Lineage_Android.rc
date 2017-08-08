@@ -1,0 +1,4 @@
+ROM_NAME=( LineageOS );
+MAN=( android.git );
+ROMNIS="lineage";
+ROMV="cm"

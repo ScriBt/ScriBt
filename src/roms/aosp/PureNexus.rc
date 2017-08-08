@@ -1,0 +1,3 @@
+ROM_NAME=( PureNexusProject );
+MAN=( manifest.git );
+ROMNIS="pure";

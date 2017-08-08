@@ -1,0 +1,18 @@
+# Regular colors
+CLR_0=( BLK RED GRN ORG BLU PRP CYN LGR );
+# Respective bold colors
+CLR_1=( DGR LRD LGN YEL LBL PNK LCN WYT );
+
+for NO in 0 1; do
+    CT=0; CLR="CLR_${NO}[*]";
+    for COLOR in ${!CLR}; do
+        read -r "CL_${COLOR}" <<< "\\033[${NO};3${CT}m";
+        (( CT++ ));
+    done
+done
+
+# Sanitize
+unset CT CLR COLOR CLR_0 CLR_1;
+
+# Color stops after adding this
+NONE="\033[0m";

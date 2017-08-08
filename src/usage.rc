@@ -1,0 +1,17 @@
+function usage()
+{
+    [ ! -z "$1" ] && echo -e "\n\033[1;31m[!]\033[0m Incorrect Parameter : \"$1\"";
+    echo -e "\n\033[1;34m[!]\033[0m Usage:\n";
+    echo -e "To use ScriBt situated under current directory\n";
+    echo -e "\tbash ./ROM.sh (Interactive Usage)";
+    echo -e "\tbash ./ROM.sh automate (Automated Usage)";
+    echo -e "\tbash ./ROM.sh version (For showing Version of ScriBt)";
+    echo -e "\tbash ./ROM.sh usage (To get these usage statements)\n";
+    echo -e "To use ScriBt situated in PATH${CL_WYT}*${NONE}\n";
+    echo -e "\tbash ROM.sh (Interactive Usage)";
+    echo -e "\tbash ROM.sh automate (Automated Usage)";
+    echo -e "\tbash ROM.sh version (For showing Version of ScriBt)";
+    echo -e "\tbash ROM.sh usage (To get these usage statements)\n";
+    echo -e "${CL_WYT}*${NONE} - Recommended\n"
+    [ ! -z "$1" ] && exitScriBt 1;
+} # usage

@@ -1,0 +1,9 @@
+#!/bin/bash
+
+VENF="${ROMNIS}_${SBDEV}.mk";
+print_makefile_addition "vendor/${ROMNIS}/products/common.mk" "${VENF}";
+print_makefile_addition "vendor/${ROMNIS}/products/vendorless.mk" "${VENF}";
+{
+    echo -e "\$(call inherit-product, vendor/${ROMNIS}/products/common.mk)";
+    echo -e "\n\$(call inherit-product, vendor/${ROMNIS}/products/vendorless.mk)";
+} >> "${VENF}";

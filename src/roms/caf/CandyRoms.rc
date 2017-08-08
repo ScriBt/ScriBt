@@ -1,0 +1,3 @@
+ROM_NAME=( CandyKat CandyRoms );
+MAN=( candykat.git candy.git );
+ROMNIS="candy";

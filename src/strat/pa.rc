@@ -1,0 +1,10 @@
+#!/bin/bash
+
+VENF="${SBDEV}/${ROMNIS}_${SBDEV}.mk";
+{
+    echo -e "# ${SBCM} ${SBDEV}";
+    echo -e "\nifeq (${ROMNIS}_${SBDEV},\$(TARGET_PRODUCT))";
+    echo -e "\tPRODUCT_MAKEFILES += \$(LOCAL_DIR)/${VENF}\nendif";
+} >> "${APMK}";
+echo -e "\ninclude vendor/${ROMNIS}/main.mk" >> "${VENF}";
+touch "${SBDEV}/pa.dependencies";

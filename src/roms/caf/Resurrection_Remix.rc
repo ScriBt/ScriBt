@@ -1,0 +1,3 @@
+ROM_NAME=( ResurrectionRemix );
+MAN=( platform_manifest.git );
+ROMNIS="cm";

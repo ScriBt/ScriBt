@@ -1,18 +1,16 @@
 language: bash
-
-# Use container-based infrastructure for quicker build start-up
 sudo: false
-
 addons:
   apt:
     sources:
     - debian-sid
     packages:
     - shellcheck
-
 script:
- - curl -o shellcheck.sh https://raw.githubusercontent.com/ScriBt/ScriBt-Examples/master/shellcheck.sh
- - bash shellcheck.sh
-
+- curl -o shellcheck.sh https://raw.githubusercontent.com/ScriBt/ScriBt-Examples/master/shellcheck_new.sh
+- bash shellcheck.sh
 matrix:
   fast_finish: true
+notifications:
+  slack:
+    secure: FBR3jJI9KLPAdu32HyOpc/XlV53TeartPTO8NKmbna1gjJW9f1K4rMywhOy5hBsAeml4NGsWQBep62Cy+LDFwHH/iGKaySr2A/txpAMxwoz5qEb89y6rOZGxKHay5WutWJzrTK0g7p1JYyLqFzBJ2HF13PN/uXC5woxq3vleT+MyVLeiDF0Ihsb8xPObFL1knS+9gC5svUWEruTOCj/yM3Q/VACSD7dEWBethMOzc5Ac1PzPzStjqHp1slxI9ksV/+gqxeUJqqOXo1XoTLdCu26rhMDvQfOV+JgzW4humP9XdX5VudidwxOxaFXmzRdeWXOVtnLikKD4OMhpP6RycH+vMBzBWR6sVrBdBaHFzC5CYZJwSNE77rHeCPIjt2uLSqH7ZXV8FW0fkd92jFRKUY1cGoaq2zcniJaQo7rGWffuz0iH4BbMuGKVEBaURitZfxBNDGsZEEDl4FlXR2IlwADxgOTsFwJoy1aDuvZ7Pf9uhcN9S3lkKSqAbvlI19icGTSkBPpNdQ+/pHLrXUu0nzFIslCzJwjON8QLUXrYsQW+lyBLMXwa1VAWZV8zM0gARUf7Fj+CvfGDikuTyjcJc7bprA2afF2LtRKmfbKtqtobzZnlgKqoowCacFJzKGFFjUATOsK0IpYNINiz16nJVXjAyP9ElotoWCnq7N5ydWA=

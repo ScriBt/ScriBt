@@ -1,0 +1,3 @@
+#!/bin/bash
+
+ echo -e "${INF} Slow Speed? Recommended value - 1\n";

@@ -1,0 +1,3 @@
+ROM_NAME=( TipsyOs );
+MAN=( platform_manifest.git );
+ROMNIS="tipsy";

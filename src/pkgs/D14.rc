@@ -1,0 +1,5 @@
+#!/bin/bash
+# Packages for Distros released in 2014
+
+DISTRO_PKGS=( libc6-dev-i386 lib32ncurses5-dev liblz4-tool \
+x11proto-core-dev libx11-dev libgl1-mesa-dev maven maven2 libwxgtk2.8-dev);

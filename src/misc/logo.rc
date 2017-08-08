@@ -1,0 +1,19 @@
+#!/bin/bash
+# ScriBt Logo
+
+# Change terminal title
+echo -ne '\033]0;About ScriBt\007';
+
+if ! sign_exists "\u2764"; then
+    SIGN="<3";
+fi
+
+center_it "${CL_LRD}███${NONE}${CL_RED}╗${NONE}  ${CL_YEL}██${NONE}${CL_ORG}╗${NONE}  ${CL_LRD}███${NONE}${CL_RED}╗${NONE}" "1sp";
+center_it "${CL_LRD}██${NONE}${CL_RED}╔╝${NONE}  ${CL_YEL}██${NONE}${CL_ORG}║${NONE}  ${CL_RED}╚${NONE}${CL_LRD}██${NONE}${CL_RED}║${NONE}" "sp";
+center_it "${CL_LRD}██${NONE}${CL_RED}║${NONE}   ${CL_YEL}██${NONE}${CL_ORG}║${NONE}   ${CL_LRD}██${NONE}${CL_RED}║${NONE}" "sp";
+center_it "${CL_LRD}██${NONE}${CL_RED}║${NONE}   ${CL_ORG}╚═╝${NONE}   ${CL_LRD}██${NONE}${CL_RED}║${NONE}" "sp";
+center_it "${CL_LRD}███${NONE}${CL_RED}╗${NONE}  ${CL_YEL}██${NONE}${CL_ORG}╗${NONE}  ${CL_LRD}███${NONE}${CL_RED}║${NONE}" "sp";
+center_it "${CL_RED}╚══╝${NONE}  ${CL_ORG}╚═╝${NONE}  ${CL_RED}╚══╝${NONE}" "sp";
+center_it "${CL_LRD}P${NONE}${CL_YEL}r${NONE}${CL_LCN}o${NONE}${CL_LGN}j${NONE}${CL_LCN}e${NONE}${CL_YEL}k${NONE}${CL_LRD}t${NONE}\u3000${CL_LRD}ScriBt${NONE} " "1sp";
+center_it "${CL_WYT}${VERSION}${NONE}" "sp1";
+center_it "${CL_WYT}Created with${NONE} ${CL_LRD}${SIGN}${NONE} - ${CL_WYT}For Aspiring Developers${NONE}" "sp1";

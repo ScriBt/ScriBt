@@ -1,0 +1,3 @@
+ROM_NAME=( CyanideL );
+MAN=( cyanide_manifest.git );
+ROMNIS="cyanide";

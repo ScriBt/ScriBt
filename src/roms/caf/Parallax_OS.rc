@@ -1,0 +1,3 @@
+ROM_NAME=( Parallax-OS );
+MAN=( manifest.git );
+ROMNIS="aosp";

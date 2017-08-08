@@ -1,0 +1,4 @@
+ROM_NAME=( nitrogen-project );
+MAN=( android_manifest.git );
+ROMNIS="nitrogen";
+CNS="y"

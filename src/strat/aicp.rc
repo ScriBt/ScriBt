@@ -1,0 +1,11 @@
+#!/bin/bash
+
+VENF="${SBDEV}.mk";
+echo -e "\t\$(LOCAL_DIR)/${VENF}" >> AndroidProducts.mk;
+print_makefile_addition "vendor/${ROMNIS}/configs/telephony.mk" "${VENF}";
+print_makefile_addition "vendor/${ROMNIS}/configs/common.mk" "${VENF}";
+{
+    echo -e "\n# Inherit telephony stuff";
+    echo -e "\$(call inherit-product, vendor/${ROMNIS}/configs/telephony.mk)";
+    echo -e "\$(call inherit-product, vendor/${ROMNIS}/configs/common.mk)";
+} >> "${VENF}";

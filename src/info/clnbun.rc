@@ -1,0 +1,4 @@
+#!/bin/bash
+
+echo -e "${INF} Works with AOSP repositories, Downloads a prepackaged bundle file instead of objects from the server (Less objects, better sync)";
+echo -e "${INDENT}Sync takes place faster coz Google!\n";

@@ -1,0 +1,3 @@
+ROM_NAME=( CarbonROM CarbonDev );
+MAN=( android.git android.git );
+ROMNIS="carbon";

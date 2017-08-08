@@ -1,0 +1,4 @@
+#!/bin/bash
+
+echo -e "${INF} If Enabled, syncs only the desired branch as specified in the manifest, instead of syncing all branches";
+echo -e "${INDENT}Saves Space\n";

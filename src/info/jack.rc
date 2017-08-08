@@ -1,0 +1,4 @@
+#!/bin/bash
+
+echo -e "${INF} Jack is a toolchain for building Android Apps and Frameworks with the help of a ${CL_WYT}J${NONE}ava ${CL_WYT}V${NONE}irtual ${CL_WYT}M${NONE}achine";
+echo -e "${INDENT}Introduced from Marshmallow\n";
