@@ -16,7 +16,7 @@ NEW=$(comm -13 <(git tag --merged master | sort) <(git tag --merged origin/maste
 if [[ -n "$NEW" ]]; then
     while read -r TAG; do
         if git rev-parse "$TAG"^'{tag}' -- &> /dev/null; then
-            MSG=$(git cat-file tag "$TAG" | tail -n+6);
+            MSG=$(git cat-file tag "$TAG" | sed '/^-----BEGIN PGP SIGNATURE-----/,$d' | tail -n+6);
             [[ ! -z "$MSG" ]] && echo -e "${CL_WYT}${MSG}${NONE}\n";
         fi
     done <<< "$NEW";
