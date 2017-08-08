@@ -1128,8 +1128,7 @@ function build() # 4
                 echo -e "\n${INF} Using Maximum no of threads : $BCORES";
             fi
             echo -e "${QN} Specify directory for kernel output files";
-            echo -e "\n${INF} You may specify it from ${CL_WYT}root${NONE} OR ${CL_WYT}inside this directory${NONE}";
-            echo -e "${INDENT}eg. ${CL_WYT}${HOME}/something/out${NONE} OR ${CL_WYT}out${NONE} respectively\n";
+            get "info" "kernelout";
             ST="Kernel Output Directory"; shut_my_mouth KOUT "$ST";
             [[ ! -d "${SBKOUT}" ]] && mkdir "${SBKOUT}";
             export action_kinit="done";

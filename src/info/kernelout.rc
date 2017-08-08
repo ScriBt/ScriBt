@@ -1,0 +1,5 @@
+#!/bin/bash
+
+echo -e "\n${INF} You may specify it from ${CL_WYT}root${NONE} OR ${CL_WYT}inside this directory${NONE}";
+echo -e "${INDENT}eg. ${CL_WYT}${HOME}/something/out${NONE} OR ${CL_WYT}out${NONE} respectively";
+echo -e "${INDENT}On newer CAF kernel revisions, standalone compilation will NOT work without specifying an 'out' folder\n";
