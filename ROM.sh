@@ -2121,9 +2121,10 @@ function the_start() # 0
         [[ ! -z "${PATHDIR}" ]] && cd "${PATHDIR}";
         cd "${CALL_ME_ROOT}";
         if [[ "${BRANCH}" == "master" ]]; then
-            # Download the Remote Version of Updater, determine the Internet Connectivity by working of this command
-            if curl -fs -o "${PATHDIR}upScriBt.sh" "https://raw.githubusercontent.com/ScriBt/ScriBt/${BRANCH}/src/upScriBt.sh"; then
+            # Determine the Internet Connectivity, after that, try to download Remote Version of the updater
+            if nc -z 8.8.8.8 53; then
                 echo -e "${SCS} Internet Connectivity : ONLINE";
+                curl -fs -o "${PATHDIR}src/upScriBt.sh" "https://raw.githubusercontent.com/ScriBt/ScriBt/${BRANCH}/src/upScriBt.sh";
                 bash "${PATHDIR}src/upScriBt.sh" "$0" "$1";
             else
                 echo -e "${FLD} Internet Connectivity : OFFLINE";
