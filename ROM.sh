@@ -15,7 +15,7 @@
 #                                                                      #
 #======================================================================#
 #                                                                      #
-# https://github.com/a7r3/ScriBt - I live here                         #
+# https://github.com/ScriBt/ScriBt - I live here                       #
 #                                                                      #
 # Feel free to enter your modifications and submit it to me with       #
 # a Pull Request, Contributions are WELCOME                            #
@@ -1313,7 +1313,7 @@ function build() # 4
             echo -e "1. Launch the Patch Creator";
             CT=2;
             for PATCHDIR in "${PATCHDIRS[@]}"; do
-                if find "${PATCHDIR}"/* 1> /dev/null 2>&1; then
+                if find ${PATCHDIR}/* 1> /dev/null 2>&1; then
                     while read -r PATCH; do
                         if [[ -s "$PATCH" ]]; then
                             PATCHES[$CT]="$PATCH";
@@ -1329,34 +1329,66 @@ function build() # 4
         {
             if [[ ! -d ".repo" ]]; then # We are not inside a repo
                 echo -e "\n${FLD} You are not inside a repo (or the .repo folder was not found)";
-                return 1;
+                return;
             fi
-            echo -e "\n${QN} Do you want to generate a patch file out of unstaged changes (May take a long time)";
-            echo -e "${INF} WARNING: Changes outside of the repos listed in the manifest will NOT be recognized!\n";
+
+            echo -e "\n${QN} Do you want to generate a patch file containing unstaged changes? (y/n)";
+            echo -e "${INF} WARNING: Changes outside of the repos listed in the manifest will NOT be recognized!";
             prompt CREATE_PATCH;
-            if ! [[ "$CREATE_PATCH" =~ [Yy] ]]; then
-                return 1;
+
+            if [[ ! "${CREATE_PATCH}" =~ [Yy] ]]; then
+                echo -e "\n${INF} Ok, goodbye";
+                return;
             fi
-            echo -e "\n${INF} Where do you want to save the patch?\n${INF} Make sure the directory exists\n\n";
+
+            echo -e "\n${INF} Where do you want to save the patch (relative to the current directory)?";
             prompt PATCH_PATH;
-            PROJECTS="$(repo list -p)"; # Get all teh projects
+
+            if [[ -d "${CALL_ME_ROOT}${PATCH_PATH}" ]]; then
+                echo -e "\n${EXE} You gave me the name of a directoy, I can't save the patch there.";
+                return;
+            fi
+
+            if [[ -f "${CALL_ME_ROOT}${PATCH_PATH}" ]]; then
+                echo -e "\n${INF} There is already a file saved at ${CALL_ME_ROOT}${PATCH_PATH}\n${QN} Should I delete it before starting to generate a new patch? (y/n)";
+                prompt REMOVE_OLD_PATCH;
+                if [[ ! "${REMOVE_OLD_PATCH}" =~ [Yy] ]]; then
+                    return;
+                fi
+                rm "${CALL_ME_ROOT}${PATCH_PATH}";
+            fi
+
+            if [[ ! -d "$(dirname ${CALL_ME_ROOT}${PATCH_PATH})" ]]; then
+                echo -e "\n${INF} The directory $(dirname ${CALL_ME_ROOT}${PATCH_PATH}) does not exist.\n${QN} Do you want me to create it? (y/n)";
+                prompt CREATE_DIR;
+                if [[ ! "${CREATE_DIR}" =~ [Yy] ]]; then
+                    return;
+                fi
+                mkdir -p "$(dirname ${CALL_ME_ROOT}${PATCH_PATH})";
+            fi
+
+            TEMP_FILE="/tmp/patchmgr-$(date +%s).tmp"
+            [ -f "${TEMP_FILE}" ] && rm "${TEMP_FILE}" # Just in case
+            PROJECTS=$(repo list -p); # Get all teh projects
             PROJECT_COUNT=$(wc -l <<< "$PROJECTS"); # Count all teh projects
-            [[ -f "${CALL_ME_ROOT}${PATCH_PATH}" ]] && rm -rf "${CALL_ME_ROOT}${PATCH_PATH}"; # Delete existing patch
-            CT=1;
-            echo;
-            while read -r PROJECT; do # repo foreach does not work, as it seems to spawn a subshell
-                cd "${CALL_ME_ROOT}${PROJECT}";
+            COUNT=1;
+            echo "";
+            for PROJECT in ${PROJECTS}; do # repo foreach does not work, as it seems to spawn a subshell
+                cd "${CALL_ME_ROOT}/${PROJECT}";
                 git diff |
                   sed -e "s@ a/@ a/${PROJECT}/@g" |
-                  sed -e "s@ b/@ b/${PROJECT}/@g" >> "${CALL_ME_ROOT}${PATCH_PATH}"; # Extend a/ and b/ with the project's path, as git diff only outputs the paths relative to the git repository's root
-                echo -en "\033[KGenerated patch for repo $CT of $PROJECT_COUNT\r";  # Count teh processed repos
-                (( CT++ ));
-            done <<< "$PROJECTS";
+                  sed -e "s@ b/@ b/${PROJECT}/@g" >> "${TEMP_FILE}"; # Extend a/ and b/ with the project's path
+                echo -en "\r\033[K[$COUNT/$PROJECT_COUNT] ${PROJECT}";  # Count teh processed repos
+                ((COUNT++));
+            done <<< "${PROJECTS}";
             cd "${CALL_ME_ROOT}";
-            echo -e "\n\n${SCS} Done.";
-            [[ ! -s "${CALL_ME_ROOT}${PATCH_PATH}" ]] &&
-              rm "${CALL_ME_ROOT}${PATCH_PATH}" &&
-              echo -e "${INF} Patch was empty, so it was deleted";
+            echo -e "\r\033[K[${PROJECT_COUNT}/${PROJECT_COUNT}] Done.";
+            if [ ! -s "${TEMP_FILE}" ]; then
+                echo -e "${INF} Patch was empty, no changes have been made";
+                rm "${TEMP_FILE}";
+            else
+                mv "${TEMP_FILE}" "${CALL_ME_ROOT}${PATCH_PATH}";
+            fi
         } # patch_creator
 
         function patcher()
