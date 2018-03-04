@@ -8,5 +8,5 @@ case "${VER}" in
     14.04|14.10) DYR="D14" ;; # Distro(s) released in 2014
     15.04|15.10) DYR="D15" ;; # Distro(s) released in 2015
     16.04|16.10) DYR="D16" ;; # Distro(s) released in 2016
-    17.04) DYR="D17" ;; # Distro(s) released in 2017
+    17.04|17.10) DYR="D17" ;; # Distro(s) released in 2017
 esac
