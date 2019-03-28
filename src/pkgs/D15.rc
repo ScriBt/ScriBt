@@ -1,6 +1,6 @@
 #!/bin/bash
 # Packages for Distros released in 2015
 
-DISTRO_PKGS=( libesd0-dev liblz4-tool libncurses5-dev \
+DISTRO_PKGS=( liblz4-tool libncurses5-dev \
 libsdl1.2-dev libwxgtk2.8-dev lzop maven maven2 \
 lib32ncurses5-dev liblz4-tool );

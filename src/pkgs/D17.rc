@@ -1,7 +1,7 @@
 #!/bin/bash
 # Packages for Distros released in 2017
 
-DISTRO_PKGS=( automake lzop libesd0-dev maven \
+DISTRO_PKGS=( automake lzop maven \
 liblz4-tool libncurses5-dev libsdl1.2-dev libwxgtk3.0-dev \
 lzop lib32ncurses5-dev lib32readline6-dev lib32z1-dev \
 libbz2-dev libbz2-1.0 libghc-bzlib-dev );
