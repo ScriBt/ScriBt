@@ -3,4 +3,5 @@
 
 case "${VER}" in
     8*) DYR="D15" ;;
+    9*) DYR="D17" ;;
 esac
