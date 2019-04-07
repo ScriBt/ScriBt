@@ -10,4 +10,5 @@ case "${VER}" in
     16.04|16.10) DYR="D16" ;; # Distro(s) released in 2016
     17.04|17.10) DYR="D17" ;; # Distro(s) released in 2017
     18.04|18.10) DYR="D18" ;; # Distro(s) released in 2018
+    19.04)       DYR="D19" ;; # Distro(s) released in 2019
 esac
