@@ -1,5 +1,5 @@
 #!/bin/bash
-# Packages for Distros released in 2017
+# Packages for Distros released in 2019
 
 DISTRO_PKGS=( automake lzop maven \
 liblz4-tool libncurses5-dev libsdl1.2-dev libwxgtk3.0-dev \

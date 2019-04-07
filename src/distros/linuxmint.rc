@@ -6,4 +6,5 @@ case "${VER}" in
     15|16) DYR="D13" ;;
     17*) DYR="D14" ;;
     18*) DYR="D16" ;;
+    19*) DYR="D18" ;;
 esac
